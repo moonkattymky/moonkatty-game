@@ -6,7 +6,14 @@ if (tg) { tg.ready(); tg.expand(); }
 const crewUser = tg?.initDataUnsafe?.user;
 const crewId = crewUser?.id || 'guest';
 const crewName = crewUser?.first_name || 'Crew';
+const crewTag = crewUser?.username ? '@' + crewUser.username : 'Telegram Crew';
+const crewCode = crewUser?.id ? 'MKTY-' + String(crewUser.id).slice(-6) : 'MKTY-GUEST';
 
+console.log('MOONKATTY CREW:', {
+  name: crewName,
+  tag: crewTag,
+  crewId: crewCode
+});
 const langs = [
  ['en','🇬🇧','English'],['ru','🇷🇺','Русский'],['uk','🇺🇦','Українська'],
  ['es','🇪🇸','Español'],['pt','🇵🇹','Português'],['de','🇩🇪','Deutsch'],
