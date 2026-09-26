@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="theme-color" content="#05070d" />
+  <title>MOONKATTY: 9 LIVES</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <div class="stars"></div>
+  <main id="app">
+    <section id="language" class="screen active">
+      <div class="brand">🐱🌙</div>
+      <p class="eyebrow">MOONKATTY</p>
+      <h1>9 LIVES</h1>
+      <p id="chooseText">Choose your language</p>
+      <div id="languages" class="language-grid"></div>
+    </section>
+
+    <section id="home" class="screen">
+      <header>
+        <div><span class="eyebrow">MISSION CONTROL</span><h2>MOONKATTY</h2></div>
+        <button id="settingsBtn" class="icon-btn">🌐</button>
+      </header>
+      <div class="hero">
+        <div class="moon">🌙</div>
+        <div class="cat">🐱‍🚀</div>
+        <p id="welcome">Welcome to the Crew.</p>
+        <button id="enterBtn" class="primary">ENTER THE MISSION 🚀</button>
+      </div>
+      <div class="stats">
+        <article><small>MOON POINTS</small><strong id="points">0 ⭐</strong></article>
+        <article><small>STREAK</small><strong>1 🔥</strong></article>
+        <article><small>LIVES</small><strong>1 / 9</strong></article>
+      </div>
+      <div class="panel">
+        <span class="eyebrow">CURRENT MISSION</span>
+        <h3 id="lifeTitle">LIFE #1 — THE AWAKENING</h3>
+        <p id="lifeText">The signal has been received. The journey to the Moon begins here.</p>
+        <div class="progress"><i></i></div>
+      </div>
+      <p class="disclaimer">Moon Points are in-game reputation points. They have no monetary value and do not guarantee any token allocation.</p>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
