@@ -2,6 +2,11 @@
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
+// MOONKATTY Crew identity
+const crewUser = tg?.initDataUnsafe?.user;
+const crewId = crewUser?.id || 'guest';
+const crewName = crewUser?.first_name || 'Crew';
+
 const langs = [
  ['en','🇬🇧','English'],['ru','🇷🇺','Русский'],['uk','🇺🇦','Українська'],
  ['es','🇪🇸','Español'],['pt','🇵🇹','Português'],['de','🇩🇪','Deutsch'],
