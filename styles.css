@@ -215,3 +215,10 @@ input[type="range"]{height:34px}
 .network-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.network-stats article{padding:9px 5px;border:1px solid #26364b;border-radius:10px;background:#08101b;text-align:center}.network-stats small{display:block;font-size:5px;color:#748299}.network-stats strong{display:block;margin-top:4px;font-size:11px}
 .ref-economy{margin-top:9px;padding:9px;border:1px solid #26364b;border-radius:10px}.ref-economy>span,.ref-economy>small{font-size:6px;letter-spacing:.6px;color:#77869b}.ref-cap-track{height:5px;margin:7px 0;border-radius:999px;background:#162237;overflow:hidden}.ref-cap-track i{display:block;width:0;height:100%;background:linear-gradient(90deg,#75d9cf,#e9bd58);transition:width .35s ease}
 .network-note{margin:8px 2px 0;font-size:6px;line-height:1.5;color:#68768b}
+
+/* COMMUNITY HUB */
+.community-hub{margin:14px 0 18px;padding:14px;border:1px solid #293d58;border-radius:16px;background:linear-gradient(145deg,#0a1625,#070b13);box-shadow:0 18px 40px #0005}
+.community-head{display:flex;align-items:center;justify-content:space-between}.community-head strong{display:block;margin-top:3px;font-size:10px;letter-spacing:1px}.community-head>span{padding:5px 8px;border:1px solid #4b617d;border-radius:999px;font-size:6px;letter-spacing:1px;color:#8fe0d5}
+.community-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}.community-card{display:flex;align-items:center;gap:8px;min-height:58px;padding:9px;border:1px solid #283950;border-radius:11px;background:#08101b;color:#fff;text-align:left}.community-card>span{width:28px;height:28px;display:grid;place-items:center;border:1px solid #41536d;border-radius:50%;color:var(--gold);font-size:12px}.community-card div{flex:1;display:grid;gap:2px}.community-card strong{font-size:8px;letter-spacing:.6px}.community-card small{font-size:5px;color:#738298}.community-card b{font-size:5px;color:#83d9ce}
+.community-status{margin:9px 2px 0;font-size:6px;line-height:1.5;color:#68768b}
+@media(max-width:390px){.community-grid{grid-template-columns:1fr}}
