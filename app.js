@@ -311,7 +311,8 @@ function startLife3(){
 }
 $('continueLife3Btn').onclick=()=>{unlockLife3();$('lifeTitle').textContent='LIFE #3 — THE LAUNCH CODE';$('lifeText').textContent='Decrypt the ship launch authorization sequence.';$('enterBtn').textContent='START LIFE #3 🚀';$('enterBtn').onclick=startLife3;show('home');};
 $('life3Card').onclick=()=>$('continueLife3Btn').click();$('life3SkipBtn').onclick=openLife3MemoryGate;
-$('verifyLife1CodeBtn').onclick=()=>{const lock=Number(localStorage.getItem('mkty_life3_code_lock_until')||0);if(lock>Date.now())return;const entered=$('life3MemoryInput').value.trim();if(entered===ensureLife1MemoryCode()){clearInterval(gateTimer);$('life3GateStatus').textContent='CODE VERIFIED ✓';localStorage.setItem('mkty_life3_memory_verified','yes');renderMissionArchive();$('life3MemoryGate').hidden=true;$('life3CodeMission').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');return;}if(!spendGlobalLife()){$('life3GateStatus').textContent='No lives available. A life restores every 12 hours.';return;}localStorage.setItem('mkty_life3_code_lock_until',String(Date.now()+MKTY_CODE_LOCK_MS));$('life3MemoryInput').value='';tg?.HapticFeedback?.notificationOccurred?.('error');renderLife3Gate();};
+$('verifyLife1CodeBtn').onclick=()=>{const lock=Number(localStorage.getItem('mkty_life3_code_lock_until')||0);if(lock>Date.now())return;const entered=$('life3MemoryInput').value.trim();if(entered===ensureLife1MemoryCode()){clearInterval(gateTimer);$('life3GateStatus').textContent='CODE VERIFIED ✓';localStorage.setItem('mkty_life3_memory_verified','yes');renderMissionArchive();
+renderDailyMissions();$('life3MemoryGate').hidden=true;$('life3CodeMission').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');return;}if(!spendGlobalLife()){$('life3GateStatus').textContent='No lives available. A life restores every 12 hours.';return;}localStorage.setItem('mkty_life3_code_lock_until',String(Date.now()+MKTY_CODE_LOCK_MS));$('life3MemoryInput').value='';tg?.HapticFeedback?.notificationOccurred?.('error');renderLife3Gate();};
 $('buyCodeHintBtn').onclick=()=>{if(Number(localStorage.getItem('mkty_life3_code_lock_until')||0)>Date.now())return;if(!spendGlobalLife()){$('life3GateStatus').textContent='No lives available. A life restores every 12 hours.';return;}const code=ensureLife1MemoryCode();$('life3GateStatus').textContent='HINT: first 5 digits are '+code.slice(0,5)+' • remaining digits: '+code.slice(5).replace(/./g,'•');$('life3MemoryInput').focus();};
 let launchCode=[],codeInput=[],codeAttempts=3,codeReady=false;
 const codeSymbols=['▲','●','◆','■'];
@@ -420,6 +421,30 @@ function renderGlobalLivesHome(){
  $('lifeRestoreHome').textContent='NEXT +1  '+hh+':'+mm+':'+ss;
 }
 setInterval(renderGlobalLivesHome,1000);
+
+const DAILY_REWARDS={watch:5,like:5,share:10};
+function dailyKey(){return new Date().toISOString().slice(0,10);}
+function dailyState(){
+ const key='mkty_daily_'+dailyKey();try{return JSON.parse(localStorage.getItem(key)||'{}')}catch{return{}}
+}
+function saveDailyState(state){localStorage.setItem('mkty_daily_'+dailyKey(),JSON.stringify(state));}
+function secondsToUtcReset(){const n=new Date(),t=new Date(n);t.setUTCHours(24,0,0,0);return Math.max(0,Math.ceil((t-n)/1000));}
+function renderDailyMissions(){
+ const state=dailyState();let done=0;
+ document.querySelectorAll('.daily-task').forEach(card=>{const type=card.dataset.daily,ok=state[type]==='verified';card.classList.toggle('done',ok);const b=card.querySelector('.daily-action');if(ok){done++;b.textContent='CLAIMED ✓';b.disabled=true;}else{b.disabled=false;b.textContent=type==='share'?'SHARE':'OPEN';}});
+ if($('dailyProgress'))$('dailyProgress').textContent=done+' / 3';
+ if($('dailyReward'))$('dailyReward').classList.toggle('ready',done===3);
+ const sec=secondsToUtcReset(),hh=String(Math.floor(sec/3600)).padStart(2,'0'),mm=String(Math.floor(sec%3600/60)).padStart(2,'0'),ss=String(sec%60).padStart(2,'0');
+ if($('dailyReset'))$('dailyReset').textContent='RESET '+hh+':'+mm+':'+ss;
+}
+document.querySelectorAll('.daily-action').forEach(btn=>btn.onclick=()=>{
+ const card=btn.closest('.daily-task'),type=card.dataset.daily;
+ // Placeholder until official community URLs/API verification are connected.
+ if(type==='share' && navigator.share){navigator.share({title:'MOONKATTY',text:'Join the MOONKATTY mission 🚀🌙'}).catch(()=>{});}
+ $('dailyProgress').textContent='VERIFYING…';
+ setTimeout(()=>renderDailyMissions(),700);
+});
+setInterval(renderDailyMissions,1000);
 
 function renderMissionArchive(){
  let count=0;
