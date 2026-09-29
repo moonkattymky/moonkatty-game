@@ -35,63 +35,23 @@
       <button id="rulesBackBtn" class="primary">BACK TO MISSION CONTROL</button>
     </section>
     <section id="home" class="screen">
-      <header><div><span class="eyebrow">MISSION CONTROL</span><h2>MOONKATTY</h2></div><div class="header-actions"><button id="rulesBtn" class="icon-btn" aria-label="Rules">📜</button><button id="settingsBtn" class="icon-btn">🌐</button></div></header>
-      <div class="hero"><div class="moon">🌙</div><div class="cat">🐱‍🚀</div><p id="welcome">Welcome to the Crew.</p><button id="enterBtn" class="primary">ENTER THE MISSION 🚀</button></div>
-      <div class="stats"><article><small>MOON POINTS</small><strong id="points">0 ⭐</strong></article><article><small>LIVES</small><strong id="globalLivesHome">9 / 9 ❤️</strong><em id="lifeRestoreHome">FULL</em></article><article><small>STORY</small><strong id="livesProgress">0 / 9 🌙</strong></article></div>
-      <section id="communityHub" class="community-hub">
-        <div class="community-head"><div><span class="eyebrow">COMMUNITY HUB</span><strong>MOONKATTY EVERYWHERE</strong></div><span>OFFICIAL</span></div>
-        <div class="community-grid">
-          <button class="community-card" data-community="telegram"><span>✈</span><div><strong>TELEGRAM</strong><small>News • Missions • Crew</small></div><b>OPEN</b></button>
-          <button class="community-card" data-community="youtube"><span>▶</span><div><strong>YOUTUBE</strong><small>Episodes • Shorts</small></div><b>OPEN</b></button>
-          <button class="community-card" data-community="x"><span>𝕏</span><div><strong>X</strong><small>Updates • Community</small></div><b>OPEN</b></button>
-          <button class="community-card" data-community="tiktok"><span>♪</span><div><strong>TIKTOK</strong><small>Videos • Discover</small></div><b>OPEN</b></button>
-        </div>
-        <p id="communityStatus" class="community-status">Official links will power verified Daily Missions.</p>
-      </section>
-      <section id="crewNetwork" class="crew-network">
-        <div class="network-head"><div><span class="eyebrow">CREW NETWORK</span><strong>INVITE • GROW • EARN</strong></div><span id="refDailyCap">0 / 40 ⭐</span></div>
-        <div class="ref-link-box"><small>YOUR REFERRAL LINK</small><div><code id="referralLink">Generating…</code><button id="copyReferralBtn">COPY</button></div><button id="shareReferralBtn" class="primary">INVITE CREW 🚀</button></div>
-        <div class="network-stats">
-          <article><small>MY REFERRALS</small><strong id="refTotal">0</strong></article>
-          <article><small>ACTIVE TODAY</small><strong id="refActive">0</strong></article>
-          <article><small>EARNED TODAY</small><strong id="refEarned">0 ⭐</strong></article>
-        </div>
-        <div class="ref-economy"><span>DAILY REFERRAL REWARD LIMIT</span><div class="ref-cap-track"><i id="refCapBar"></i></div><small>Referral activity remains visible after the daily reward limit is reached.</small></div>
-        <p class="network-note">+1 ⭐ for an eligible referral mission completion or verified video activity. Rewards require server verification. Self-referrals, duplicates and abuse are excluded.</p>
-      </section>
-      <section id="dailyMissions" class="daily-missions">
-        <div class="daily-head"><div><span class="eyebrow">DAILY MISSIONS</span><strong>SUPPORT THE MOONKATTY COMMUNITY</strong></div><span id="dailyProgress">0 / 3</span></div>
-        <div class="daily-streak"><span>DAILY STREAK</span><strong id="dailyStreak">1 🔥</strong><small id="dailyReset">RESET 00:00:00</small></div>
-        <div class="daily-list">
-          <article class="daily-task" data-daily="watch" data-platform="youtube"><span>▶</span><div><strong>WATCH TODAY'S VIDEO</strong><small>Community mission • +5 ⭐</small></div><button class="daily-action">OPEN</button></article>
-          <article class="daily-task" data-daily="like" data-platform="x"><span>♥</span><div><strong>LIKE TODAY'S POST</strong><small>Community mission • +5 ⭐</small></div><button class="daily-action">OPEN</button></article>
-          <article class="daily-task" data-daily="share" data-platform="telegram"><span>↗</span><div><strong>SHARE MOONKATTY</strong><small>Community mission • +10 ⭐</small></div><button class="daily-action">SHARE</button></article>
-        </div>
-        <div id="dailyReward" class="daily-reward"><span>COMPLETE 3 / 3</span><strong>DAILY CHEST • +10 BONUS ⭐</strong></div>
-        <p class="daily-note">Rewards are granted only after a task can be verified. Platform verification will be connected to official MOONKATTY community accounts.</p>
-      </section>
-      <div id="missionArchive" class="mission-archive">
-        <div class="archive-head"><div><span class="eyebrow">MISSION ARCHIVE</span><strong>RECOVERED INTEL</strong></div><span id="archiveCount">0 / 3</span></div>
-        <div class="archive-grid">
-          <div id="intelSignal" class="intel-card locked"><span>01</span><div><small>LIFE #1</small><strong>SIGNAL KEY</strong><em id="intelSignalState">LOCKED</em></div></div>
-          <div id="intelMemory" class="intel-card locked"><span>02</span><div><small>LIFE #3</small><strong>MEMORY VERIFIED</strong><em id="intelMemoryState">LOCKED</em></div></div>
-          <div id="intelMoon" class="intel-card locked"><span>03</span><div><small>LIFE #9</small><strong>LUNAR TRUTH</strong><em id="intelMoonState">LOCKED</em></div></div>
+      <div class="mk-home-hero">
+        <video class="mk-home-bg" autoplay muted loop playsinline preload="metadata"><source src="life-1.mp4" type="video/mp4"></video>
+        <div class="mk-home-shade"></div>
+        <header class="mk-topbar"><div><h2>MOONKATTY</h2><span>9 LIVES. 1 BIG MISSION.</span></div><div class="header-actions"><button id="rulesBtn" class="icon-btn">♫</button><button id="settingsBtn" class="icon-btn">🌐</button></div></header>
+        <div class="mk-hero-copy"><span>A SMALL CAT</span><strong>FOR A BIG MISSION</strong></div>
+        <div class="mk-home-bottom">
+          <div class="stats"><article><small>MOON POINTS</small><strong id="points">0 ⭐</strong></article><article><small>LIVES</small><strong id="globalLivesHome">9 / 9 ❤️</strong><em id="lifeRestoreHome">FULL</em></article><article><small>STORY</small><strong id="livesProgress">0 / 9 🌙</strong></article></div>
+          <p id="welcome">Welcome to the Crew.</p>
+          <button id="enterBtn" class="primary">НАЧАТЬ МИССИЮ 🚀</button>
+          <div class="mk-life-teaser"><div class="mk-play">▶</div><div><small>LIFE #1</small><strong>THE AWAKENING</strong><span>A new signal has been detected…</span></div><b>›</b></div>
         </div>
       </div>
-      <div class="panel"><span class="eyebrow">CURRENT MISSION</span><h3 id="lifeTitle">LIFE #1 — THE AWAKENING</h3><p id="lifeText">The signal has been received. The journey to the Moon begins here.</p><div class="progress"><i id="storyProgress"></i></div>
-        <div class="life-path">
-          <button id="life1Card" class="life-card current"><span>✓</span><div><small>LIFE #1</small><strong>THE AWAKENING</strong></div></button>
-          <button id="life2Card" class="life-card locked" disabled><span id="life2Icon">🔒</span><div><small>LIFE #2</small><strong>THE CREW</strong></div></button>
-          <button id="life3Card" class="life-card locked" disabled><span id="life3Icon">🔒</span><div><small>LIFE #3</small><strong>THE LAUNCH CODE</strong></div></button>
-          <button id="life4Card" class="life-card locked" disabled><span id="life4Icon">🔒</span><div><small>LIFE #4</small><strong>THE DESCENT</strong></div></button>
-          <button id="life5Card" class="life-card locked" disabled><span id="life5Icon">🔒</span><div><small>LIFE #5</small><strong>IGNITION</strong></div></button>
-          <button id="life6Card" class="life-card locked" disabled><span id="life6Icon">🔒</span><div><small>LIFE #6</small><strong>LIFTOFF</strong></div></button>
-          <button id="life7Card" class="life-card locked" disabled><span id="life7Icon">🔒</span><div><small>LIFE #7</small><strong>THE VOID</strong></div></button>
-          <button id="life8Card" class="life-card locked" disabled><span id="life8Icon">🔒</span><div><small>LIFE #8</small><strong>THE SIGNAL</strong></div></button>
-          <button id="life9Card" class="life-card locked final-life" disabled><span id="life9Icon">🔒</span><div><small>LIFE #9</small><strong>THE RETURN</strong></div></button>
-        </div>
-      </div>
-      <p class="disclaimer">Moon Points are in-game reputation points. They have no monetary value and do not guarantee any token allocation.</p>
+      <nav class="mk-bottom-nav"><button class="active">⌂<span>Home</span></button><button>🚀<span>Missions</span></button><button>♙<span>Crew</span></button><button>♜<span>Leaderboard</span></button><button>•••<span>More</span></button></nav>
+      <section id="communityHub" class="community-hub" hidden></section>
+      <section id="crewNetwork" class="crew-network" hidden></section>
+      <section id="dailyMissions" class="daily-missions" hidden></section>
+      <div id="missionArchive" class="mission-archive" hidden></div>
     </section>
     <section id="life1" class="screen cinematic-screen">
       <div class="cinematic">
