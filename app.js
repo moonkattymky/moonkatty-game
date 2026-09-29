@@ -430,15 +430,15 @@ function dailyState(){
 function saveDailyState(state){localStorage.setItem('mkty_daily_'+dailyKey(),JSON.stringify(state));}
 function secondsToUtcReset(){const n=new Date(),t=new Date(n);t.setUTCHours(24,0,0,0);return Math.max(0,Math.ceil((t-n)/1000));}
 function renderDailyMissions(){
- const state=dailyState();let done=0;
- document.querySelectorAll('.daily-task').forEach(card=>{const type=card.dataset.daily,ok=state[type]==='verified';card.classList.toggle('done',ok);const b=card.querySelector('.daily-action');if(ok){done++;b.textContent='CLAIMED ✓';b.disabled=true;}else{b.disabled=false;b.textContent=type==='share'?'SHARE':'OPEN';}});
+ const state=dailyState();let done=0,locked=moonPointsLocked();
+ document.querySelectorAll('.daily-task').forEach(card=>{const type=card.dataset.daily,ok=state[type]==='verified';card.classList.toggle('done',ok);const b=card.querySelector('.daily-action');if(ok){done++;b.textContent='CLAIMED ✓';b.disabled=true;}else if(locked){b.disabled=true;b.textContent='BALANCE LOCKED';}else{b.disabled=false;b.textContent=type==='share'?'SHARE':'OPEN';}});
  if($('dailyProgress'))$('dailyProgress').textContent=done+' / 3';
  if($('dailyReward'))$('dailyReward').classList.toggle('ready',done===3);
  const sec=secondsToUtcReset(),hh=String(Math.floor(sec/3600)).padStart(2,'0'),mm=String(Math.floor(sec%3600/60)).padStart(2,'0'),ss=String(sec%60).padStart(2,'0');
  if($('dailyReset'))$('dailyReset').textContent='RESET '+hh+':'+mm+':'+ss;
 }
 document.querySelectorAll('.daily-action').forEach(btn=>btn.onclick=()=>{
- const card=btn.closest('.daily-task'),type=card.dataset.daily;
+ const card=btn.closest('.daily-task'),type=card.dataset.daily;if(moonPointsLocked())return;
  // Placeholder until official community URLs/API verification are connected.
  if(type==='share' && navigator.share){navigator.share({title:'MOONKATTY',text:'Join the MOONKATTY mission 🚀🌙'}).catch(()=>{});}
  $('dailyProgress').textContent='VERIFYING…';
@@ -457,6 +457,25 @@ function renderMissionArchive(){
  if($('archiveCount'))$('archiveCount').textContent=count+' / 3';
 }
 
+function moonPointsLocked(){return localStorage.getItem('mkty_life9')==='complete';}
+function lockFinalMoonPoints(){
+ if(!moonPointsLocked())return;
+ if(!localStorage.getItem('mkty_final_moon_points')){
+  const shown=parseInt(($('points')?.textContent||'0').replace(/\D/g,''),10)||0;
+  localStorage.setItem('mkty_final_moon_points',String(shown));
+  localStorage.setItem('mkty_points_locked_at',String(Date.now()));
+ }
+}
+function renderFinalMoonPoints(){
+ if(!moonPointsLocked())return;
+ lockFinalMoonPoints();
+ const final=Number(localStorage.getItem('mkty_final_moon_points')||0);
+ if($('points'))$('points').textContent=final+' ⭐ 🔒';
+}
+$('rulesBtn')?.addEventListener('click',()=>show('rules'));
+$('rulesCloseBtn')?.addEventListener('click',()=>show('home'));
+$('rulesBackBtn')?.addEventListener('click',()=>show('home'));
+
 function restoreGameProgress(){
  const completed=[1,2,3,4,5,6,7,8,9].filter(n=>localStorage.getItem('mkty_life'+n)==='complete');
  const total=completed.reduce((sum,n)=>sum+n*10,0);
@@ -464,6 +483,7 @@ function restoreGameProgress(){
  if($('livesProgress')) $('livesProgress').textContent=completed.length+' / 9 🌙';
  unlockLife2();unlockLife3();unlockLife4();unlockLife5();unlockLife6();unlockLife7();unlockLife8();unlockLife9();
  if(completed.length===9 && $('storyProgress')) $('storyProgress').style.width='100%';
+ renderFinalMoonPoints();
 }
 
 restoreGameProgress();
