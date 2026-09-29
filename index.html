@@ -85,6 +85,12 @@
         <button class="crew-cat mate mate3" data-mate="Scout">🐱‍🚀<small>SCOUT</small></button>
       </div>
       <div class="panel objective"><span class="eyebrow">MISSION OBJECTIVE</span><h3>ASSEMBLE THE CREW</h3><p>Recruit all three specialists for the Moon mission.</p></div>
+      <div id="crewChallenge" class="crew-challenge">
+        <p id="crewChallengeTitle" class="puzzle-label">SELECT A CREW MEMBER TO BEGIN</p>
+        <div id="navigatorTask" class="crew-task" hidden><strong>NAVIGATION TEST</strong><p>Align the flight vector with the Moon corridor.</p><input id="navDial" type="range" min="0" max="100" value="10"><button id="navLockBtn" class="primary">LOCK VECTOR</button></div>
+        <div id="engineerTask" class="crew-task" hidden><strong>ENGINEERING TEST</strong><p>Restore power in the correct sequence.</p><div class="power-grid"><button data-power="1">1</button><button data-power="2">2</button><button data-power="3">3</button></div></div>
+        <div id="scoutTask" class="crew-task" hidden><strong>SCOUT TEST</strong><p>Locate the hidden lunar anomaly.</p><div class="anomaly-grid" id="anomalyGrid"></div></div>
+      </div>
       <p id="crewStatus" class="mission-status">Crew assembled: 0 / 3</p>
       <div id="life2Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">CREW ASSEMBLED</p><h3>MISSION READY</h3><strong>+20 MOON POINTS ⭐</strong><button id="life2ReturnBtn" class="primary">RETURN TO MISSION CONTROL</button></div>
     </section>
