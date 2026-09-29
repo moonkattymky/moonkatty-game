@@ -356,3 +356,13 @@ $('life9ReturnBtn').onclick=()=>show('home');
 const saved=localStorage.getItem('mkty_lang');
 if(saved) setLang(saved);
 unlockLife2();
+function restoreGameProgress(){
+ const completed=[1,2,3,4,5,6,7,8,9].filter(n=>localStorage.getItem('mkty_life'+n)==='complete');
+ const total=completed.reduce((sum,n)=>sum+n*10,0);
+ if($('points')) $('points').textContent=total+' ⭐';
+ [2,3,4,5,6,7,8,9].forEach(n=>{const fn=window['unlockLife'+n];if(typeof fn==='function')fn();});
+ if(completed.length===9 && $('storyProgress')) $('storyProgress').style.width='100%';
+}
+
+restoreGameProgress();
+
