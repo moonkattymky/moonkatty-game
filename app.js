@@ -103,9 +103,37 @@ $('continueLife2Btn').onclick=()=>{
  $('lifeTitle').textContent='LIFE #2 — THE CREW';
  $('lifeText').textContent='Life #2 is unlocked. Your crew is waiting for the next mission.';
  $('enterBtn').textContent='START LIFE #2 🚀';
+ $('enterBtn').onclick=startLife2;
  $('life2Card').classList.add('current');
 };
 $('life2Card').onclick=()=>$('continueLife2Btn').click();
+function startLife2(){
+ show('life2');
+ const video=$('life2Video');
+ if(video){video.currentTime=0;video.play().catch(()=>{});}
+ $('life2Bar').classList.remove('run'); void $('life2Bar').offsetWidth; $('life2Bar').classList.add('run');
+ setTimeout(openMission2,10000);
+}
+function openMission2(){
+ const video=$('life2Video'); if(video)video.pause();
+ $('crewBadge2').textContent=crewCode; show('mission2');
+}
+$('life2SkipBtn').onclick=openMission2;
+$('life2Video')?.addEventListener('ended',openMission2);
+let crewCount=0;
+document.querySelectorAll('.mate').forEach(btn=>btn.onclick=()=>{
+ if(btn.classList.contains('joined'))return;
+ btn.classList.add('joined'); crewCount++;
+ tg?.HapticFeedback?.impactOccurred('light');
+ $('crewStatus').textContent='Crew assembled: '+crewCount+' / 3';
+ if(crewCount===3){
+  localStorage.setItem('mkty_life2','complete');
+  $('crewStatus').textContent='Crew assembled • Mission ready';
+  $('life2Complete').hidden=false;
+  $('points').textContent='30 ⭐';
+ }
+});
+$('life2ReturnBtn').onclick=()=>show('home');
 $('returnBtn').onclick=()=>show('home');
 const saved=localStorage.getItem('mkty_lang');
 if(saved) setLang(saved);
