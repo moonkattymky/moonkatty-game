@@ -410,6 +410,17 @@ $('life9ReturnBtn').onclick=()=>show('home');
 const saved=localStorage.getItem('mkty_lang');
 if(saved) setLang(saved);
 unlockLife2();
+function renderGlobalLivesHome(){
+ if(!$('globalLivesHome'))return;
+ const lives=getLifeBank();$('globalLivesHome').textContent=lives+' / '+MKTY_MAX_LIVES+' ❤️';
+ const stamp=Number(localStorage.getItem('mkty_life_restore_at')||0);
+ if(lives>=MKTY_MAX_LIVES||!stamp){$('lifeRestoreHome').textContent='FULL';return;}
+ const left=Math.max(0,stamp+MKTY_LIFE_RESTORE_MS-Date.now()),sec=Math.ceil(left/1000);
+ const hh=String(Math.floor(sec/3600)).padStart(2,'0'),mm=String(Math.floor(sec%3600/60)).padStart(2,'0'),ss=String(sec%60).padStart(2,'0');
+ $('lifeRestoreHome').textContent='NEXT +1  '+hh+':'+mm+':'+ss;
+}
+setInterval(renderGlobalLivesHome,1000);
+
 function restoreGameProgress(){
  const completed=[1,2,3,4,5,6,7,8,9].filter(n=>localStorage.getItem('mkty_life'+n)==='complete');
  const total=completed.reduce((sum,n)=>sum+n*10,0);
@@ -420,4 +431,5 @@ function restoreGameProgress(){
 }
 
 restoreGameProgress();
+renderGlobalLivesHome();
 
