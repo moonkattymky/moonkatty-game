@@ -171,6 +171,7 @@ unlockLife3();
 unlockLife4();
 unlockLife5();
 unlockLife6();
+unlockLife7();
  setTimeout(()=>{$('life1Complete').hidden=false;$('life1Complete').scrollIntoView({behavior:'smooth',block:'center'});},350);
 };
 $('returnBtn').onclick=()=>show('home');
@@ -299,8 +300,22 @@ $('life6Card').onclick=()=>$('continueLife6Btn').click();
 let launchStep=1,launchSeconds=30,launchTimer;
 function startLife6(){launchStep=1;launchSeconds=30;$('launchClock').textContent=30;$('launchBtn').disabled=true;$('life6Complete').hidden=true;$('launchStatus').textContent='Complete the pre-flight checklist.';document.querySelectorAll('[data-launch]').forEach(b=>b.classList.remove('armed','error'));$('launchShip').classList.remove('lifted');show('mission6');clearInterval(launchTimer);launchTimer=setInterval(()=>{launchSeconds--;$('launchClock').textContent=launchSeconds;if(launchSeconds<=10)$('launchClock').classList.add('danger');if(launchSeconds<=0){clearInterval(launchTimer);$('launchStatus').textContent='Launch window missed — sequence reset.';tg?.HapticFeedback?.notificationOccurred?.('error');setTimeout(startLife6,1200);}},1000);}
 document.querySelectorAll('[data-launch]').forEach(b=>b.onclick=()=>{const n=Number(b.dataset.launch);if(n!==launchStep){b.classList.add('error');$('launchStatus').textContent='Wrong sequence. Check procedure.';tg?.HapticFeedback?.impactOccurred('medium');return;}b.classList.add('armed');launchStep++;tg?.HapticFeedback?.impactOccurred('light');if(launchStep===5){$('launchBtn').disabled=false;$('launchStatus').textContent='All systems armed. LAUNCH!';}});
-$('launchBtn').onclick=()=>{if(launchStep!==5)return;clearInterval(launchTimer);$('launchShip').classList.add('lifted');$('launchFlame').classList.add('active');$('launchBtn').disabled=true;localStorage.setItem('mkty_life6','complete');$('points').textContent='210 ⭐';$('launchStatus').textContent='Liftoff confirmed — orbit achieved ✓';setTimeout(()=>{$('life6Complete').hidden=false;},900);tg?.HapticFeedback?.notificationOccurred?.('success');};
+$('launchBtn').onclick=()=>{if(launchStep!==5)return;clearInterval(launchTimer);$('launchShip').classList.add('lifted');$('launchFlame').classList.add('active');$('launchBtn').disabled=true;localStorage.setItem('mkty_life6','complete');$('points').textContent='210 ⭐';$('launchStatus').textContent='Liftoff confirmed — orbit achieved ✓';setTimeout(()=>{$('life6Complete').hidden=false;unlockLife7();},900);tg?.HapticFeedback?.notificationOccurred?.('success');};
 $('life6ReturnBtn').onclick=()=>show('home');
+
+function unlockLife7(){
+ if(localStorage.getItem('mkty_life6')!=='complete')return;
+ $('life6Card').classList.add('complete');$('life7Card').disabled=false;$('life7Card').classList.remove('locked');$('life7Card').classList.add('unlocked');$('life7Icon').textContent='7';$('storyProgress').style.width='77%';
+}
+$('continueLife7Btn').onclick=()=>{unlockLife7();$('lifeTitle').textContent='LIFE #7 — THE VOID';$('lifeText').textContent='Cross the debris field and protect the ship.';$('enterBtn').textContent='START LIFE #7 🌌';$('enterBtn').onclick=startLife7;show('home');};
+$('life7Card').onclick=()=>$('continueLife7Btn').click();
+let lane7=1,hull7=100,shield7=3,distance7=0,shieldActive7=false,voidTimer;
+function renderVoid(){ $('hull7').textContent=hull7;$('shield7').textContent=shield7;$('distance7').textContent=distance7;$('voidShip').style.left=(20+lane7*30)+'%';}
+function spawnDebris(){const field=$('asteroidField');field.innerHTML='';const danger=Math.floor(Math.random()*3);for(let i=0;i<3;i++){const d=document.createElement('span');d.textContent=i===danger?'☄':'·';d.className=i===danger?'danger-debris':'';field.appendChild(d);}return danger;}
+function startLife7(){lane7=1;hull7=100;shield7=3;distance7=0;shieldActive7=false;$('life7Complete').hidden=true;$('voidStatus').textContent='Unknown debris field ahead.';show('mission7');renderVoid();clearInterval(voidTimer);let danger=spawnDebris();voidTimer=setInterval(()=>{distance7+=10;if(lane7===danger){if(shieldActive7){shieldActive7=false;$('voidStatus').textContent='Shield absorbed impact.';}else{hull7-=25;$('voidStatus').textContent='Hull impact! Change course.';tg?.HapticFeedback?.notificationOccurred?.('error');}}if(hull7<=0){clearInterval(voidTimer);$('voidStatus').textContent='Hull lost — emergency reset.';setTimeout(startLife7,1200);return;}if(distance7>=100){clearInterval(voidTimer);localStorage.setItem('mkty_life7','complete');$('points').textContent='280 ⭐';$('voidStatus').textContent='Transmission gate reached ✓';$('life7Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');return;}danger=spawnDebris();renderVoid();},1200);}
+$('voidLeft').onclick=()=>{lane7=Math.max(0,lane7-1);renderVoid();};$('voidRight').onclick=()=>{lane7=Math.min(2,lane7+1);renderVoid();};$('shieldBtn').onclick=()=>{if(shield7<=0||shieldActive7)return;shield7--;shieldActive7=true;$('voidStatus').textContent='Shield armed for next impact.';renderVoid();};
+$('life7ReturnBtn').onclick=()=>show('home');
+
 
 
 
