@@ -26,6 +26,7 @@
           <button id="life3Card" class="life-card locked" disabled><span id="life3Icon">🔒</span><div><small>LIFE #3</small><strong>THE LAUNCH CODE</strong></div></button>
           <button id="life4Card" class="life-card locked" disabled><span id="life4Icon">🔒</span><div><small>LIFE #4</small><strong>THE DESCENT</strong></div></button>
           <button id="life5Card" class="life-card locked" disabled><span id="life5Icon">🔒</span><div><small>LIFE #5</small><strong>IGNITION</strong></div></button>
+          <button id="life6Card" class="life-card locked" disabled><span id="life6Icon">🔒</span><div><small>LIFE #6</small><strong>LIFTOFF</strong></div></button>
         </div>
       </div>
       <p class="disclaimer">Moon Points are in-game reputation points. They have no monetary value and do not guarantee any token allocation.</p>
@@ -135,7 +136,16 @@
       <button id="stabilizeBtn" class="primary" disabled>STABILIZE CORE ⚡</button>
       <button id="igniteBtn" class="primary ignition-btn" disabled>IGNITION 🔥</button>
       <p id="ignitionStatus" class="mission-status">Charge the energy cells.</p>
-      <div id="life5Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">REACTOR ONLINE</p><h3>IGNITION SUCCESSFUL</h3><strong>+50 MOON POINTS ⭐</strong><button id="life5ReturnBtn" class="primary">MISSION CONTROL</button></div>
+      <div id="life5Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">REACTOR ONLINE</p><h3>IGNITION SUCCESSFUL</h3><strong>+50 MOON POINTS ⭐</strong><button id="continueLife6Btn" class="primary">UNLOCK LIFE #6 🚀</button><button id="life5ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
+    </section>
+    <section id="mission6" class="screen mission-screen">
+      <header><div><span class="eyebrow">LIFE #6</span><h2>LIFTOFF</h2></div><div class="crew-badge">T− <span id="launchClock">30</span></div></header>
+      <div class="launch-world"><div class="launch-moon"></div><div id="launchShip" class="launch-ship">🚀</div><div id="launchFlame" class="launch-flame"></div></div>
+      <div class="panel objective"><span class="eyebrow">LAUNCH SEQUENCE</span><h3>PREPARE FOR LIFTOFF</h3><p>Arm systems in the correct order before the countdown reaches zero.</p></div>
+      <div class="launch-checklist"><button data-launch="1">1 • NAVIGATION</button><button data-launch="2">2 • FUEL PRESSURE</button><button data-launch="3">3 • CREW LOCK</button><button data-launch="4">4 • REACTOR LINK</button></div>
+      <button id="launchBtn" class="primary ignition-btn" disabled>LAUNCH 🚀</button>
+      <p id="launchStatus" class="mission-status">Complete the pre-flight checklist.</p>
+      <div id="life6Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">LIFTOFF</p><h3>ORBIT ACHIEVED</h3><strong>+60 MOON POINTS ⭐</strong><button id="life6ReturnBtn" class="primary">MISSION CONTROL</button></div>
     </section>
   </main>
   <script src="app.js"></script>
