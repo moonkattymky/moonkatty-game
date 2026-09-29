@@ -466,6 +466,24 @@ function dailyState(){
 }
 function saveDailyState(state){localStorage.setItem('mkty_daily_'+dailyKey(),JSON.stringify(state));}
 function secondsToUtcReset(){const n=new Date(),t=new Date(n);t.setUTCHours(24,0,0,0);return Math.max(0,Math.ceil((t-n)/1000));}
+function dailyMissionDestination(type){
+ if(type==='watch')return COMMUNITY_LINKS.youtube;
+ if(type==='like')return COMMUNITY_LINKS.x;
+ if(type==='share')return COMMUNITY_LINKS.telegram;
+ return '';
+}
+function openDailyMission(type){
+ const url=dailyMissionDestination(type);
+ if(!url)return;
+ if(type==='share'){
+  const text='Join MOONKATTY 🚀🌙';
+  const shareUrl='https://t.me/share/url?url='+encodeURIComponent(COMMUNITY_LINKS.telegram)+'&text='+encodeURIComponent(text);
+  if(tg?.openTelegramLink)tg.openTelegramLink(shareUrl);else window.open(shareUrl,'_blank','noopener');
+  return;
+ }
+ if(tg?.openLink)tg.openLink(url);else window.open(url,'_blank','noopener');
+}
+
 function renderDailyMissions(){
  const state=dailyState();let done=0,locked=moonPointsLocked();
  document.querySelectorAll('.daily-task').forEach(card=>{const type=card.dataset.daily,ok=state[type]==='verified';card.classList.toggle('done',ok);const b=card.querySelector('.daily-action');if(ok){done++;b.textContent='CLAIMED ✓';b.disabled=true;}else if(locked){b.disabled=true;b.textContent='BALANCE LOCKED';}else{b.disabled=false;b.textContent=type==='share'?'SHARE':'OPEN';}});
@@ -475,7 +493,7 @@ function renderDailyMissions(){
  if($('dailyReset'))$('dailyReset').textContent='RESET '+hh+':'+mm+':'+ss;
 }
 document.querySelectorAll('.daily-action').forEach(btn=>btn.onclick=()=>{
- const card=btn.closest('.daily-task'),type=card.dataset.daily;if(moonPointsLocked())return;
+ const card=btn.closest('.daily-task'),type=card.dataset.daily;if(moonPointsLocked())return;openDailyMission(type);
  // Placeholder until official community URLs/API verification are connected.
  if(type==='share' && navigator.share){navigator.share({title:'MOONKATTY',text:'Join the MOONKATTY mission 🚀🌙'}).catch(()=>{});}
  $('dailyProgress').textContent='VERIFYING…';
