@@ -55,3 +55,6 @@ header{display:flex;align-items:center;justify-content:space-between}.icon-btn{p
 
 /* Random frequency tuning */
 .frequency-readout{display:flex;justify-content:center;align-items:baseline;gap:5px;margin:4px 0 10px}.frequency-readout strong{font-size:28px;font-variant-numeric:tabular-nums;color:var(--gold);letter-spacing:1px}.frequency-readout span{font-size:9px;color:var(--muted);letter-spacing:1px}.frequency-dial{width:100%;margin:12px 0 2px;accent-color:var(--gold);touch-action:pan-x}.frequency-track i{transition:left .25s ease}.frequency-track b{transition:left .08s linear}
+
+/* LIFE #2 specialist challenges */
+.crew-challenge{margin:12px 0;padding:14px;border:1px solid #263047;border-radius:16px;background:#090e18}.crew-task p{font-size:11px;color:var(--muted);margin:7px 0 10px}.crew-task input{width:100%;accent-color:var(--gold)}.power-grid,.anomaly-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.power-grid button,.anomaly-grid button{min-height:48px;border:1px solid #303a50;border-radius:11px;background:#121a29;color:var(--text);font-weight:900}.power-grid button.powered{background:var(--gold);color:#111;box-shadow:0 0 18px #e9bd5855}.anomaly-grid button{font-size:22px}.crew-task strong{font-size:11px;letter-spacing:1.5px;color:var(--gold)}
