@@ -169,6 +169,7 @@ $('beaconBtn').onclick=()=>{
  unlockLife2();
 unlockLife3();
 unlockLife4();
+unlockLife5();
  setTimeout(()=>{$('life1Complete').hidden=false;$('life1Complete').scrollIntoView({behavior:'smooth',block:'center'});},350);
 };
 $('returnBtn').onclick=()=>show('home');
@@ -269,11 +270,25 @@ $('continueLife4Btn').onclick=()=>{unlockLife4();$('lifeTitle').textContent='LIF
 $('life4Card').onclick=()=>$('continueLife4Btn').click();
 let alt4=2400,vel4=28,fuel4=100,drift4=0,descentTimer;
 function renderDescent(){$('altitude').textContent=Math.max(0,Math.round(alt4));$('velocity').textContent=Math.max(0,Math.round(vel4));$('fuel').textContent=Math.max(0,Math.round(fuel4));$('lander').style.transform='translateX('+drift4+'px)';}
-function startLife4(){alt4=2400;vel4=28;fuel4=100;drift4=0;$('life4Complete').hidden=true;$('descentStatus').textContent='Stabilize descent and reach the landing zone.';show('mission4');renderDescent();clearInterval(descentTimer);descentTimer=setInterval(()=>{alt4-=vel4*2;vel4+=.8;if(alt4<=0){clearInterval(descentTimer);if(vel4<=12&&Math.abs(drift4)<=45){localStorage.setItem('mkty_life4','complete');$('descentStatus').textContent='Touchdown confirmed ✓';$('points').textContent='100 ⭐';$('life4Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');}else{$('descentStatus').textContent='Hard landing — retry the descent.';tg?.HapticFeedback?.notificationOccurred?.('error');setTimeout(startLife4,1400);}}renderDescent();},500);}
+function startLife4(){alt4=2400;vel4=28;fuel4=100;drift4=0;$('life4Complete').hidden=true;$('descentStatus').textContent='Stabilize descent and reach the landing zone.';show('mission4');renderDescent();clearInterval(descentTimer);descentTimer=setInterval(()=>{alt4-=vel4*2;vel4+=.8;if(alt4<=0){clearInterval(descentTimer);if(vel4<=12&&Math.abs(drift4)<=45){localStorage.setItem('mkty_life4','complete');$('descentStatus').textContent='Touchdown confirmed ✓';$('points').textContent='100 ⭐';$('life4Complete').hidden=false;unlockLife5();tg?.HapticFeedback?.notificationOccurred?.('success');}else{$('descentStatus').textContent='Hard landing — retry the descent.';tg?.HapticFeedback?.notificationOccurred?.('error');setTimeout(startLife4,1400);}}renderDescent();},500);}
 $('burnBtn').onclick=()=>{if(fuel4<=0)return;const power=Number($('thrustDial').value)/100;fuel4-=4+power*4;vel4=Math.max(3,vel4-(3+power*7));tg?.HapticFeedback?.impactOccurred('medium');renderDescent();};
 $('leftThruster').onclick=()=>{if(fuel4>0){drift4=Math.max(-90,drift4-18);fuel4-=2;renderDescent();}};
 $('rightThruster').onclick=()=>{if(fuel4>0){drift4=Math.min(90,drift4+18);fuel4-=2;renderDescent();}};
 $('life4ReturnBtn').onclick=()=>show('home');
+
+function unlockLife5(){
+ if(localStorage.getItem('mkty_life4')!=='complete')return;
+ $('life4Card').classList.add('complete');$('life5Card').disabled=false;$('life5Card').classList.remove('locked');$('life5Card').classList.add('unlocked');$('life5Icon').textContent='5';$('storyProgress').style.width='55%';
+}
+$('continueLife5Btn').onclick=()=>{unlockLife5();$('lifeTitle').textContent='LIFE #5 — IGNITION';$('lifeText').textContent='Bring the lunar reactor online.';$('enterBtn').textContent='START LIFE #5 🔥';$('enterBtn').onclick=startLife5;show('home');};
+$('life5Card').onclick=()=>$('continueLife5Btn').click();
+let cells5=[0,0,0],stability5=15,stable5=false;
+function startLife5(){cells5=[0,0,0];stability5=15;stable5=false;document.querySelectorAll('[data-cell]').forEach(b=>{b.classList.remove('charged');b.querySelector('i').style.height='0%';});$('stabilizeBtn').disabled=true;$('igniteBtn').disabled=true;$('life5Complete').hidden=true;$('ignitionStatus').textContent='Charge the energy cells.';$('reactorCore').classList.remove('online');show('mission5');}
+document.querySelectorAll('[data-cell]').forEach(btn=>btn.onclick=()=>{const i=Number(btn.dataset.cell);if(cells5[i]>=100)return;cells5[i]=Math.min(100,cells5[i]+25);btn.querySelector('i').style.height=cells5[i]+'%';tg?.HapticFeedback?.impactOccurred('light');if(cells5[i]===100)btn.classList.add('charged');if(cells5.every(v=>v===100)){$('stabilizeBtn').disabled=false;$('ignitionStatus').textContent='Cells charged. Stabilize the reactor core.';}});
+$('stabilizeBtn').onclick=()=>{stability5=20+Math.floor(Math.random()*61);$('stabilityNeedle').style.left=stability5+'%';const ok=stability5>=45&&stability5<=55;if(ok){stable5=true;$('stabilizeBtn').disabled=true;$('igniteBtn').disabled=false;$('ignitionStatus').textContent='Core stable. Ready for ignition.';tg?.HapticFeedback?.notificationOccurred?.('success');}else{$('ignitionStatus').textContent=stability5<45?'Core underpowered — stabilize again.':'Core overload — stabilize again.';tg?.HapticFeedback?.impactOccurred('medium');}};
+$('igniteBtn').onclick=()=>{if(!stable5)return;$('reactorCore').classList.add('online');$('igniteBtn').disabled=true;localStorage.setItem('mkty_life5','complete');$('points').textContent='150 ⭐';$('ignitionStatus').textContent='Reactor online. Ignition successful ✓';$('life5Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');};
+$('life5ReturnBtn').onclick=()=>show('home');
+
 
 
 
