@@ -84,7 +84,7 @@ function updateFrequencyDial(){
 }
 $('frequencyDial').addEventListener('input',updateFrequencyDial);
 function renderSurvival(){
- $('life1Lives').textContent='LIVES '+('♥'.repeat(missionLives))+('♡'.repeat(3-missionLives));
+ $('life1Lives').textContent='MISSION SHIELD '+('♥'.repeat(missionLives))+('♡'.repeat(3-missionLives));
  const m=String(Math.floor(missionSeconds/60)).padStart(2,'0'), s=String(missionSeconds%60).padStart(2,'0');
  $('missionClock').textContent=m+':'+s;
  $('missionClock').classList.toggle('danger',missionSeconds<=30);
@@ -360,6 +360,7 @@ function restoreGameProgress(){
  const completed=[1,2,3,4,5,6,7,8,9].filter(n=>localStorage.getItem('mkty_life'+n)==='complete');
  const total=completed.reduce((sum,n)=>sum+n*10,0);
  if($('points')) $('points').textContent=total+' ⭐';
+ if($('livesProgress')) $('livesProgress').textContent=completed.length+' / 9 🌙';
  unlockLife2();unlockLife3();unlockLife4();unlockLife5();unlockLife6();unlockLife7();unlockLife8();unlockLife9();
  if(completed.length===9 && $('storyProgress')) $('storyProgress').style.width='100%';
 }
