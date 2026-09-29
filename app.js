@@ -424,7 +424,10 @@ function renderGlobalLivesHome(){
 setInterval(renderGlobalLivesHome,1000);
 
 const COMMUNITY_LINKS={
- telegram:'', youtube:'', x:'', tiktok:''
+ telegram:'https://t.me/moonkattymkty',
+ youtube:'https://www.youtube.com/@moonkattymkty',
+ x:'https://x.com/moonkattymkty',
+ tiktok:'https://www.tiktok.com/@moonkattymkty'
 };
 function openCommunity(platform){
  const url=COMMUNITY_LINKS[platform];
