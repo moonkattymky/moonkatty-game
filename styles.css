@@ -10,3 +10,19 @@ header{display:flex;align-items:center;justify-content:space-between}.icon-btn{p
 [dir=rtl] body{text-align:right}
 
 .life-video{display:block;width:min(100%,320px);aspect-ratio:9/16;max-height:58vh;object-fit:cover;margin:20px auto 16px;border-radius:22px;background:#000;box-shadow:0 0 45px #e9bd5822;border:1px solid #e9bd5833}
+
+.cinematic-screen{min-height:100vh;background:radial-gradient(circle at 50% 42%,#263150 0,#070a12 45%,#020306 100%);text-align:center}
+.cinematic{padding-top:2vh}.cinematic h2{font-size:30px;letter-spacing:4px}
+#awakeningText{letter-spacing:3px;color:var(--muted);font-size:11px}
+.cinematic-progress{height:3px;background:#ffffff18;margin:16px 20px;overflow:hidden;border-radius:3px}
+.cinematic-progress i{display:block;height:100%;width:0;background:var(--gold)}
+.cinematic-progress i.run{animation:cinematic 8s linear forwards}
+.ghost{border:1px solid #2a3242;border-radius:16px;background:transparent;padding:10px 25px;font-size:12px;color:var(--muted)}
+@keyframes cinematic{to{width:100%}}@keyframes pulse{50%{transform:scale(1.04);box-shadow:0 0 90px #e9bd5844}}
+.mission-screen{min-height:100vh;background:linear-gradient(#070b16,#11172a)}
+.crew-badge{font-size:10px;letter-spacing:1px;border:1px solid #e9bd5844;padding:8px 10px;border-radius:12px;color:var(--gold)}
+.mission-world{height:43vh;min-height:300px;position:relative;overflow:hidden;margin:20px -20px 0;background:radial-gradient(circle at 72% 24%,#d6a83e22,transparent 22%),linear-gradient(#080d1b,#171b2a)}
+.planet{position:absolute;width:160%;height:50%;left:-30%;bottom:-25%;border-radius:50% 50% 0 0;background:radial-gradient(circle at 55% 10%,#727783,#2b303b 42%,#151923 70%);box-shadow:0 -15px 50px #ffffff0d}
+.player{position:absolute;font-size:72px;left:17%;bottom:16%;filter:drop-shadow(0 8px 8px #0008)}
+.beacon{position:absolute;right:20%;top:28%;font-size:55px;color:var(--gold);text-shadow:0 0 24px var(--gold);animation:pulse 1.4s infinite}
+.objective{margin-top:-12px;position:relative}.mission-status{text-align:center;color:var(--muted);font-size:12px;letter-spacing:1px}.primary:disabled{opacity:.85}
