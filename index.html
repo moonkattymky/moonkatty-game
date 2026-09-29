@@ -25,6 +25,7 @@
           <button id="life2Card" class="life-card locked" disabled><span id="life2Icon">🔒</span><div><small>LIFE #2</small><strong>THE CREW</strong></div></button>
           <button id="life3Card" class="life-card locked" disabled><span id="life3Icon">🔒</span><div><small>LIFE #3</small><strong>THE LAUNCH CODE</strong></div></button>
           <button id="life4Card" class="life-card locked" disabled><span id="life4Icon">🔒</span><div><small>LIFE #4</small><strong>THE DESCENT</strong></div></button>
+          <button id="life5Card" class="life-card locked" disabled><span id="life5Icon">🔒</span><div><small>LIFE #5</small><strong>IGNITION</strong></div></button>
         </div>
       </div>
       <p class="disclaimer">Moon Points are in-game reputation points. They have no monetary value and do not guarantee any token allocation.</p>
@@ -123,7 +124,18 @@
       <input id="thrustDial" class="frequency-dial" type="range" min="0" max="100" value="45">
       <div class="flight-controls"><button id="leftThruster">◀</button><button id="burnBtn">THRUST 🔥</button><button id="rightThruster">▶</button></div>
       <p id="descentStatus" class="mission-status">Stabilize descent and reach the landing zone.</p>
-      <div id="life4Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">TOUCHDOWN</p><h3>PERFECT LANDING</h3><strong>+40 MOON POINTS ⭐</strong><button id="life4ReturnBtn" class="primary">MISSION CONTROL</button></div>
+      <div id="life4Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">TOUCHDOWN</p><h3>PERFECT LANDING</h3><strong>+40 MOON POINTS ⭐</strong><button id="continueLife5Btn" class="primary">UNLOCK LIFE #5 🔥</button><button id="life4ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
+    </section>
+    <section id="mission5" class="screen mission-screen">
+      <header><div><span class="eyebrow">LIFE #5</span><h2>IGNITION</h2></div><div class="crew-badge">REACTOR // OFFLINE</div></header>
+      <div class="reactor-world"><div id="reactorCore" class="reactor-core">◉</div><div class="reactor-ring r1"></div><div class="reactor-ring r2"></div></div>
+      <div class="panel objective"><span class="eyebrow">MISSION OBJECTIVE</span><h3>START THE REACTOR</h3><p>Charge all three energy cells, stabilize the core, then ignite.</p></div>
+      <div class="energy-cells"><button data-cell="0"><i></i><span>CELL A</span></button><button data-cell="1"><i></i><span>CELL B</span></button><button data-cell="2"><i></i><span>CELL C</span></button></div>
+      <div class="stability"><span>CORE STABILITY</span><div><i id="stabilityNeedle"></i><b></b></div></div>
+      <button id="stabilizeBtn" class="primary" disabled>STABILIZE CORE ⚡</button>
+      <button id="igniteBtn" class="primary ignition-btn" disabled>IGNITION 🔥</button>
+      <p id="ignitionStatus" class="mission-status">Charge the energy cells.</p>
+      <div id="life5Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">REACTOR ONLINE</p><h3>IGNITION SUCCESSFUL</h3><strong>+50 MOON POINTS ⭐</strong><button id="life5ReturnBtn" class="primary">MISSION CONTROL</button></div>
     </section>
   </main>
   <script src="app.js"></script>
