@@ -69,71 +69,60 @@ $('enterBtn').onclick=()=>{
 };
 $('skipBtn').onclick=openMission;
 $('life1Video')?.addEventListener('ended',openMission);
-let signal=0;
-$('beaconBtn').onclick=()=>{
- signal=Math.min(100,signal+25);
- tg?.HapticFeedback?.impactOccurred(signal===100?'heavy':'light');
- $('missionStatus').textContent='Signal strength: '+signal+'%';
- const beacon=document.querySelector('.beacon'); beacon.style.opacity=.35+signal/155;
- $('scannerFill').style.width=signal+'%';
- if(signal===100){
-  $('beaconBtn').textContent='SIGNAL LOCKED ✓';
-  $('beaconBtn').disabled=true;
-  $('missionStatus').textContent='First contact established • +10 Moon Points';
-  $('points').textContent='10 ⭐';
-  localStorage.setItem('mkty_life1','complete');
-  unlockLife2();
-  setTimeout(()=>{$('life1Complete').hidden=false;$('life1Complete').scrollIntoView({behavior:'smooth',block:'center'});},350);
- }
-};
-$('worldBeacon').onclick=()=>$('beaconBtn').click();
-function unlockLife2(){
- const done=localStorage.getItem('mkty_life1')==='complete';
- if(!done) return;
- $('life1Card').classList.add('complete');
- $('life2Card').disabled=false;
- $('life2Card').classList.remove('locked');
- $('life2Card').classList.add('unlocked');
- $('life2Icon').textContent='2';
- $('storyProgress').style.width='22%';
+let life1Stage=0, tuneAttempts=0;
+function setLife1Step(stage){
+ life1Stage=stage;
+ ['stepExplore','stepTune','stepReach','stepActivate'].forEach((id,i)=>{
+  $(id).classList.toggle('active',i===stage);
+  $(id).classList.toggle('done',i<stage);
+ });
 }
-$('continueLife2Btn').onclick=()=>{
- unlockLife2();
- show('home');
- $('lifeTitle').textContent='LIFE #2 — THE CREW';
- $('lifeText').textContent='Life #2 is unlocked. Your crew is waiting for the next mission.';
- $('enterBtn').textContent='START LIFE #2 🚀';
- $('enterBtn').onclick=startLife2;
- $('life2Card').classList.add('current');
-};
-$('life2Card').onclick=()=>$('continueLife2Btn').click();
-function startLife2(){
- show('life2');
- const video=$('life2Video');
- if(video){video.currentTime=0;video.play().catch(()=>{});}
- $('life2Bar').classList.remove('run'); void $('life2Bar').offsetWidth; $('life2Bar').classList.add('run');
- setTimeout(openMission2,10000);
-}
-function openMission2(){
- const video=$('life2Video'); if(video)video.pause();
- $('crewBadge2').textContent=crewCode; show('mission2');
-}
-$('life2SkipBtn').onclick=openMission2;
-$('life2Video')?.addEventListener('ended',openMission2);
-let crewCount=0;
-document.querySelectorAll('.mate').forEach(btn=>btn.onclick=()=>{
- if(btn.classList.contains('joined'))return;
- btn.classList.add('joined'); crewCount++;
+$('worldBeacon').onclick=()=>{
+ if(life1Stage!==0)return;
  tg?.HapticFeedback?.impactOccurred('light');
- $('crewStatus').textContent='Crew assembled: '+crewCount+' / 3';
- if(crewCount===3){
-  localStorage.setItem('mkty_life2','complete');
-  $('crewStatus').textContent='Crew assembled • Mission ready';
-  $('life2Complete').hidden=false;
-  $('points').textContent='30 ⭐';
+ setLife1Step(1);
+ $('missionStatus').textContent='Signal source found. Tune the scanner frequency.';
+ document.querySelector('.beacon').classList.add('discovered');
+};
+$('tuneBtn').onclick=()=>{
+ if(life1Stage!==1)return;
+ tuneAttempts++;
+ const needle=$('frequencyNeedle');
+ const positions=[18,74,42,58,50];
+ const pos=positions[Math.min(tuneAttempts-1,positions.length-1)];
+ needle.style.left=pos+'%';
+ tg?.HapticFeedback?.impactOccurred('light');
+ if(tuneAttempts<3){
+  $('missionStatus').textContent='Frequency unstable — calibrate again ('+tuneAttempts+'/3).';
+  return;
  }
-});
-$('life2ReturnBtn').onclick=()=>show('home');
+ setLife1Step(2);
+ $('scannerPuzzle').classList.add('solved');
+ $('tuneBtn').textContent='FREQUENCY LOCKED ✓';
+ $('tuneBtn').disabled=true;
+ $('beaconBtn').hidden=false;
+ $('missionStatus').textContent='Frequency locked. Reach the beacon.';
+};
+$('beaconBtn').onclick=()=>{
+ if(life1Stage===2){
+  setLife1Step(3);
+  $('beaconBtn').textContent='ACTIVATE SIGNAL ⚡';
+  $('missionStatus').textContent='Beacon reached. Activate first contact.';
+  $('scannerFill').style.width='75%';
+  tg?.HapticFeedback?.impactOccurred('medium');
+  return;
+ }
+ if(life1Stage!==3)return;
+ $('scannerFill').style.width='100%';
+ tg?.HapticFeedback?.impactOccurred('heavy');
+ $('beaconBtn').textContent='SIGNAL LOCKED ✓';
+ $('beaconBtn').disabled=true;
+ $('missionStatus').textContent='First contact established • +10 Moon Points';
+ $('points').textContent='10 ⭐';
+ localStorage.setItem('mkty_life1','complete');
+ unlockLife2();
+ setTimeout(()=>{$('life1Complete').hidden=false;$('life1Complete').scrollIntoView({behavior:'smooth',block:'center'});},350);
+};
 $('returnBtn').onclick=()=>show('home');
 const saved=localStorage.getItem('mkty_lang');
 if(saved) setLang(saved);
