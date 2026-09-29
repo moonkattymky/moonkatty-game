@@ -170,6 +170,7 @@ $('beaconBtn').onclick=()=>{
 unlockLife3();
 unlockLife4();
 unlockLife5();
+unlockLife6();
  setTimeout(()=>{$('life1Complete').hidden=false;$('life1Complete').scrollIntoView({behavior:'smooth',block:'center'});},350);
 };
 $('returnBtn').onclick=()=>show('home');
@@ -286,8 +287,21 @@ let cells5=[0,0,0],stability5=15,stable5=false;
 function startLife5(){cells5=[0,0,0];stability5=15;stable5=false;document.querySelectorAll('[data-cell]').forEach(b=>{b.classList.remove('charged');b.querySelector('i').style.height='0%';});$('stabilizeBtn').disabled=true;$('igniteBtn').disabled=true;$('life5Complete').hidden=true;$('ignitionStatus').textContent='Charge the energy cells.';$('reactorCore').classList.remove('online');show('mission5');}
 document.querySelectorAll('[data-cell]').forEach(btn=>btn.onclick=()=>{const i=Number(btn.dataset.cell);if(cells5[i]>=100)return;cells5[i]=Math.min(100,cells5[i]+25);btn.querySelector('i').style.height=cells5[i]+'%';tg?.HapticFeedback?.impactOccurred('light');if(cells5[i]===100)btn.classList.add('charged');if(cells5.every(v=>v===100)){$('stabilizeBtn').disabled=false;$('ignitionStatus').textContent='Cells charged. Stabilize the reactor core.';}});
 $('stabilizeBtn').onclick=()=>{stability5=20+Math.floor(Math.random()*61);$('stabilityNeedle').style.left=stability5+'%';const ok=stability5>=45&&stability5<=55;if(ok){stable5=true;$('stabilizeBtn').disabled=true;$('igniteBtn').disabled=false;$('ignitionStatus').textContent='Core stable. Ready for ignition.';tg?.HapticFeedback?.notificationOccurred?.('success');}else{$('ignitionStatus').textContent=stability5<45?'Core underpowered — stabilize again.':'Core overload — stabilize again.';tg?.HapticFeedback?.impactOccurred('medium');}};
-$('igniteBtn').onclick=()=>{if(!stable5)return;$('reactorCore').classList.add('online');$('igniteBtn').disabled=true;localStorage.setItem('mkty_life5','complete');$('points').textContent='150 ⭐';$('ignitionStatus').textContent='Reactor online. Ignition successful ✓';$('life5Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');};
+$('igniteBtn').onclick=()=>{if(!stable5)return;$('reactorCore').classList.add('online');$('igniteBtn').disabled=true;localStorage.setItem('mkty_life5','complete');$('points').textContent='150 ⭐';$('ignitionStatus').textContent='Reactor online. Ignition successful ✓';$('life5Complete').hidden=false;unlockLife6();tg?.HapticFeedback?.notificationOccurred?.('success');};
 $('life5ReturnBtn').onclick=()=>show('home');
+
+function unlockLife6(){
+ if(localStorage.getItem('mkty_life5')!=='complete')return;
+ $('life5Card').classList.add('complete');$('life6Card').disabled=false;$('life6Card').classList.remove('locked');$('life6Card').classList.add('unlocked');$('life6Icon').textContent='6';$('storyProgress').style.width='66%';
+}
+$('continueLife6Btn').onclick=()=>{unlockLife6();$('lifeTitle').textContent='LIFE #6 — LIFTOFF';$('lifeText').textContent='Complete the launch sequence before time runs out.';$('enterBtn').textContent='START LIFE #6 🚀';$('enterBtn').onclick=startLife6;show('home');};
+$('life6Card').onclick=()=>$('continueLife6Btn').click();
+let launchStep=1,launchSeconds=30,launchTimer;
+function startLife6(){launchStep=1;launchSeconds=30;$('launchClock').textContent=30;$('launchBtn').disabled=true;$('life6Complete').hidden=true;$('launchStatus').textContent='Complete the pre-flight checklist.';document.querySelectorAll('[data-launch]').forEach(b=>b.classList.remove('armed','error'));$('launchShip').classList.remove('lifted');show('mission6');clearInterval(launchTimer);launchTimer=setInterval(()=>{launchSeconds--;$('launchClock').textContent=launchSeconds;if(launchSeconds<=10)$('launchClock').classList.add('danger');if(launchSeconds<=0){clearInterval(launchTimer);$('launchStatus').textContent='Launch window missed — sequence reset.';tg?.HapticFeedback?.notificationOccurred?.('error');setTimeout(startLife6,1200);}},1000);}
+document.querySelectorAll('[data-launch]').forEach(b=>b.onclick=()=>{const n=Number(b.dataset.launch);if(n!==launchStep){b.classList.add('error');$('launchStatus').textContent='Wrong sequence. Check procedure.';tg?.HapticFeedback?.impactOccurred('medium');return;}b.classList.add('armed');launchStep++;tg?.HapticFeedback?.impactOccurred('light');if(launchStep===5){$('launchBtn').disabled=false;$('launchStatus').textContent='All systems armed. LAUNCH!';}});
+$('launchBtn').onclick=()=>{if(launchStep!==5)return;clearInterval(launchTimer);$('launchShip').classList.add('lifted');$('launchFlame').classList.add('active');$('launchBtn').disabled=true;localStorage.setItem('mkty_life6','complete');$('points').textContent='210 ⭐';$('launchStatus').textContent='Liftoff confirmed — orbit achieved ✓';setTimeout(()=>{$('life6Complete').hidden=false;},900);tg?.HapticFeedback?.notificationOccurred?.('success');};
+$('life6ReturnBtn').onclick=()=>show('home');
+
 
 
 
