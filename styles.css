@@ -179,3 +179,16 @@ input[type="range"]{height:34px}
 .stats article{position:relative}
 .stats article em{display:block;margin-top:4px;min-height:10px;font-style:normal;font-size:6px;letter-spacing:.8px;color:#7e8ba0;font-variant-numeric:tabular-nums}
 #globalLivesHome{color:#f1c36b;text-shadow:0 0 18px #e9bd5828}
+
+/* MISSION ARCHIVE */
+.mission-archive{margin:14px 0 18px;padding:14px;border:1px solid #24334a;border-radius:16px;background:linear-gradient(145deg,#0b1422e8,#060a12e8);box-shadow:0 16px 34px #0005}
+.archive-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.archive-head strong{display:block;margin-top:3px;font-size:11px;letter-spacing:1.2px}
+.archive-head>span{padding:5px 8px;border:1px solid #34445c;border-radius:999px;color:var(--gold);font-size:8px}
+.archive-grid{display:grid;gap:7px}
+.intel-card{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid #29374c;border-radius:11px;background:#08101b}
+.intel-card>span{width:28px;height:28px;display:grid;place-items:center;border:1px solid #41536d;border-radius:50%;font-size:8px;color:#8fa0b7}
+.intel-card div{display:grid;gap:1px}.intel-card small{font-size:6px;color:#6f7d92}.intel-card strong{font-size:9px;letter-spacing:.8px}.intel-card em{font-style:normal;font-size:6px;color:#66748a}
+.intel-card.locked{opacity:.42;filter:saturate(.3)}
+.intel-card.found{border-color:#e9bd5840;background:linear-gradient(90deg,#e9bd580c,#08101b)}
+.intel-card.found>span,.intel-card.found em{color:var(--gold);border-color:#e9bd5855}
