@@ -56,6 +56,7 @@ function openMission(){
  const video=$('life1Video'); if(video) video.pause();
  $('crewBadge').textContent=crewCode;
  show('mission1');
+ resetLife1Mission();
 }
 $('enterBtn').onclick=()=>{
  tg?.HapticFeedback?.impactOccurred('medium');
@@ -69,7 +70,39 @@ $('enterBtn').onclick=()=>{
 };
 $('skipBtn').onclick=openMission;
 $('life1Video')?.addEventListener('ended',openMission);
-let life1Stage=0, tuneAttempts=0;
+let life1Stage=0, tuneAttempts=0, missionLives=3, missionSeconds=120, missionClockTimer;
+function renderSurvival(){
+ $('life1Lives').textContent='LIVES '+('♥'.repeat(missionLives))+('♡'.repeat(3-missionLives));
+ const m=String(Math.floor(missionSeconds/60)).padStart(2,'0'), s=String(missionSeconds%60).padStart(2,'0');
+ $('missionClock').textContent=m+':'+s;
+ $('missionClock').classList.toggle('danger',missionSeconds<=30);
+}
+function loseLife(reason){
+ missionLives=Math.max(0,missionLives-1); renderSurvival();
+ tg?.HapticFeedback?.notificationOccurred?.('error');
+ $('missionStatus').textContent=reason+' Life lost.';
+ if(missionLives===0){
+  clearInterval(missionClockTimer);
+  $('missionStatus').textContent='Mission failed. Reinitializing survival systems…';
+  setTimeout(resetLife1Mission,1200);
+ }
+}
+function resetLife1Mission(){
+ missionLives=3; missionSeconds=120; tuneAttempts=0; setLife1Step(0); renderSurvival();
+ $('tuneBtn').disabled=false; $('tuneBtn').textContent='LOCK FREQUENCY 📡';
+ $('beaconBtn').hidden=true; $('beaconBtn').disabled=false; $('beaconBtn').textContent='APPROACH BEACON 🚀';
+ $('scannerPuzzle').classList.remove('solved'); $('scannerFill').style.width='0%';
+ $('frequencyNeedle').style.left='5%'; $('missionStatus').textContent='Search the surface for the signal source.';
+ startMissionClock();
+}
+function startMissionClock(){
+ clearInterval(missionClockTimer);
+ missionClockTimer=setInterval(()=>{
+  if(!$('mission1').classList.contains('active'))return;
+  missionSeconds--; renderSurvival();
+  if(missionSeconds<=0){clearInterval(missionClockTimer);loseLife('Oxygen window expired.');missionSeconds=120;startMissionClock();}
+ },1000);
+}
 function setLife1Step(stage){
  life1Stage=stage;
  ['stepExplore','stepTune','stepReach','stepActivate'].forEach((id,i)=>{
@@ -94,6 +127,7 @@ $('tuneBtn').onclick=()=>{
  tg?.HapticFeedback?.impactOccurred('light');
  if(tuneAttempts<3){
   $('missionStatus').textContent='Frequency unstable — calibrate again ('+tuneAttempts+'/3).';
+  if(tuneAttempts===2) loseLife('Scanner overload.');
   return;
  }
  setLife1Step(2);
@@ -118,6 +152,7 @@ $('beaconBtn').onclick=()=>{
  $('beaconBtn').textContent='SIGNAL LOCKED ✓';
  $('beaconBtn').disabled=true;
  $('missionStatus').textContent='First contact established • +10 Moon Points';
+ clearInterval(missionClockTimer);
  $('points').textContent='10 ⭐';
  localStorage.setItem('mkty_life1','complete');
  unlockLife2();
