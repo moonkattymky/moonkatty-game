@@ -46,6 +46,42 @@ langs.forEach(([code,flag,name])=>{
  b.onclick=()=>setLang(code); $('languages').appendChild(b);
 });
 $('settingsBtn').onclick=()=>{$('home').classList.remove('active');$('language').classList.add('active')};
-$('enterBtn').onclick=()=>{tg?.HapticFeedback?.impactOccurred('medium'); $('points').textContent='10 ⭐';};
+function show(id){
+ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+ $(id).classList.add('active');
+}
+let cinematicTimer;
+function openMission(){
+ clearTimeout(cinematicTimer);
+ const video=$('life1Video'); if(video) video.pause();
+ $('crewBadge').textContent=crewCode;
+ show('mission1');
+}
+$('enterBtn').onclick=()=>{
+ tg?.HapticFeedback?.impactOccurred('medium');
+ show('life1');
+ const video=$('life1Video');
+ if(video){ video.currentTime=0; video.play().catch(()=>{}); }
+ $('cinematicBar').classList.remove('run');
+ void $('cinematicBar').offsetWidth;
+ $('cinematicBar').classList.add('run');
+ cinematicTimer=setTimeout(openMission,8000);
+};
+$('skipBtn').onclick=openMission;
+$('life1Video')?.addEventListener('ended',openMission);
+let signal=0;
+$('beaconBtn').onclick=()=>{
+ signal=Math.min(100,signal+25);
+ tg?.HapticFeedback?.impactOccurred(signal===100?'heavy':'light');
+ $('missionStatus').textContent='Signal strength: '+signal+'%';
+ document.querySelector('.beacon').style.opacity=.35+signal/155;
+ if(signal===100){
+  $('beaconBtn').textContent='SIGNAL LOCKED ✓';
+  $('beaconBtn').disabled=true;
+  $('missionStatus').textContent='First contact established • +10 Moon Points';
+  $('points').textContent='10 ⭐';
+  localStorage.setItem('mkty_life1','complete');
+ }
+};
 const saved=localStorage.getItem('mkty_lang');
 if(saved) setLang(saved);
