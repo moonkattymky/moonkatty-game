@@ -47,7 +47,7 @@ console.log('MOONKATTY CREW:', {
 const langs = [
  ['en','🇬🇧','English'],['ru','🇷🇺','Русский'],['uk','🇺🇦','Українська'],
  ['es','🇪🇸','Español'],['pt','🇵🇹','Português'],['de','🇩🇪','Deutsch'],
- ['fr','🇫🇷','Français'],['it','🇮🇹','Italiano'],['tr','🇹🇷','Türkçe'],['he','🇮🇱','עברית']
+ ['fr','🇫🇷','Français'],['it','🇮🇹','Italiano'],['tr','🇹🇷','Türkçe'],['he','🇮🇱','עברית'],['ko','🇰🇷','한국어'],['zh','🇨🇳','中文']
 ];
 const copy = {
  en:['Choose your language','Welcome to the Crew.','ENTER THE MISSION 🚀','LIFE #1 — THE AWAKENING','The signal has been received. The journey to the Moon begins here.'],
@@ -59,7 +59,9 @@ const copy = {
  fr:['Choisissez votre langue','Bienvenue dans le Crew.','ENTRER DANS LA MISSION 🚀','VIE #1 — LE RÉVEIL','Le signal a été reçu. Le voyage vers la Lune commence ici.'],
  it:['Scegli la lingua','Benvenuto nella Crew.','INIZIA LA MISSIONE 🚀','VITA #1 — IL RISVEGLIO','Il segnale è stato ricevuto. Il viaggio verso la Luna inizia qui.'],
  tr:['Dilini seç','Crew’a hoş geldin.','GÖREVE BAŞLA 🚀','YAŞAM #1 — UYANIŞ','Sinyal alındı. Ay yolculuğu burada başlıyor.'],
- he:['בחר שפה','ברוכים הבאים לצוות.','התחל את המשימה 🚀','חיים #1 — ההתעוררות','האות התקבל. המסע אל הירח מתחיל כאן.']
+ he:['בחר שפה','ברוכים הבאים לצוות.','התחל את המשימה 🚀','חיים #1 — ההתעוררות','האות התקבל. המסע אל הירח מתחיל כאן.'],
+ ko:['언어를 선택하세요','크루에 오신 것을 환영합니다.','미션 시작 🚀','LIFE #1 — 각성','신호를 수신했습니다. 달을 향한 여정이 여기서 시작됩니다.'],
+ zh:['选择语言','欢迎加入团队。','开始任务 🚀','LIFE #1 — 觉醒','已接收到信号。前往月球的旅程从这里开始。']
 };
 const $=id=>document.getElementById(id);
 function setLang(code){
