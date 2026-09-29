@@ -24,6 +24,7 @@
           <button id="life1Card" class="life-card current"><span>✓</span><div><small>LIFE #1</small><strong>THE AWAKENING</strong></div></button>
           <button id="life2Card" class="life-card locked" disabled><span id="life2Icon">🔒</span><div><small>LIFE #2</small><strong>THE CREW</strong></div></button>
           <button id="life3Card" class="life-card locked" disabled><span id="life3Icon">🔒</span><div><small>LIFE #3</small><strong>THE LAUNCH CODE</strong></div></button>
+          <button id="life4Card" class="life-card locked" disabled><span id="life4Icon">🔒</span><div><small>LIFE #4</small><strong>THE DESCENT</strong></div></button>
         </div>
       </div>
       <p class="disclaimer">Moon Points are in-game reputation points. They have no monetary value and do not guarantee any token allocation.</p>
@@ -112,7 +113,17 @@
         <button id="showCodeBtn" class="primary">SHOW SEQUENCE</button>
         <p id="codeStatus" class="mission-status">Attempts: 3</p>
       </div>
-      <div id="life3Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">ACCESS GRANTED</p><h3>LAUNCH CODE DECRYPTED</h3><strong>+30 MOON POINTS ⭐</strong><button id="life3ReturnBtn" class="primary">MISSION CONTROL</button></div>
+      <div id="life3Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">ACCESS GRANTED</p><h3>LAUNCH CODE DECRYPTED</h3><strong>+30 MOON POINTS ⭐</strong><button id="continueLife4Btn" class="primary">UNLOCK LIFE #4 🚀</button><button id="life3ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
+    </section>
+    <section id="mission4" class="screen mission-screen">
+      <header><div><span class="eyebrow">LIFE #4</span><h2>THE DESCENT</h2></div><div class="crew-badge">ALT // 2400M</div></header>
+      <div class="descent-world"><div class="landing-zone">◎<small>LANDING ZONE</small></div><div id="lander" class="lander">🚀</div><div class="descent-grid"></div></div>
+      <div class="panel objective"><span class="eyebrow">MISSION OBJECTIVE</span><h3>LAND THE SHIP</h3><p>Balance thrust and drift. Enter the safe zone below 12 m/s.</p></div>
+      <div class="flight-hud"><span>ALT <b id="altitude">2400</b>m</span><span>VEL <b id="velocity">28</b>m/s</span><span>FUEL <b id="fuel">100</b>%</span></div>
+      <input id="thrustDial" class="frequency-dial" type="range" min="0" max="100" value="45">
+      <div class="flight-controls"><button id="leftThruster">◀</button><button id="burnBtn">THRUST 🔥</button><button id="rightThruster">▶</button></div>
+      <p id="descentStatus" class="mission-status">Stabilize descent and reach the landing zone.</p>
+      <div id="life4Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">TOUCHDOWN</p><h3>PERFECT LANDING</h3><strong>+40 MOON POINTS ⭐</strong><button id="life4ReturnBtn" class="primary">MISSION CONTROL</button></div>
     </section>
   </main>
   <script src="app.js"></script>
