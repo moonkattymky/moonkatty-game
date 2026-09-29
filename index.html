@@ -53,7 +53,9 @@
       </div>
       <div id="scannerPuzzle" class="scanner-puzzle">
         <p class="puzzle-label">FIND THE SIGNAL FREQUENCY <span id="frequencyHint">• 3 calibrations required</span></p>
+        <div class="frequency-readout"><strong id="frequencyValue">142.0</strong><span>MHz</span></div>
         <div class="frequency-track"><i id="frequencyTarget"></i><b id="frequencyNeedle"></b></div>
+        <input id="frequencyDial" class="frequency-dial" type="range" min="0" max="100" value="50" step="1" aria-label="Signal frequency">
         <button id="tuneBtn" class="primary">LOCK FREQUENCY 📡</button>
       </div>
       <button id="beaconBtn" class="primary mission-action" hidden>APPROACH BEACON 🚀</button>
