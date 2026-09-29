@@ -423,6 +423,16 @@ function renderGlobalLivesHome(){
 }
 setInterval(renderGlobalLivesHome,1000);
 
+const COMMUNITY_LINKS={
+ telegram:'', youtube:'', x:'', tiktok:''
+};
+function openCommunity(platform){
+ const url=COMMUNITY_LINKS[platform];
+ if(!url){if($('communityStatus'))$('communityStatus').textContent=platform.toUpperCase()+' • official link pending';return;}
+ if(tg?.openLink)tg.openLink(url);else window.open(url,'_blank','noopener');
+}
+document.querySelectorAll('[data-community]').forEach(btn=>btn.addEventListener('click',()=>openCommunity(btn.dataset.community)));
+
 const REFERRAL_DAILY_CAP=40;
 function referralCode(){return crewUser?.id?String(crewUser.id):'guest';}
 function referralLink(){
