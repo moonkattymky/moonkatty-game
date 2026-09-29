@@ -27,6 +27,7 @@
           <button id="life4Card" class="life-card locked" disabled><span id="life4Icon">🔒</span><div><small>LIFE #4</small><strong>THE DESCENT</strong></div></button>
           <button id="life5Card" class="life-card locked" disabled><span id="life5Icon">🔒</span><div><small>LIFE #5</small><strong>IGNITION</strong></div></button>
           <button id="life6Card" class="life-card locked" disabled><span id="life6Icon">🔒</span><div><small>LIFE #6</small><strong>LIFTOFF</strong></div></button>
+          <button id="life7Card" class="life-card locked" disabled><span id="life7Icon">🔒</span><div><small>LIFE #7</small><strong>THE VOID</strong></div></button>
         </div>
       </div>
       <p class="disclaimer">Moon Points are in-game reputation points. They have no monetary value and do not guarantee any token allocation.</p>
@@ -145,7 +146,16 @@
       <div class="launch-checklist"><button data-launch="1">1 • NAVIGATION</button><button data-launch="2">2 • FUEL PRESSURE</button><button data-launch="3">3 • CREW LOCK</button><button data-launch="4">4 • REACTOR LINK</button></div>
       <button id="launchBtn" class="primary ignition-btn" disabled>LAUNCH 🚀</button>
       <p id="launchStatus" class="mission-status">Complete the pre-flight checklist.</p>
-      <div id="life6Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">LIFTOFF</p><h3>ORBIT ACHIEVED</h3><strong>+60 MOON POINTS ⭐</strong><button id="life6ReturnBtn" class="primary">MISSION CONTROL</button></div>
+      <div id="life6Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">LIFTOFF</p><h3>ORBIT ACHIEVED</h3><strong>+60 MOON POINTS ⭐</strong><button id="continueLife7Btn" class="primary">UNLOCK LIFE #7 🌌</button><button id="life6ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
+    </section>
+    <section id="mission7" class="screen mission-screen">
+      <header><div><span class="eyebrow">LIFE #7</span><h2>THE VOID</h2></div><div class="crew-badge">HULL <span id="hull7">100</span>%</div></header>
+      <div class="void-world"><div class="void-stars"></div><div id="voidShip" class="void-ship">🚀</div><div id="asteroidField" class="asteroid-field"></div></div>
+      <div class="panel objective"><span class="eyebrow">DEEP SPACE</span><h3>SURVIVE THE VOID</h3><p>Dodge the debris, preserve the hull and reach the transmission gate.</p></div>
+      <div class="void-hud"><span>DISTANCE <b id="distance7">0</b>/100</span><span>SHIELDS <b id="shield7">3</b></span></div>
+      <div class="void-controls"><button id="voidLeft">◀ EVADE</button><button id="shieldBtn">SHIELD ⚡</button><button id="voidRight">EVADE ▶</button></div>
+      <p id="voidStatus" class="mission-status">Unknown debris field ahead.</p>
+      <div id="life7Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">VOID CROSSED</p><h3>TRANSMISSION GATE REACHED</h3><strong>+70 MOON POINTS ⭐</strong><button id="life7ReturnBtn" class="primary">MISSION CONTROL</button></div>
     </section>
   </main>
   <script src="app.js"></script>
