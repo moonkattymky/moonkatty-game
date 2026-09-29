@@ -170,6 +170,76 @@ $('beaconBtn').onclick=()=>{
  setTimeout(()=>{$('life1Complete').hidden=false;$('life1Complete').scrollIntoView({behavior:'smooth',block:'center'});},350);
 };
 $('returnBtn').onclick=()=>show('home');
+
+function unlockLife2(){
+ const done=localStorage.getItem('mkty_life1')==='complete';
+ if(!done)return;
+ $('life1Card').classList.add('complete');
+ $('life2Card').disabled=false;
+ $('life2Card').classList.remove('locked');
+ $('life2Card').classList.add('unlocked');
+ $('life2Icon').textContent='2';
+ $('storyProgress').style.width='22%';
+}
+let life2Timer;
+function startLife2(){
+ show('life2');
+ const video=$('life2Video');
+ if(video){video.currentTime=0;video.play().catch(()=>{});}
+ $('life2Bar').classList.remove('run'); void $('life2Bar').offsetWidth; $('life2Bar').classList.add('run');
+ clearTimeout(life2Timer); life2Timer=setTimeout(openMission2,10000);
+}
+function openMission2(){
+ clearTimeout(life2Timer);
+ const video=$('life2Video'); if(video)video.pause();
+ $('crewBadge2').textContent=crewCode; show('mission2');
+}
+$('continueLife2Btn').onclick=()=>{
+ unlockLife2(); $('lifeTitle').textContent='LIFE #2 — THE CREW';
+ $('lifeText').textContent='Assemble your crew. Each specialist must pass a challenge.';
+ $('enterBtn').textContent='START LIFE #2 🚀'; $('enterBtn').onclick=startLife2; show('home');
+};
+$('life2Card').onclick=()=>$('continueLife2Btn').click();
+$('life2SkipBtn').onclick=openMission2;
+$('life2Video')?.addEventListener('ended',openMission2);
+
+let crewCount=0, activeMate=null, powerStep=1;
+function completeMate(btn){
+ if(!btn||btn.classList.contains('joined'))return;
+ btn.classList.add('joined'); crewCount++; activeMate=null;
+ document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);
+ $('crewChallengeTitle').textContent='SPECIALIST RECRUITED ✓';
+ $('crewStatus').textContent='Crew assembled: '+crewCount+' / 3';
+ tg?.HapticFeedback?.notificationOccurred?.('success');
+ if(crewCount===3){
+  localStorage.setItem('mkty_life2','complete');
+  $('life2Complete').hidden=false; $('points').textContent='30 ⭐';
+ }
+}
+document.querySelectorAll('.mate').forEach(btn=>btn.onclick=()=>{
+ if(btn.classList.contains('joined'))return;
+ activeMate=btn; document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);
+ const role=btn.dataset.mate; $('crewChallengeTitle').textContent=role.toUpperCase()+' CHALLENGE';
+ if(role==='Navigator')$('navigatorTask').hidden=false;
+ if(role==='Engineer'){powerStep=1;document.querySelectorAll('[data-power]').forEach(x=>x.classList.remove('powered'));$('engineerTask').hidden=false;}
+ if(role==='Scout'){buildAnomaly();$('scoutTask').hidden=false;}
+});
+$('navLockBtn').onclick=()=>{
+ const v=Number($('navDial').value);
+ if(v>=62&&v<=72)completeMate(activeMate);
+ else{$('crewStatus').textContent=v<62?'Vector too low — adjust right.':'Vector too high — adjust left.';tg?.HapticFeedback?.impactOccurred('light');}
+};
+document.querySelectorAll('[data-power]').forEach(b=>b.onclick=()=>{
+ const n=Number(b.dataset.power);
+ if(n===powerStep){b.classList.add('powered');powerStep++;if(powerStep===4)completeMate(activeMate);}
+ else{powerStep=1;document.querySelectorAll('[data-power]').forEach(x=>x.classList.remove('powered'));$('crewStatus').textContent='Power sequence reset. Try again.';}
+});
+function buildAnomaly(){
+ const grid=$('anomalyGrid');grid.innerHTML='';const target=Math.floor(Math.random()*9);
+ for(let i=0;i<9;i++){const b=document.createElement('button');b.textContent='·';b.onclick=()=>{if(i===target){b.textContent='✦';completeMate(activeMate);}else{b.textContent='×';$('crewStatus').textContent='Empty sector. Keep scanning.';}};grid.appendChild(b);}
+}
+$('life2ReturnBtn').onclick=()=>show('home');
+
 const saved=localStorage.getItem('mkty_lang');
 if(saved) setLang(saved);
 unlockLife2();
