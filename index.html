@@ -19,7 +19,12 @@
       <header><div><span class="eyebrow">MISSION CONTROL</span><h2>MOONKATTY</h2></div><button id="settingsBtn" class="icon-btn">🌐</button></header>
       <div class="hero"><div class="moon">🌙</div><div class="cat">🐱‍🚀</div><p id="welcome">Welcome to the Crew.</p><button id="enterBtn" class="primary">ENTER THE MISSION 🚀</button></div>
       <div class="stats"><article><small>MOON POINTS</small><strong id="points">0 ⭐</strong></article><article><small>STREAK</small><strong>1 🔥</strong></article><article><small>LIVES</small><strong>1 / 9</strong></article></div>
-      <div class="panel"><span class="eyebrow">CURRENT MISSION</span><h3 id="lifeTitle">LIFE #1 — THE AWAKENING</h3><p id="lifeText">The signal has been received. The journey to the Moon begins here.</p><div class="progress"><i></i></div></div>
+      <div class="panel"><span class="eyebrow">CURRENT MISSION</span><h3 id="lifeTitle">LIFE #1 — THE AWAKENING</h3><p id="lifeText">The signal has been received. The journey to the Moon begins here.</p><div class="progress"><i id="storyProgress"></i></div>
+        <div class="life-path">
+          <button id="life1Card" class="life-card current"><span>✓</span><div><small>LIFE #1</small><strong>THE AWAKENING</strong></div></button>
+          <button id="life2Card" class="life-card locked" disabled><span id="life2Icon">🔒</span><div><small>LIFE #2</small><strong>THE CREW</strong></div></button>
+        </div>
+      </div>
       <p class="disclaimer">Moon Points are in-game reputation points. They have no monetary value and do not guarantee any token allocation.</p>
     </section>
     <section id="life1" class="screen cinematic-screen">
@@ -44,7 +49,7 @@
       <div id="life1Complete" class="complete-card" hidden>
         <span class="complete-icon">✓</span><p class="eyebrow">MISSION COMPLETE</p>
         <h3>FIRST CONTACT</h3><strong>+10 MOON POINTS ⭐</strong>
-        <button id="returnBtn" class="primary">RETURN TO MISSION CONTROL</button>
+        <button id="continueLife2Btn" class="primary">UNLOCK LIFE #2 🚀</button><button id="returnBtn" class="ghost return-control">MISSION CONTROL</button>
       </div>
     </section>
   </main>
