@@ -167,6 +167,7 @@ $('beaconBtn').onclick=()=>{
  $('points').textContent='10 ⭐';
  localStorage.setItem('mkty_life1','complete');
  unlockLife2();
+unlockLife3();
  setTimeout(()=>{$('life1Complete').hidden=false;$('life1Complete').scrollIntoView({behavior:'smooth',block:'center'});},350);
 };
 $('returnBtn').onclick=()=>show('home');
@@ -213,7 +214,7 @@ function completeMate(btn){
  tg?.HapticFeedback?.notificationOccurred?.('success');
  if(crewCount===3){
   localStorage.setItem('mkty_life2','complete');
-  $('life2Complete').hidden=false; $('points').textContent='30 ⭐';
+  $('life2Complete').hidden=false; $('points').textContent='30 ⭐'; unlockLife3();
  }
 }
 document.querySelectorAll('.mate').forEach(btn=>btn.onclick=()=>{
@@ -239,6 +240,26 @@ function buildAnomaly(){
  for(let i=0;i<9;i++){const b=document.createElement('button');b.textContent='·';b.onclick=()=>{if(i===target){b.textContent='✦';completeMate(activeMate);}else{b.textContent='×';$('crewStatus').textContent='Empty sector. Keep scanning.';}};grid.appendChild(b);}
 }
 $('life2ReturnBtn').onclick=()=>show('home');
+
+function unlockLife3(){
+ if(localStorage.getItem('mkty_life2')!=='complete')return;
+ $('life2Card').classList.add('complete');
+ $('life3Card').disabled=false;$('life3Card').classList.remove('locked');$('life3Card').classList.add('unlocked');
+ $('life3Icon').textContent='3';$('storyProgress').style.width='33%';
+}
+function startLife3(){
+ show('life3');$('life3Bar').classList.remove('run');void $('life3Bar').offsetWidth;$('life3Bar').classList.add('run');
+ setTimeout(()=>show('mission3'),5000);
+}
+$('continueLife3Btn').onclick=()=>{unlockLife3();$('lifeTitle').textContent='LIFE #3 — THE LAUNCH CODE';$('lifeText').textContent='Decrypt the ship launch authorization sequence.';$('enterBtn').textContent='START LIFE #3 🚀';$('enterBtn').onclick=startLife3;show('home');};
+$('life3Card').onclick=()=>$('continueLife3Btn').click();$('life3SkipBtn').onclick=()=>show('mission3');
+let launchCode=[],codeInput=[],codeAttempts=3,codeReady=false;
+const codeSymbols=['▲','●','◆','■'];
+function newLaunchCode(){launchCode=Array.from({length:4},()=>codeSymbols[Math.floor(Math.random()*4)]);codeInput=[];codeReady=false;$('codeSequence').textContent='READY';$('codeStatus').textContent='Attempts: '+codeAttempts;}
+$('showCodeBtn').onclick=()=>{newLaunchCode();$('codeSequence').textContent=launchCode.join('  ');$('showCodeBtn').disabled=true;setTimeout(()=>{$('codeSequence').textContent='?  ?  ?  ?';codeReady=true;$('showCodeBtn').disabled=false;},2200);};
+document.querySelectorAll('[data-code]').forEach(b=>b.onclick=()=>{if(!codeReady)return;codeInput.push(b.dataset.code);$('codeSequence').textContent=codeInput.join('  ');if(codeInput.length===4){if(codeInput.join('')===launchCode.join('')){codeReady=false;localStorage.setItem('mkty_life3','complete');$('codeStatus').textContent='ACCESS GRANTED ✓';$('points').textContent='60 ⭐';$('life3Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');}else{codeAttempts--;tg?.HapticFeedback?.notificationOccurred?.('error');if(codeAttempts<=0){codeAttempts=3;$('codeStatus').textContent='Security reset. New code generated.';}else $('codeStatus').textContent='Incorrect sequence. Attempts: '+codeAttempts;newLaunchCode();}}});
+$('life3ReturnBtn').onclick=()=>show('home');
+
 
 const saved=localStorage.getItem('mkty_lang');
 if(saved) setLang(saved);
