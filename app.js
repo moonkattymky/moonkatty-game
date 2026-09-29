@@ -311,7 +311,7 @@ function startLife3(){
 }
 $('continueLife3Btn').onclick=()=>{unlockLife3();$('lifeTitle').textContent='LIFE #3 — THE LAUNCH CODE';$('lifeText').textContent='Decrypt the ship launch authorization sequence.';$('enterBtn').textContent='START LIFE #3 🚀';$('enterBtn').onclick=startLife3;show('home');};
 $('life3Card').onclick=()=>$('continueLife3Btn').click();$('life3SkipBtn').onclick=openLife3MemoryGate;
-$('verifyLife1CodeBtn').onclick=()=>{const lock=Number(localStorage.getItem('mkty_life3_code_lock_until')||0);if(lock>Date.now())return;const entered=$('life3MemoryInput').value.trim();if(entered===ensureLife1MemoryCode()){clearInterval(gateTimer);$('life3GateStatus').textContent='CODE VERIFIED ✓';$('life3MemoryGate').hidden=true;$('life3CodeMission').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');return;}if(!spendGlobalLife()){$('life3GateStatus').textContent='No lives available. A life restores every 12 hours.';return;}localStorage.setItem('mkty_life3_code_lock_until',String(Date.now()+MKTY_CODE_LOCK_MS));$('life3MemoryInput').value='';tg?.HapticFeedback?.notificationOccurred?.('error');renderLife3Gate();};
+$('verifyLife1CodeBtn').onclick=()=>{const lock=Number(localStorage.getItem('mkty_life3_code_lock_until')||0);if(lock>Date.now())return;const entered=$('life3MemoryInput').value.trim();if(entered===ensureLife1MemoryCode()){clearInterval(gateTimer);$('life3GateStatus').textContent='CODE VERIFIED ✓';localStorage.setItem('mkty_life3_memory_verified','yes');renderMissionArchive();$('life3MemoryGate').hidden=true;$('life3CodeMission').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');return;}if(!spendGlobalLife()){$('life3GateStatus').textContent='No lives available. A life restores every 12 hours.';return;}localStorage.setItem('mkty_life3_code_lock_until',String(Date.now()+MKTY_CODE_LOCK_MS));$('life3MemoryInput').value='';tg?.HapticFeedback?.notificationOccurred?.('error');renderLife3Gate();};
 $('buyCodeHintBtn').onclick=()=>{if(Number(localStorage.getItem('mkty_life3_code_lock_until')||0)>Date.now())return;if(!spendGlobalLife()){$('life3GateStatus').textContent='No lives available. A life restores every 12 hours.';return;}const code=ensureLife1MemoryCode();$('life3GateStatus').textContent='HINT: first 5 digits are '+code.slice(0,5)+' • remaining digits: '+code.slice(5).replace(/./g,'•');$('life3MemoryInput').focus();};
 let launchCode=[],codeInput=[],codeAttempts=3,codeReady=false;
 const codeSymbols=['▲','●','◆','■'];
@@ -421,6 +421,17 @@ function renderGlobalLivesHome(){
 }
 setInterval(renderGlobalLivesHome,1000);
 
+function renderMissionArchive(){
+ let count=0;
+ const life1=localStorage.getItem('mkty_life1')==='complete';
+ const verified=localStorage.getItem('mkty_life3_memory_verified')==='yes';
+ const finale=localStorage.getItem('mkty_life9')==='complete';
+ if(life1){count++;$('intelSignal')?.classList.remove('locked');$('intelSignal')?.classList.add('found');if($('intelSignalState'))$('intelSignalState').textContent='10-DIGIT KEY RECOVERED';}
+ if(verified){count++;$('intelMemory')?.classList.remove('locked');$('intelMemory')?.classList.add('found');if($('intelMemoryState'))$('intelMemoryState').textContent='IDENTITY CONFIRMED';}
+ if(finale){count++;$('intelMoon')?.classList.remove('locked');$('intelMoon')?.classList.add('found');if($('intelMoonState'))$('intelMoonState').textContent='TRUTH UNLOCKED';}
+ if($('archiveCount'))$('archiveCount').textContent=count+' / 3';
+}
+
 function restoreGameProgress(){
  const completed=[1,2,3,4,5,6,7,8,9].filter(n=>localStorage.getItem('mkty_life'+n)==='complete');
  const total=completed.reduce((sum,n)=>sum+n*10,0);
@@ -432,4 +443,5 @@ function restoreGameProgress(){
 
 restoreGameProgress();
 renderGlobalLivesHome();
+renderMissionArchive();
 
