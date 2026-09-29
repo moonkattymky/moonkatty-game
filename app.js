@@ -300,7 +300,7 @@ function unlockLife6(){
 $('continueLife6Btn').onclick=()=>{unlockLife6();$('lifeTitle').textContent='LIFE #6 — LIFTOFF';$('lifeText').textContent='Complete the launch sequence before time runs out.';$('enterBtn').textContent='START LIFE #6 🚀';$('enterBtn').onclick=startLife6;show('home');};
 $('life6Card').onclick=()=>$('continueLife6Btn').click();
 let launchStep=1,launchSeconds=30,launchTimer;
-function startLife6(){launchStep=1;launchSeconds=30;$('launchClock').textContent=30;$('launchBtn').disabled=true;$('life6Complete').hidden=true;$('launchStatus').textContent='Complete the pre-flight checklist.';document.querySelectorAll('[data-launch]').forEach(b=>b.classList.remove('armed','error'));$('launchShip').classList.remove('lifted');show('mission6');clearInterval(launchTimer);launchTimer=setInterval(()=>{launchSeconds--;$('launchClock').textContent=launchSeconds;if(launchSeconds<=10)$('launchClock').classList.add('danger');if(launchSeconds<=0){clearInterval(launchTimer);$('launchStatus').textContent='Launch window missed — sequence reset.';tg?.HapticFeedback?.notificationOccurred?.('error');setTimeout(startLife6,1200);}},1000);}
+function startLife6(){launchStep=1;launchSeconds=30;$('launchClock').textContent=30;$('launchClock').classList.remove('danger');$('launchBtn').disabled=true;$('life6Complete').hidden=true;$('launchStatus').textContent='Complete the pre-flight checklist.';document.querySelectorAll('[data-launch]').forEach(b=>b.classList.remove('armed','error'));$('launchShip').classList.remove('lifted');show('mission6');clearInterval(launchTimer);launchTimer=setInterval(()=>{launchSeconds--;$('launchClock').textContent=launchSeconds;if(launchSeconds<=10)$('launchClock').classList.add('danger');if(launchSeconds<=0){clearInterval(launchTimer);$('launchStatus').textContent='Launch window missed — sequence reset.';tg?.HapticFeedback?.notificationOccurred?.('error');setTimeout(startLife6,1200);}},1000);}
 document.querySelectorAll('[data-launch]').forEach(b=>b.onclick=()=>{const n=Number(b.dataset.launch);if(n!==launchStep){b.classList.add('error');$('launchStatus').textContent='Wrong sequence. Check procedure.';tg?.HapticFeedback?.impactOccurred('medium');return;}b.classList.add('armed');launchStep++;tg?.HapticFeedback?.impactOccurred('light');if(launchStep===5){$('launchBtn').disabled=false;$('launchStatus').textContent='All systems armed. LAUNCH!';}});
 $('launchBtn').onclick=()=>{if(launchStep!==5)return;clearInterval(launchTimer);$('launchShip').classList.add('lifted');$('launchFlame').classList.add('active');$('launchBtn').disabled=true;localStorage.setItem('mkty_life6','complete');$('points').textContent='210 ⭐';$('launchStatus').textContent='Liftoff confirmed — orbit achieved ✓';setTimeout(()=>{$('life6Complete').hidden=false;unlockLife7();},900);tg?.HapticFeedback?.notificationOccurred?.('success');};
 $('life6ReturnBtn').onclick=()=>show('home');
@@ -325,7 +325,7 @@ function unlockLife8(){
 $('continueLife8Btn').onclick=()=>{unlockLife8();$('lifeTitle').textContent='LIFE #8 — THE SIGNAL';$('lifeText').textContent='Decode the unknown transmission.';$('enterBtn').textContent='START LIFE #8 📡';$('enterBtn').onclick=startLife8;show('home');};
 $('life8Card').onclick=()=>$('continueLife8Btn').click();
 let targetFreq8=0,targetPhase8=0,pulse8=[],pulseInput8=[];
-function startLife8(){targetFreq8=25+Math.floor(Math.random()*51);targetPhase8=25+Math.floor(Math.random()*51);pulse8=Array.from({length:5},()=>Math.floor(Math.random()*3));pulseInput8=[];$('freq8').value=20;$('phase8').value=50;$('phasePanel8').hidden=true;$('pulsePanel8').hidden=true;$('life8Complete').hidden=true;$('link8').textContent=0;$('signalStatus8').textContent='Find the transmission frequency.';show('mission8');updateFreq8();}
+function startLife8(){targetFreq8=25+Math.floor(Math.random()*51);targetPhase8=25+Math.floor(Math.random()*51);pulse8=Array.from({length:5},()=>Math.floor(Math.random()*3));pulseInput8=[];$('freq8').value=20;$('phase8').value=50;$('phasePanel8').hidden=true;$('pulsePanel8').hidden=true;$('life8Complete').hidden=true;$('signalPulse').classList.remove('decoded');$('link8').textContent=0;$('signalStatus8').textContent='Find the transmission frequency.';show('mission8');updateFreq8();}
 function updateFreq8(){const v=Number($('freq8').value);$('freqRead8').textContent=(140+v/10).toFixed(1)+' MHz';}
 $('freq8').oninput=updateFreq8;
 $('lockFreq8').onclick=()=>{const d=Math.abs(Number($('freq8').value)-targetFreq8);if(d<=5){$('link8').textContent=33;$('phasePanel8').hidden=false;$('signalStatus8').textContent='Frequency locked. Align phase.';tg?.HapticFeedback?.notificationOccurred?.('success');}else{$('signalStatus8').textContent=Number($('freq8').value)<targetFreq8?'Signal weak — tune higher.':'Signal weak — tune lower.';}};
@@ -360,7 +360,7 @@ function restoreGameProgress(){
  const completed=[1,2,3,4,5,6,7,8,9].filter(n=>localStorage.getItem('mkty_life'+n)==='complete');
  const total=completed.reduce((sum,n)=>sum+n*10,0);
  if($('points')) $('points').textContent=total+' ⭐';
- [2,3,4,5,6,7,8,9].forEach(n=>{const fn=window['unlockLife'+n];if(typeof fn==='function')fn();});
+ unlockLife2();unlockLife3();unlockLife4();unlockLife5();unlockLife6();unlockLife7();unlockLife8();unlockLife9();
  if(completed.length===9 && $('storyProgress')) $('storyProgress').style.width='100%';
 }
 
