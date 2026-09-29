@@ -200,3 +200,10 @@ input[type="range"]{height:34px}
 .daily-streak{margin:10px 0;padding:8px 10px;border:1px solid #25364c;border-radius:10px;background:#08111d}.daily-streak span,.daily-streak small{font-size:6px;letter-spacing:1px;color:#7f8ca1}.daily-streak strong{font-size:10px}
 .daily-list{display:grid;gap:7px}.daily-task{padding:9px;border:1px solid #27374d;border-radius:11px;background:#08101b}.daily-task>span{width:27px;height:27px;display:grid;place-items:center;border:1px solid #40536d;border-radius:50%;color:var(--gold)}.daily-task>div{flex:1;display:grid;gap:2px}.daily-task strong{font-size:8px;letter-spacing:.6px}.daily-task small{font-size:6px;color:#75849a}.daily-task button{min-height:32px;padding:6px 9px;font-size:7px}.daily-task.done{border-color:#e9bd5844;opacity:.72}
 .daily-reward{margin-top:9px;padding:9px;border:1px dashed #3c4b61;border-radius:10px;text-align:center;opacity:.45}.daily-reward span,.daily-reward strong{display:block;font-size:7px;letter-spacing:.8px}.daily-reward.ready{opacity:1;border-color:#e9bd5877;box-shadow:0 0 20px #e9bd5815}.daily-note{margin:8px 2px 0;font-size:6px;line-height:1.5;color:#68768b}
+
+/* RULES & REWARDS */
+.header-actions{display:flex;gap:7px}
+.rules-screen{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+.rules-hero{display:flex;align-items:center;gap:12px;margin:14px 0;padding:14px;border:1px solid #e9bd5840;border-radius:15px;background:linear-gradient(135deg,#e9bd5812,#08111c)}
+.rules-hero>span{font-size:27px}.rules-hero div{display:grid;gap:3px}.rules-hero strong{font-size:11px;letter-spacing:1px}.rules-hero small{font-size:7px;color:#8795aa}
+.rules-list{display:grid;gap:8px;margin-bottom:14px}.rules-list article{display:flex;gap:10px;padding:12px;border:1px solid #26364b;border-radius:12px;background:#08101b}.rules-list b{flex:0 0 27px;height:27px;display:grid;place-items:center;border:1px solid #41536d;border-radius:50%;font-size:7px;color:var(--gold)}.rules-list strong{font-size:9px;letter-spacing:.8px}.rules-list p{margin:4px 0 0;font-size:7px;line-height:1.55;color:#8b98ab}
