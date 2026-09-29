@@ -52,3 +52,6 @@ header{display:flex;align-items:center;justify-content:space-between}.icon-btn{p
 
 /* LIFE #1 survival layer */
 .survival-hud{display:flex;justify-content:space-between;align-items:center;margin:10px 0;padding:9px 12px;border:1px solid #293247;border-radius:12px;background:#090e18;font-size:11px;font-weight:800;letter-spacing:1px}.survival-hud #life1Lives{color:#e9bd58}.survival-hud #missionClock{font-variant-numeric:tabular-nums;color:#dbe7ff}.survival-hud #missionClock.danger{color:#ff7b7b;animation:clockPulse .8s infinite}.puzzle-label span{float:right;color:#e9bd58;font-size:7px;letter-spacing:.5px}@keyframes clockPulse{50%{opacity:.45}}
+
+/* Random frequency tuning */
+.frequency-readout{display:flex;justify-content:center;align-items:baseline;gap:5px;margin:4px 0 10px}.frequency-readout strong{font-size:28px;font-variant-numeric:tabular-nums;color:var(--gold);letter-spacing:1px}.frequency-readout span{font-size:9px;color:var(--muted);letter-spacing:1px}.frequency-dial{width:100%;margin:12px 0 2px;accent-color:var(--gold);touch-action:pan-x}.frequency-track i{transition:left .25s ease}.frequency-track b{transition:left .08s linear}
