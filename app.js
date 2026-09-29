@@ -68,7 +68,7 @@ function setLang(code){
  document.documentElement.dir=code==='he'?'rtl':'ltr';
  const t=copy[code]||copy.en;
  $('chooseText').textContent=t[0]; $('welcome').textContent=t[1]; $('enterBtn').textContent=t[2];
- $('lifeTitle').textContent=t[3]; $('lifeText').textContent=t[4];
+ if($('lifeTitle')) $('lifeTitle').textContent=t[3]; if($('lifeText')) $('lifeText').textContent=t[4];
  $('language').classList.remove('active'); $('home').classList.add('active');
 }
 langs.forEach(([code,flag,name])=>{
