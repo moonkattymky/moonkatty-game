@@ -70,7 +70,19 @@ $('enterBtn').onclick=()=>{
 };
 $('skipBtn').onclick=openMission;
 $('life1Video')?.addEventListener('ended',openMission);
-let life1Stage=0, tuneAttempts=0, missionLives=3, missionSeconds=120, missionClockTimer;
+let life1Stage=0, tuneAttempts=0, missionLives=3, missionSeconds=120, missionClockTimer, targetFrequency=0;
+function randomizeFrequency(){
+ targetFrequency=18+Math.floor(Math.random()*65);
+ $('frequencyTarget').style.left=(targetFrequency-6)+'%';
+ $('frequencyDial').value=50;
+ updateFrequencyDial();
+}
+function updateFrequencyDial(){
+ const v=Number($('frequencyDial').value);
+ $('frequencyNeedle').style.left=v+'%';
+ $('frequencyValue').textContent=(137+v/10).toFixed(1);
+}
+$('frequencyDial').addEventListener('input',updateFrequencyDial);
 function renderSurvival(){
  $('life1Lives').textContent='LIVES '+('♥'.repeat(missionLives))+('♡'.repeat(3-missionLives));
  const m=String(Math.floor(missionSeconds/60)).padStart(2,'0'), s=String(missionSeconds%60).padStart(2,'0');
@@ -88,7 +100,7 @@ function loseLife(reason){
  }
 }
 function resetLife1Mission(){
- missionLives=3; missionSeconds=120; tuneAttempts=0; setLife1Step(0); renderSurvival();
+ missionLives=3; missionSeconds=120; tuneAttempts=0; setLife1Step(0); renderSurvival(); randomizeFrequency();
  $('tuneBtn').disabled=false; $('tuneBtn').textContent='LOCK FREQUENCY 📡';
  $('beaconBtn').hidden=true; $('beaconBtn').disabled=false; $('beaconBtn').textContent='APPROACH BEACON 🚀';
  $('scannerPuzzle').classList.remove('solved'); $('scannerFill').style.width='0%';
@@ -120,14 +132,13 @@ $('worldBeacon').onclick=()=>{
 $('tuneBtn').onclick=()=>{
  if(life1Stage!==1)return;
  tuneAttempts++;
- const needle=$('frequencyNeedle');
- const positions=[18,74,42,58,50];
- const pos=positions[Math.min(tuneAttempts-1,positions.length-1)];
- needle.style.left=pos+'%';
- tg?.HapticFeedback?.impactOccurred('light');
- if(tuneAttempts<3){
-  $('missionStatus').textContent='Frequency unstable — calibrate again ('+tuneAttempts+'/3).';
-  if(tuneAttempts===2) loseLife('Scanner overload.');
+ const chosen=Number($('frequencyDial').value);
+ const distance=Math.abs(chosen-targetFrequency);
+ tg?.HapticFeedback?.impactOccurred(distance<=6?'medium':'light');
+ if(distance>6){
+  const direction=chosen<targetFrequency?'higher':'lower';
+  $('missionStatus').textContent='Weak signal. Try a '+direction+' frequency.';
+  if(tuneAttempts%3===0) loseLife('Scanner overload.');
   return;
  }
  setLife1Step(2);
