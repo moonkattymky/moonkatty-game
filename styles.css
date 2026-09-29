@@ -80,3 +80,33 @@ header{display:flex;align-items:center;justify-content:space-between}.icon-btn{p
 
 /* LIFE #9 — THE RETURN */
 .final-life.unlocked{box-shadow:0 0 28px #e9bd5822}.final-world{height:300px;position:relative;display:grid;place-items:center;overflow:hidden;margin:18px -20px 0;background:radial-gradient(circle at 50% 42%,#24365c,#090d19 46%,#020308)}.final-moon{position:absolute;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ddd7c5,#807d77 60%,#3d4048);right:-55px;top:-35px;opacity:.55}.final-gate{width:145px;height:145px;border:3px solid #6fa7cc;border-radius:50%;display:grid;place-items:center;font-size:75px;color:#6fa7cc;box-shadow:0 0 30px #6fa7cc44;animation:gate9 3s infinite}.final-gate.open{color:var(--gold);border-color:var(--gold);box-shadow:0 0 30px #e9bd58,0 0 100px #e9bd5855}.final-ship{position:absolute;left:18%;bottom:18%;font-size:52px;transform:rotate(-45deg);transition:1.2s}.final-ship.returned{left:48%;bottom:40%;transform:rotate(-45deg) scale(.25);opacity:.2}.final-phases{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:10px 0}.final-phases span{padding:8px 3px;border:1px solid #283247;border-radius:8px;text-align:center;font-size:7px;color:#687286}.final-phases .active{border-color:var(--gold);color:var(--gold)}.final-phases .done{background:var(--gold);color:#111}.final-challenge{padding:14px;border:1px solid #303b50;border-radius:14px;background:#090f1b}.final-challenge>p{text-align:center;font-size:10px;letter-spacing:1px}.final-challenge input{width:100%;margin:12px 0}.sync-nodes,.final-keys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.final-keys{grid-template-columns:repeat(4,1fr)}.sync-nodes button,.final-keys button{height:54px;border:1px solid #3b4860;border-radius:11px;background:#121b2b;color:#fff;font-size:18px}.final-code{text-align:center;color:var(--gold);font-size:26px;letter-spacing:7px;min-height:44px}.final-complete{border-color:#e9bd5866;box-shadow:0 0 35px #e9bd581e}.final-message{font-size:9px;line-height:1.7;letter-spacing:1px;color:#d7dbe4}@keyframes gate9{50%{transform:scale(1.06);opacity:.75}}
+
+/* MOBILE POLISH — PHONE FIRST */
+html,body{min-height:100%;overscroll-behavior:none}
+body{background:#02050b;-webkit-tap-highlight-color:transparent}
+button,input{touch-action:manipulation}
+button{user-select:none;-webkit-user-select:none}
+.screen{width:min(100%,520px);margin:0 auto;padding-left:max(18px,env(safe-area-inset-left));padding-right:max(18px,env(safe-area-inset-right));padding-bottom:max(28px,env(safe-area-inset-bottom))}
+.screen>header{position:sticky;top:0;z-index:20;margin-left:-18px;margin-right:-18px;padding:calc(10px + env(safe-area-inset-top)) 18px 10px;background:linear-gradient(#050912ee,#050912b8,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.primary,.ghost,.flight-controls button,.void-controls button,.pulse-keys button,.sync-nodes button,.final-keys button,.launch-checklist button,.energy-cells button{min-height:48px}
+.primary:active,.ghost:active,.flight-controls button:active,.void-controls button:active,.pulse-keys button:active,.sync-nodes button:active,.final-keys button:active{transform:scale(.97)}
+.life-card{min-height:70px;border-radius:16px}
+.panel,.complete-card,.final-challenge,.signal-stage,.pulse-panel,.stability{border-radius:16px}
+input[type="range"]{height:34px}
+.mission-status{min-height:38px;display:flex;align-items:center;justify-content:center}
+@media(max-width:390px){
+ .screen{padding-left:14px;padding-right:14px}
+ .screen>header{margin-left:-14px;margin-right:-14px;padding-left:14px;padding-right:14px}
+ h1{font-size:clamp(34px,12vw,52px)}
+ h2{font-size:clamp(23px,8vw,34px)}
+ .stats{gap:6px}
+ .stats article{padding:10px 5px}
+ .descent-world,.reactor-world,.launch-world,.void-world,.signal-world,.final-world{height:270px;margin-left:-14px;margin-right:-14px}
+ .void-controls{grid-template-columns:1fr 1fr 1fr}
+ .void-controls button{font-size:8px;padding:6px 2px}
+ .final-code,.pulse-display{letter-spacing:4px}
+}
+@media(min-width:700px){
+ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 20%,#17305633,transparent 45%)}
+ .screen{border-left:1px solid #ffffff08;border-right:1px solid #ffffff08;box-shadow:0 0 80px #000}
+}
