@@ -82,10 +82,31 @@ $('beaconBtn').onclick=()=>{
   $('missionStatus').textContent='First contact established • +10 Moon Points';
   $('points').textContent='10 ⭐';
   localStorage.setItem('mkty_life1','complete');
+  unlockLife2();
   setTimeout(()=>{$('life1Complete').hidden=false;$('life1Complete').scrollIntoView({behavior:'smooth',block:'center'});},350);
  }
 };
 $('worldBeacon').onclick=()=>$('beaconBtn').click();
+function unlockLife2(){
+ const done=localStorage.getItem('mkty_life1')==='complete';
+ if(!done) return;
+ $('life1Card').classList.add('complete');
+ $('life2Card').disabled=false;
+ $('life2Card').classList.remove('locked');
+ $('life2Card').classList.add('unlocked');
+ $('life2Icon').textContent='2';
+ $('storyProgress').style.width='22%';
+}
+$('continueLife2Btn').onclick=()=>{
+ unlockLife2();
+ show('home');
+ $('lifeTitle').textContent='LIFE #2 — THE CREW';
+ $('lifeText').textContent='Life #2 is unlocked. Your crew is waiting for the next mission.';
+ $('enterBtn').textContent='START LIFE #2 🚀';
+ $('life2Card').classList.add('current');
+};
+$('life2Card').onclick=()=>$('continueLife2Btn').click();
 $('returnBtn').onclick=()=>show('home');
 const saved=localStorage.getItem('mkty_lang');
 if(saved) setLang(saved);
+unlockLife2();
