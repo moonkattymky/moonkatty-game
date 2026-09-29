@@ -74,14 +74,18 @@ $('beaconBtn').onclick=()=>{
  signal=Math.min(100,signal+25);
  tg?.HapticFeedback?.impactOccurred(signal===100?'heavy':'light');
  $('missionStatus').textContent='Signal strength: '+signal+'%';
- document.querySelector('.beacon').style.opacity=.35+signal/155;
+ const beacon=document.querySelector('.beacon'); beacon.style.opacity=.35+signal/155;
+ $('scannerFill').style.width=signal+'%';
  if(signal===100){
   $('beaconBtn').textContent='SIGNAL LOCKED ✓';
   $('beaconBtn').disabled=true;
   $('missionStatus').textContent='First contact established • +10 Moon Points';
   $('points').textContent='10 ⭐';
   localStorage.setItem('mkty_life1','complete');
+  setTimeout(()=>{$('life1Complete').hidden=false;$('life1Complete').scrollIntoView({behavior:'smooth',block:'center'});},350);
  }
 };
+$('worldBeacon').onclick=()=>$('beaconBtn').click();
+$('returnBtn').onclick=()=>show('home');
 const saved=localStorage.getItem('mkty_lang');
 if(saved) setLang(saved);
