@@ -44,8 +44,19 @@
         <div class="scanner"><i id="scannerFill"></i></div>
       </div>
       <div class="panel objective"><span class="eyebrow">MISSION OBJECTIVE</span><h3 id="objectiveTitle">FIND THE SIGNAL</h3><p id="objectiveText">Tap the lunar beacon to establish first contact.</p></div>
-      <button id="beaconBtn" class="primary">SCAN SIGNAL 📡</button>
-      <p id="missionStatus" class="mission-status">Signal strength: 0%</p>
+      <div class="life1-steps">
+        <span id="stepExplore" class="step active">1 • EXPLORE</span>
+        <span id="stepTune" class="step">2 • TUNE</span>
+        <span id="stepReach" class="step">3 • REACH</span>
+        <span id="stepActivate" class="step">4 • ACTIVATE</span>
+      </div>
+      <div id="scannerPuzzle" class="scanner-puzzle">
+        <p class="puzzle-label">FIND THE SIGNAL FREQUENCY</p>
+        <div class="frequency-track"><i id="frequencyTarget"></i><b id="frequencyNeedle"></b></div>
+        <button id="tuneBtn" class="primary">LOCK FREQUENCY 📡</button>
+      </div>
+      <button id="beaconBtn" class="primary mission-action" hidden>APPROACH BEACON 🚀</button>
+      <p id="missionStatus" class="mission-status">Search the surface for the signal source.</p>
       <div id="life1Complete" class="complete-card" hidden>
         <span class="complete-icon">✓</span><p class="eyebrow">MISSION COMPLETE</p>
         <h3>FIRST CONTACT</h3><strong>+10 MOON POINTS ⭐</strong>
