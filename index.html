@@ -52,6 +52,28 @@
         <button id="continueLife2Btn" class="primary">UNLOCK LIFE #2 🚀</button><button id="returnBtn" class="ghost return-control">MISSION CONTROL</button>
       </div>
     </section>
+    <section id="life2" class="screen cinematic-screen">
+      <div class="cinematic">
+        <p class="eyebrow">LIFE #2</p><h2>THE CREW</h2>
+        <video id="life2Video" class="life-video" playsinline preload="auto"><source src="assets/life-2-the-crew.mp4" type="video/mp4"></video>
+        <p class="crew-line">NO MISSION SUCCEEDS ALONE.</p>
+        <div class="cinematic-progress"><i id="life2Bar"></i></div>
+        <button id="life2SkipBtn" class="ghost">SKIP</button>
+      </div>
+    </section>
+    <section id="mission2" class="screen mission-screen">
+      <header><div><span class="eyebrow">LIFE #2</span><h2>THE CREW</h2></div><div class="crew-badge" id="crewBadge2">MKTY-GUEST</div></header>
+      <div class="crew-world">
+        <div class="crew-orbit"></div>
+        <div class="crew-cat captain">🐱‍🚀<small>YOU</small></div>
+        <button class="crew-cat mate mate1" data-mate="Navigator">🐱‍🚀<small>NAVIGATOR</small></button>
+        <button class="crew-cat mate mate2" data-mate="Engineer">🐱‍🚀<small>ENGINEER</small></button>
+        <button class="crew-cat mate mate3" data-mate="Scout">🐱‍🚀<small>SCOUT</small></button>
+      </div>
+      <div class="panel objective"><span class="eyebrow">MISSION OBJECTIVE</span><h3>ASSEMBLE THE CREW</h3><p>Recruit all three specialists for the Moon mission.</p></div>
+      <p id="crewStatus" class="mission-status">Crew assembled: 0 / 3</p>
+      <div id="life2Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">CREW ASSEMBLED</p><h3>MISSION READY</h3><strong>+20 MOON POINTS ⭐</strong><button id="life2ReturnBtn" class="primary">RETURN TO MISSION CONTROL</button></div>
+    </section>
   </main>
   <script src="app.js"></script>
 </body></html>
