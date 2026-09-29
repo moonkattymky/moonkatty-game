@@ -168,6 +168,7 @@ $('beaconBtn').onclick=()=>{
  localStorage.setItem('mkty_life1','complete');
  unlockLife2();
 unlockLife3();
+unlockLife4();
  setTimeout(()=>{$('life1Complete').hidden=false;$('life1Complete').scrollIntoView({behavior:'smooth',block:'center'});},350);
 };
 $('returnBtn').onclick=()=>show('home');
@@ -257,8 +258,23 @@ let launchCode=[],codeInput=[],codeAttempts=3,codeReady=false;
 const codeSymbols=['▲','●','◆','■'];
 function newLaunchCode(){launchCode=Array.from({length:4},()=>codeSymbols[Math.floor(Math.random()*4)]);codeInput=[];codeReady=false;$('codeSequence').textContent='READY';$('codeStatus').textContent='Attempts: '+codeAttempts;}
 $('showCodeBtn').onclick=()=>{newLaunchCode();$('codeSequence').textContent=launchCode.join('  ');$('showCodeBtn').disabled=true;setTimeout(()=>{$('codeSequence').textContent='?  ?  ?  ?';codeReady=true;$('showCodeBtn').disabled=false;},2200);};
-document.querySelectorAll('[data-code]').forEach(b=>b.onclick=()=>{if(!codeReady)return;codeInput.push(b.dataset.code);$('codeSequence').textContent=codeInput.join('  ');if(codeInput.length===4){if(codeInput.join('')===launchCode.join('')){codeReady=false;localStorage.setItem('mkty_life3','complete');$('codeStatus').textContent='ACCESS GRANTED ✓';$('points').textContent='60 ⭐';$('life3Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');}else{codeAttempts--;tg?.HapticFeedback?.notificationOccurred?.('error');if(codeAttempts<=0){codeAttempts=3;$('codeStatus').textContent='Security reset. New code generated.';}else $('codeStatus').textContent='Incorrect sequence. Attempts: '+codeAttempts;newLaunchCode();}}});
+document.querySelectorAll('[data-code]').forEach(b=>b.onclick=()=>{if(!codeReady)return;codeInput.push(b.dataset.code);$('codeSequence').textContent=codeInput.join('  ');if(codeInput.length===4){if(codeInput.join('')===launchCode.join('')){codeReady=false;localStorage.setItem('mkty_life3','complete');$('codeStatus').textContent='ACCESS GRANTED ✓';$('points').textContent='60 ⭐';$('life3Complete').hidden=false;unlockLife4();tg?.HapticFeedback?.notificationOccurred?.('success');}else{codeAttempts--;tg?.HapticFeedback?.notificationOccurred?.('error');if(codeAttempts<=0){codeAttempts=3;$('codeStatus').textContent='Security reset. New code generated.';}else $('codeStatus').textContent='Incorrect sequence. Attempts: '+codeAttempts;newLaunchCode();}}});
 $('life3ReturnBtn').onclick=()=>show('home');
+
+function unlockLife4(){
+ if(localStorage.getItem('mkty_life3')!=='complete')return;
+ $('life3Card').classList.add('complete');$('life4Card').disabled=false;$('life4Card').classList.remove('locked');$('life4Card').classList.add('unlocked');$('life4Icon').textContent='4';$('storyProgress').style.width='44%';
+}
+$('continueLife4Btn').onclick=()=>{unlockLife4();$('lifeTitle').textContent='LIFE #4 — THE DESCENT';$('lifeText').textContent='Take manual control and land the ship safely.';$('enterBtn').textContent='START LIFE #4 🚀';$('enterBtn').onclick=startLife4;show('home');};
+$('life4Card').onclick=()=>$('continueLife4Btn').click();
+let alt4=2400,vel4=28,fuel4=100,drift4=0,descentTimer;
+function renderDescent(){$('altitude').textContent=Math.max(0,Math.round(alt4));$('velocity').textContent=Math.max(0,Math.round(vel4));$('fuel').textContent=Math.max(0,Math.round(fuel4));$('lander').style.transform='translateX('+drift4+'px)';}
+function startLife4(){alt4=2400;vel4=28;fuel4=100;drift4=0;$('life4Complete').hidden=true;$('descentStatus').textContent='Stabilize descent and reach the landing zone.';show('mission4');renderDescent();clearInterval(descentTimer);descentTimer=setInterval(()=>{alt4-=vel4*2;vel4+=.8;if(alt4<=0){clearInterval(descentTimer);if(vel4<=12&&Math.abs(drift4)<=45){localStorage.setItem('mkty_life4','complete');$('descentStatus').textContent='Touchdown confirmed ✓';$('points').textContent='100 ⭐';$('life4Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');}else{$('descentStatus').textContent='Hard landing — retry the descent.';tg?.HapticFeedback?.notificationOccurred?.('error');setTimeout(startLife4,1400);}}renderDescent();},500);}
+$('burnBtn').onclick=()=>{if(fuel4<=0)return;const power=Number($('thrustDial').value)/100;fuel4-=4+power*4;vel4=Math.max(3,vel4-(3+power*7));tg?.HapticFeedback?.impactOccurred('medium');renderDescent();};
+$('leftThruster').onclick=()=>{if(fuel4>0){drift4=Math.max(-90,drift4-18);fuel4-=2;renderDescent();}};
+$('rightThruster').onclick=()=>{if(fuel4>0){drift4=Math.min(90,drift4+18);fuel4-=2;renderDescent();}};
+$('life4ReturnBtn').onclick=()=>show('home');
+
 
 
 const saved=localStorage.getItem('mkty_lang');
