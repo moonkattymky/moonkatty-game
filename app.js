@@ -172,6 +172,7 @@ unlockLife4();
 unlockLife5();
 unlockLife6();
 unlockLife7();
+unlockLife8();
  setTimeout(()=>{$('life1Complete').hidden=false;$('life1Complete').scrollIntoView({behavior:'smooth',block:'center'});},350);
 };
 $('returnBtn').onclick=()=>show('home');
@@ -312,9 +313,25 @@ $('life7Card').onclick=()=>$('continueLife7Btn').click();
 let lane7=1,hull7=100,shield7=3,distance7=0,shieldActive7=false,voidTimer;
 function renderVoid(){ $('hull7').textContent=hull7;$('shield7').textContent=shield7;$('distance7').textContent=distance7;$('voidShip').style.left=(20+lane7*30)+'%';}
 function spawnDebris(){const field=$('asteroidField');field.innerHTML='';const danger=Math.floor(Math.random()*3);for(let i=0;i<3;i++){const d=document.createElement('span');d.textContent=i===danger?'☄':'·';d.className=i===danger?'danger-debris':'';field.appendChild(d);}return danger;}
-function startLife7(){lane7=1;hull7=100;shield7=3;distance7=0;shieldActive7=false;$('life7Complete').hidden=true;$('voidStatus').textContent='Unknown debris field ahead.';show('mission7');renderVoid();clearInterval(voidTimer);let danger=spawnDebris();voidTimer=setInterval(()=>{distance7+=10;if(lane7===danger){if(shieldActive7){shieldActive7=false;$('voidStatus').textContent='Shield absorbed impact.';}else{hull7-=25;$('voidStatus').textContent='Hull impact! Change course.';tg?.HapticFeedback?.notificationOccurred?.('error');}}if(hull7<=0){clearInterval(voidTimer);$('voidStatus').textContent='Hull lost — emergency reset.';setTimeout(startLife7,1200);return;}if(distance7>=100){clearInterval(voidTimer);localStorage.setItem('mkty_life7','complete');$('points').textContent='280 ⭐';$('voidStatus').textContent='Transmission gate reached ✓';$('life7Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');return;}danger=spawnDebris();renderVoid();},1200);}
+function startLife7(){lane7=1;hull7=100;shield7=3;distance7=0;shieldActive7=false;$('life7Complete').hidden=true;$('voidStatus').textContent='Unknown debris field ahead.';show('mission7');renderVoid();clearInterval(voidTimer);let danger=spawnDebris();voidTimer=setInterval(()=>{distance7+=10;if(lane7===danger){if(shieldActive7){shieldActive7=false;$('voidStatus').textContent='Shield absorbed impact.';}else{hull7-=25;$('voidStatus').textContent='Hull impact! Change course.';tg?.HapticFeedback?.notificationOccurred?.('error');}}if(hull7<=0){clearInterval(voidTimer);$('voidStatus').textContent='Hull lost — emergency reset.';setTimeout(startLife7,1200);return;}if(distance7>=100){clearInterval(voidTimer);localStorage.setItem('mkty_life7','complete');$('points').textContent='280 ⭐';$('voidStatus').textContent='Transmission gate reached ✓';$('life7Complete').hidden=false;unlockLife8();tg?.HapticFeedback?.notificationOccurred?.('success');return;}danger=spawnDebris();renderVoid();},1200);}
 $('voidLeft').onclick=()=>{lane7=Math.max(0,lane7-1);renderVoid();};$('voidRight').onclick=()=>{lane7=Math.min(2,lane7+1);renderVoid();};$('shieldBtn').onclick=()=>{if(shield7<=0||shieldActive7)return;shield7--;shieldActive7=true;$('voidStatus').textContent='Shield armed for next impact.';renderVoid();};
 $('life7ReturnBtn').onclick=()=>show('home');
+
+function unlockLife8(){
+ if(localStorage.getItem('mkty_life7')!=='complete')return;
+ $('life7Card').classList.add('complete');$('life8Card').disabled=false;$('life8Card').classList.remove('locked');$('life8Card').classList.add('unlocked');$('life8Icon').textContent='8';$('storyProgress').style.width='88%';
+}
+$('continueLife8Btn').onclick=()=>{unlockLife8();$('lifeTitle').textContent='LIFE #8 — THE SIGNAL';$('lifeText').textContent='Decode the unknown transmission.';$('enterBtn').textContent='START LIFE #8 📡';$('enterBtn').onclick=startLife8;show('home');};
+$('life8Card').onclick=()=>$('continueLife8Btn').click();
+let targetFreq8=0,targetPhase8=0,pulse8=[],pulseInput8=[];
+function startLife8(){targetFreq8=25+Math.floor(Math.random()*51);targetPhase8=25+Math.floor(Math.random()*51);pulse8=Array.from({length:5},()=>Math.floor(Math.random()*3));pulseInput8=[];$('freq8').value=20;$('phase8').value=50;$('phasePanel8').hidden=true;$('pulsePanel8').hidden=true;$('life8Complete').hidden=true;$('link8').textContent=0;$('signalStatus8').textContent='Find the transmission frequency.';show('mission8');updateFreq8();}
+function updateFreq8(){const v=Number($('freq8').value);$('freqRead8').textContent=(140+v/10).toFixed(1)+' MHz';}
+$('freq8').oninput=updateFreq8;
+$('lockFreq8').onclick=()=>{const d=Math.abs(Number($('freq8').value)-targetFreq8);if(d<=5){$('link8').textContent=33;$('phasePanel8').hidden=false;$('signalStatus8').textContent='Frequency locked. Align phase.';tg?.HapticFeedback?.notificationOccurred?.('success');}else{$('signalStatus8').textContent=Number($('freq8').value)<targetFreq8?'Signal weak — tune higher.':'Signal weak — tune lower.';}};
+$('lockPhase8').onclick=()=>{const d=Math.abs(Number($('phase8').value)-targetPhase8);if(d<=6){$('link8').textContent=66;$('pulsePanel8').hidden=false;$('signalStatus8').textContent='Phase locked. Memorize the pulse.';$('pulseDisplay8').textContent=pulse8.map(n=>['◯','△','◇'][n]).join(' ');setTimeout(()=>{$('pulseDisplay8').textContent='? ? ? ? ?';},2600);tg?.HapticFeedback?.notificationOccurred?.('success');}else{$('signalStatus8').textContent=Number($('phase8').value)<targetPhase8?'Phase drifting right.':'Phase drifting left.';}};
+document.querySelectorAll('[data-pulse8]').forEach(b=>b.onclick=()=>{if($('pulsePanel8').hidden)return;pulseInput8.push(Number(b.dataset.pulse8));if(pulseInput8.length===5){const ok=pulseInput8.every((v,i)=>v===pulse8[i]);if(ok){$('link8').textContent=100;localStorage.setItem('mkty_life8','complete');$('points').textContent='360 ⭐';$('signalStatus8').textContent='Signal decoded. Coordinates received ✓';$('signalPulse').classList.add('decoded');$('life8Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');}else{pulseInput8=[];$('signalStatus8').textContent='Pattern rejected. Watch the pulse again.';$('pulseDisplay8').textContent=pulse8.map(n=>['◯','△','◇'][n]).join(' ');setTimeout(()=>{$('pulseDisplay8').textContent='? ? ? ? ?';},2200);tg?.HapticFeedback?.notificationOccurred?.('error');}}});
+$('life8ReturnBtn').onclick=()=>show('home');
+
 
 
 
