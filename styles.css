@@ -222,3 +222,41 @@ input[type="range"]{height:34px}
 .community-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}.community-card{display:flex;align-items:center;gap:8px;min-height:58px;padding:9px;border:1px solid #283950;border-radius:11px;background:#08101b;color:#fff;text-align:left}.community-card>span{width:28px;height:28px;display:grid;place-items:center;border:1px solid #41536d;border-radius:50%;color:var(--gold);font-size:12px}.community-card div{flex:1;display:grid;gap:2px}.community-card strong{font-size:8px;letter-spacing:.6px}.community-card small{font-size:5px;color:#738298}.community-card b{font-size:5px;color:#83d9ce}
 .community-status{margin:9px 2px 0;font-size:6px;line-height:1.5;color:#68768b}
 @media(max-width:390px){.community-grid{grid-template-columns:1fr}}
+
+
+/* MOONKATTY Mission Control — cinematic mobile redesign */
+#home{padding:calc(16px + env(safe-area-inset-top)) 18px 28px;min-height:100vh;background:
+radial-gradient(circle at 50% 28%,#26345655 0,transparent 31%),
+linear-gradient(180deg,#050914 0%,#070b13 55%,#03050a 100%)}
+#home header{padding:4px 2px 0}
+#home header h2{font-size:23px;letter-spacing:4px}
+#home .header-actions{display:flex;gap:7px}
+#home .icon-btn{width:43px;height:43px;padding:0;border-radius:50%;background:#0c1422cc;border-color:#33415b;font-size:15px}
+#home .hero{position:relative;min-height:54vh;margin:5px -18px 0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding:0 20px 22px;overflow:hidden}
+#home .hero:before{content:"";position:absolute;width:290px;height:290px;top:7%;left:50%;transform:translateX(-50%);border-radius:50%;background:
+radial-gradient(circle at 37% 32%,#fff8 0 1%,transparent 2%),
+radial-gradient(circle at 55% 47%,#c7ced8 0 3%,#69717d 4% 9%,transparent 10%),
+radial-gradient(circle at 38% 62%,#9da4ad 0 5%,transparent 6%),
+radial-gradient(circle at 50% 45%,#c8cbd0,#626975 48%,#222936 70%);
+box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
+#home .hero:after{content:"MOONKATTY";position:absolute;top:24%;left:50%;transform:translateX(-50%);font-size:62px;font-weight:950;letter-spacing:5px;color:#ffffff08;white-space:nowrap}
+#home .moon{position:absolute;top:16%;font-size:54px;z-index:2;filter:drop-shadow(0 0 25px #e9bd5855)}
+#home .cat{position:absolute;top:28%;z-index:3;font-size:108px;margin:0;filter:drop-shadow(0 18px 22px #000)}
+#home #welcome{position:relative;z-index:4;margin:0 0 13px;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#c9d0dc}
+#home #enterBtn{position:relative;z-index:4;max-width:390px;margin:0;border-radius:18px;padding:18px 20px;font-size:15px;letter-spacing:1.2px;box-shadow:0 12px 35px #e9bd5828}
+#home .stats{position:relative;z-index:5;margin-top:-3px;gap:7px}
+#home .stats article{min-height:83px;padding:13px 11px;border-radius:15px;background:linear-gradient(180deg,#101827e8,#090e18e8);border-color:#26334a;box-shadow:0 10px 28px #0005}
+#home .stats small{font-size:8px;letter-spacing:1px}
+#home .stats strong{font-size:15px}
+#home .stats em{font-size:7px;color:#657086;letter-spacing:1.5px;font-style:normal}
+#home #communityHub{margin-top:16px;padding:12px 14px;border-radius:15px;background:#090f1a;border:1px solid #202b3e}
+#home .community-head{cursor:pointer}
+#home .community-grid,#home .community-status{display:none}
+#home #communityHub:after{content:"TELEGRAM  •  YOUTUBE  •  X  •  TIKTOK";display:block;margin-top:8px;font-size:7px;letter-spacing:1.3px;color:#657086}
+#home .crew-network,#home .daily-missions,#home .mission-archive{margin-top:12px}
+@media(max-height:760px){
+ #home .hero{min-height:47vh}
+ #home .hero:before{width:230px;height:230px}
+ #home .cat{font-size:86px;top:26%}
+ #home .moon{font-size:44px}
+}
