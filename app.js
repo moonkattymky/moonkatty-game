@@ -2,6 +2,36 @@
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
+// Server-verified Telegram identity. initDataUnsafe is display-only; rewards must trust the server.
+const MKTY_AUTH_URL='https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/telegram-auth';
+let mktyServerPlayer=null;
+let mktyAuthPromise=null;
+
+async function authenticateMoonkattyPlayer(){
+ if(!tg?.initData){
+  console.info('MOONKATTY auth: open the game inside Telegram to authenticate.');
+  return null;
+ }
+ try{
+  const response=await fetch(MKTY_AUTH_URL,{
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({initData:tg.initData})
+  });
+  const payload=await response.json().catch(()=>({}));
+  if(!response.ok||!payload?.ok||!payload?.player){
+   throw new Error(payload?.error||('HTTP '+response.status));
+  }
+  mktyServerPlayer=payload.player;
+  console.info('MOONKATTY auth: Telegram identity verified.');
+  return mktyServerPlayer;
+ }catch(error){
+  console.error('MOONKATTY auth failed:',error);
+  return null;
+ }
+}
+mktyAuthPromise=authenticateMoonkattyPlayer();
+
 // MOONKATTY Crew identity
 const crewUser = tg?.initDataUnsafe?.user;
 const crewId = crewUser?.id || 'guest';
