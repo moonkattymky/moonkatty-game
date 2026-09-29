@@ -23,6 +23,7 @@
         <div class="life-path">
           <button id="life1Card" class="life-card current"><span>✓</span><div><small>LIFE #1</small><strong>THE AWAKENING</strong></div></button>
           <button id="life2Card" class="life-card locked" disabled><span id="life2Icon">🔒</span><div><small>LIFE #2</small><strong>THE CREW</strong></div></button>
+          <button id="life3Card" class="life-card locked" disabled><span id="life3Icon">🔒</span><div><small>LIFE #3</small><strong>THE LAUNCH CODE</strong></div></button>
         </div>
       </div>
       <p class="disclaimer">Moon Points are in-game reputation points. They have no monetary value and do not guarantee any token allocation.</p>
@@ -92,7 +93,26 @@
         <div id="scoutTask" class="crew-task" hidden><strong>SCOUT TEST</strong><p>Locate the hidden lunar anomaly.</p><div class="anomaly-grid" id="anomalyGrid"></div></div>
       </div>
       <p id="crewStatus" class="mission-status">Crew assembled: 0 / 3</p>
-      <div id="life2Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">CREW ASSEMBLED</p><h3>MISSION READY</h3><strong>+20 MOON POINTS ⭐</strong><button id="life2ReturnBtn" class="primary">RETURN TO MISSION CONTROL</button></div>
+      <div id="life2Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">CREW ASSEMBLED</p><h3>MISSION READY</h3><strong>+20 MOON POINTS ⭐</strong><button id="continueLife3Btn" class="primary">UNLOCK LIFE #3 🚀</button><button id="life2ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
+    </section>
+    <section id="life3" class="screen cinematic-screen">
+      <div class="cinematic"><p class="eyebrow">LIFE #3</p><h2>THE LAUNCH CODE</h2>
+        <div class="code-core"><span>ACCESS // MKTY-03</span><strong id="codePulse">••••</strong></div>
+        <p class="crew-line">THE CREW IS READY. THE SHIP IS NOT.</p>
+        <div class="cinematic-progress"><i id="life3Bar"></i></div><button id="life3SkipBtn" class="ghost">SKIP</button>
+      </div>
+    </section>
+    <section id="mission3" class="screen mission-screen">
+      <header><div><span class="eyebrow">LIFE #3</span><h2>THE LAUNCH CODE</h2></div><div class="crew-badge">SECURITY // 03</div></header>
+      <div class="code-mission">
+        <p class="eyebrow">DECRYPTION SEQUENCE</p><h3>MEMORIZE THE SIGNAL</h3>
+        <p id="codeHint">Watch the four-symbol sequence. Then reproduce it.</p>
+        <div id="codeSequence" class="code-sequence">READY</div>
+        <div id="codePad" class="code-pad"><button data-code="▲">▲</button><button data-code="●">●</button><button data-code="◆">◆</button><button data-code="■">■</button></div>
+        <button id="showCodeBtn" class="primary">SHOW SEQUENCE</button>
+        <p id="codeStatus" class="mission-status">Attempts: 3</p>
+      </div>
+      <div id="life3Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">ACCESS GRANTED</p><h3>LAUNCH CODE DECRYPTED</h3><strong>+30 MOON POINTS ⭐</strong><button id="life3ReturnBtn" class="primary">MISSION CONTROL</button></div>
     </section>
   </main>
   <script src="app.js"></script>
