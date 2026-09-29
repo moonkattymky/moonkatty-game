@@ -163,3 +163,14 @@ input[type="range"]{height:34px}
 @keyframes completeGlow{0%{box-shadow:0 0 0 transparent}45%{box-shadow:0 0 45px color-mix(in srgb,var(--life-accent) 28%,transparent)}100%{box-shadow:0 0 0 transparent}}
 @keyframes lifeUnlock{0%{transform:scale(.97);filter:brightness(.75)}50%{transform:scale(1.025);filter:brightness(1.3)}100%{transform:none;filter:none}}
 @media(prefers-reduced-motion:reduce){.screen.active,.mission-screen.active .objective,.mission-screen.active .mission-status,.complete-card:not([hidden]),.complete-card:not([hidden]) .complete-icon,.life-card.unlocked{animation:none!important}}
+
+/* MEMORY CODE GATE */
+.memory-code{margin:14px 0 10px;padding:14px;border:1px solid #e9bd5866;border-radius:14px;background:radial-gradient(circle at 50% 0,#e9bd581c,transparent 70%),#070c14;text-align:center;box-shadow:0 0 28px #e9bd5815}
+.memory-code span,.memory-code small,.cooldown-box span{display:block;font-size:8px;letter-spacing:1.8px;color:#aeb8c8}
+.memory-code strong{display:block;margin:8px 0;font-size:28px;letter-spacing:5px;color:var(--gold);font-variant-numeric:tabular-nums}
+.memory-gate{margin:18px 0;padding:18px;border:1px solid #73e0d044;border-radius:16px;background:#08111bee;text-align:center;box-shadow:0 18px 40px #0006}
+.memory-gate input{width:100%;box-sizing:border-box;margin:14px 0 10px;padding:14px;border:1px solid #415069;border-radius:12px;background:#050912;color:#fff;text-align:center;font-size:23px;letter-spacing:5px;font-variant-numeric:tabular-nums}
+.cooldown-box{margin:12px 0;padding:12px;border:1px solid #e9bd5844;border-radius:12px;background:#e9bd580b}
+.cooldown-box strong{display:block;margin-top:5px;color:var(--gold);font-size:22px;font-variant-numeric:tabular-nums}
+.life-bank{font-size:8px;letter-spacing:1px;color:#8995a8}
+@media(max-width:390px){.memory-code strong{font-size:23px;letter-spacing:3px}.memory-gate input{font-size:20px;letter-spacing:3px}}
