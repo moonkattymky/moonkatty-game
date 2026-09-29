@@ -174,3 +174,8 @@ input[type="range"]{height:34px}
 .cooldown-box strong{display:block;margin-top:5px;color:var(--gold);font-size:22px;font-variant-numeric:tabular-nums}
 .life-bank{font-size:8px;letter-spacing:1px;color:#8995a8}
 @media(max-width:390px){.memory-code strong{font-size:23px;letter-spacing:3px}.memory-gate input{font-size:20px;letter-spacing:3px}}
+
+/* GLOBAL LIFE BANK */
+.stats article{position:relative}
+.stats article em{display:block;margin-top:4px;min-height:10px;font-style:normal;font-size:6px;letter-spacing:.8px;color:#7e8ba0;font-variant-numeric:tabular-nums}
+#globalLivesHome{color:#f1c36b;text-shadow:0 0 18px #e9bd5828}
