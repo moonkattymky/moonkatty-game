@@ -75,6 +75,7 @@
       <div id="life1Complete" class="complete-card" hidden>
         <span class="complete-icon">✓</span><p class="eyebrow">MISSION COMPLETE</p>
         <h3>FIRST CONTACT</h3><strong>+10 MOON POINTS ⭐</strong>
+        <div id="life1MemoryCode" class="memory-code" hidden><span>MEMORIZE THIS CODE</span><strong id="life1CodeValue">0000000000</strong><small id="life1CodeTimer">VISIBLE FOR 10 SECONDS</small></div>
         <button id="continueLife2Btn" class="primary">UNLOCK LIFE #2 🚀</button><button id="returnBtn" class="ghost return-control">MISSION CONTROL</button>
       </div>
     </section>
@@ -115,7 +116,17 @@
     </section>
     <section id="mission3" class="screen mission-screen life-theme life-theme-3">
       <header><div><span class="eyebrow">LIFE #3</span><h2>THE LAUNCH CODE</h2></div><div class="crew-badge">SECURITY // 03</div></header>
-      <div class="code-mission">
+      <div id="life3MemoryGate" class="memory-gate">
+        <p class="eyebrow">MEMORY CHECK // LIFE #1</p><h3>ENTER THE 10-DIGIT CODE</h3>
+        <p>The code was shown for 10 seconds after LIFE #1.</p>
+        <input id="life3MemoryInput" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="0000000000" aria-label="10-digit LIFE 1 code">
+        <button id="verifyLife1CodeBtn" class="primary">VERIFY CODE</button>
+        <p id="life3GateStatus" class="mission-status">Authorization required.</p>
+        <div id="life3Cooldown" class="cooldown-box" hidden><span>RETRY AVAILABLE IN</span><strong id="life3CooldownTimer">01:00:00</strong></div>
+        <button id="buyCodeHintBtn" class="ghost" hidden>BUY CODE HINT • −1 LIFE</button>
+        <p class="life-bank">LIVES: <strong id="globalLives3">9 / 9</strong> • 1 life restores every 12h</p>
+      </div>
+      <div class="code-mission" id="life3CodeMission" hidden>
         <p class="eyebrow">DECRYPTION SEQUENCE</p><h3>MEMORIZE THE SIGNAL</h3>
         <p id="codeHint">Watch the four-symbol sequence. Then reproduce it.</p>
         <div id="codeSequence" class="code-sequence">READY</div>
