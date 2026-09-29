@@ -28,6 +28,7 @@
           <button id="life5Card" class="life-card locked" disabled><span id="life5Icon">🔒</span><div><small>LIFE #5</small><strong>IGNITION</strong></div></button>
           <button id="life6Card" class="life-card locked" disabled><span id="life6Icon">🔒</span><div><small>LIFE #6</small><strong>LIFTOFF</strong></div></button>
           <button id="life7Card" class="life-card locked" disabled><span id="life7Icon">🔒</span><div><small>LIFE #7</small><strong>THE VOID</strong></div></button>
+          <button id="life8Card" class="life-card locked" disabled><span id="life8Icon">🔒</span><div><small>LIFE #8</small><strong>THE SIGNAL</strong></div></button>
         </div>
       </div>
       <p class="disclaimer">Moon Points are in-game reputation points. They have no monetary value and do not guarantee any token allocation.</p>
@@ -155,7 +156,18 @@
       <div class="void-hud"><span>DISTANCE <b id="distance7">0</b>/100</span><span>SHIELDS <b id="shield7">3</b></span></div>
       <div class="void-controls"><button id="voidLeft">◀ EVADE</button><button id="shieldBtn">SHIELD ⚡</button><button id="voidRight">EVADE ▶</button></div>
       <p id="voidStatus" class="mission-status">Unknown debris field ahead.</p>
-      <div id="life7Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">VOID CROSSED</p><h3>TRANSMISSION GATE REACHED</h3><strong>+70 MOON POINTS ⭐</strong><button id="life7ReturnBtn" class="primary">MISSION CONTROL</button></div>
+      <div id="life7Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">VOID CROSSED</p><h3>TRANSMISSION GATE REACHED</h3><strong>+70 MOON POINTS ⭐</strong><button id="continueLife8Btn" class="primary">UNLOCK LIFE #8 📡</button><button id="life7ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
+    </section>
+    <section id="mission8" class="screen mission-screen">
+      <header><div><span class="eyebrow">LIFE #8</span><h2>THE SIGNAL</h2></div><div class="crew-badge">LINK <span id="link8">0</span>%</div></header>
+      <div class="signal-world"><div class="signal-orbit"></div><div class="signal-source">✦</div><div id="signalDish" class="signal-dish">📡</div><div id="signalPulse" class="signal-pulse"></div></div>
+      <div class="panel objective"><span class="eyebrow">UNKNOWN TRANSMISSION</span><h3>DECODE THE SIGNAL</h3><p>Match frequency, lock phase, then repeat the alien pulse pattern.</p></div>
+      <div class="signal-stage"><span>FREQUENCY</span><input id="freq8" type="range" min="0" max="100" value="20"><small id="freqRead8">142.0 MHz</small></div>
+      <button id="lockFreq8" class="primary">LOCK FREQUENCY</button>
+      <div id="phasePanel8" class="signal-stage" hidden><span>PHASE ALIGNMENT</span><input id="phase8" type="range" min="0" max="100" value="50"><button id="lockPhase8" class="ghost">LOCK PHASE</button></div>
+      <div id="pulsePanel8" class="pulse-panel" hidden><p>MEMORIZE THE PULSE</p><div id="pulseDisplay8" class="pulse-display">• • • • •</div><div class="pulse-keys"><button data-pulse8="0">◯</button><button data-pulse8="1">△</button><button data-pulse8="2">◇</button></div></div>
+      <p id="signalStatus8" class="mission-status">Find the transmission frequency.</p>
+      <div id="life8Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">SIGNAL DECODED</p><h3>COORDINATES RECEIVED</h3><strong>+80 MOON POINTS ⭐</strong><button id="life8ReturnBtn" class="primary">MISSION CONTROL</button></div>
     </section>
   </main>
   <script src="app.js"></script>
