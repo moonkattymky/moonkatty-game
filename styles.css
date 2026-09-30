@@ -346,3 +346,6 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 #mission1.mk-l1 #life1Complete:not([hidden]){display:block!important;position:fixed!important;left:18px!important;right:18px!important;bottom:calc(96px + env(safe-area-inset-bottom))!important;z-index:999!important;margin:0!important;padding:20px!important;background:linear-gradient(160deg,#071625fc,#03080ffc)!important;border:1px solid #35d98d!important;box-shadow:0 20px 70px #000e,0 0 30px #2bd08333!important}
 #mission1.mk-l1 #life1Complete[hidden]{display:none!important}
 #mission1.mk-l1 #life1Complete .primary{display:block!important;width:100%!important;margin-top:14px!important;min-height:48px!important}
+
+/* LIFE1 completion emergency visibility v0115 */
+#life1Complete.completion-visible{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important}
