@@ -365,3 +365,13 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 #mission1.mk-l1{height:100dvh!important;min-height:100dvh!important;background:#020711!important;overflow:hidden!important}
 #mission1.mk-l1 .l1-world{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:100%!important;aspect-ratio:auto!important;background-image:url('life-1-final-mobile.webp')!important;background-size:cover!important;background-position:center top!important;background-repeat:no-repeat!important;padding:0!important}
 #mission1.mk-l1 .l1-panel,#mission1.mk-l1 .complete-card{position:absolute!important;left:16px!important;right:16px!important;bottom:calc(18px + env(safe-area-inset-bottom))!important;margin:0!important;z-index:40}
+
+/* LIFE1 contain-fit: preserve complete approved 2:3 composition inside Telegram viewport */
+#mission1.mk-l1{height:100dvh!important;min-height:100dvh!important;overflow:hidden!important;background:#020711!important}
+#mission1.mk-l1 .l1-world{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;background-color:#020711!important;background-image:url('life-1-final-mobile.webp')!important;background-size:contain!important;background-repeat:no-repeat!important;background-position:center center!important}
+#mission1.mk-l1 .l1-hotspot{width:15%!important;height:10%!important;border-radius:0!important}
+#mission1.mk-l1 .e1{left:4%!important;top:54%!important;bottom:auto!important}
+#mission1.mk-l1 .e2{left:22%!important;top:35%!important;bottom:auto!important}
+#mission1.mk-l1 .e3{right:4%!important;top:57%!important;bottom:auto!important}
+#mission1.mk-l1 .terminal{right:18%!important;top:58%!important;bottom:auto!important}
+#mission1.mk-l1 .antenna{right:2%!important;top:34%!important;bottom:auto!important}
