@@ -404,3 +404,27 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 /* LIFE1 tap target enlargement v1510 */
 #mission1.mk-l1 .l1-hotspot.energy{width:92px!important;height:92px!important;margin:-15px!important}
 #mission1.mk-l1 .terminal,#mission1.mk-l1 .antenna{width:96px!important;height:96px!important;margin:-17px!important}
+
+/* LIFE1 visual polish after gameplay validation — logic untouched */
+#mission1.mk-l1{padding-top:92px!important}
+#mission1.mk-l1 .l1-head{padding:0 10px 12px!important;align-items:flex-end!important}
+#mission1.mk-l1 .l1-head h2{font-size:25px!important;line-height:1!important;letter-spacing:-.4px!important}
+#mission1.mk-l1 .l1-world{height:58dvh!important;min-height:500px!important;background-image:linear-gradient(180deg,#02071105,#02071135),url('life-1-background-wide.webp')!important;background-size:cover!important;background-position:center!important}
+#mission1.mk-l1 .l1-cat{left:50%!important;bottom:5%!important;width:116px!important;height:170px!important;filter:drop-shadow(0 14px 16px #000b)!important}
+#mission1.mk-l1 .mk-helmet{width:88px!important;height:88px!important;background:radial-gradient(circle at 36% 28%,#dff8ff55,#07121e 68%)!important;border-color:#d8e3e9!important}
+#mission1.mk-l1 .mk-helmet i{font-size:0!important}
+#mission1.mk-l1 .mk-helmet i:after{content:"🐱";font-size:58px}
+#mission1.mk-l1 .mk-suit{width:82px!important;height:86px!important;background:linear-gradient(145deg,#f2eee4,#aeb7bf 55%,#323b46)!important;border:2px solid #d5dde3!important;color:#e8b94e!important}
+#mission1.mk-l1 .mk-suit:before{content:"MOONKATTY";font-size:5px;letter-spacing:.7px;color:#111;position:absolute;margin-top:35px}
+#mission1.mk-l1 .l1-hotspot{background:radial-gradient(circle,#0b2740dd,#04101deb 72%)!important;border:1px solid #6edcff!important;box-shadow:0 0 20px #34c7ff55!important}
+#mission1.mk-l1 .l1-hotspot.energy>span:first-child{opacity:1!important;font-size:0!important;display:block!important;width:27px;height:38px;background:linear-gradient(135deg,#bdf7ff 0 15%,#32d9ff 16% 48%,#147cff 49% 76%,#83efff 77%);clip-path:polygon(50% 0,90% 28%,72% 100%,28% 100%,10% 28%);filter:drop-shadow(0 0 8px #2ad8ff)}
+#mission1.mk-l1 .terminal>span:first-child{opacity:1!important;font-size:0!important;display:block!important;width:28px;height:28px;border:6px solid #62d9ff;border-top-color:transparent;border-radius:7px;transform:rotate(-35deg)!important}
+#mission1.mk-l1 .antenna>span:first-child{opacity:1!important;font-size:0!important;display:block!important;width:34px;height:22px;border:5px solid #62d9ff;border-top:0;border-radius:0 0 30px 30px;transform:rotate(-25deg)!important}
+#mission1.mk-l1 .l1-hotspot>span:last-child{background:#04101df2!important;color:#e9f8ff!important;border-color:#61d8ff!important}
+#mission1.mk-l1 .l1-quest>div{min-height:54px!important;background:#06111cf5!important;border-color:#2b4762!important}
+#mission1.mk-l1 .l1-quest span.done{background:#27ce80!important}
+#mission1.mk-l1 .mission-status{margin-bottom:100px!important}
+#mission1.mk-l1>nav.mk-bottom-nav{height:84px!important;padding-bottom:env(safe-area-inset-bottom)!important}
+#mission1.mk-l1 .complete-card{position:fixed!important;left:18px!important;right:18px!important;bottom:calc(100px + env(safe-area-inset-bottom))!important;margin:0!important;z-index:80!important;background:linear-gradient(160deg,#071625f7,#03080ff7)!important;border:1px solid #38d992!important;box-shadow:0 18px 60px #000c,0 0 28px #28d67c33!important}
+#mission1.mk-l1 .complete-card .complete-icon{background:#28d67c!important}
+@media(max-width:390px){#mission1.mk-l1{padding-top:86px!important}#mission1.mk-l1 .l1-world{height:55dvh!important;min-height:470px!important}}
