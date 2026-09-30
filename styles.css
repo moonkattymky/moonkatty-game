@@ -316,3 +316,10 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 #mission1.mk-l1 #antennaHotspot{right:1%!important;top:24%!important;width:112px!important;height:124px!important}
 #mission1.mk-l1 .e3{right:12%!important;bottom:37%!important}
 #mission1.mk-l1 .l1-hotspot:disabled{opacity:.68!important}
+
+/* LIFE1 final spacing v1850 */
+#mission1.mk-l1 .e3{right:18%!important;bottom:34%!important}
+#mission1.mk-l1 #antennaHotspot{right:1%!important;top:22%!important}
+#mission1.mk-l1 .l1-quest{padding-bottom:20px!important;margin-bottom:94px!important}
+#mission1.mk-l1 .mission-status{margin-bottom:112px!important}
+#mission1.mk-l1>nav.mk-bottom-nav{height:82px!important;background:#02070cfb!important}
