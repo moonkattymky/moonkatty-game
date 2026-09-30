@@ -113,11 +113,11 @@ function resetLife1Mission(){
  $('missionStatus').textContent='Collect 3 energy crystals to restore Moon Base Alpha.';
  const bank=getLifeBank?.()??9;$('life1Lives').textContent=bank+'/9 ❤️';$('l1Points').textContent=(Number(localStorage.getItem('mkty_points')||0))+' ⭐';
 }
-document.querySelectorAll('.l1-hotspot.energy').forEach(btn=>btn.onclick=()=>{
+document.querySelectorAll('.l1-hotspot.energy').forEach(btn=>{ btn.type='button'; btn.style.pointerEvents='auto'; btn.onclick=()=>{
  if(btn.disabled)return; btn.disabled=true;btn.classList.add('collected');energyCollected++;$('energyCount').textContent=energyCollected+'/3';tg?.HapticFeedback?.impactOccurred('light');
  $('missionStatus').textContent='Energy collected • '+energyCollected+'/3';
  if(energyCollected===3){life1Stage=1;$('qEnergy').className='done';$('qRepair').className='active';$('repairTerminal').disabled=false;$('missionStatus').textContent='Energy restored. Repair the terminal 🔧';}
-});
+}; });
 $('repairTerminal').onclick=()=>{if(life1Stage!==1)return;$('repairPanel').hidden=false;$('repairPanel').scrollIntoView({behavior:'smooth',block:'center'});};
 document.querySelectorAll('.repair-cells button').forEach(btn=>btn.onclick=()=>{
  if(life1Stage!==1||btn.disabled)return;btn.disabled=true;btn.classList.add('done');repairCells++;$('repairFill').style.width=(repairCells/3*100)+'%';tg?.HapticFeedback?.impactOccurred('medium');
