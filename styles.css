@@ -286,8 +286,8 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 .mk-l1 .l1-cat *{display:none}
 .mk-l1 .l1-hotspot{position:absolute;z-index:20;border:0;background-color:transparent;background-position:center;background-size:contain;background-repeat:no-repeat;color:#fff;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .mk-l1 .l1-hotspot.energy{width:100px;height:116px;background-image:url('energy-crystal-final.png')}
-.mk-l1 .repair-terminal,.mk-l1 #repairTerminal{width:116px;height:126px;background-image:url('repair-terminal-final.png')}
-.mk-l1 .antenna,.mk-l1 #antennaHotspot{width:120px;height:132px;background-image:url('antenna-final.png')}
+.mk-l1 .repair-terminal,.mk-l1 #repairTerminal{width:116px;height:126px;background-image:url('terminal-clean.png')}
+.mk-l1 .antenna,.mk-l1 #antennaHotspot{width:120px;height:132px;background-image:url('antenna-clean.png')}
 .mk-l1 .l1-hotspot>span:first-child{display:none}.mk-l1 .l1-hotspot>span:last-child{position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);padding:5px 9px;border:1px solid #66d9ff;border-radius:999px;background:#03101de8;font-size:7px;letter-spacing:.8px;white-space:nowrap}
 .mk-l1 .l1-hotspot:disabled{opacity:.42}.mk-l1 .l1-hotspot.collected{opacity:0;transform:scale(.25);pointer-events:none;transition:.3s}
 .mk-l1 .e1{left:7%;bottom:20%}.mk-l1 .e2{left:24%;bottom:45%}.mk-l1 .e3{right:7%;bottom:31%}.mk-l1 .terminal{right:23%;bottom:12%}.mk-l1 .antenna{right:4%;top:32%}
