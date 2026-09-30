@@ -3,6 +3,10 @@ const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
 // Server-verified Telegram identity. initDataUnsafe is display-only; rewards must trust the server.
+
+const MKTY_PROGRESS_URL='https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/telegram-progress';
+async function syncServerProgress(action='load',life=null){if(!tg?.initData)return null;try{const r=await fetch(MKTY_PROGRESS_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData,action,life})});const x=await r.json();if(!r.ok||!x?.ok||!x.player)return null;const p=x.player;localStorage.setItem('mkty_points',String(p.moon_points||0));for(let n=1;n<=Number(p.story_life||0);n++)localStorage.setItem('mkty_life'+n,'complete');if($('points'))$('points').textContent=(p.moon_points||0)+' ⭐';if($('livesProgress'))$('livesProgress').textContent=(p.story_life||0)+' / 9 🌙';restoreGameProgress();if(Number(p.story_life)===1&&localStorage.getItem('mkty_life2')!=='complete'){$('welcome').textContent='LIFE #1 COMPLETE • LIFE #2 UNLOCKED';const t=document.querySelector('.mk-life-teaser');if(t)t.innerHTML='<div class="mk-play">▶</div><div><small>LIFE #2</small><strong>THE CREW</strong><span>Assemble your crew…</span></div><b>›</b>';$('enterBtn').textContent='START LIFE #2 🚀';$('enterBtn').onclick=startLife2;}return p}catch(e){console.error('progress sync',e);return null}}
+
 const MKTY_AUTH_URL='https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/telegram-auth';
 let mktyServerPlayer=null;
 let mktyAuthPromise=null;
@@ -30,7 +34,7 @@ async function authenticateMoonkattyPlayer(){
   return null;
  }
 }
-mktyAuthPromise=authenticateMoonkattyPlayer();
+mktyAuthPromise=authenticateMoonkattyPlayer().then(()=>syncServerProgress('load'));
 
 // MOONKATTY Crew identity
 const crewUser = tg?.initDataUnsafe?.user;
@@ -143,7 +147,7 @@ $('tuneBtn').onclick=()=>{
  if(life1Stage!==2)return;const v=Number($('frequencyDial').value),d=Math.abs(v-targetFrequency);
  if(d>6){$('signalHint').textContent=v<targetFrequency?'Signal weak — tune higher.':'Signal weak — tune lower.';tg?.HapticFeedback?.impactOccurred('light');return;}
  life1Stage=3;$('antennaCount').textContent='1/1';$('qAntenna').className='done';$('antennaPanel').hidden=true;$('missionStatus').textContent='Signal locked. Moon Base Alpha is online!';tg?.HapticFeedback?.notificationOccurred?.('success');
- let pts=Number(localStorage.getItem('mkty_points')||0);if(localStorage.getItem('mkty_life1')!=='complete')pts+=500;localStorage.setItem('mkty_points',String(pts));localStorage.setItem('mkty_life1','complete');$('points').textContent=pts+' ⭐';$('l1Points').textContent=pts+' ⭐';$('livesProgress').textContent='1 / 9 🌙';unlockLife2();
+ let pts=Number(localStorage.getItem('mkty_points')||0);if(localStorage.getItem('mkty_life1')!=='complete')pts+=500;localStorage.setItem('mkty_points',String(pts));localStorage.setItem('mkty_life1','complete');syncServerProgress('complete_life',1);$('points').textContent=pts+' ⭐';$('l1Points').textContent=pts+' ⭐';$('livesProgress').textContent='1 / 9 🌙';unlockLife2();
  setTimeout(()=>{const done=$('life1Complete');done.hidden=false;done.classList.add('completion-visible');done.style.setProperty('display','block','important');done.style.setProperty('visibility','visible','important');done.style.setProperty('opacity','1','important');done.scrollIntoView({behavior:'smooth',block:'center'});},300);
 };
 $('returnBtn').onclick=()=>show('home');
