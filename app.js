@@ -85,6 +85,7 @@ function show(id){
 let cinematicTimer;
 function openMission(){
  clearTimeout(cinematicTimer);
+ if(localStorage.getItem('mkty_life1')==='complete'){unlockLife2();$('lifeTitle').textContent='LIFE #2 — THE CREW';$('lifeText').textContent='Assemble your crew. Each specialist must pass a challenge.';$('enterBtn').textContent='START LIFE #2 🚀';$('enterBtn').onclick=startLife2;show('home');return;}
  const video=$('life1Video'); if(video) video.pause();
  $('crewBadge').textContent=crewCode;
  show('mission1');
@@ -142,7 +143,7 @@ $('tuneBtn').onclick=()=>{
  if(d>6){$('signalHint').textContent=v<targetFrequency?'Signal weak — tune higher.':'Signal weak — tune lower.';tg?.HapticFeedback?.impactOccurred('light');return;}
  life1Stage=3;$('antennaCount').textContent='1/1';$('qAntenna').className='done';$('antennaPanel').hidden=true;$('missionStatus').textContent='Signal locked. Moon Base Alpha is online!';tg?.HapticFeedback?.notificationOccurred?.('success');
  let pts=Number(localStorage.getItem('mkty_points')||0);if(localStorage.getItem('mkty_life1')!=='complete')pts+=500;localStorage.setItem('mkty_points',String(pts));localStorage.setItem('mkty_life1','complete');$('points').textContent=pts+' ⭐';$('l1Points').textContent=pts+' ⭐';$('livesProgress').textContent='1 / 9 🌙';unlockLife2();
- setTimeout(()=>{const done=$('life1Complete');done.hidden=false;done.classList.add('completion-visible');done.scrollIntoView({behavior:'smooth',block:'center'});},300);
+ setTimeout(()=>{const done=$('life1Complete');done.hidden=false;done.classList.add('completion-visible');done.style.setProperty('display','block','important');done.style.setProperty('visibility','visible','important');done.style.setProperty('opacity','1','important');done.scrollIntoView({behavior:'smooth',block:'center'});},300);
 };
 $('returnBtn').onclick=()=>show('home');
 
