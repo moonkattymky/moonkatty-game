@@ -93,6 +93,7 @@ function openMission(){
 }
 $('enterBtn').onclick=()=>{
  tg?.HapticFeedback?.impactOccurred('medium');
+ if(localStorage.getItem('mkty_life1')==='complete'){unlockLife2();startLife2();return;}
  show('life1');
  const video=$('life1Video');
  if(video){ video.currentTime=0; video.play().catch(()=>{}); }
@@ -523,6 +524,9 @@ function restoreGameProgress(){
 }
 
 restoreGameProgress();
+if(localStorage.getItem('mkty_life1')==='complete' && localStorage.getItem('mkty_life2')!=='complete'){
+ $('lifeTitle').textContent='LIFE #2 — THE CREW';$('lifeText').textContent='Assemble your crew. Each specialist must pass a challenge.';$('enterBtn').textContent='START LIFE #2 🚀';$('enterBtn').onclick=startLife2;
+}
 renderGlobalLivesHome();
 renderMissionArchive();
 
