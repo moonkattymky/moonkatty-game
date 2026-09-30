@@ -400,3 +400,7 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 #mission1.mk-l1 .l1-hotspot{position:absolute!important;z-index:25!important;pointer-events:auto!important;touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important}
 #mission1.mk-l1 .l1-hotspot.energy:not(:disabled){cursor:pointer!important}
 #mission1.mk-l1 .l1-cat{pointer-events:none!important;z-index:5!important}
+
+/* LIFE1 tap target enlargement v1510 */
+#mission1.mk-l1 .l1-hotspot.energy{width:92px!important;height:92px!important;margin:-15px!important}
+#mission1.mk-l1 .terminal,#mission1.mk-l1 .antenna{width:96px!important;height:96px!important;margin:-17px!important}
