@@ -125,6 +125,12 @@ $('life1World')?.addEventListener('pointerup',(ev)=>{
  btn.click();
 });
 $('repairTerminal').onclick=()=>{if(life1Stage!==1)return;$('repairPanel').hidden=false;$('repairPanel').scrollIntoView({behavior:'smooth',block:'center'});};
+$('life1World')?.addEventListener('pointerup',(ev)=>{
+ const terminal=ev.target.closest?.('#repairTerminal');
+ if(terminal && life1Stage===1){ev.preventDefault();$('repairPanel').hidden=false;$('repairPanel').scrollIntoView({behavior:'smooth',block:'center'});}
+ const antenna=ev.target.closest?.('#antennaHotspot');
+ if(antenna && life1Stage===2){ev.preventDefault();$('antennaPanel').hidden=false;$('antennaPanel').scrollIntoView({behavior:'smooth',block:'center'});}
+});
 document.querySelectorAll('.repair-cells button').forEach(btn=>btn.onclick=()=>{
  if(life1Stage!==1||btn.disabled)return;btn.disabled=true;btn.classList.add('done');repairCells++;$('repairFill').style.width=(repairCells/3*100)+'%';tg?.HapticFeedback?.impactOccurred('medium');
  if(repairCells===3){life1Stage=2;$('repairCount').textContent='1/1';$('qRepair').className='done';$('qAntenna').className='active';$('repairPanel').hidden=true;$('antennaHotspot').disabled=false;$('missionStatus').textContent='Terminal online. Activate and tune the antenna 📡';}
