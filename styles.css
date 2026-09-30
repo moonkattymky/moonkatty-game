@@ -352,3 +352,11 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 #mission1.mk-l1 .terminal{right:24%!important;bottom:29%!important}
 #mission1.mk-l1 .antenna{right:5%!important;top:34%!important}
 #mission1.mk-l1 .l1-panel,#mission1.mk-l1 .complete-card{position:relative;z-index:30;margin:12px 18px!important}
+
+/* LIFE1 Telegram chrome compensation + remove duplicate DOM nav */
+#mission1.mk-l1{overflow:hidden!important}
+#mission1.mk-l1 .l1-world{aspect-ratio:auto!important;height:calc(100dvh - 74px)!important;min-height:0!important;background-size:cover!important;background-position:center center!important}
+#mission1.mk-l1 .l1-nav{display:none!important}
+#mission1.mk-l1 nav.mk-bottom-nav{display:none!important}
+#mission1.mk-l1 .l1-world{padding-bottom:env(safe-area-inset-bottom)}
+@supports not (height:100dvh){#mission1.mk-l1 .l1-world{height:calc(100vh - 74px)!important}}
