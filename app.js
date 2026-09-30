@@ -102,111 +102,35 @@ $('enterBtn').onclick=()=>{
 };
 $('skipBtn').onclick=openMission;
 $('life1Video')?.addEventListener('ended',openMission);
-let life1Stage=0, tuneAttempts=0, missionLives=3, missionSeconds=120, missionClockTimer, targetFrequency=0;
-function randomizeFrequency(){
- targetFrequency=18+Math.floor(Math.random()*65);
- $('frequencyTarget').style.left=(targetFrequency-6)+'%';
- $('frequencyDial').value=50;
- updateFrequencyDial();
-}
-function updateFrequencyDial(){
- const v=Number($('frequencyDial').value);
- $('frequencyNeedle').style.left=v+'%';
- $('frequencyValue').textContent=(137+v/10).toFixed(1);
-}
-$('frequencyDial').addEventListener('input',updateFrequencyDial);
-function renderSurvival(){
- $('life1Lives').textContent='MISSION SHIELD '+('♥'.repeat(missionLives))+('♡'.repeat(3-missionLives));
- const m=String(Math.floor(missionSeconds/60)).padStart(2,'0'), s=String(missionSeconds%60).padStart(2,'0');
- $('missionClock').textContent=m+':'+s;
- $('missionClock').classList.toggle('danger',missionSeconds<=30);
-}
-function loseLife(reason){
- missionLives=Math.max(0,missionLives-1); renderSurvival();
- tg?.HapticFeedback?.notificationOccurred?.('error');
- $('missionStatus').textContent=reason+' Life lost.';
- if(missionLives===0){
-  clearInterval(missionClockTimer);
-  $('missionStatus').textContent='Mission failed. Reinitializing survival systems…';
-  setTimeout(resetLife1Mission,1200);
- }
-}
+let life1Stage=0, energyCollected=0, repairCells=0, targetFrequency=64;
 function resetLife1Mission(){
- missionLives=3; missionSeconds=120; tuneAttempts=0; setLife1Step(0); renderSurvival(); randomizeFrequency();
- $('tuneBtn').disabled=false; $('tuneBtn').textContent='LOCK FREQUENCY 📡';
- $('beaconBtn').hidden=true; $('beaconBtn').disabled=false; $('beaconBtn').textContent='APPROACH BEACON 🚀';
- $('scannerPuzzle').classList.remove('solved'); $('scannerFill').style.width='0%';
- $('frequencyNeedle').style.left='5%'; $('missionStatus').textContent='Search the surface for the signal source.';
- startMissionClock();
+ life1Stage=0; energyCollected=0; repairCells=0; targetFrequency=58+Math.floor(Math.random()*22);
+ document.querySelectorAll('.l1-hotspot.energy').forEach(x=>{x.disabled=false;x.classList.remove('collected')});
+ document.querySelectorAll('.repair-cells button').forEach(x=>{x.disabled=false;x.classList.remove('done')});
+ $('repairTerminal').disabled=true;$('antennaHotspot').disabled=true;$('repairPanel').hidden=true;$('antennaPanel').hidden=true;$('life1Complete').hidden=true;
+ $('energyCount').textContent='0/3';$('repairCount').textContent='0/1';$('antennaCount').textContent='0/1';$('repairFill').style.width='0%';
+ $('qEnergy').className='active';$('qRepair').className='';$('qAntenna').className='';
+ $('missionStatus').textContent='Collect 3 energy crystals to restore Moon Base Alpha.';
+ const bank=getLifeBank?.()??9;$('life1Lives').textContent=bank+'/9 ❤️';$('l1Points').textContent=(Number(localStorage.getItem('mkty_points')||0))+' ⭐';
 }
-function startMissionClock(){
- clearInterval(missionClockTimer);
- missionClockTimer=setInterval(()=>{
-  if(!$('mission1').classList.contains('active'))return;
-  missionSeconds--; renderSurvival();
-  if(missionSeconds<=0){clearInterval(missionClockTimer);loseLife('Oxygen window expired.');missionSeconds=120;startMissionClock();}
- },1000);
-}
-function setLife1Step(stage){
- life1Stage=stage;
- ['stepExplore','stepTune','stepReach','stepActivate'].forEach((id,i)=>{
-  $(id).classList.toggle('active',i===stage);
-  $(id).classList.toggle('done',i<stage);
- });
-}
-$('worldBeacon').onclick=()=>{
- if(life1Stage!==0)return;
- tg?.HapticFeedback?.impactOccurred('light');
- setLife1Step(1);
- $('missionStatus').textContent='Signal source found. Tune the scanner frequency.';
- document.querySelector('.beacon').classList.add('discovered');
-};
+document.querySelectorAll('.l1-hotspot.energy').forEach(btn=>btn.onclick=()=>{
+ if(btn.disabled)return; btn.disabled=true;btn.classList.add('collected');energyCollected++;$('energyCount').textContent=energyCollected+'/3';tg?.HapticFeedback?.impactOccurred('light');
+ $('missionStatus').textContent='Energy collected • '+energyCollected+'/3';
+ if(energyCollected===3){life1Stage=1;$('qEnergy').className='done';$('qRepair').className='active';$('repairTerminal').disabled=false;$('missionStatus').textContent='Energy restored. Repair the terminal 🔧';}
+});
+$('repairTerminal').onclick=()=>{if(life1Stage!==1)return;$('repairPanel').hidden=false;$('repairPanel').scrollIntoView({behavior:'smooth',block:'center'});};
+document.querySelectorAll('.repair-cells button').forEach(btn=>btn.onclick=()=>{
+ if(life1Stage!==1||btn.disabled)return;btn.disabled=true;btn.classList.add('done');repairCells++;$('repairFill').style.width=(repairCells/3*100)+'%';tg?.HapticFeedback?.impactOccurred('medium');
+ if(repairCells===3){life1Stage=2;$('repairCount').textContent='1/1';$('qRepair').className='done';$('qAntenna').className='active';$('repairPanel').hidden=true;$('antennaHotspot').disabled=false;$('missionStatus').textContent='Terminal online. Activate and tune the antenna 📡';}
+});
+$('antennaHotspot').onclick=()=>{if(life1Stage!==2)return;$('antennaPanel').hidden=false;$('antennaPanel').scrollIntoView({behavior:'smooth',block:'center'});};
+$('frequencyDial').oninput=()=>{$('frequencyValue').textContent=(136+Number($('frequencyDial').value)/10).toFixed(1);};
 $('tuneBtn').onclick=()=>{
- if(life1Stage!==1)return;
- tuneAttempts++;
- const chosen=Number($('frequencyDial').value);
- const distance=Math.abs(chosen-targetFrequency);
- tg?.HapticFeedback?.impactOccurred(distance<=6?'medium':'light');
- if(distance>6){
-  const direction=chosen<targetFrequency?'higher':'lower';
-  $('missionStatus').textContent='Weak signal. Try a '+direction+' frequency.';
-  if(tuneAttempts%3===0) loseLife('Scanner overload.');
-  return;
- }
- setLife1Step(2);
- $('scannerPuzzle').classList.add('solved');
- $('tuneBtn').textContent='FREQUENCY LOCKED ✓';
- $('tuneBtn').disabled=true;
- $('beaconBtn').hidden=false;
- $('missionStatus').textContent='Frequency locked. Reach the beacon.';
-};
-$('beaconBtn').onclick=()=>{
- if(life1Stage===2){
-  setLife1Step(3);
-  $('beaconBtn').textContent='ACTIVATE SIGNAL ⚡';
-  $('missionStatus').textContent='Beacon reached. Activate first contact.';
-  $('scannerFill').style.width='75%';
-  tg?.HapticFeedback?.impactOccurred('medium');
-  return;
- }
- if(life1Stage!==3)return;
- $('scannerFill').style.width='100%';
- tg?.HapticFeedback?.impactOccurred('heavy');
- $('beaconBtn').textContent='SIGNAL LOCKED ✓';
- $('beaconBtn').disabled=true;
- $('missionStatus').textContent='First contact established • +10 Moon Points';
- clearInterval(missionClockTimer);
- $('points').textContent='10 ⭐';
- localStorage.setItem('mkty_life1','complete');
- unlockLife2();
-unlockLife3();
-unlockLife4();
-unlockLife5();
-unlockLife6();
-unlockLife7();
-unlockLife8();
-unlockLife9();
- setTimeout(()=>{$('life1Complete').hidden=false;showLife1MemoryCode();$('life1Complete').scrollIntoView({behavior:'smooth',block:'center'});},350);
+ if(life1Stage!==2)return;const v=Number($('frequencyDial').value),d=Math.abs(v-targetFrequency);
+ if(d>6){$('signalHint').textContent=v<targetFrequency?'Signal weak — tune higher.':'Signal weak — tune lower.';tg?.HapticFeedback?.impactOccurred('light');return;}
+ life1Stage=3;$('antennaCount').textContent='1/1';$('qAntenna').className='done';$('antennaPanel').hidden=true;$('missionStatus').textContent='Signal locked. Moon Base Alpha is online!';tg?.HapticFeedback?.notificationOccurred?.('success');
+ let pts=Number(localStorage.getItem('mkty_points')||0);if(localStorage.getItem('mkty_life1')!=='complete')pts+=500;localStorage.setItem('mkty_points',String(pts));localStorage.setItem('mkty_life1','complete');$('points').textContent=pts+' ⭐';$('l1Points').textContent=pts+' ⭐';$('livesProgress').textContent='1 / 9 🌙';unlockLife2();
+ setTimeout(()=>{$('life1Complete').hidden=false;$('life1Complete').scrollIntoView({behavior:'smooth',block:'center'});},300);
 };
 $('returnBtn').onclick=()=>show('home');
 
