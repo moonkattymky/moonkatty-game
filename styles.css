@@ -303,3 +303,6 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 .life-theme-1 .l1-world{min-height:520px;height:58vh;background-image:linear-gradient(180deg,#02071108 0%,#02071122 58%,#02071166 100%),url('life-1-background-wide.webp');background-size:cover;background-position:center center}
 .life-theme-1 .l1-hotspot{backdrop-filter:blur(8px);background:#06101dcc}
 @media(max-width:390px){.life-theme-1 .l1-world{min-height:500px;height:57vh;background-position:48% center}}
+
+/* LIFE 1 hard override: remove obsolete player node in Telegram WebView */
+.mk-l1 .l1-world>.l1-cat{display:none!important;background:none!important;background-image:none!important;width:0!important;height:0!important;min-width:0!important;min-height:0!important;opacity:0!important;visibility:hidden!important;filter:none!important;overflow:hidden!important}
