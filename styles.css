@@ -275,178 +275,25 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 #home>.community-hub,#home>.crew-network,#home>.daily-missions,#home>.mission-archive{display:none!important}
 @media(max-height:760px){.mk-home-bottom{bottom:10px}.mk-life-teaser{display:none}.mk-home-hero{min-height:calc(100vh - 72px)}.mk-bottom-nav{height:72px}}
 
-/* LIFE #1 playable Moon Base Alpha */
-.mk-l1{padding-bottom:96px!important;background:#020711!important}.l1-head{position:relative;z-index:4}.l1-hud{display:flex;gap:7px}.l1-hud b{padding:7px 9px;border:1px solid #2d4867;border-radius:10px;background:#07111ddd;font-size:9px}
-.l1-world{position:relative;height:52vh;min-height:430px;margin:8px -18px 12px;overflow:hidden;background:radial-gradient(circle at 70% 15%,#1d66a866,transparent 18%),linear-gradient(#04142c 0 48%,#18202b 49%,#080b10 100%);border-block:1px solid #1f3853}
-.l1-space{position:absolute;inset:0 0 42%;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:37px 37px;opacity:.45}.l1-earth{position:absolute;width:190px;height:190px;border-radius:50%;right:-30px;top:18px;background:radial-gradient(circle at 38% 35%,#dff7ff,#3687cf 28%,#174273 54%,#061426 72%);box-shadow:0 0 45px #58aaff66}
-.l1-base{position:absolute;left:12%;right:10%;bottom:19%;height:34%;border:2px solid #576678;border-radius:50% 50% 12% 12%;background:linear-gradient(#9ca6ad,#404b55 45%,#111821);box-shadow:0 0 35px #ffb54a55,inset 0 -25px 30px #0008}.l1-base:after{content:"";position:absolute;left:40%;bottom:0;width:20%;height:44%;background:#f6b45b55;border:1px solid #ffc878;box-shadow:0 0 24px #ffb44a}.l1-base b{position:absolute;left:0;right:0;top:36%;text-align:center;font-size:11px;color:#0a1018}
-.l1-cat{position:absolute;left:42%;bottom:4%;font-size:76px;filter:drop-shadow(0 12px 10px #000)}.l1-hotspot{position:absolute;z-index:5;width:62px;height:62px;border-radius:50%;border:1px solid #69cfff;background:#07111de8;color:#fff;box-shadow:0 0 20px #36b9ff66;font-size:22px}.l1-hotspot span{position:absolute;top:65px;left:50%;transform:translateX(-50%);font-size:6px;white-space:nowrap;color:#bfe9ff}.l1-hotspot:disabled{opacity:.32;box-shadow:none}.l1-hotspot.collected{opacity:0;transform:scale(.2);transition:.35s}.e1{left:10%;bottom:22%}.e2{left:25%;bottom:44%}.e3{right:8%;bottom:33%}.terminal{right:27%;bottom:15%}.antenna{right:7%;top:38%}
-.l1-quest{display:grid;gap:6px;margin:10px 0}.l1-quest>div{display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid #24384e;border-radius:10px;background:#07101a}.l1-quest span{width:27px;height:27px;display:grid;place-items:center;border-radius:50%;border:1px solid #344a63;font-size:7px}.l1-quest span.active{color:#071019;background:#e9bd58;border-color:#e9bd58}.l1-quest span.done{background:#28c77a;border-color:#28c77a;color:#04120b}.l1-quest p{margin:0;flex:1;font-size:8px;letter-spacing:.6px}.l1-quest b{float:right;color:#e9bd58}
-.l1-panel{margin:12px 0;padding:15px;border:1px solid #31506f;border-radius:15px;background:#07111df2;box-shadow:0 18px 40px #0008}.l1-panel h3{margin:4px 0 6px}.l1-panel p{font-size:8px;color:#91a1b6}.repair-cells{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.repair-cells button{padding:14px 4px;border:1px solid #34506e;border-radius:10px;background:#0c1827;color:#fff}.repair-cells button.done{background:#123f2c;border-color:#36dc8d}.l1-progress{height:7px;margin-top:10px;border-radius:10px;background:#142033;overflow:hidden}.l1-progress i{display:block;width:0;height:100%;background:linear-gradient(90deg,#4ccfff,#50e99b);transition:.3s}.l1-nav{position:fixed;left:0;right:0;bottom:0}
 
-/* FINAL CINEMATIC BACKGROUNDS */
-.life-theme-1 .l1-world{background-image:linear-gradient(180deg,#02071111,#02071144),url('life-1-background-wide.webp');background-size:cover;background-position:center}
-.life-theme-1 .l1-space,.life-theme-1 .l1-earth,.life-theme-1 .l1-base{display:none}
-.life-theme-1 .l1-cat{font-size:0;width:110px;height:155px;left:39%;bottom:2%;background:url('life-1-background.webp') center 78%/520px auto no-repeat;border-radius:50% 50% 18px 18px;filter:drop-shadow(0 12px 12px #000)}
-.life-theme-2{background-image:linear-gradient(#02071188,#020711cc),url('life-2-background.webp')}
-.life-theme-3{background-image:linear-gradient(#02071188,#020711cc),url('life-3-background.webp')}
-.life-theme-4{background-image:linear-gradient(#02071188,#020711cc),url('life-4-background.webp')}
-.life-theme-5{background-image:linear-gradient(#02071188,#020711cc),url('life-5-background.webp')}
-.life-theme-6{background-image:linear-gradient(#02071188,#020711cc),url('life-6-background.webp')}
-.life-theme-7{background-image:linear-gradient(#02071188,#020711cc),url('life-7-background.webp')}
-.life-theme-8{background-image:linear-gradient(#02071188,#020711cc),url('life-8-background.webp')}
-.life-theme-9{background-image:linear-gradient(#02071188,#020711cc),url('life-9-background.webp')}
-.life-theme-2,.life-theme-3,.life-theme-4,.life-theme-5,.life-theme-6,.life-theme-7,.life-theme-8,.life-theme-9{background-size:cover;background-position:center;background-attachment:fixed}
-
-/* LIFE 1 visual hotfix: keep approved background, remove bad pseudo-character crop */
-.life-theme-1 .l1-cat{display:none!important}
-.life-theme-1 .l1-world{min-height:520px;height:58vh;background-image:linear-gradient(180deg,#02071108 0%,#02071122 58%,#02071166 100%),url('life-1-background-wide.webp');background-size:cover;background-position:center center}
-.life-theme-1 .l1-hotspot{backdrop-filter:blur(8px);background:#06101dcc}
-@media(max-width:390px){.life-theme-1 .l1-world{min-height:500px;height:57vh;background-position:48% center}}
-
-/* LIFE 1 hard override: remove obsolete player node in Telegram WebView */
-.mk-l1 .l1-world>.l1-cat{display:none!important;background:none!important;background-image:none!important;width:0!important;height:0!important;min-width:0!important;min-height:0!important;opacity:0!important;visibility:hidden!important;filter:none!important;overflow:hidden!important}
-
-/* LIFE 1 final layered UI pass */
-.mk-l1{padding-bottom:122px!important}.mk-l1 .l1-world{height:61vh;min-height:535px;border-bottom-color:#31516e}
-.mk-l1 .l1-cat{display:flex!important;visibility:visible!important;opacity:1!important;position:absolute!important;left:50%!important;bottom:3%!important;transform:translateX(-50%);width:98px!important;height:145px!important;background:none!important;filter:drop-shadow(0 14px 12px #0009)!important;z-index:4;align-items:center;flex-direction:column}
-.mk-helmet{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 28%,#d9f5ff66,#0b1a2a 62%);border:3px solid #d8dde5;box-shadow:inset 0 0 12px #68caff55,0 0 18px #000}.mk-helmet i{font-style:normal;font-size:49px}
-.mk-suit{width:70px;height:72px;margin-top:-5px;border-radius:25px 25px 18px 18px;display:grid;place-items:center;color:#f3bd52;font-size:23px;background:linear-gradient(135deg,#e8e3d8,#9fa7af 50%,#343c46);border:2px solid #cbd3da;box-shadow:inset 0 0 0 8px #171e27}
-.mk-l1 .l1-hotspot{width:68px;height:68px;border:1px solid #67d6ff;background:radial-gradient(circle,#102d46,#06101ddd 72%);box-shadow:0 0 18px #35c4ff55,inset 0 0 14px #3dc9ff22;display:grid;place-items:center}
-.mk-l1 .l1-hotspot>span:first-child{position:static;transform:none;font-size:31px;line-height:1;color:#62dcff;text-shadow:0 0 12px #27baff}
-.mk-l1 .l1-hotspot>span:last-child{top:72px;font-size:6px;letter-spacing:.8px}
-.crystal-art{transform:scaleX(.7) rotate(45deg)!important;color:#72eaff!important}.terminal-art{font-size:36px!important}.antenna-art{font-size:36px!important;transform:rotate(-25deg)!important}
-.mk-l1 .l1-quest{position:relative;z-index:7;margin:12px 0 20px}.mk-l1 .l1-quest>div{min-height:48px;padding:9px 12px;background:#06101aee;border-color:#29425c}.mk-l1 .l1-quest>div:nth-child(3){margin-bottom:12px}
-.mk-l1 .l1-nav{height:88px;z-index:20;background:#02070cf5;box-shadow:0 -10px 30px #0008}.mk-l1 .l1-nav button{font-size:17px}.mk-l1 .l1-nav button span{font-size:8px}
-@media(max-width:390px){.mk-l1{padding-bottom:132px!important}.mk-l1 .l1-world{height:59vh;min-height:510px}.mk-l1 .l1-cat{width:88px!important;height:132px!important}.mk-helmet{width:68px;height:68px}.mk-helmet i{font-size:44px}.mk-suit{width:64px;height:66px}.mk-l1 .l1-hotspot{width:62px;height:62px}.mk-l1 .l1-hotspot>span:last-child{top:66px}}
-
-/* Approved LIFE 1 final art integration */
-.mk-l1 .l1-world{background-image:linear-gradient(180deg,#02071108,#02071122),url('life-1-final-mobile.webp')!important;background-size:cover!important;background-position:center top!important;min-height:690px!important;height:72vh!important}
-.mk-l1 .l1-world>.l1-cat{display:none!important}
-.mk-l1 .l1-hotspot{background:#04101ccc!important;border-color:#67d6ff!important;box-shadow:0 0 16px #2fc6ff55!important}
-.mk-l1 .l1-hotspot>span:first-child{opacity:0!important;font-size:0!important}
-.mk-l1 .l1-hotspot>span:last-child{background:#04101ce8;border:1px solid #5ed2ff;border-radius:999px;padding:5px 9px;top:68px!important;color:#fff!important;font-size:7px!important}
-.mk-l1 .l1-quest{margin-top:14px!important;margin-bottom:105px!important}
-.mk-l1 .l1-nav{height:86px!important}
-@media(max-width:390px){.mk-l1 .l1-world{min-height:650px!important;height:70vh!important}.mk-l1 .l1-quest{margin-bottom:110px!important}}
-
-/* LIFE 1 final-art mode: artwork contains visual HUD; keep only live click zones + one real nav */
-.mk-l1>header.l1-head{display:none!important}
-.mk-l1 .l1-world{margin-top:0!important}
-.mk-l1 .l1-hotspot{background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
-.mk-l1 .l1-hotspot>span{display:none!important}
-.mk-l1 .l1-quest{display:none!important}
-.mk-l1 .mission-status{display:none!important}
-.mk-l1 .l1-nav{background:#02070cf8!important;border-top:1px solid #28405a!important}
-.mk-l1 .l1-nav:before{content:"";position:absolute;inset:-2px 0 0;background:#02070cf8;z-index:-1}
-
-/* LIFE1 CLEAN MODE v1435 — artwork supplies visible HUD, DOM supplies hit zones only */
-#mission1.mk-l1>header,#mission1.mk-l1>.l1-quest,#mission1.mk-l1>.mission-status,#mission1.mk-l1>.l1-nav{display:none!important}
-#mission1.mk-l1{padding:0 0 calc(16px + env(safe-area-inset-bottom))!important;min-height:100vh!important;background:#020711!important}
-#mission1.mk-l1 .l1-world{margin:0!important;width:100%!important;height:auto!important;min-height:0!important;aspect-ratio:2/3!important;background:url('life-1-final-mobile.webp') center top/100% 100% no-repeat!important;border:0!important}
-#mission1.mk-l1 .l1-hotspot{background:transparent!important;border:0!important;box-shadow:none!important;outline:0!important}
-#mission1.mk-l1 .l1-hotspot *{display:none!important}
-#mission1.mk-l1 .e1{left:9%!important;bottom:31%!important}
-#mission1.mk-l1 .e2{left:25%!important;bottom:48%!important}
-#mission1.mk-l1 .e3{right:8%!important;bottom:35%!important}
-#mission1.mk-l1 .terminal{right:24%!important;bottom:29%!important}
-#mission1.mk-l1 .antenna{right:5%!important;top:34%!important}
-#mission1.mk-l1 .l1-panel,#mission1.mk-l1 .complete-card{position:relative;z-index:30;margin:12px 18px!important}
-
-/* LIFE1 Telegram chrome compensation + remove duplicate DOM nav */
-#mission1.mk-l1{overflow:hidden!important}
-#mission1.mk-l1 .l1-world{aspect-ratio:auto!important;height:calc(100dvh - 74px)!important;min-height:0!important;background-size:cover!important;background-position:center center!important}
-#mission1.mk-l1 .l1-nav{display:none!important}
-#mission1.mk-l1 nav.mk-bottom-nav{display:none!important}
-#mission1.mk-l1 .l1-world{padding-bottom:env(safe-area-inset-bottom)}
-@supports not (height:100dvh){#mission1.mk-l1 .l1-world{height:calc(100vh - 74px)!important}}
-
-/* LIFE1 viewport fill v1445 */
-#mission1.mk-l1{height:100dvh!important;min-height:100dvh!important;background:#020711!important;overflow:hidden!important}
-#mission1.mk-l1 .l1-world{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:100%!important;aspect-ratio:auto!important;background-image:url('life-1-final-mobile.webp')!important;background-size:cover!important;background-position:center top!important;background-repeat:no-repeat!important;padding:0!important}
-#mission1.mk-l1 .l1-panel,#mission1.mk-l1 .complete-card{position:absolute!important;left:16px!important;right:16px!important;bottom:calc(18px + env(safe-area-inset-bottom))!important;margin:0!important;z-index:40}
-
-/* LIFE1 contain-fit: preserve complete approved 2:3 composition inside Telegram viewport */
-#mission1.mk-l1{height:100dvh!important;min-height:100dvh!important;overflow:hidden!important;background:#020711!important}
-#mission1.mk-l1 .l1-world{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;background-color:#020711!important;background-image:url('life-1-final-mobile.webp')!important;background-size:contain!important;background-repeat:no-repeat!important;background-position:center center!important}
-#mission1.mk-l1 .l1-hotspot{width:15%!important;height:10%!important;border-radius:0!important}
-#mission1.mk-l1 .e1{left:4%!important;top:54%!important;bottom:auto!important}
-#mission1.mk-l1 .e2{left:22%!important;top:35%!important;bottom:auto!important}
-#mission1.mk-l1 .e3{right:4%!important;top:57%!important;bottom:auto!important}
-#mission1.mk-l1 .terminal{right:18%!important;top:58%!important;bottom:auto!important}
-#mission1.mk-l1 .antenna{right:2%!important;top:34%!important;bottom:auto!important}
-
-/* LIFE1 responsive rebuild: clean background + real adaptive DOM */
-#mission1.mk-l1{position:relative!important;height:auto!important;min-height:100dvh!important;overflow:visible!important;padding:88px 16px 112px!important;background:#020711!important}
-#mission1.mk-l1>header.l1-head{display:flex!important;position:relative!important;z-index:10!important;margin:0 0 10px!important}
-#mission1.mk-l1 .l1-world{position:relative!important;inset:auto!important;width:calc(100% + 32px)!important;margin:0 -16px!important;height:58dvh!important;min-height:500px!important;max-height:650px!important;aspect-ratio:auto!important;background-image:linear-gradient(#02071105,#02071144),url('life-1-background-wide.webp')!important;background-size:cover!important;background-position:center!important;border-block:1px solid #27435f!important}
-#mission1.mk-l1 .l1-world>.l1-cat{display:flex!important;visibility:visible!important;opacity:1!important;left:50%!important;bottom:3%!important;width:88px!important;height:132px!important}
-#mission1.mk-l1 .l1-hotspot{display:grid!important;width:62px!important;height:62px!important;border-radius:50%!important;background:#071522e8!important;border:1px solid #62d5ff!important;box-shadow:0 0 18px #35c9ff66!important}
-#mission1.mk-l1 .l1-hotspot>span:first-child{display:grid!important;opacity:1!important;font-size:26px!important}
-#mission1.mk-l1 .l1-hotspot>span:last-child{display:block!important;top:65px!important}
-#mission1.mk-l1 .e1{left:8%!important;top:auto!important;bottom:22%!important}
-#mission1.mk-l1 .e2{left:25%!important;top:auto!important;bottom:46%!important}
-#mission1.mk-l1 .e3{right:8%!important;top:auto!important;bottom:33%!important}
-#mission1.mk-l1 .terminal{right:25%!important;top:auto!important;bottom:15%!important}
-#mission1.mk-l1 .antenna{right:7%!important;top:37%!important;bottom:auto!important}
-#mission1.mk-l1>.l1-quest{display:grid!important;position:relative!important;z-index:10!important;margin:14px 0 20px!important}
-#mission1.mk-l1>.mission-status{display:block!important}
-#mission1.mk-l1>nav.mk-bottom-nav{display:flex!important;position:fixed!important;left:0!important;right:0!important;bottom:0!important;height:88px!important;z-index:50!important;background:#02070cf8!important}
-#mission1.mk-l1 .l1-panel,#mission1.mk-l1 .complete-card{position:relative!important;left:auto!important;right:auto!important;bottom:auto!important;margin:14px 0!important}
-@media(max-width:390px){#mission1.mk-l1{padding-top:82px!important}#mission1.mk-l1 .l1-world{height:56dvh!important;min-height:470px!important}}
-
-/* LIFE1 interaction hotfix */
-#mission1.mk-l1 .l1-world{position:relative!important;z-index:1!important}
-#mission1.mk-l1 .l1-hotspot{position:absolute!important;z-index:25!important;pointer-events:auto!important;touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important}
-#mission1.mk-l1 .l1-hotspot.energy:not(:disabled){cursor:pointer!important}
-#mission1.mk-l1 .l1-cat{pointer-events:none!important;z-index:5!important}
-
-/* LIFE1 tap target enlargement v1510 */
-#mission1.mk-l1 .l1-hotspot.energy{width:92px!important;height:92px!important;margin:-15px!important}
-#mission1.mk-l1 .terminal,#mission1.mk-l1 .antenna{width:96px!important;height:96px!important;margin:-17px!important}
-
-/* LIFE1 visual polish after gameplay validation — logic untouched */
-#mission1.mk-l1{padding-top:92px!important}
-#mission1.mk-l1 .l1-head{padding:0 10px 12px!important;align-items:flex-end!important}
-#mission1.mk-l1 .l1-head h2{font-size:25px!important;line-height:1!important;letter-spacing:-.4px!important}
-#mission1.mk-l1 .l1-world{height:58dvh!important;min-height:500px!important;background-image:linear-gradient(180deg,#02071105,#02071135),url('life-1-background-wide.webp')!important;background-size:cover!important;background-position:center!important}
-#mission1.mk-l1 .l1-cat{left:50%!important;bottom:5%!important;width:116px!important;height:170px!important;filter:drop-shadow(0 14px 16px #000b)!important}
-#mission1.mk-l1 .mk-helmet{width:88px!important;height:88px!important;background:radial-gradient(circle at 36% 28%,#dff8ff55,#07121e 68%)!important;border-color:#d8e3e9!important}
-#mission1.mk-l1 .mk-helmet i{font-size:0!important}
-#mission1.mk-l1 .mk-helmet i:after{content:"🐱";font-size:58px}
-#mission1.mk-l1 .mk-suit{width:82px!important;height:86px!important;background:linear-gradient(145deg,#f2eee4,#aeb7bf 55%,#323b46)!important;border:2px solid #d5dde3!important;color:#e8b94e!important}
-#mission1.mk-l1 .mk-suit:before{content:"MOONKATTY";font-size:5px;letter-spacing:.7px;color:#111;position:absolute;margin-top:35px}
-#mission1.mk-l1 .l1-hotspot{background:radial-gradient(circle,#0b2740dd,#04101deb 72%)!important;border:1px solid #6edcff!important;box-shadow:0 0 20px #34c7ff55!important}
-#mission1.mk-l1 .l1-hotspot.energy>span:first-child{opacity:1!important;font-size:0!important;display:block!important;width:27px;height:38px;background:linear-gradient(135deg,#bdf7ff 0 15%,#32d9ff 16% 48%,#147cff 49% 76%,#83efff 77%);clip-path:polygon(50% 0,90% 28%,72% 100%,28% 100%,10% 28%);filter:drop-shadow(0 0 8px #2ad8ff)}
-#mission1.mk-l1 .terminal>span:first-child{opacity:1!important;font-size:0!important;display:block!important;width:28px;height:28px;border:6px solid #62d9ff;border-top-color:transparent;border-radius:7px;transform:rotate(-35deg)!important}
-#mission1.mk-l1 .antenna>span:first-child{opacity:1!important;font-size:0!important;display:block!important;width:34px;height:22px;border:5px solid #62d9ff;border-top:0;border-radius:0 0 30px 30px;transform:rotate(-25deg)!important}
-#mission1.mk-l1 .l1-hotspot>span:last-child{background:#04101df2!important;color:#e9f8ff!important;border-color:#61d8ff!important}
-#mission1.mk-l1 .l1-quest>div{min-height:54px!important;background:#06111cf5!important;border-color:#2b4762!important}
-#mission1.mk-l1 .l1-quest span.done{background:#27ce80!important}
-#mission1.mk-l1 .mission-status{margin-bottom:100px!important}
-#mission1.mk-l1>nav.mk-bottom-nav{height:84px!important;padding-bottom:env(safe-area-inset-bottom)!important}
-#mission1.mk-l1 .complete-card{position:fixed!important;left:18px!important;right:18px!important;bottom:calc(100px + env(safe-area-inset-bottom))!important;margin:0!important;z-index:80!important;background:linear-gradient(160deg,#071625f7,#03080ff7)!important;border:1px solid #38d992!important;box-shadow:0 18px 60px #000c,0 0 28px #28d67c33!important}
-#mission1.mk-l1 .complete-card .complete-icon{background:#28d67c!important}
-@media(max-width:390px){#mission1.mk-l1{padding-top:86px!important}#mission1.mk-l1 .l1-world{height:55dvh!important;min-height:470px!important}}
-
-/* LIFE1 FINAL PNG ASSETS — gameplay logic unchanged */
-#mission1.mk-l1 .l1-cat{display:block!important;visibility:visible!important;opacity:1!important;width:128px!important;height:190px!important;background:url('moonkatty.png') center bottom/contain no-repeat!important;filter:drop-shadow(0 12px 12px #000a)!important;pointer-events:none!important}
-#mission1.mk-l1 .l1-cat>*{display:none!important}
-#mission1.mk-l1 .l1-hotspot.energy{background:url('energy-crystal.png') center/contain no-repeat!important;border:0!important;box-shadow:none!important;width:96px!important;height:112px!important}
-#mission1.mk-l1 .l1-hotspot.energy>span:first-child{display:none!important}
-#mission1.mk-l1 .terminal{background:url('repair-terminal.png') center/contain no-repeat!important;border:0!important;box-shadow:none!important;width:110px!important;height:120px!important}
-#mission1.mk-l1 .antenna{background:url('antenna.png') center/contain no-repeat!important;border:0!important;box-shadow:none!important;width:116px!important;height:122px!important}
-#mission1.mk-l1 .terminal>span:first-child,#mission1.mk-l1 .antenna>span:first-child{display:none!important}
-#mission1.mk-l1 .l1-hotspot>span:last-child{background:#03101ddd!important;border:1px solid #65d9ff!important;border-radius:999px!important;padding:5px 9px!important;color:#fff!important;text-shadow:none!important}
-#mission1.mk-l1 .l1-hotspot.collected{opacity:0!important;transform:scale(.25)!important;pointer-events:none!important}
-
-/* LIFE1 PNG-only visual layer v1600 */
-#mission1.mk-l1 .l1-cat{font-size:0!important;background-image:url('moonkatty.png')!important;background-color:transparent!important;background-position:center bottom!important;background-size:contain!important;background-repeat:no-repeat!important;width:142px!important;height:205px!important;border:0!important}
-#mission1.mk-l1 .l1-cat::before,#mission1.mk-l1 .l1-cat::after,#mission1.mk-l1 .l1-cat *{display:none!important;content:none!important}
-#mission1.mk-l1 button.l1-hotspot{font-size:0!important;background-color:transparent!important;border:0!important;box-shadow:none!important;overflow:visible!important}
-#mission1.mk-l1 button.l1-hotspot::before,#mission1.mk-l1 button.l1-hotspot::after{content:none!important}
-#mission1.mk-l1 button.l1-hotspot>span:first-child{display:none!important}
-#mission1.mk-l1 button.l1-hotspot.energy{background-image:url('energy-crystal.png')!important;background-position:center!important;background-size:contain!important;background-repeat:no-repeat!important;width:104px!important;height:120px!important}
-#mission1.mk-l1 button#repairTerminal{background-image:url('repair-terminal.png')!important;background-position:center!important;background-size:contain!important;background-repeat:no-repeat!important;width:118px!important;height:128px!important}
-#mission1.mk-l1 button#antennaHotspot{background-image:url('antenna.png')!important;background-position:center!important;background-size:contain!important;background-repeat:no-repeat!important;width:122px!important;height:132px!important}
-#mission1.mk-l1 button.l1-hotspot>span:last-child{display:block!important;position:absolute!important;left:50%!important;transform:translateX(-50%)!important;top:auto!important;bottom:-9px!important;font-size:7px!important}
+/* LIFE #1 — CLEAN PRODUCTION LAYER */
+.mk-l1{position:relative;min-height:100dvh;padding:88px 16px 112px;background:#020711;color:#fff;overflow-x:hidden}
+.mk-l1 .l1-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-bottom:12px}
+.mk-l1 .l1-head h2{margin:4px 0 0;font-size:25px;line-height:1}.mk-l1 .l1-hud{display:flex;gap:8px}.mk-l1 .l1-hud b{padding:8px 10px;border:1px solid #31506e;border-radius:12px;background:#06101bdd;font-size:10px}
+.mk-l1 .l1-world{position:relative;height:56dvh;min-height:480px;max-height:620px;margin:0 -16px 14px;background:linear-gradient(#02071108,#0207113d),url('life-1-background-wide.webp') center/cover no-repeat;border-block:1px solid #294760;overflow:hidden}
+.mk-l1 .l1-space,.mk-l1 .l1-earth,.mk-l1 .l1-base{display:none}
+.mk-l1 .l1-cat{position:absolute;left:50%;bottom:3%;transform:translateX(-50%);width:145px;height:205px;background:url('moonkatty.png') center bottom/contain no-repeat;z-index:5;pointer-events:none;filter:drop-shadow(0 14px 14px #000a);font-size:0}
+.mk-l1 .l1-cat *{display:none}
+.mk-l1 .l1-hotspot{position:absolute;z-index:20;border:0;background-color:transparent;background-position:center;background-size:contain;background-repeat:no-repeat;color:#fff;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.mk-l1 .l1-hotspot.energy{width:100px;height:116px;background-image:url('energy-crystal.png')}
+.mk-l1 .repair-terminal,.mk-l1 #repairTerminal{width:116px;height:126px;background-image:url('repair-terminal.png')}
+.mk-l1 .antenna,.mk-l1 #antennaHotspot{width:120px;height:132px;background-image:url('antenna.png')}
+.mk-l1 .l1-hotspot>span:first-child{display:none}.mk-l1 .l1-hotspot>span:last-child{position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);padding:5px 9px;border:1px solid #66d9ff;border-radius:999px;background:#03101de8;font-size:7px;letter-spacing:.8px;white-space:nowrap}
+.mk-l1 .l1-hotspot:disabled{opacity:.42}.mk-l1 .l1-hotspot.collected{opacity:0;transform:scale(.25);pointer-events:none;transition:.3s}
+.mk-l1 .e1{left:7%;bottom:20%}.mk-l1 .e2{left:24%;bottom:45%}.mk-l1 .e3{right:7%;bottom:31%}.mk-l1 .terminal{right:23%;bottom:12%}.mk-l1 .antenna{right:4%;top:32%}
+.mk-l1 .l1-quest{display:grid;gap:9px;margin:12px 0 18px}.mk-l1 .l1-quest>div{display:flex;align-items:center;gap:10px;min-height:52px;padding:9px 12px;border:1px solid #294760;border-radius:13px;background:#06101bf2}.mk-l1 .l1-quest span{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;border:1px solid #38536e;font-size:7px}.mk-l1 .l1-quest span.active{background:#efc258;color:#071019}.mk-l1 .l1-quest span.done{background:#2bd083;color:#04120b}.mk-l1 .l1-quest p{margin:0;flex:1;font-size:8px;letter-spacing:.7px}.mk-l1 .l1-quest b{float:right;color:#efc258}
+.mk-l1 .l1-panel,.mk-l1 .complete-card{position:relative;z-index:40;margin:14px 0;padding:16px;border:1px solid #31516f;border-radius:16px;background:#06111df7;box-shadow:0 18px 45px #0009}.mk-l1 .repair-cells{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.mk-l1 .repair-cells button{padding:14px 4px;border:1px solid #34506e;border-radius:10px;background:#0c1827;color:#fff}.mk-l1 .repair-cells button.done{background:#123f2c;border-color:#36dc8d}.mk-l1 .l1-progress{height:7px;margin-top:10px;background:#142033;border-radius:10px;overflow:hidden}.mk-l1 .l1-progress i{display:block;width:0;height:100%;background:#58d7ff;transition:.3s}
+.mk-l1 .mission-status{margin:10px 0 100px;padding:10px;border:1px solid #29425c;border-radius:12px;text-align:center;font-size:8px;color:#a9b6c8}
+.mk-l1>nav.mk-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:60;height:86px;padding-bottom:env(safe-area-inset-bottom);display:flex;background:#02070cf7;border-top:1px solid #29425c}
+.mk-l1>nav.mk-bottom-nav button{flex:1;background:none;border:0;color:#8995aa}.mk-l1>nav.mk-bottom-nav button.active{color:#efc258}.mk-l1>nav.mk-bottom-nav button span{display:block;font-size:8px;margin-top:4px}
+@media(max-width:390px){.mk-l1{padding-top:82px}.mk-l1 .l1-world{height:54dvh;min-height:460px}.mk-l1 .l1-cat{width:132px;height:190px}.mk-l1 .l1-hotspot.energy{width:92px;height:108px}}
