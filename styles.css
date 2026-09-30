@@ -439,3 +439,14 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 #mission1.mk-l1 .terminal>span:first-child,#mission1.mk-l1 .antenna>span:first-child{display:none!important}
 #mission1.mk-l1 .l1-hotspot>span:last-child{background:#03101ddd!important;border:1px solid #65d9ff!important;border-radius:999px!important;padding:5px 9px!important;color:#fff!important;text-shadow:none!important}
 #mission1.mk-l1 .l1-hotspot.collected{opacity:0!important;transform:scale(.25)!important;pointer-events:none!important}
+
+/* LIFE1 PNG-only visual layer v1600 */
+#mission1.mk-l1 .l1-cat{font-size:0!important;background-image:url('moonkatty.png')!important;background-color:transparent!important;background-position:center bottom!important;background-size:contain!important;background-repeat:no-repeat!important;width:142px!important;height:205px!important;border:0!important}
+#mission1.mk-l1 .l1-cat::before,#mission1.mk-l1 .l1-cat::after,#mission1.mk-l1 .l1-cat *{display:none!important;content:none!important}
+#mission1.mk-l1 button.l1-hotspot{font-size:0!important;background-color:transparent!important;border:0!important;box-shadow:none!important;overflow:visible!important}
+#mission1.mk-l1 button.l1-hotspot::before,#mission1.mk-l1 button.l1-hotspot::after{content:none!important}
+#mission1.mk-l1 button.l1-hotspot>span:first-child{display:none!important}
+#mission1.mk-l1 button.l1-hotspot.energy{background-image:url('energy-crystal.png')!important;background-position:center!important;background-size:contain!important;background-repeat:no-repeat!important;width:104px!important;height:120px!important}
+#mission1.mk-l1 button#repairTerminal{background-image:url('repair-terminal.png')!important;background-position:center!important;background-size:contain!important;background-repeat:no-repeat!important;width:118px!important;height:128px!important}
+#mission1.mk-l1 button#antennaHotspot{background-image:url('antenna.png')!important;background-position:center!important;background-size:contain!important;background-repeat:no-repeat!important;width:122px!important;height:132px!important}
+#mission1.mk-l1 button.l1-hotspot>span:last-child{display:block!important;position:absolute!important;left:50%!important;transform:translateX(-50%)!important;top:auto!important;bottom:-9px!important;font-size:7px!important}
