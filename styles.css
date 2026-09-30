@@ -323,3 +323,21 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 #mission1.mk-l1 .l1-quest{padding-bottom:20px!important;margin-bottom:94px!important}
 #mission1.mk-l1 .mission-status{margin-bottom:112px!important}
 #mission1.mk-l1>nav.mk-bottom-nav{height:82px!important;background:#02070cfb!important}
+
+/* MOONKATTY LIVES 2–9 cinematic production pass v1900 */
+#mission2,#mission3,#mission4,#mission5,#mission6,#mission7,#mission8,#mission9{min-height:100dvh;padding:88px 16px 112px;background-color:#030812;background-size:cover;background-position:center top;background-attachment:scroll}
+#mission2{background-image:linear-gradient(#02071188,#020711e8),url('life-2-background.webp')}
+#mission3{background-image:linear-gradient(#02071188,#020711e8),url('life-3-background.webp')}
+#mission4{background-image:linear-gradient(#02071177,#020711e8),url('life-4-background.webp')}
+#mission5{background-image:linear-gradient(#08030066,#020711e8),url('life-5-background.webp')}
+#mission6{background-image:linear-gradient(#08030055,#020711e8),url('life-6-background.webp')}
+#mission7{background-image:linear-gradient(#02031166,#020711e8),url('life-7-background.webp')}
+#mission8{background-image:linear-gradient(#00101866,#020711e8),url('life-8-background.webp')}
+#mission9{background-image:linear-gradient(#08060355,#020711e8),url('life-9-background.webp')}
+#mission2>header,#mission3>header,#mission4>header,#mission5>header,#mission6>header,#mission7>header,#mission8>header,#mission9>header{position:relative;z-index:5;padding:12px;border:1px solid #ffffff18;border-radius:16px;background:#030a14c9;backdrop-filter:blur(10px)}
+#mission2 .panel,#mission3 .panel,#mission4 .panel,#mission5 .panel,#mission6 .panel,#mission7 .panel,#mission8 .panel,#mission9 .panel{background:#06101be8;backdrop-filter:blur(10px)}
+#mission2 button,#mission3 button,#mission4 button,#mission5 button,#mission6 button,#mission7 button,#mission8 button,#mission9 button{touch-action:manipulation}
+#mission2 .crew-world,#mission3 .code-mission,#mission4 .descent-world,#mission5 .reactor-world,#mission6 .launch-world,#mission7 .void-world,#mission8 .signal-world,#mission9 .final-world{border:1px solid #ffffff1c;border-radius:20px;background:#02071199;box-shadow:0 20px 60px #0008;overflow:hidden}
+#mission2 .crew-cat,#mission4 .lander,#mission6 .launch-ship,#mission7 .void-ship,#mission8 .signal-dish,#mission9 .final-ship{filter:drop-shadow(0 10px 14px #000c)}
+#mission2 .complete-card,#mission3 .complete-card,#mission4 .complete-card,#mission5 .complete-card,#mission6 .complete-card,#mission7 .complete-card,#mission8 .complete-card,#mission9 .complete-card{background:linear-gradient(160deg,#071625f7,#03080ff7);box-shadow:0 18px 60px #000c}
+@media(max-width:390px){#mission2,#mission3,#mission4,#mission5,#mission6,#mission7,#mission8,#mission9{padding-top:82px;padding-bottom:108px}}
