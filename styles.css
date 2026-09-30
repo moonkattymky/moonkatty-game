@@ -428,3 +428,14 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 #mission1.mk-l1 .complete-card{position:fixed!important;left:18px!important;right:18px!important;bottom:calc(100px + env(safe-area-inset-bottom))!important;margin:0!important;z-index:80!important;background:linear-gradient(160deg,#071625f7,#03080ff7)!important;border:1px solid #38d992!important;box-shadow:0 18px 60px #000c,0 0 28px #28d67c33!important}
 #mission1.mk-l1 .complete-card .complete-icon{background:#28d67c!important}
 @media(max-width:390px){#mission1.mk-l1{padding-top:86px!important}#mission1.mk-l1 .l1-world{height:55dvh!important;min-height:470px!important}}
+
+/* LIFE1 FINAL PNG ASSETS — gameplay logic unchanged */
+#mission1.mk-l1 .l1-cat{display:block!important;visibility:visible!important;opacity:1!important;width:128px!important;height:190px!important;background:url('moonkatty.png') center bottom/contain no-repeat!important;filter:drop-shadow(0 12px 12px #000a)!important;pointer-events:none!important}
+#mission1.mk-l1 .l1-cat>*{display:none!important}
+#mission1.mk-l1 .l1-hotspot.energy{background:url('energy-crystal.png') center/contain no-repeat!important;border:0!important;box-shadow:none!important;width:96px!important;height:112px!important}
+#mission1.mk-l1 .l1-hotspot.energy>span:first-child{display:none!important}
+#mission1.mk-l1 .terminal{background:url('repair-terminal.png') center/contain no-repeat!important;border:0!important;box-shadow:none!important;width:110px!important;height:120px!important}
+#mission1.mk-l1 .antenna{background:url('antenna.png') center/contain no-repeat!important;border:0!important;box-shadow:none!important;width:116px!important;height:122px!important}
+#mission1.mk-l1 .terminal>span:first-child,#mission1.mk-l1 .antenna>span:first-child{display:none!important}
+#mission1.mk-l1 .l1-hotspot>span:last-child{background:#03101ddd!important;border:1px solid #65d9ff!important;border-radius:999px!important;padding:5px 9px!important;color:#fff!important;text-shadow:none!important}
+#mission1.mk-l1 .l1-hotspot.collected{opacity:0!important;transform:scale(.25)!important;pointer-events:none!important}
