@@ -329,3 +329,13 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 .mk-l1 .l1-quest{margin-top:14px!important;margin-bottom:105px!important}
 .mk-l1 .l1-nav{height:86px!important}
 @media(max-width:390px){.mk-l1 .l1-world{min-height:650px!important;height:70vh!important}.mk-l1 .l1-quest{margin-bottom:110px!important}}
+
+/* LIFE 1 final-art mode: artwork contains visual HUD; keep only live click zones + one real nav */
+.mk-l1>header.l1-head{display:none!important}
+.mk-l1 .l1-world{margin-top:0!important}
+.mk-l1 .l1-hotspot{background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
+.mk-l1 .l1-hotspot>span{display:none!important}
+.mk-l1 .l1-quest{display:none!important}
+.mk-l1 .mission-status{display:none!important}
+.mk-l1 .l1-nav{background:#02070cf8!important;border-top:1px solid #28405a!important}
+.mk-l1 .l1-nav:before{content:"";position:absolute;inset:-2px 0 0;background:#02070cf8;z-index:-1}
