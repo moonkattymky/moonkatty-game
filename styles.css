@@ -375,3 +375,22 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 #mission1.mk-l1 .e3{right:4%!important;top:57%!important;bottom:auto!important}
 #mission1.mk-l1 .terminal{right:18%!important;top:58%!important;bottom:auto!important}
 #mission1.mk-l1 .antenna{right:2%!important;top:34%!important;bottom:auto!important}
+
+/* LIFE1 responsive rebuild: clean background + real adaptive DOM */
+#mission1.mk-l1{position:relative!important;height:auto!important;min-height:100dvh!important;overflow:visible!important;padding:88px 16px 112px!important;background:#020711!important}
+#mission1.mk-l1>header.l1-head{display:flex!important;position:relative!important;z-index:10!important;margin:0 0 10px!important}
+#mission1.mk-l1 .l1-world{position:relative!important;inset:auto!important;width:calc(100% + 32px)!important;margin:0 -16px!important;height:58dvh!important;min-height:500px!important;max-height:650px!important;aspect-ratio:auto!important;background-image:linear-gradient(#02071105,#02071144),url('life-1-background-wide.webp')!important;background-size:cover!important;background-position:center!important;border-block:1px solid #27435f!important}
+#mission1.mk-l1 .l1-world>.l1-cat{display:flex!important;visibility:visible!important;opacity:1!important;left:50%!important;bottom:3%!important;width:88px!important;height:132px!important}
+#mission1.mk-l1 .l1-hotspot{display:grid!important;width:62px!important;height:62px!important;border-radius:50%!important;background:#071522e8!important;border:1px solid #62d5ff!important;box-shadow:0 0 18px #35c9ff66!important}
+#mission1.mk-l1 .l1-hotspot>span:first-child{display:grid!important;opacity:1!important;font-size:26px!important}
+#mission1.mk-l1 .l1-hotspot>span:last-child{display:block!important;top:65px!important}
+#mission1.mk-l1 .e1{left:8%!important;top:auto!important;bottom:22%!important}
+#mission1.mk-l1 .e2{left:25%!important;top:auto!important;bottom:46%!important}
+#mission1.mk-l1 .e3{right:8%!important;top:auto!important;bottom:33%!important}
+#mission1.mk-l1 .terminal{right:25%!important;top:auto!important;bottom:15%!important}
+#mission1.mk-l1 .antenna{right:7%!important;top:37%!important;bottom:auto!important}
+#mission1.mk-l1>.l1-quest{display:grid!important;position:relative!important;z-index:10!important;margin:14px 0 20px!important}
+#mission1.mk-l1>.mission-status{display:block!important}
+#mission1.mk-l1>nav.mk-bottom-nav{display:flex!important;position:fixed!important;left:0!important;right:0!important;bottom:0!important;height:88px!important;z-index:50!important;background:#02070cf8!important}
+#mission1.mk-l1 .l1-panel,#mission1.mk-l1 .complete-card{position:relative!important;left:auto!important;right:auto!important;bottom:auto!important;margin:14px 0!important}
+@media(max-width:390px){#mission1.mk-l1{padding-top:82px!important}#mission1.mk-l1 .l1-world{height:56dvh!important;min-height:470px!important}}
