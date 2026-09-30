@@ -309,3 +309,10 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 #mission1.mk-l1 .e1{left:5%!important;bottom:20%!important}
 #mission1.mk-l1 .e2{left:27%!important;bottom:48%!important}
 #mission1.mk-l1 .e3{right:7%!important;bottom:35%!important}
+
+/* LIFE1 phone composition refinement v1840 */
+#mission1.mk-l1 .l1-cat{left:43%!important;bottom:1.5%!important;width:108px!important;height:164px!important}
+#mission1.mk-l1 #repairTerminal{right:4%!important;bottom:3%!important;width:112px!important;height:122px!important;opacity:1!important}
+#mission1.mk-l1 #antennaHotspot{right:1%!important;top:24%!important;width:112px!important;height:124px!important}
+#mission1.mk-l1 .e3{right:12%!important;bottom:37%!important}
+#mission1.mk-l1 .l1-hotspot:disabled{opacity:.68!important}
