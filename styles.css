@@ -394,3 +394,9 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 #mission1.mk-l1>nav.mk-bottom-nav{display:flex!important;position:fixed!important;left:0!important;right:0!important;bottom:0!important;height:88px!important;z-index:50!important;background:#02070cf8!important}
 #mission1.mk-l1 .l1-panel,#mission1.mk-l1 .complete-card{position:relative!important;left:auto!important;right:auto!important;bottom:auto!important;margin:14px 0!important}
 @media(max-width:390px){#mission1.mk-l1{padding-top:82px!important}#mission1.mk-l1 .l1-world{height:56dvh!important;min-height:470px!important}}
+
+/* LIFE1 interaction hotfix */
+#mission1.mk-l1 .l1-world{position:relative!important;z-index:1!important}
+#mission1.mk-l1 .l1-hotspot{position:absolute!important;z-index:25!important;pointer-events:auto!important;touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important}
+#mission1.mk-l1 .l1-hotspot.energy:not(:disabled){cursor:pointer!important}
+#mission1.mk-l1 .l1-cat{pointer-events:none!important;z-index:5!important}
