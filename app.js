@@ -142,7 +142,7 @@ $('tuneBtn').onclick=()=>{
  if(d>6){$('signalHint').textContent=v<targetFrequency?'Signal weak — tune higher.':'Signal weak — tune lower.';tg?.HapticFeedback?.impactOccurred('light');return;}
  life1Stage=3;$('antennaCount').textContent='1/1';$('qAntenna').className='done';$('antennaPanel').hidden=true;$('missionStatus').textContent='Signal locked. Moon Base Alpha is online!';tg?.HapticFeedback?.notificationOccurred?.('success');
  let pts=Number(localStorage.getItem('mkty_points')||0);if(localStorage.getItem('mkty_life1')!=='complete')pts+=500;localStorage.setItem('mkty_points',String(pts));localStorage.setItem('mkty_life1','complete');$('points').textContent=pts+' ⭐';$('l1Points').textContent=pts+' ⭐';$('livesProgress').textContent='1 / 9 🌙';unlockLife2();
- setTimeout(()=>{$('life1Complete').hidden=false;$('life1Complete').scrollIntoView({behavior:'smooth',block:'center'});},300);
+ setTimeout(()=>{const done=$('life1Complete');done.hidden=false;done.classList.add('completion-visible');done.scrollIntoView({behavior:'smooth',block:'center'});},300);
 };
 $('returnBtn').onclick=()=>show('home');
 
