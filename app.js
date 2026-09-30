@@ -118,6 +118,12 @@ document.querySelectorAll('.l1-hotspot.energy').forEach(btn=>{ btn.type='button'
  $('missionStatus').textContent='Energy collected • '+energyCollected+'/3';
  if(energyCollected===3){life1Stage=1;$('qEnergy').className='done';$('qRepair').className='active';$('repairTerminal').disabled=false;$('missionStatus').textContent='Energy restored. Repair the terminal 🔧';}
 }; });
+$('life1World')?.addEventListener('pointerup',(ev)=>{
+ const btn=ev.target.closest?.('.l1-hotspot.energy');
+ if(!btn||btn.disabled)return;
+ ev.preventDefault();
+ btn.click();
+});
 $('repairTerminal').onclick=()=>{if(life1Stage!==1)return;$('repairPanel').hidden=false;$('repairPanel').scrollIntoView({behavior:'smooth',block:'center'});};
 document.querySelectorAll('.repair-cells button').forEach(btn=>btn.onclick=()=>{
  if(life1Stage!==1||btn.disabled)return;btn.disabled=true;btn.classList.add('done');repairCells++;$('repairFill').style.width=(repairCells/3*100)+'%';tg?.HapticFeedback?.impactOccurred('medium');
