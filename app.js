@@ -514,6 +514,8 @@ $('rulesCloseBtn')?.addEventListener('click',()=>show('home'));
 $('rulesBackBtn')?.addEventListener('click',()=>show('home'));
 
 function restoreGameProgress(){
+ // Migration: older LIFE #1 builds awarded 500 points before persistent completion routing existed.
+ if(localStorage.getItem('mkty_life1')!=='complete' && Number(localStorage.getItem('mkty_points')||0)>=500){localStorage.setItem('mkty_life1','complete');}
  const completed=[1,2,3,4,5,6,7,8,9].filter(n=>localStorage.getItem('mkty_life'+n)==='complete');
  const total=completed.reduce((sum,n)=>sum+n*10,0);
  if($('points')) $('points').textContent=total+' ⭐';
@@ -525,7 +527,9 @@ function restoreGameProgress(){
 
 restoreGameProgress();
 if(localStorage.getItem('mkty_life1')==='complete' && localStorage.getItem('mkty_life2')!=='complete'){
- $('lifeTitle').textContent='LIFE #2 — THE CREW';$('lifeText').textContent='Assemble your crew. Each specialist must pass a challenge.';$('enterBtn').textContent='START LIFE #2 🚀';$('enterBtn').onclick=startLife2;
+ $('welcome').textContent='LIFE #1 COMPLETE • LIFE #2 UNLOCKED';
+ const teaser=document.querySelector('.mk-life-teaser');if(teaser)teaser.innerHTML='<div class="mk-play">▶</div><div><small>LIFE #2</small><strong>THE CREW</strong><span>Assemble your crew…</span></div><b>›</b>';
+ $('enterBtn').textContent='START LIFE #2 🚀';$('enterBtn').onclick=startLife2;
 }
 renderGlobalLivesHome();
 renderMissionArchive();
