@@ -433,7 +433,33 @@ let launchCode=[],codeInput=[],codeAttempts=3,codeReady=false;
 const codeSymbols=['▲','●','◆','■'];
 function newLaunchCode(){launchCode=Array.from({length:4},()=>codeSymbols[Math.floor(Math.random()*4)]);codeInput=[];codeReady=false;$('codeSequence').textContent='READY';$('codeStatus').textContent='Attempts: '+codeAttempts;}
 $('showCodeBtn').onclick=()=>{newLaunchCode();$('codeSequence').textContent=launchCode.join('  ');$('showCodeBtn').disabled=true;setTimeout(()=>{$('codeSequence').textContent='?  ?  ?  ?';codeReady=true;$('showCodeBtn').disabled=false;},2200);};
-document.querySelectorAll('[data-code]').forEach(b=>b.onclick=()=>{if(!codeReady)return;codeInput.push(b.dataset.code);$('codeSequence').textContent=codeInput.join('  ');if(codeInput.length===4){if(codeInput.join('')===launchCode.join('')){codeReady=false;localStorage.setItem('mkty_life3','complete');$('codeStatus').textContent='ACCESS GRANTED ✓';$('points').textContent='60 ⭐';$('life3Complete').hidden=false;unlockLife4();tg?.HapticFeedback?.notificationOccurred?.('success');}else{codeAttempts--;tg?.HapticFeedback?.notificationOccurred?.('error');if(codeAttempts<=0){codeAttempts=3;$('codeStatus').textContent='Security reset. New code generated.';}else $('codeStatus').textContent='Incorrect sequence. Attempts: '+codeAttempts;newLaunchCode();}}});
+document.querySelectorAll('[data-code]').forEach(b=>b.onclick=()=>{if(!codeReady)return;codeInput.push(b.dataset.code);$('codeSequence').textContent=codeInput.join('  ');if(codeInput.length===4){if(codeInput.join('')===launchCode.join('')){codeReady=false;$('codeStatus').textContent='STAGE I COMPLETE ✓';$('launchStage2').hidden=false;$('launchStage2').scrollIntoView({behavior:'smooth',block:'center'});tg?.HapticFeedback?.notificationOccurred?.('success');}else{codeAttempts--;tg?.HapticFeedback?.notificationOccurred?.('error');if(codeAttempts<=0){codeAttempts=3;$('codeStatus').textContent='Security reset. New code generated.';}else $('codeStatus').textContent='Incorrect sequence. Attempts: '+codeAttempts;newLaunchCode();}}});
+let ignitionOrder3=[],ignitionInput3=[],launchTimer3=null,launchTime3=100;
+function updateMix3(){
+ const a=Number($('mixO2').value),b=Number($('mixFuel').value),d=Number($('mixCool').value),total=a+b+d;
+ $('mixO2Val').textContent=a;$('mixFuelVal').textContent=b;$('mixCoolVal').textContent=d;$('mixTotal3').textContent=total;
+ $('mixHint3').textContent=total===100?'Total stable. Balance profile still required.':total>100?'Overpressure — reduce mixture.':'Insufficient load — increase mixture.';
+}
+['mixO2','mixFuel','mixCool'].forEach(id=>$(id)?.addEventListener('input',updateMix3));
+$('lockMix3')?.addEventListener('click',()=>{
+ const a=Number($('mixO2').value),b=Number($('mixFuel').value),d=Number($('mixCool').value);
+ if(a+b+d!==100){$('mixHint3').textContent='Total load must equal exactly 100.';return;}
+ // Broad enough to solve by reasoning, not pixel hunting: oxygen 25-35, fuel 40-50, coolant remainder.
+ if(a<25||a>35||b<40||b>50||d<20||d>35){$('mixHint3').textContent='Matrix unstable. FUEL needs the largest share; O₂ and COOLANT must remain balanced.';tg?.HapticFeedback?.impactOccurred?.('light');return;}
+ $('mixHint3').textContent='Fuel matrix stable ✓';$('launchStage3').hidden=false;$('launchStage3').scrollIntoView({behavior:'smooth',block:'center'});tg?.HapticFeedback?.notificationOccurred?.('success');
+});
+function stopLaunchTimer3(){clearInterval(launchTimer3);launchTimer3=null;}
+function resetIgnition3(msg='Awaiting launch order.'){stopLaunchTimer3();ignitionInput3=[];launchTime3=100;$('launchTimerFill3').style.width='100%';$('ignitionHint3').textContent=msg;}
+$('showIgnition3')?.addEventListener('click',()=>{
+ resetIgnition3('Memorize the ignition order…');ignitionOrder3=['NAV','CORE','COMMS'].sort(()=>Math.random()-.5);$('ignitionOrder3').textContent=ignitionOrder3.join(' → ');
+ setTimeout(()=>{$('ignitionOrder3').textContent='? → ? → ?';$('ignitionHint3').textContent='GO — arm all systems before time expires!';launchTimer3=setInterval(()=>{launchTime3-=2;$('launchTimerFill3').style.width=Math.max(0,launchTime3)+'%';if(launchTime3<=0){resetIgnition3('Launch window missed. Receive a new order.');tg?.HapticFeedback?.notificationOccurred?.('error');}},100);},1800);
+});
+document.querySelectorAll('[data-ignite3]').forEach(b=>b.onclick=()=>{
+ if(!launchTimer3||!ignitionOrder3.length)return;const v=b.dataset.ignite3;
+ if(v!==ignitionOrder3[ignitionInput3.length]){resetIgnition3('Wrong system. Launch sequence aborted — receive a new order.');tg?.HapticFeedback?.notificationOccurred?.('error');return;}
+ ignitionInput3.push(v);$('ignitionHint3').textContent='Armed: '+ignitionInput3.length+' / 3';
+ if(ignitionInput3.length===3){stopLaunchTimer3();localStorage.setItem('mkty_life3','complete');let pts=Number(localStorage.getItem('mkty_points')||0);pts+=750;localStorage.setItem('mkty_points',String(pts));$('points').textContent=pts+' ⭐';$('codeStatus').textContent='LAUNCH AUTHORIZED ✓';$('life3Complete').hidden=false;$('launchStage3').hidden=true;tg?.HapticFeedback?.notificationOccurred?.('success');}
+});
 $('life3ReturnBtn').onclick=()=>show('home');
 
 function unlockLife4(){
