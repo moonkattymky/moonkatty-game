@@ -167,7 +167,7 @@ function resetLife1Mission(){
  life1Stage=0; energyCollected=0; repairCells=0; targetFrequency=58+Math.floor(Math.random()*22); l1PX=50;l1PY=68;l1Near=null;renderLife1Player();updateLife1Nearby();
  document.querySelectorAll('.l1-hotspot.energy').forEach(x=>{x.disabled=false;x.classList.remove('collected','revealed','nearby')});
  document.querySelectorAll('.repair-cells button').forEach(x=>{x.disabled=false;x.classList.remove('done')});
- $('repairTerminal').disabled=true;$('antennaHotspot').disabled=true;$('repairPanel').hidden=true;$('antennaPanel').hidden=true;$('life1Complete').hidden=true;
+ $('repairTerminal').disabled=true;$('antennaHotspot').disabled=true;$('repairPanel').hidden=true;$('antennaPanel').hidden=true;$('life1Complete').hidden=true;clearInterval(signalHoldTimer);signalHoldTimer=null;signalHoldProgress=0;if($('signalHold'))$('signalHold').hidden=true;newRepairSequence();
  $('energyCount').textContent='0/3';$('repairCount').textContent='0/1';$('antennaCount').textContent='0/1';$('repairFill').style.width='0%';
  $('qEnergy').className='active';$('qRepair').className='';$('qAntenna').className='';
  $('missionStatus').textContent='Explore Moon Base Alpha. Use SCAN to reveal nearby energy signatures.';
@@ -203,18 +203,50 @@ $('life1World')?.addEventListener('pointerup',(ev)=>{
  const antenna=ev.target.closest?.('#antennaHotspot');
  if(antenna && life1Stage===2){ev.preventDefault();$('antennaPanel').hidden=false;$('antennaPanel').scrollIntoView({behavior:'smooth',block:'center'});}
 });
+let repairSequence=[],repairInput=[],repairShowing=false,signalHoldTimer=null,signalHoldProgress=0;
+function newRepairSequence(){
+ repairSequence=Array.from({length:4},()=>Math.floor(Math.random()*3));repairInput=[];repairCells=0;
+ $('repairFill').style.width='0%';$('repairSequence').textContent='● ● ● ●';$('repairHint').textContent='Memorize the power sequence, then repeat it.';
+ document.querySelectorAll('.repair-cells button').forEach(x=>{x.disabled=false;x.classList.remove('done','cue')});
+}
+function showRepairSequence(){
+ if(repairShowing)return;repairShowing=true;repairInput=[];$('repairHint').textContent='Watch carefully…';
+ document.querySelectorAll('.repair-cells button').forEach(x=>x.disabled=true);
+ let i=0;const labels=['A','B','C'];
+ const step=()=>{
+  document.querySelectorAll('.repair-cells button').forEach(x=>x.classList.remove('cue'));
+  if(i>=repairSequence.length){$('repairSequence').textContent='● ● ● ●';$('repairHint').textContent='Now repeat the sequence.';document.querySelectorAll('.repair-cells button').forEach(x=>x.disabled=false);repairShowing=false;return;}
+  const n=repairSequence[i];$('repairSequence').textContent=labels[repairSequence[0]]+(i>0?' '+labels[repairSequence[1]]:'')+(i>1?' '+labels[repairSequence[2]]:'')+(i>2?' '+labels[repairSequence[3]]:'');
+  document.querySelector('[data-cell="'+n+'"]').classList.add('cue');i++;setTimeout(step,650);
+ };step();
+}
+$('showRepairSequenceBtn')?.addEventListener('click',showRepairSequence);
 document.querySelectorAll('.repair-cells button').forEach(btn=>btn.onclick=()=>{
- if(life1Stage!==1||btn.disabled)return;btn.disabled=true;btn.classList.add('done');repairCells++;$('repairFill').style.width=(repairCells/3*100)+'%';tg?.HapticFeedback?.impactOccurred('medium');
- if(repairCells===3){life1Stage=2;$('repairCount').textContent='1/1';$('qRepair').className='done';$('qAntenna').className='active';$('repairPanel').hidden=true;$('antennaHotspot').disabled=false;$('missionStatus').textContent='Terminal online. Activate and tune the antenna 📡';}
+ if(life1Stage!==1||repairShowing)return;
+ const n=Number(btn.dataset.cell),expected=repairSequence[repairInput.length];
+ if(n!==expected){
+  repairInput=[];repairCells=0;$('repairFill').style.width='0%';$('repairHint').textContent='Wrong circuit. Power trace reset — read it again.';tg?.HapticFeedback?.notificationOccurred?.('error');return;
+ }
+ repairInput.push(n);repairCells=repairInput.length;$('repairFill').style.width=(repairCells/4*100)+'%';tg?.HapticFeedback?.impactOccurred('medium');
+ if(repairCells===4){life1Stage=2;$('repairCount').textContent='1/1';$('qRepair').className='done';$('qAntenna').className='active';$('repairPanel').hidden=true;$('antennaHotspot').disabled=false;$('missionStatus').textContent='Terminal online. Reach COMMS and calibrate the antenna 📡';updateLife1Nearby();}
 });
 $('antennaHotspot').onclick=()=>{if(life1Stage!==2)return;$('antennaPanel').hidden=false;$('antennaPanel').scrollIntoView({behavior:'smooth',block:'center'});};
-$('frequencyDial').oninput=()=>{$('frequencyValue').textContent=(136+Number($('frequencyDial').value)/10).toFixed(1);};
-$('tuneBtn').onclick=()=>{
- if(life1Stage!==2)return;const v=Number($('frequencyDial').value),d=Math.abs(v-targetFrequency);
- if(d>6){$('signalHint').textContent=v<targetFrequency?'Signal weak — tune higher.':'Signal weak — tune lower.';tg?.HapticFeedback?.impactOccurred('light');return;}
- life1Stage=3;$('antennaCount').textContent='1/1';$('qAntenna').className='done';$('antennaPanel').hidden=true;$('missionStatus').textContent='Signal locked. Moon Base Alpha is online!';tg?.HapticFeedback?.notificationOccurred?.('success');
- let pts=Number(localStorage.getItem('mkty_points')||0);if(localStorage.getItem('mkty_life1')!=='complete')pts+=500;localStorage.setItem('mkty_points',String(pts));localStorage.setItem('mkty_life1','complete');$('points').textContent=pts+' ⭐';$('l1Points').textContent=pts+' ⭐';$('livesProgress').textContent='1 / 9 🌙';unlockLife2();
+function updateSignalStrength(){
+ const v=Number($('frequencyDial').value),d=Math.abs(v-targetFrequency),strength=Math.max(0,100-d*4);
+ $('frequencyValue').textContent=(136+v/10).toFixed(1);if($('signalMeterFill'))$('signalMeterFill').style.width=strength+'%';
+ if(signalHoldTimer&&d>3){clearInterval(signalHoldTimer);signalHoldTimer=null;signalHoldProgress=0;$('signalHoldFill').style.width='0%';$('signalHoldText').textContent='0%';$('signalHint').textContent='Signal lost — reacquire the carrier.';}
+}
+$('frequencyDial').oninput=updateSignalStrength;
+function finishLife1Signal(){
+ clearInterval(signalHoldTimer);signalHoldTimer=null;life1Stage=3;$('antennaCount').textContent='1/1';$('qAntenna').className='done';$('antennaPanel').hidden=true;$('missionStatus').textContent='Signal synchronized. Moon Base Alpha is online!';tg?.HapticFeedback?.notificationOccurred?.('success');
+ let pts=Number(localStorage.getItem('mkty_points')||0);if(localStorage.getItem('mkty_life1')!=='complete')pts+=500;localStorage.setItem('mkty_points',String(pts));localStorage.setItem('mkty_life1','complete');$('points').textContent=pts+' ⭐';$('l1Points').textContent=pts+' ⭐';$('livesProgress').textContent='1 / 9 🌙';
  setTimeout(()=>{$('life1Complete').hidden=false;$('life1Complete').scrollIntoView({behavior:'smooth',block:'center'});},300);
+}
+$('tuneBtn').onclick=()=>{
+ if(life1Stage!==2||signalHoldTimer)return;const v=Number($('frequencyDial').value),d=Math.abs(v-targetFrequency);
+ if(d>3){$('signalHint').textContent=v<targetFrequency?'Carrier is higher — tune right.':'Carrier is lower — tune left.';tg?.HapticFeedback?.impactOccurred('light');return;}
+ signalHoldProgress=0;$('signalHold').hidden=false;$('signalHint').textContent='Carrier acquired. Hold frequency steady for synchronization.';
+ signalHoldTimer=setInterval(()=>{const now=Number($('frequencyDial').value);if(Math.abs(now-targetFrequency)>3){updateSignalStrength();return;}signalHoldProgress+=4;$('signalHoldFill').style.width=signalHoldProgress+'%';$('signalHoldText').textContent=signalHoldProgress+'%';if(signalHoldProgress>=100)finishLife1Signal();},120);
 };
 $('returnBtn').onclick=()=>show('home');
 
