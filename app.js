@@ -34,7 +34,7 @@ async function authenticateMoonkattyPlayer(){
   return null;
  }
 }
-mktyAuthPromise=authenticateMoonkattyPlayer().then(()=>syncServerProgress('load'));
+mktyAuthPromise=authenticateMoonkattyPlayer().then(async()=>{await syncServerProgress('load');});
 
 // MOONKATTY Crew identity
 const crewUser = tg?.initDataUnsafe?.user;
@@ -538,3 +538,7 @@ if(localStorage.getItem('mkty_life1')==='complete' && localStorage.getItem('mkty
 renderGlobalLivesHome();
 renderMissionArchive();
 
+
+/* resilient delegated home launch routing */
+document.addEventListener('click',(ev)=>{const b=ev.target.closest?.('#enterBtn');if(!b)return;if(localStorage.getItem('mkty_life1')==='complete'&&localStorage.getItem('mkty_life2')!=='complete'){ev.preventDefault();ev.stopImmediatePropagation();startLife2();}},true);
+document.querySelector('.mk-life-teaser')?.addEventListener('click',()=>{if(localStorage.getItem('mkty_life1')==='complete'&&localStorage.getItem('mkty_life2')!=='complete')startLife2();});
