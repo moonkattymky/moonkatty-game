@@ -150,7 +150,11 @@ function life1MoveLoop(){
  }
  l1MoveFrame=requestAnimationFrame(life1MoveLoop);
 }
-let l1PointerId=null;
+let l1PointerId=null,l1JoystickActive=false;
+// iOS Telegram WebView: once a joystick gesture starts, suppress page scrolling
+// even if the finger leaves the joystick element.
+document.addEventListener('touchmove',ev=>{if(l1JoystickActive){ev.preventDefault();ev.stopPropagation();}},{passive:false});
+
 function setLife1Stick(clientX,clientY){
  const r=l1Joy.getBoundingClientRect();
  const dx=clientX-(r.left+r.width/2),dy=clientY-(r.top+r.height/2);
@@ -163,14 +167,14 @@ function setLife1Stick(clientX,clientY){
 }
 function stopLife1Stick(pointerId){
  if(pointerId!=null&&l1PointerId!=null&&pointerId!==l1PointerId)return;
- l1PointerId=null;l1MoveX=0;l1MoveY=0;l1Stick.style.transform='translate(0,0)';renderLife1Player();
+ l1PointerId=null;l1JoystickActive=false;l1MoveX=0;l1MoveY=0;l1Stick.style.transform='translate(0,0)';renderLife1Player();
 }
 if(l1Joy){
  l1Joy.style.touchAction='none';
  // iOS/Telegram WebView can still turn a downward joystick drag into page scroll.
  // Cancel touch scrolling only while the gesture belongs to the joystick.
  ['touchstart','touchmove'].forEach(type=>l1Joy.addEventListener(type,ev=>{ev.preventDefault();ev.stopPropagation();},{passive:false}));
- l1Joy.addEventListener('pointerdown',ev=>{ev.preventDefault();ev.stopPropagation();l1PointerId=ev.pointerId;l1Joy.setPointerCapture?.(ev.pointerId);setLife1Stick(ev.clientX,ev.clientY);},{passive:false});
+ l1Joy.addEventListener('pointerdown',ev=>{ev.preventDefault();ev.stopPropagation();l1PointerId=ev.pointerId;l1JoystickActive=true;l1Joy.setPointerCapture?.(ev.pointerId);setLife1Stick(ev.clientX,ev.clientY);},{passive:false});
  l1Joy.addEventListener('pointermove',ev=>{if(ev.pointerId!==l1PointerId)return;ev.preventDefault();ev.stopPropagation();setLife1Stick(ev.clientX,ev.clientY);},{passive:false});
  l1Joy.addEventListener('pointerup',ev=>{ev.preventDefault();stopLife1Stick(ev.pointerId);},{passive:false});
  l1Joy.addEventListener('pointercancel',ev=>stopLife1Stick(ev.pointerId));
