@@ -552,15 +552,17 @@ $('rulesBackBtn')?.addEventListener('click',()=>show('home'));
 
 function restoreGameProgress(){
  const completed=[1,2,3,4,5,6,7,8,9].filter(n=>localStorage.getItem('mkty_life'+n)==='complete');
- // mkty_points is the canonical earned-points balance. Do not overwrite it with
- // the old prototype 10/20/30 story calculation on reload.
  const savedPoints=Number(localStorage.getItem('mkty_points')||0);
+
  if($('points')) $('points').textContent=savedPoints+' ⭐';
  if($('livesProgress')) $('livesProgress').textContent=completed.length+' / 9 🌙';
- unlockLife2();unlockLife3();unlockLife4();unlockLife5();unlockLife6();unlockLife7();unlockLife8();unlockLife9();
+
+ // The current home UI no longer contains the old life1Card/life2Card/... story cards.
+ // Restore completion directly from storage without calling legacy unlock functions.
  if(localStorage.getItem('mkty_life1')==='complete'){
   if($('life1Complete')) $('life1Complete').hidden=false;
   if($('l1Points')) $('l1Points').textContent=savedPoints+' ⭐';
+  if($('missionStatus')) $('missionStatus').textContent='Moon Base Alpha is online. LIFE #1 complete.';
  }
  if(completed.length===9 && $('storyProgress')) $('storyProgress').style.width='100%';
  renderFinalMoonPoints();
