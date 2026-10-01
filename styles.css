@@ -448,3 +448,29 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 .crew-world-v2{min-height:455px!important;height:455px!important}
 .crew-world-v2:after{bottom:18px!important}
 @media(max-width:390px){.crew-world-v2{min-height:440px!important;height:440px!important}}
+
+/* LIFE #2 challenge visual polish */
+#mission2 .crew-task{position:relative;overflow:hidden;padding:16px;border:1px solid #30445e;border-radius:16px;background:linear-gradient(145deg,#0a111d,#050910);box-shadow:inset 0 0 32px #0006}
+#mission2 .crew-task>strong{display:block;margin-bottom:5px;color:#f1c761;font-size:12px;letter-spacing:1.8px}
+#mission2 .crew-task>p{margin:4px 0 13px;color:#aeb9c8;font-size:11px;line-height:1.45}
+#navigatorTask:before{content:"NAV // FLIGHT CORRIDOR";display:block;margin-bottom:10px;color:#62d9ff;font-size:8px;letter-spacing:2px}
+.nav-field2{height:230px!important;border-color:#4c789a66!important;background:radial-gradient(circle at 50% 85%,#163c5b55,transparent 45%),linear-gradient(#030812,#071522)!important;box-shadow:inset 0 0 35px #000b}
+.nav-field2:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 49.5%,#5bdcff12 50%,transparent 50.5%),repeating-linear-gradient(0deg,transparent 0 31px,#5bdcff0b 32px);pointer-events:none}
+.nav-field2 .gate{border-color:#67ddff!important;box-shadow:0 0 14px #67ddff66}
+#navShip2{color:#f5c65e!important;text-shadow:0 0 15px #f5c65e;font-size:30px!important}
+.nav-controls2 button{background:linear-gradient(#101b2a,#09111c)!important;border-color:#42617e!important;color:#8fe8ff!important;font-size:18px}
+#navHint2,#engineerHint2,#scoutHint2,#crewSyncHint2{display:block;margin-top:10px;color:#8796aa;font-size:9px;letter-spacing:.7px}
+#engineerTask:before{content:"ENG // POWER ROUTING";display:block;margin-bottom:10px;color:#f1c761;font-size:8px;letter-spacing:2px}
+.circuit2{padding:15px;border:1px solid #d5a74633;border-radius:15px;background:linear-gradient(90deg,#0a0f17,#111722,#0a0f17)}
+.circuit2 button{height:70px!important;border-color:#d5a74655!important;background:#080d14!important;color:#f0c861!important;box-shadow:inset 0 0 18px #d5a7460c;font-size:34px!important}
+.circuit2 button.live{background:#0b2318!important;color:#8df1b5!important;border-color:#6fe6a4!important;box-shadow:0 0 20px #6fe6a444!important}
+#testCircuit2{margin-top:12px;background:linear-gradient(135deg,#d4a63f,#f2d378)!important;color:#161006!important}
+#scoutTask:before{content:"SCOUT // ANOMALY RADAR";display:block;margin-bottom:10px;color:#83e5a8;font-size:8px;letter-spacing:2px}
+.scout-grid2{position:relative;padding:16px;border:1px solid #5bdc8b44;border-radius:50%!important;aspect-ratio:1;background:radial-gradient(circle,#12322144 0 2%,transparent 3% 24%,#63df9220 25% 25.8%,transparent 26% 49%,#63df9218 50% 50.8%,transparent 51%),linear-gradient(90deg,transparent 49.5%,#63df9218 50%,transparent 50.5%),linear-gradient(transparent 49.5%,#63df9218 50%,transparent 50.5%),#050c0a!important;overflow:hidden}
+.scout-grid2:after{content:"";position:absolute;left:50%;top:50%;width:50%;height:1px;background:linear-gradient(90deg,#6ee99b99,transparent);transform-origin:left;animation:radarSweep2 2.2s linear infinite;pointer-events:none}
+@keyframes radarSweep2{to{transform:rotate(360deg)}}
+.scout-grid2 button{position:relative;z-index:2;border-radius:50%!important;background:#0b1612aa!important;border:1px solid #5bdc8b22!important;color:#86eaaa!important}
+.scout-grid2 button.target{background:#e9bd58!important;color:#07100a!important;border-color:#fff2a0!important;box-shadow:0 0 25px #e9bd58!important}
+.crew-final2{border-color:#e9bd5855!important;background:radial-gradient(circle at 50% 0,#5a431b33,transparent 45%),#070a10!important}
+.crew-sync-code2{border:1px solid #e9bd5844!important;background:#03070d!important;box-shadow:inset 0 0 25px #e9bd580c;color:#f3ce73!important}
+.crew-sync-keys2 button{border-color:#d3a64c55!important;background:#0c1119!important;color:#f1c761!important}
