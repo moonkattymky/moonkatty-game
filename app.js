@@ -552,3 +552,5 @@ document.addEventListener('click',async e=>{const b=e.target.closest?.('#enterBt
 
 /* v1355 cinematic escape hatch */
 document.addEventListener('click',e=>{if(e.target.closest?.('#skipBtn')){e.preventDefault();e.stopImmediatePropagation();localStorage.removeItem('mkty_life1');clearTimeout(cinematicTimer);const v=document.getElementById('life1Video');if(v)v.pause();show('mission1');resetLife1Mission();}},true);
+
+window.mktyForceMission1=function(){try{localStorage.removeItem('mkty_life1');clearTimeout(cinematicTimer);const v=document.getElementById('life1Video');if(v){v.pause();v.currentTime=0;}document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));const m=document.getElementById('mission1');if(m)m.classList.add('active');resetLife1Mission();window.scrollTo(0,0);}catch(e){console.error('force mission1',e)}};
