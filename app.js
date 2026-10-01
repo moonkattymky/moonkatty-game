@@ -158,7 +158,7 @@ function setLife1Stick(clientX,clientY){
  const sx=dx*scale,sy=dy*scale;
  l1Stick.style.transform='translate('+sx+'px,'+sy+'px)';
  // Screen coordinates: +X = right, +Y = down. Player uses the same convention.
- l1MoveX=-Math.max(-1,Math.min(1,dx/max));
+ l1MoveX=Math.max(-1,Math.min(1,dx/max));
  l1MoveY=Math.max(-1,Math.min(1,dy/max));
  if($('l1Debug'))$('l1Debug').textContent='MOVE • X '+l1MoveX.toFixed(2)+' • Y '+l1MoveY.toFixed(2);
 }
