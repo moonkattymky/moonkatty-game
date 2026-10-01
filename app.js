@@ -502,17 +502,29 @@ $('thrustDial').oninput=renderDescent;
 $('life4ReturnBtn').onclick=()=>show('home');
 
 function unlockLife5(){
- if(localStorage.getItem('mkty_life4')!=='complete')return;
- $('life4Card').classList.add('complete');$('life5Card').disabled=false;$('life5Card').classList.remove('locked');$('life5Card').classList.add('unlocked');$('life5Icon').textContent='5';$('storyProgress').style.width='55%';
+ if(localStorage.getItem('mkty_life4')!=='complete')return false;const a=$('life4Card'),b=$('life5Card'),i=$('life5Icon'),p=$('storyProgress');a?.classList.add('complete');if(b){b.disabled=false;b.classList.remove('locked');b.classList.add('unlocked');}if(i)i.textContent='5';if(p)p.style.width='55%';return true;
 }
-$('continueLife5Btn').onclick=()=>{unlockLife5();$('lifeTitle').textContent='LIFE #5 — IGNITION';$('lifeText').textContent='Bring the lunar reactor online.';$('enterBtn').textContent='START LIFE #5 🔥';$('enterBtn').onclick=startLife5;show('home');};
-$('life5Card').onclick=()=>$('continueLife5Btn').click();
-let cells5=[0,0,0],stability5=15,stable5=false;
+$('continueLife5Btn').onclick=(ev)=>{ev?.preventDefault?.();if(!unlockLife5())return;startLife5();};if($('life5Card'))$('life5Card').onclick=()=>$('continueLife5Btn').click();
+let cells5=[0,0,0],stability5=15,temp5=22,stable5=false,reactorTimer5=null,chargeHeld5=false,coolHeld5=false,reactorActive5=false;
 function startLife5(){playLifeCinematic(5,openMission5);}
-function openMission5(){cells5=[0,0,0];stability5=15;stable5=false;document.querySelectorAll('[data-cell]').forEach(b=>{b.classList.remove('charged');b.querySelector('i').style.height='0%';});$('stabilizeBtn').disabled=true;$('igniteBtn').disabled=true;$('life5Complete').hidden=true;$('ignitionStatus').textContent='Charge the energy cells.';$('reactorCore').classList.remove('online');show('mission5');}
-document.querySelectorAll('[data-cell]').forEach(btn=>btn.onclick=()=>{const i=Number(btn.dataset.cell);if(cells5[i]>=100)return;cells5[i]=Math.min(100,cells5[i]+25);btn.querySelector('i').style.height=cells5[i]+'%';tg?.HapticFeedback?.impactOccurred('light');if(cells5[i]===100)btn.classList.add('charged');if(cells5.every(v=>v===100)){$('stabilizeBtn').disabled=false;$('ignitionStatus').textContent='Cells charged. Stabilize the reactor core.';}});
-$('stabilizeBtn').onclick=()=>{stability5=20+Math.floor(Math.random()*61);$('stabilityNeedle').style.left=stability5+'%';const ok=stability5>=45&&stability5<=55;if(ok){stable5=true;$('stabilizeBtn').disabled=true;$('igniteBtn').disabled=false;$('ignitionStatus').textContent='Core stable. Ready for ignition.';tg?.HapticFeedback?.notificationOccurred?.('success');}else{$('ignitionStatus').textContent=stability5<45?'Core underpowered — stabilize again.':'Core overload — stabilize again.';tg?.HapticFeedback?.impactOccurred('medium');}};
-$('igniteBtn').onclick=()=>{if(!stable5)return;$('reactorCore').classList.add('online');$('igniteBtn').disabled=true;localStorage.setItem('mkty_life5','complete');$('points').textContent='150 ⭐';$('ignitionStatus').textContent='Reactor online. Ignition successful ✓';$('life5Complete').hidden=false;unlockLife6();tg?.HapticFeedback?.notificationOccurred?.('success');};
+function renderReactor5(){
+ $('temp5').textContent=Math.round(temp5);$('stabilityRead5').textContent=Math.round(stability5);$('tempFill5').style.width=Math.min(100,temp5)+'%';$('stabilityNeedle').style.left=Math.max(0,Math.min(100,stability5))+'%';
+ $('reactorCore').classList.toggle('warning',temp5>=78);$('reactorCore').classList.toggle('stable',temp5>=45&&temp5<=68&&stability5>=45&&stability5<=55);
+ const ready=cells5.every(v=>v>=100)&&temp5>=45&&temp5<=68&&stability5>=45&&stability5<=55;$('stabilizeBtn').disabled=!ready;
+}
+function openMission5(){
+ cells5=[0,0,0];stability5=15;temp5=22;stable5=false;reactorActive5=true;chargeHeld5=coolHeld5=false;clearInterval(reactorTimer5);
+ document.querySelectorAll('.energy-cells [data-cell], .energy-cells button[data-cell]').forEach(b=>{b.classList.remove('charged');const bar=b.querySelector('i');if(bar)bar.style.height='0%';});
+ $('stabilizeBtn').disabled=true;$('igniteBtn').disabled=true;$('life5Complete').hidden=true;$('ignitionStatus').textContent='Bring all cells online while controlling reactor temperature.';$('reactorCore').classList.remove('online','warning','stable');show('mission5');renderReactor5();
+ reactorTimer5=setInterval(()=>{if(!reactorActive5)return;if(chargeHeld5){temp5+=1.15;stability5+=.7;cells5=cells5.map(v=>Math.min(100,v+.85));}else{temp5+=.12;stability5-=.12;}if(coolHeld5){temp5-=1.55;stability5-=.42;}temp5=Math.max(15,Math.min(100,temp5));stability5=Math.max(0,Math.min(100,stability5));
+ document.querySelectorAll('.energy-cells button[data-cell]').forEach((b,i)=>{const bar=b.querySelector('i');if(bar)bar.style.height=cells5[i]+'%';b.classList.toggle('charged',cells5[i]>=100);});
+ if(temp5>=96){reactorActive5=false;clearInterval(reactorTimer5);$('ignitionStatus').textContent='CORE SCRAM — thermal overload. Restarting reactor…';tg?.HapticFeedback?.notificationOccurred?.('error');setTimeout(openMission5,1600);return;}renderReactor5();},100);
+}
+function hold5(el,setter){const on=ev=>{ev.preventDefault();setter(true);el.setPointerCapture?.(ev.pointerId);},off=()=>setter(false);el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointercancel',off);el.addEventListener('pointerleave',off);}
+hold5($('chargeCore5'),v=>chargeHeld5=v);hold5($('coolCore5'),v=>coolHeld5=v);
+document.querySelectorAll('.energy-cells button[data-cell]').forEach(btn=>btn.onclick=()=>{const i=Number(btn.dataset.cell);cells5[i]=Math.min(100,cells5[i]+5);temp5=Math.min(100,temp5+2.5);stability5=Math.min(100,stability5+1.5);renderReactor5();});
+$('stabilizeBtn').onclick=()=>{if($('stabilizeBtn').disabled)return;stable5=true;reactorActive5=false;clearInterval(reactorTimer5);$('stabilizeBtn').disabled=true;$('igniteBtn').disabled=false;$('ignitionStatus').textContent='Core locked in stable window. IGNITION authorized.';tg?.HapticFeedback?.notificationOccurred?.('success');};
+$('igniteBtn').onclick=()=>{if(!stable5)return;$('reactorCore').classList.add('online');$('igniteBtn').disabled=true;localStorage.setItem('mkty_life5','complete');let pts=Number(localStorage.getItem('mkty_points')||0);pts+=1250;localStorage.setItem('mkty_points',String(pts));$('points').textContent=pts+' ⭐';$('ignitionStatus').textContent='Reactor online. Ignition successful ✓';$('life5Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');};
 $('life5ReturnBtn').onclick=()=>show('home');
 
 function unlockLife6(){
