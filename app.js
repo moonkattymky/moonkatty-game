@@ -152,14 +152,25 @@ l1Action?.addEventListener('click',()=>{
  updateLife1Nearby();
 });
 renderLife1Player();cancelAnimationFrame(l1MoveFrame);life1MoveFrame=requestAnimationFrame(life1MoveLoop);
+
+function life1Scan(){
+ const pulse=$('l1ScannerPulse');if(pulse){pulse.classList.remove('run');void pulse.offsetWidth;pulse.classList.add('run');}
+ let found=0;
+ document.querySelectorAll('.l1-hotspot.energy:not(.collected)').forEach(el=>{
+  if(l1DistanceTo(el)<.62){el.classList.add('revealed');found++;setTimeout(()=>{if(!el.classList.contains('nearby')&&!el.classList.contains('collected'))el.classList.remove('revealed');},4500);}
+ });
+ $('missionStatus').textContent=found?('Scanner: '+found+' energy signature'+(found===1?'':'s')+' nearby. Move closer to collect.'):'Scanner: no energy signature in range. Explore another sector.';
+ tg?.HapticFeedback?.impactOccurred?.('light');
+}
+$('l1ScanBtn')?.addEventListener('click',life1Scan);
 function resetLife1Mission(){
  life1Stage=0; energyCollected=0; repairCells=0; targetFrequency=58+Math.floor(Math.random()*22); l1PX=50;l1PY=68;l1Near=null;renderLife1Player();updateLife1Nearby();
- document.querySelectorAll('.l1-hotspot.energy').forEach(x=>{x.disabled=false;x.classList.remove('collected')});
+ document.querySelectorAll('.l1-hotspot.energy').forEach(x=>{x.disabled=false;x.classList.remove('collected','revealed','nearby')});
  document.querySelectorAll('.repair-cells button').forEach(x=>{x.disabled=false;x.classList.remove('done')});
  $('repairTerminal').disabled=true;$('antennaHotspot').disabled=true;$('repairPanel').hidden=true;$('antennaPanel').hidden=true;$('life1Complete').hidden=true;
  $('energyCount').textContent='0/3';$('repairCount').textContent='0/1';$('antennaCount').textContent='0/1';$('repairFill').style.width='0%';
  $('qEnergy').className='active';$('qRepair').className='';$('qAntenna').className='';
- $('missionStatus').textContent='Collect 3 energy crystals to restore Moon Base Alpha.';
+ $('missionStatus').textContent='Explore Moon Base Alpha. Use SCAN to reveal nearby energy signatures.';
  const bank=getLifeBank?.()??9;$('life1Lives').textContent=bank+'/9 ❤️';$('l1Points').textContent=(Number(localStorage.getItem('mkty_points')||0))+' ⭐';
 }
 function collectLife1Energy(btn){
