@@ -563,3 +563,8 @@ function mktyResumeFromServer(){if(Number(window.mktyServerStory)>=1&&Number(win
 const _mktySync=syncServerProgress;syncServerProgress=async function(a='load',l=null){const p=await _mktySync(a,l);if(p){window.mktyServerStory=Number(p.story_life||0);mktyResumeFromServer();}return p;};
 document.addEventListener('click',e=>{if(Number(window.mktyServerStory)>=1&&e.target.closest?.('#enterBtn,.mk-life-teaser')){e.preventDefault();e.stopImmediatePropagation();startLife2();}},true);
 setTimeout(mktyResumeFromServer,1500);setTimeout(mktyResumeFromServer,3500);
+
+/* v1545 canonical LIFE 2 home renderer */
+function renderLife2Home(){if(Number(window.mktyServerStory)!==1)return;localStorage.setItem('mkty_life1','complete');const w=document.getElementById('welcome');if(w)w.textContent='LIFE #1 COMPLETE • LIFE #2 UNLOCKED';const b=document.getElementById('enterBtn');if(b){b.textContent='START LIFE #2 🚀';b.disabled=false;b.onclick=startLife2;}const t=document.querySelector('.mk-life-teaser');if(t){t.innerHTML='<div class="mk-play">▶</div><div><small>LIFE #2</small><strong>THE CREW</strong><span>Assemble your crew…</span></div><b>›</b>';t.onclick=startLife2;t.style.cursor='pointer';}}
+const _resume=mktyResumeFromServer;mktyResumeFromServer=function(){_resume();renderLife2Home();};
+setInterval(()=>{if(Number(window.mktyServerStory)===1)renderLife2Home();},1000);
