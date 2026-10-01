@@ -245,6 +245,22 @@ $('continueLife2Btn').onclick=()=>{
  startLife2();
 };
 if($('life2Card')) $('life2Card').onclick=()=>$('continueLife2Btn').click();
+
+// Telegram WebView-safe direct launcher for LIFE #2.
+// Use delegated pointer/touch handling so the completed LIFE #1 button keeps working
+// even after returning to the mission or when WebView suppresses a synthetic click.
+function launchLife2FromCompletedMission(ev){
+ const target=ev.target?.closest?.('#continueLife2Btn');
+ if(!target)return;
+ if(localStorage.getItem('mkty_life1')!=='complete')return;
+ ev.preventDefault();
+ ev.stopPropagation();
+ tg?.HapticFeedback?.impactOccurred?.('medium');
+ startLife2();
+}
+document.addEventListener('pointerup',launchLife2FromCompletedMission);
+$('continueLife2Btn').addEventListener('touchend',launchLife2FromCompletedMission,{passive:false});
+
 $('life2SkipBtn').onclick=openMission2;
 $('life2Video')?.addEventListener('ended',openMission2);
 
