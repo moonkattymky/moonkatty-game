@@ -326,3 +326,11 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 .l1-action:disabled{opacity:.42}
 .l1-hotspot.nearby{filter:drop-shadow(0 0 14px #f1d47d);transform:scale(1.08)}
 @media(max-width:380px){.l1-joystick{width:92px;height:92px}.l1-joystick i{left:25px;top:25px;width:42px;height:42px}.l1-action{width:82px;height:56px}}
+
+.l1-zone{position:absolute;z-index:2;padding:5px 8px;border:1px solid #ffffff18;border-radius:8px;background:#07101d99;color:#8d99aa;font-size:7px;letter-spacing:2px}.zone-a{left:8%;top:25%}.zone-b{right:7%;top:38%}.zone-c{left:43%;top:18%}
+.l1-obstacle{position:absolute;z-index:6;pointer-events:none}.rock-a{left:28%;top:54%;width:58px;height:38px;border-radius:55% 45% 50% 40%;background:linear-gradient(145deg,#353b46,#151922);box-shadow:inset -10px -8px 16px #0008}.rock-b{right:20%;top:65%;width:46px;height:32px;border-radius:45%;background:linear-gradient(145deg,#303744,#11151d)}.crate-a{left:57%;top:43%;width:42px;height:42px;display:grid;place-items:center;border:1px solid #a47c3555;background:#15171acc;color:#b89555;font-size:24px}
+.l1-scan-btn{position:absolute;right:22px;bottom:105px;z-index:20;width:78px;height:42px;border-radius:22px;border:1px solid #65c7ff66;background:#0b1724dd;color:#9bdcff;font-weight:900;font-size:10px;letter-spacing:1px}
+.l1-scanner-pulse{position:absolute;left:50%;top:50%;width:20px;height:20px;border:2px solid #77d8ff;border-radius:50%;z-index:4;opacity:0;pointer-events:none;transform:translate(-50%,-50%)}
+.l1-scanner-pulse.run{animation:l1ScanPulse 1.2s ease-out}
+@keyframes l1ScanPulse{0%{width:20px;height:20px;opacity:.9}100%{width:420px;height:420px;opacity:0}}
+.l1-hotspot.energy{opacity:.14;transition:opacity .25s,filter .25s,transform .25s}.l1-hotspot.energy.revealed,.l1-hotspot.energy.nearby{opacity:1}
