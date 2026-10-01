@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070d" />
   <title>MOONKATTY: 9 LIVES</title>
   <!-- mkty-deploy-20260930-1700 -->
-  <link rel="stylesheet" href="styles.css?v=20261002-0225" />
+  <link rel="stylesheet" href="styles.css?v=20261002-0245" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -191,11 +191,11 @@
       <header><div><span class="eyebrow">LIFE #4</span><h2>THE DESCENT</h2></div><div class="crew-badge">ALT // 2400M</div></header>
       <div class="descent-world"><div class="landing-zone">◎<small>LANDING ZONE</small></div><div id="lander" class="lander">🚀</div><div class="descent-grid"></div></div>
       <div class="panel objective"><span class="eyebrow">MISSION OBJECTIVE</span><h3>LAND THE SHIP</h3><p>Balance thrust and drift. Enter the safe zone below 12 m/s.</p></div>
-      <div class="flight-hud"><span>ALT <b id="altitude">2400</b>m</span><span>VEL <b id="velocity">28</b>m/s</span><span>FUEL <b id="fuel">100</b>%</span></div>
-      <input id="thrustDial" class="frequency-dial" type="range" min="0" max="100" value="45">
+      <div class="flight-hud"><span>ALT <b id="altitude">2400</b>m</span><span>VEL <b id="velocity">28</b>m/s</span><span>FUEL <b id="fuel">100</b>%</span><span>DRIFT <b id="driftRead4">0</b></span></div><div class="descent-warning4"><span id="safeVel4">VEL ≤ 12</span><span id="safeDrift4">ZONE ± 32</span></div>
+      <label class="thrust-label4">THRUST POWER <b id="thrustRead4">45%</b></label><input id="thrustDial" class="frequency-dial" type="range" min="0" max="100" value="45">
       <div class="flight-controls"><button id="leftThruster">◀</button><button id="burnBtn">THRUST 🔥</button><button id="rightThruster">▶</button></div>
       <p id="descentStatus" class="mission-status">Stabilize descent and reach the landing zone.</p>
-      <div id="life4Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">TOUCHDOWN</p><h3>PERFECT LANDING</h3><strong>+40 MOON POINTS ⭐</strong><button id="continueLife5Btn" class="primary">UNLOCK LIFE #5 🔥</button><button id="life4ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
+      <div id="life4Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">TOUCHDOWN</p><h3>PERFECT LANDING</h3><strong>+1000 MOON POINTS ⭐</strong><button id="continueLife5Btn" class="primary">UNLOCK LIFE #5 🔥</button><button id="life4ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
     </section>
     <section id="mission5" class="screen mission-screen life-theme life-theme-5">
       <header><div><span class="eyebrow">LIFE #5</span><h2>IGNITION</h2></div><div class="crew-badge">REACTOR // OFFLINE</div></header>
@@ -249,5 +249,5 @@
       <div id="life9Complete" class="complete-card final-complete" hidden><span class="complete-icon">🌙</span><p class="eyebrow">9 LIVES COMPLETE</p><h3>MOONKATTY HAS RETURNED</h3><strong>+90 MOON POINTS • 450 TOTAL ⭐</strong><p class="final-message">THE SIGNAL WAS NEVER CALLING US TO THE MOON.<br>IT WAS CALLING MOONKATTY HOME.</p><button id="life9ReturnBtn" class="primary">RETURN TO MISSION CONTROL</button></div>
     </section>
   </main>
-  <script src="app.js?v=20261002-0225"></script>
+  <script src="app.js?v=20261002-0245"></script>
 </body></html>
