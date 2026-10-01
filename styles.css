@@ -582,3 +582,11 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
  .descent-world,.reactor-world,.launch-world,.signal-world,.final-world{height:290px!important}
  #voidWorld7{height:380px!important}
 }
+
+/* Navigator fair route fix */
+.nav-field2 .g1{left:24%!important;top:68%!important}.nav-field2 .g2{left:50%!important;top:42%!important}.nav-field2 .g3{left:76%!important;right:auto!important;top:20%!important}
+.nav-field2 .gate{width:48px!important;height:18px!important;border-top:3px solid #67ddff!important;border-bottom:3px solid #67ddff!important}
+.nav-field2 .gate b{position:absolute;left:50%;top:-20px;transform:translateX(-50%);color:#79ddff;font:900 8px monospace}
+.flight-direction2{position:absolute;left:12px;top:10px;z-index:4;color:#72dcff;font:800 8px monospace;letter-spacing:1.5px}
+#navShip2{transform:none!important}
+.nav-controls2 button{font-size:11px!important;letter-spacing:.8px!important}
