@@ -150,15 +150,28 @@ function life1MoveLoop(){
  }
  l1MoveFrame=requestAnimationFrame(life1MoveLoop);
 }
-function setLife1Stick(ev){
- const r=l1Joy.getBoundingClientRect(),x=ev.clientX-(r.left+r.width/2),y=ev.clientY-(r.top+r.height/2),max=r.width*.31,len=Math.hypot(x,y)||1,scale=Math.min(1,max/len),sx=x*scale,sy=y*scale;
- l1Stick.style.transform='translate('+sx+'px,'+sy+'px)';l1MoveX=sx/max;l1MoveY=sy/max;
+let l1PointerId=null;
+function setLife1Stick(clientX,clientY){
+ const r=l1Joy.getBoundingClientRect();
+ const dx=clientX-(r.left+r.width/2),dy=clientY-(r.top+r.height/2);
+ const max=r.width*.31,len=Math.hypot(dx,dy)||1,scale=Math.min(1,max/len);
+ const sx=dx*scale,sy=dy*scale;
+ l1Stick.style.transform='translate('+sx+'px,'+sy+'px)';
+ // Screen coordinates: +X = right, +Y = down. Player uses the same convention.
+ l1MoveX=Math.max(-1,Math.min(1,dx/max));
+ l1MoveY=Math.max(-1,Math.min(1,dy/max));
+}
+function stopLife1Stick(pointerId){
+ if(pointerId!=null&&l1PointerId!=null&&pointerId!==l1PointerId)return;
+ l1PointerId=null;l1MoveX=0;l1MoveY=0;l1Stick.style.transform='translate(0,0)';renderLife1Player();
 }
 if(l1Joy){
- l1Joy.addEventListener('pointerdown',ev=>{ev.preventDefault();l1Joy.setPointerCapture?.(ev.pointerId);setLife1Stick(ev);});
- l1Joy.addEventListener('pointermove',ev=>{if(ev.buttons||ev.pointerType==='touch')setLife1Stick(ev);});
- const stop=()=>{l1MoveX=0;l1MoveY=0;l1Stick.style.transform='translate(0,0)';renderLife1Player();};
- l1Joy.addEventListener('pointerup',stop);l1Joy.addEventListener('pointercancel',stop);
+ l1Joy.style.touchAction='none';
+ l1Joy.addEventListener('pointerdown',ev=>{ev.preventDefault();ev.stopPropagation();l1PointerId=ev.pointerId;l1Joy.setPointerCapture?.(ev.pointerId);setLife1Stick(ev.clientX,ev.clientY);},{passive:false});
+ l1Joy.addEventListener('pointermove',ev=>{if(ev.pointerId!==l1PointerId)return;ev.preventDefault();ev.stopPropagation();setLife1Stick(ev.clientX,ev.clientY);},{passive:false});
+ l1Joy.addEventListener('pointerup',ev=>{ev.preventDefault();stopLife1Stick(ev.pointerId);},{passive:false});
+ l1Joy.addEventListener('pointercancel',ev=>stopLife1Stick(ev.pointerId));
+ l1Joy.addEventListener('lostpointercapture',()=>stopLife1Stick(null));
 }
 l1Action?.addEventListener('click',()=>{
  if(!l1Near)return;
