@@ -416,9 +416,15 @@ function resetNav2(){
  nav2Timer=setInterval(()=>{if($('navigatorTask').hidden){clearInterval(nav2Timer);return;}nav2X+=1.05;const targets=[[24,68],[50,42],[76,20]];if(nav2Gate<3){const [gx,gy]=targets[nav2Gate];if(Math.abs(nav2X-gx)<7&&Math.abs(nav2Y-gy)<12){nav2Gate++;$('navHint2').textContent='Gates cleared: '+nav2Gate+' / 3'+(nav2Gate<3?' • Next gate ahead':' ✓');tg?.HapticFeedback?.impactOccurred?.('light');}}if(nav2X>92){clearInterval(nav2Timer);if(nav2Gate===3)completeMate(activeMate);else{$('crewStatus').textContent='Navigator missed a gate. Flight corridor reset.';resetNav2();}}$('navShip2').style.left=nav2X+'%';$('navShip2').style.top=Math.max(8,Math.min(84,nav2Y))+'%';},90);
 }
 document.querySelectorAll('[data-nav2]').forEach(b=>b.onclick=()=>{nav2Y=Math.max(8,Math.min(84,nav2Y+Number(b.dataset.nav2)*8));});
-function resetEngineer2(){wire2=[0,0,0,0];document.querySelectorAll('[data-wire2]').forEach((b,i)=>{b.style.transform='rotate(0deg)';b.classList.remove('live');});$('engineerHint2').textContent='Rotate all junctions. Every segment must align.';}
-document.querySelectorAll('[data-wire2]').forEach((b,i)=>b.onclick=()=>{wire2[i]=(wire2[i]+1)%4;b.style.transform='rotate('+(wire2[i]*90)+'deg)';});
-$('testCircuit2').onclick=()=>{const target=[1,3,2,0];const ok=wire2.every((v,i)=>v===target[i]);if(ok){document.querySelectorAll('[data-wire2]').forEach(b=>b.classList.add('live'));$('engineerHint2').textContent='Circuit stable ✓';setTimeout(()=>completeMate(activeMate),450);}else{$('engineerHint2').textContent='Open circuit detected. Trace the junctions again.';tg?.HapticFeedback?.notificationOccurred?.('error');}};
+function updateEngineerRoute2(){
+ let connected=0;
+ document.querySelectorAll('[data-wire2]').forEach((b,i)=>{const horizontal=wire2[i]%2===0;b.textContent=horizontal?'━':'┃';b.style.transform='none';b.classList.toggle('live',horizontal);if(horizontal&&connected===i)connected++;});
+ if($('routeProgress2'))$('routeProgress2').style.width=(connected/4*100)+'%';
+ $('engineerHint2').textContent=connected===4?'Power route complete — test the circuit.':'Power connected through '+connected+' / 4 junctions.';
+}
+function resetEngineer2(){wire2=[1,0,1,1];updateEngineerRoute2();}
+document.querySelectorAll('[data-wire2]').forEach((b,i)=>b.onclick=()=>{wire2[i]=(wire2[i]+1)%2;updateEngineerRoute2();tg?.HapticFeedback?.impactOccurred?.('light');});
+$('testCircuit2').onclick=()=>{const ok=wire2.every(v=>v%2===0);if(ok){document.querySelectorAll('[data-wire2]').forEach(b=>b.classList.add('live'));if($('routeProgress2'))$('routeProgress2').style.width='100%';$('engineerHint2').textContent='CORE → COMMS power route stable ✓';tg?.HapticFeedback?.notificationOccurred?.('success');setTimeout(()=>completeMate(activeMate),450);}else{$('engineerHint2').textContent='Open circuit detected. Every junction must show ━.';tg?.HapticFeedback?.notificationOccurred?.('error');}};
 function stopScout2(){clearInterval(scout2Timer);scout2Timer=null;}
 function buildAnomaly(){
  stopScout2();scout2Hits=0;const grid=$('anomalyGrid');grid.innerHTML='';for(let i=0;i<9;i++){const b=document.createElement('button');b.textContent='·';grid.appendChild(b);}
