@@ -236,12 +236,17 @@ function openMission2(){
  const video=$('life2Video'); if(video)video.pause();
  $('crewBadge2').textContent=crewCode; show('mission2');
 }
-$('continueLife2Btn').onclick=()=>{
+$('continueLife2Btn').onclick=(ev)=>{
+ ev?.preventDefault?.();
+ ev?.stopPropagation?.();
+ if(localStorage.getItem('mkty_life1')!=='complete')return;
  unlockLife2();
- $('lifeTitle').textContent='LIFE #2 — THE CREW';
- $('lifeText').textContent='Assemble your crew. Each specialist must pass a challenge.';
- $('enterBtn').textContent='START LIFE #2 🚀';
- $('enterBtn').onclick=startLife2;
+ if($('lifeTitle')) $('lifeTitle').textContent='LIFE #2 — THE CREW';
+ if($('lifeText')) $('lifeText').textContent='Assemble your crew. Each specialist must pass a challenge.';
+ if($('enterBtn')){
+  $('enterBtn').textContent='START LIFE #2 🚀';
+  $('enterBtn').onclick=startLife2;
+ }
  startLife2();
 };
 if($('life2Card')) $('life2Card').onclick=()=>$('continueLife2Btn').click();
