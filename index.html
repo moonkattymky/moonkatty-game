@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070d" />
   <title>MOONKATTY: 9 LIVES</title>
   <!-- mkty-deploy-20260930-1700 -->
-  <link rel="stylesheet" href="styles.css?v=20261002-0155" />
+  <link rel="stylesheet" href="styles.css?v=20261002-0225" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -145,9 +145,11 @@
         <div id="codeSequence" class="code-sequence">READY</div>
         <div id="codePad" class="code-pad"><button data-code="▲">▲</button><button data-code="●">●</button><button data-code="◆">◆</button><button data-code="■">■</button></div>
         <button id="showCodeBtn" class="primary">SHOW SEQUENCE</button>
-        <p id="codeStatus" class="mission-status">Attempts: 3</p>
+        <p id="codeStatus" class="mission-status">Stage 1 / 3 • Attempts: 3</p>
+        <div id="launchStage2" class="launch-stage3" hidden><p class="eyebrow">STAGE II // FUEL MATRIX</p><h3>BALANCE THE REACTOR</h3><p>Set O₂, FUEL and COOLANT so total load is exactly 100.</p><div class="fuel-matrix3"><label>O₂ <b id="mixO2Val">30</b><input id="mixO2" type="range" min="10" max="60" value="30"></label><label>FUEL <b id="mixFuelVal">40</b><input id="mixFuel" type="range" min="10" max="60" value="40"></label><label>COOLANT <b id="mixCoolVal">30</b><input id="mixCool" type="range" min="10" max="60" value="30"></label></div><div class="mix-total3">TOTAL <strong id="mixTotal3">100</strong></div><button id="lockMix3" class="primary">LOCK FUEL MATRIX</button><small id="mixHint3">Target profile is encrypted. Watch the stability indicators.</small></div>
+        <div id="launchStage3" class="launch-stage3" hidden><p class="eyebrow">STAGE III // IGNITION</p><h3>MANUAL LAUNCH PROTOCOL</h3><p>Arm the three systems in the transmitted order before the countdown expires.</p><div id="ignitionOrder3" class="ignition-order3">? → ? → ?</div><button id="showIgnition3" class="ghost">RECEIVE IGNITION ORDER</button><div class="ignition-keys3"><button data-ignite3="NAV">NAV</button><button data-ignite3="CORE">CORE</button><button data-ignite3="COMMS">COMMS</button></div><div class="launch-timer3"><i id="launchTimerFill3"></i></div><small id="ignitionHint3">Awaiting launch order.</small></div>
       </div>
-      <div id="life3Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">ACCESS GRANTED</p><h3>LAUNCH CODE DECRYPTED</h3><strong>+30 MOON POINTS ⭐</strong><button id="continueLife4Btn" class="primary">UNLOCK LIFE #4 🚀</button><button id="life3ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
+      <div id="life3Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">ACCESS GRANTED</p><h3>LAUNCH CODE DECRYPTED</h3><strong>+750 MOON POINTS ⭐</strong><button id="continueLife4Btn" class="primary">UNLOCK LIFE #4 🚀</button><button id="life3ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
     </section>
     <section id="life4" class="screen cinematic-screen">
       <div class="cinematic"><p class="eyebrow">LIFE #4</p><h2>THE ROCKET</h2>
@@ -247,5 +249,5 @@
       <div id="life9Complete" class="complete-card final-complete" hidden><span class="complete-icon">🌙</span><p class="eyebrow">9 LIVES COMPLETE</p><h3>MOONKATTY HAS RETURNED</h3><strong>+90 MOON POINTS • 450 TOTAL ⭐</strong><p class="final-message">THE SIGNAL WAS NEVER CALLING US TO THE MOON.<br>IT WAS CALLING MOONKATTY HOME.</p><button id="life9ReturnBtn" class="primary">RETURN TO MISSION CONTROL</button></div>
     </section>
   </main>
-  <script src="app.js?v=20261002-0205"></script>
+  <script src="app.js?v=20261002-0225"></script>
 </body></html>
