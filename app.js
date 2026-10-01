@@ -152,7 +152,7 @@ function life1MoveLoop(){
 }
 function setLife1Stick(ev){
  const r=l1Joy.getBoundingClientRect(),x=ev.clientX-(r.left+r.width/2),y=ev.clientY-(r.top+r.height/2),max=r.width*.31,len=Math.hypot(x,y)||1,scale=Math.min(1,max/len),sx=x*scale,sy=y*scale;
- l1Stick.style.transform='translate('+sx+'px,'+sy+'px)';l1MoveX=sx/max;l1MoveY=sy/max;
+ l1Stick.style.transform='translate('+sx+'px,'+sy+'px)';l1MoveX=-sx/max;l1MoveY=sy/max;
 }
 if(l1Joy){
  l1Joy.addEventListener('pointerdown',ev=>{ev.preventDefault();l1Joy.setPointerCapture?.(ev.pointerId);setLife1Stick(ev);});
