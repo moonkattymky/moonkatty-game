@@ -360,3 +360,19 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 
 
 #life1Joystick,#life1Joystick *{touch-action:none!important;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:contain}
+
+/* LIFE #1 mobile HUD polish */
+.mk-l1 .l1-scan-btn{right:16px;bottom:118px;width:72px;height:38px;z-index:24}
+.mk-l1 .l1-action{right:14px;bottom:38px;width:84px;height:58px;z-index:24}
+.mk-l1 .terminal{right:31%;bottom:18%}
+.mk-l1 .antenna{right:2%;top:25%}
+.mk-l1 .e3{right:13%;bottom:43%}
+.mk-l1 .l1-hotspot>span:last-child{opacity:0;transform:translateX(-50%) translateY(4px);transition:opacity .18s,transform .18s;pointer-events:none}
+.mk-l1 .l1-hotspot.nearby>span:last-child,.mk-l1 .l1-hotspot.revealed>span:last-child{opacity:1;transform:translateX(-50%) translateY(0)}
+.mk-l1 .l1-hotspot:disabled>span:last-child{opacity:0}
+@media(max-width:390px){
+ .mk-l1 .l1-scan-btn{right:12px;bottom:112px;width:68px}
+ .mk-l1 .l1-action{right:10px;bottom:38px;width:78px;height:54px;font-size:9px}
+ .mk-l1 .terminal{right:30%;bottom:17%}
+ .mk-l1 .antenna{right:0;top:25%}
+}
