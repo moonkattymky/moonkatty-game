@@ -474,3 +474,29 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 .crew-final2{border-color:#e9bd5855!important;background:radial-gradient(circle at 50% 0,#5a431b33,transparent 45%),#070a10!important}
 .crew-sync-code2{border:1px solid #e9bd5844!important;background:#03070d!important;box-shadow:inset 0 0 25px #e9bd580c;color:#f3ce73!important}
 .crew-sync-keys2 button{border-color:#d3a64c55!important;background:#0c1119!important;color:#f1c761!important}
+
+/* LIFE #3 secure launch terminal visual overhaul */
+#mission3{background:radial-gradient(circle at 50% 0,#271c0d 0,#0a0d13 28%,#030509 72%);min-height:100vh}
+#mission3>header{padding-bottom:15px;border-bottom:1px solid #d6a74344}
+#mission3>header h2{font-size:31px;letter-spacing:-.6px}
+#mission3 .crew-badge{border-color:#d6a74366;background:#151006cc;color:#f1c761}
+#life3MemoryGate,.code-mission{position:relative;margin-top:18px;padding:18px;border:1px solid #d2a54455;border-radius:20px;background:linear-gradient(145deg,#11151d,#06090f);box-shadow:0 22px 45px #0009,inset 0 0 40px #d2a54408;overflow:hidden}
+#life3MemoryGate:before,.code-mission:before{content:"SECURE CHANNEL";position:absolute;right:12px;top:10px;color:#d7aa4d77;font:800 7px/1 monospace;letter-spacing:1.5px}
+#life3MemoryGate h3,.code-mission h3{color:#f4cf75;letter-spacing:.5px}
+#life3MemoryInput{width:100%;margin:14px 0;padding:16px;border:1px solid #d2a54466;border-radius:13px;background:#03060b;color:#f4cf75;font:900 22px/1.2 monospace;letter-spacing:5px;text-align:center;outline:none;box-shadow:inset 0 0 25px #000}
+#life3MemoryInput:focus{border-color:#f1c761;box-shadow:0 0 20px #d7aa4d22,inset 0 0 25px #000}
+#life3GateStatus,#codeStatus{border:1px solid #334052;border-radius:12px;background:#070b11;color:#aeb9c8}
+.code-sequence{margin:14px 0;padding:20px 8px;border:1px solid #d2a54455;border-radius:14px;background:repeating-linear-gradient(90deg,#05080d 0 38px,#0b1018 39px 40px);color:#f2ca6c!important;font:900 27px/1 monospace!important;letter-spacing:8px;text-align:center;text-shadow:0 0 14px #e6b74d55}
+.code-pad{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:8px!important}
+.code-pad button{height:62px;border:1px solid #d2a54444!important;border-radius:13px!important;background:linear-gradient(#111823,#070b11)!important;color:#f4cf75!important;font-size:24px!important;box-shadow:inset 0 -8px 18px #0005}
+.code-pad button:active{transform:translateY(2px);border-color:#f4cf75!important;background:#211b0e!important}
+#showCodeBtn,#lockMix3{background:linear-gradient(135deg,#c99535,#f0cf75)!important;color:#171006!important;border-color:#f1d27d!important}
+.launch-stage3{margin-top:20px!important;padding:18px!important;border:1px solid #314158!important;border-radius:16px!important;background:#070b12!important}
+.launch-stage3 .eyebrow{color:#f0c65e}
+.fuel-matrix3 label{padding:9px;border:1px solid #ffffff12;border-radius:10px;background:#0a1019}
+.fuel-matrix3 input{accent-color:#e9bd58}
+.mix-total3{border-color:#d2a54444!important;background:#05080d!important}.mix-total3 strong{color:#f2cb6b!important}
+.ignition-order3{border:1px solid #d2a54444;background:#03060b!important;color:#f4cf75!important;box-shadow:inset 0 0 24px #000}
+.ignition-keys3 button{background:linear-gradient(#131a25,#070b11)!important;border-color:#d2a54444!important;color:#f3ca68!important}
+.launch-timer3{height:10px!important;background:#24150d!important}.launch-timer3 i{background:linear-gradient(90deg,#e45d4f,#e9bd58,#72dda1)!important}
+#life3Complete{border-color:#d2a54466;background:radial-gradient(circle at 50% 0,#5d461b33,transparent 40%),#07100c}
