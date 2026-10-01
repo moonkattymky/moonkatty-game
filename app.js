@@ -213,12 +213,15 @@ function openLife3MemoryGate(){
 function unlockLife2(){
  const done=localStorage.getItem('mkty_life1')==='complete';
  if(!done)return;
- $('life1Card').classList.add('complete');
- $('life2Card').disabled=false;
- $('life2Card').classList.remove('locked');
- $('life2Card').classList.add('unlocked');
- $('life2Icon').textContent='2';
- $('storyProgress').style.width='22%';
+ const life1Card=$('life1Card'), life2Card=$('life2Card'), life2Icon=$('life2Icon'), storyProgress=$('storyProgress');
+ life1Card?.classList.add('complete');
+ if(life2Card){
+  life2Card.disabled=false;
+  life2Card.classList.remove('locked');
+  life2Card.classList.add('unlocked');
+ }
+ if(life2Icon)life2Icon.textContent='2';
+ if(storyProgress)storyProgress.style.width='22%';
 }
 let life2Timer;
 function startLife2(){
@@ -234,11 +237,14 @@ function openMission2(){
  $('crewBadge2').textContent=crewCode; show('mission2');
 }
 $('continueLife2Btn').onclick=()=>{
- unlockLife2(); $('lifeTitle').textContent='LIFE #2 — THE CREW';
+ unlockLife2();
+ $('lifeTitle').textContent='LIFE #2 — THE CREW';
  $('lifeText').textContent='Assemble your crew. Each specialist must pass a challenge.';
- $('enterBtn').textContent='START LIFE #2 🚀'; $('enterBtn').onclick=startLife2; show('home');
+ $('enterBtn').textContent='START LIFE #2 🚀';
+ $('enterBtn').onclick=startLife2;
+ startLife2();
 };
-$('life2Card').onclick=()=>$('continueLife2Btn').click();
+if($('life2Card')) $('life2Card').onclick=()=>$('continueLife2Btn').click();
 $('life2SkipBtn').onclick=openMission2;
 $('life2Video')?.addEventListener('ended',openMission2);
 
