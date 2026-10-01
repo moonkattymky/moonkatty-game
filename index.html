@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070d" />
   <title>MOONKATTY: 9 LIVES</title>
   <!-- mkty-deploy-20260930-1700 -->
-  <link rel="stylesheet" href="styles.css?v=20261002-0405" />
+  <link rel="stylesheet" href="styles.css?v=20261002-0435" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -248,12 +248,12 @@
       <div class="final-world"><div class="final-moon"></div><div id="finalShip" class="final-ship">🚀</div><div id="finalGate" class="final-gate">◉</div></div>
       <div class="panel objective"><span class="eyebrow">FINAL MISSION</span><h3>BRING MOONKATTY HOME</h3><p>Survive three phases: navigate the gate, synchronize the core, and transmit the final code.</p></div>
       <div class="final-phases"><span id="phase9a" class="active">I • NAVIGATE</span><span id="phase9b">II • SYNC</span><span id="phase9c">III • TRANSMIT</span></div>
-      <div id="nav9" class="final-challenge"><p>Keep the ship inside the gate.</p><input id="navDial9" type="range" min="0" max="100" value="10"><button id="lockNav9" class="primary">LOCK COURSE</button></div>
-      <div id="sync9" class="final-challenge" hidden><p>Synchronize all three core nodes.</p><div class="sync-nodes"><button data-sync9="0">A</button><button data-sync9="1">B</button><button data-sync9="2">C</button></div><small id="syncHint9">Watch the sequence.</small></div>
-      <div id="transmit9" class="final-challenge" hidden><p>Transmit the final four-symbol code.</p><div id="finalCode9" class="final-code">? ? ? ?</div><div class="final-keys"><button data-final9="0">▲</button><button data-final9="1">●</button><button data-final9="2">◆</button><button data-final9="3">■</button></div></div>
+      <div id="nav9" class="final-challenge"><p>Enter the coordinates recovered from LIFE #8, then stabilize the return corridor.</p><div class="coords-entry9"><input id="coordLat9" inputmode="decimal" placeholder="LAT"><input id="coordLon9" inputmode="decimal" placeholder="LON"></div><button id="verifyCoords9" class="ghost">VERIFY COORDINATES</button><div id="corridor9" hidden><span>CORRIDOR VECTOR</span><div class="corridor-meter9"><i id="corridorNeedle9"></i><b></b></div><input id="navDial9" type="range" min="0" max="100" value="10"><button id="lockNav9" class="primary">LOCK COURSE</button></div></div>
+      <div id="sync9" class="final-challenge" hidden><p>Synchronize the damaged core through three increasingly unstable cycles.</p><div class="core-health9"><i id="coreHealthFill9"></i></div><div class="sync-nodes"><button data-sync9="0">A</button><button data-sync9="1">B</button><button data-sync9="2">C</button></div><button id="replaySync9" class="ghost">REPLAY CORE PULSE</button><small id="syncHint9">Cycle <b id="syncRound9">1</b>/3</small></div>
+      <div id="transmit9" class="final-challenge" hidden><p>Transmit the final six-symbol return code before core power collapses.</p><div id="finalCode9" class="final-code">? ? ? ? ? ?</div><button id="replayFinal9" class="ghost">REPLAY RETURN CODE</button><div class="final-keys"><button data-final9="0">▲</button><button data-final9="1">●</button><button data-final9="2">◆</button><button data-final9="3">■</button></div><div class="final-power9"><i id="finalPowerFill9"></i></div></div>
       <p id="finalStatus9" class="mission-status">Phase I — align the return corridor.</p>
-      <div id="life9Complete" class="complete-card final-complete" hidden><span class="complete-icon">🌙</span><p class="eyebrow">9 LIVES COMPLETE</p><h3>MOONKATTY HAS RETURNED</h3><strong>+90 MOON POINTS • 450 TOTAL ⭐</strong><p class="final-message">THE SIGNAL WAS NEVER CALLING US TO THE MOON.<br>IT WAS CALLING MOONKATTY HOME.</p><button id="life9ReturnBtn" class="primary">RETURN TO MISSION CONTROL</button></div>
+      <div id="life9Complete" class="complete-card final-complete" hidden><span class="complete-icon">🌙</span><p class="eyebrow">9 LIVES COMPLETE</p><h3>MOONKATTY HAS RETURNED</h3><strong>+3000 MOON POINTS ⭐ • 9 LIVES COMPLETE</strong><p class="final-message">THE SIGNAL WAS NEVER CALLING US TO THE MOON.<br>IT WAS CALLING MOONKATTY HOME.</p><button id="life9ReturnBtn" class="primary">RETURN TO MISSION CONTROL</button></div>
     </section>
   </main>
-  <script src="app.js?v=20261002-0405"></script>
+  <script src="app.js?v=20261002-0435"></script>
 </body></html>
