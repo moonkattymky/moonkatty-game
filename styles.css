@@ -443,3 +443,8 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
  .crew-world-v2 .captain{width:36%!important;height:170px!important}
  .crew-world-v2 .mate1,.crew-world-v2 .mate2,.crew-world-v2 .mate3{top:205px!important;height:180px!important}
 }
+
+/* LIFE #2 final vertical spacing */
+.crew-world-v2{min-height:455px!important;height:455px!important}
+.crew-world-v2:after{bottom:18px!important}
+@media(max-width:390px){.crew-world-v2{min-height:440px!important;height:440px!important}}
