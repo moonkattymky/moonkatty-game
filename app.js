@@ -113,16 +113,28 @@ function resetLife1Mission(){
  $('missionStatus').textContent='Collect 3 energy crystals to restore Moon Base Alpha.';
  const bank=getLifeBank?.()??9;$('life1Lives').textContent=bank+'/9 ❤️';$('l1Points').textContent=(Number(localStorage.getItem('mkty_points')||0))+' ⭐';
 }
-document.querySelectorAll('.l1-hotspot.energy').forEach(btn=>{ btn.type='button'; btn.style.pointerEvents='auto'; btn.onclick=()=>{
- if(btn.disabled)return; btn.disabled=true;btn.classList.add('collected');energyCollected++;$('energyCount').textContent=energyCollected+'/3';tg?.HapticFeedback?.impactOccurred('light');
+function collectLife1Energy(btn){
+ if(!btn||btn.disabled||btn.classList.contains('collected')||life1Stage!==0)return;
+ btn.disabled=true; btn.classList.add('collected'); energyCollected++;
+ $('energyCount').textContent=energyCollected+'/3';
+ tg?.HapticFeedback?.impactOccurred('light');
  $('missionStatus').textContent='Energy collected • '+energyCollected+'/3';
- if(energyCollected===3){life1Stage=1;$('qEnergy').className='done';$('qRepair').className='active';$('repairTerminal').disabled=false;$('missionStatus').textContent='Energy restored. Repair the terminal 🔧';}
-}; });
+ if(energyCollected>=3){
+  energyCollected=3; $('energyCount').textContent='3/3'; life1Stage=1;
+  $('qEnergy').className='done'; $('qRepair').className='active';
+  $('repairTerminal').disabled=false;
+  $('missionStatus').textContent='Energy restored. Repair the terminal 🔧';
+ }
+}
+document.querySelectorAll('.l1-hotspot.energy').forEach(btn=>{
+ btn.type='button'; btn.style.pointerEvents='auto';
+ btn.addEventListener('click',()=>collectLife1Energy(btn));
+});
 $('life1World')?.addEventListener('pointerup',(ev)=>{
  const btn=ev.target.closest?.('.l1-hotspot.energy');
- if(!btn||btn.disabled)return;
- ev.preventDefault();
- btn.click();
+ if(!btn)return;
+ ev.preventDefault(); ev.stopPropagation();
+ collectLife1Energy(btn);
 });
 $('repairTerminal').onclick=()=>{if(life1Stage!==1)return;$('repairPanel').hidden=false;$('repairPanel').scrollIntoView({behavior:'smooth',block:'center'});};
 $('life1World')?.addEventListener('pointerup',(ev)=>{
