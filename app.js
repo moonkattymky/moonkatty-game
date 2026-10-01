@@ -128,9 +128,25 @@ function updateLife1Nearby(){
  if(best)best.classList.add('nearby');
  if(l1Action){l1Action.disabled=!best;l1Action.classList.toggle('ready',!!best);l1Action.textContent=best?.classList.contains('energy')?'COLLECT':best?.id==='repairTerminal'?'REPAIR':best?.id==='antennaHotspot'?'TUNE':'ACTION';}
 }
+function life1Blocked(px,py){
+ // Collision rectangles in world-percent coordinates. They match the visible
+ // lunar rocks/crate but are slightly padded for the astronaut's suit.
+ const blocks=[
+  [24,48,45,66], // rock A
+  [72,60,91,76], // rock B
+  [53,37,72,57]  // cargo crate
+ ];
+ return blocks.some(([x1,y1,x2,y2])=>px>x1&&px<x2&&py>y1&&py<y2);
+}
 function life1MoveLoop(){
  if(Math.abs(l1MoveX)+Math.abs(l1MoveY)>.02){
-  const speed=.32;l1PX=Math.max(7,Math.min(90,l1PX+l1MoveX*speed));l1PY=Math.max(18,Math.min(82,l1PY+l1MoveY*speed));renderLife1Player();updateLife1Nearby();
+  const speed=.32;
+  const nx=Math.max(7,Math.min(90,l1PX+l1MoveX*speed));
+  const ny=Math.max(18,Math.min(82,l1PY+l1MoveY*speed));
+  // Resolve axes independently so MoonKatty slides naturally along obstacles.
+  if(!life1Blocked(nx,l1PY))l1PX=nx;
+  if(!life1Blocked(l1PX,ny))l1PY=ny;
+  renderLife1Player();updateLife1Nearby();
  }
  l1MoveFrame=requestAnimationFrame(life1MoveLoop);
 }
