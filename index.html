@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070d" />
   <title>MOONKATTY: 9 LIVES</title>
   <!-- mkty-deploy-20260930-1700 -->
-  <link rel="stylesheet" href="styles.css?v=20261002-0305" />
+  <link rel="stylesheet" href="styles.css?v=20261002-0325" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -215,10 +215,12 @@
       <header><div><span class="eyebrow">LIFE #6</span><h2>LIFTOFF</h2></div><div class="crew-badge">T− <span id="launchClock">30</span></div></header>
       <div class="launch-world"><div class="launch-moon"></div><div id="launchShip" class="launch-ship">🚀</div><div id="launchFlame" class="launch-flame"></div></div>
       <div class="panel objective"><span class="eyebrow">LAUNCH SEQUENCE</span><h3>PREPARE FOR LIFTOFF</h3><p>Arm systems in the correct order before the countdown reaches zero.</p></div>
-      <div class="launch-checklist"><button data-launch="1">1 • NAVIGATION</button><button data-launch="2">2 • FUEL PRESSURE</button><button data-launch="3">3 • CREW LOCK</button><button data-launch="4">4 • REACTOR LINK</button></div>
+      <div class="launch-checklist"><button data-launch="NAVIGATION">NAVIGATION</button><button data-launch="FUEL">FUEL PRESSURE</button><button data-launch="CREW">CREW LOCK</button><button data-launch="REACTOR">REACTOR LINK</button></div>
+      <div id="launchEmergency6" class="launch-emergency6" hidden><span>⚠ FLIGHT COMPUTER ALERT</span><strong id="launchAlert6">SYSTEM FAULT</strong><div class="launch-response6"><button data-response6="VENT">VENT</button><button data-response6="RESET">RESET</button><button data-response6="BYPASS">BYPASS</button></div><small id="launchAlertHint6">Resolve the fault before countdown reaches zero.</small></div>
+      <div class="launch-order6"><span>PROCEDURE</span><b id="launchOrder6">—</b></div>
       <button id="launchBtn" class="primary ignition-btn" disabled>LAUNCH 🚀</button>
       <p id="launchStatus" class="mission-status">Complete the pre-flight checklist.</p>
-      <div id="life6Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">LIFTOFF</p><h3>ORBIT ACHIEVED</h3><strong>+60 MOON POINTS ⭐</strong><button id="continueLife7Btn" class="primary">UNLOCK LIFE #7 🌌</button><button id="life6ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
+      <div id="life6Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">LIFTOFF</p><h3>ORBIT ACHIEVED</h3><strong>+1500 MOON POINTS ⭐</strong><button id="continueLife7Btn" class="primary">UNLOCK LIFE #7 🌌</button><button id="life6ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
     </section>
     <section id="mission7" class="screen mission-screen life-theme life-theme-7">
       <header><div><span class="eyebrow">LIFE #7</span><h2>THE VOID</h2></div><div class="crew-badge">HULL <span id="hull7">100</span>%</div></header>
@@ -252,5 +254,5 @@
       <div id="life9Complete" class="complete-card final-complete" hidden><span class="complete-icon">🌙</span><p class="eyebrow">9 LIVES COMPLETE</p><h3>MOONKATTY HAS RETURNED</h3><strong>+90 MOON POINTS • 450 TOTAL ⭐</strong><p class="final-message">THE SIGNAL WAS NEVER CALLING US TO THE MOON.<br>IT WAS CALLING MOONKATTY HOME.</p><button id="life9ReturnBtn" class="primary">RETURN TO MISSION CONTROL</button></div>
     </section>
   </main>
-  <script src="app.js?v=20261002-0305"></script>
+  <script src="app.js?v=20261002-0325"></script>
 </body></html>
