@@ -89,7 +89,7 @@ function show(id){
 let cinematicTimer;
 function openMission(){
  clearTimeout(cinematicTimer);
- if(localStorage.getItem('mkty_life1')==='complete'){unlockLife2();$('lifeTitle').textContent='LIFE #2 — THE CREW';$('lifeText').textContent='Assemble your crew. Each specialist must pass a challenge.';$('enterBtn').textContent='START LIFE #2 🚀';$('enterBtn').onclick=startLife2;show('home');return;}
+ 
  const video=$('life1Video'); if(video) video.pause();
  $('crewBadge').textContent=crewCode;
  show('mission1');
@@ -549,3 +549,6 @@ document.addEventListener('click',e=>{if(!e.target.closest?.('#enterBtn,.mk-life
 
 /* v1345: server-authoritative home launch */
 document.addEventListener('click',async e=>{const b=e.target.closest?.('#enterBtn');if(!b)return;e.preventDefault();e.stopImmediatePropagation();const p=await syncServerProgress('load');if(p&&Number(p.story_life)>=1){startLife2();return;}localStorage.removeItem('mkty_life1');show('life1');const v=document.getElementById('life1Video');if(v){v.currentTime=0;v.play().catch(()=>{});}const bar=document.getElementById('cinematicBar');if(bar){bar.classList.remove('run');void bar.offsetWidth;bar.classList.add('run');}clearTimeout(cinematicTimer);cinematicTimer=setTimeout(openMission,8000);},true);
+
+/* v1355 cinematic escape hatch */
+document.addEventListener('click',e=>{if(e.target.closest?.('#skipBtn')){e.preventDefault();e.stopImmediatePropagation();localStorage.removeItem('mkty_life1');clearTimeout(cinematicTimer);const v=document.getElementById('life1Video');if(v)v.pause();show('mission1');resetLife1Mission();}},true);
