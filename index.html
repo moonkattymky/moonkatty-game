@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070d" />
   <title>MOONKATTY: 9 LIVES</title>
   <!-- mkty-deploy-20260930-1700 -->
-  <link rel="stylesheet" href="styles.css?v=20261002-1400" />
+  <link rel="stylesheet" href="styles.css?v=20261002-1430" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -112,7 +112,7 @@
       <div class="panel objective"><span class="eyebrow">MISSION OBJECTIVE</span><h3>ASSEMBLE THE CREW</h3><p>Recruit all three specialists for the Moon mission.</p></div>
       <div id="crewChallenge" class="crew-challenge">
         <p id="crewChallengeTitle" class="puzzle-label">SELECT A CREW MEMBER TO BEGIN</p>
-        <div id="navigatorTask" class="crew-task" hidden><strong>NAVIGATION TEST</strong><p>Guide the ship through all three corridor gates without touching the hazard field.</p><div id="navField2" class="nav-field2"><div id="navShip2">▲</div><i class="gate g1"></i><i class="gate g2"></i><i class="gate g3"></i></div><div class="nav-controls2"><button data-nav2="-1">◀</button><button data-nav2="1">▶</button></div><small id="navHint2">Gates cleared: 0 / 3</small></div>
+        <div id="navigatorTask" class="crew-task" hidden><strong>NAVIGATION TEST</strong><p>Guide the ship through all three corridor gates without touching the hazard field.</p><div id="navField2" class="nav-field2"><div class="flight-direction2">FLIGHT →</div><div id="navShip2">▶</div><i class="gate g1" data-gate="1"><b>1</b></i><i class="gate g2" data-gate="2"><b>2</b></i><i class="gate g3" data-gate="3"><b>3</b></i></div><div class="nav-controls2"><button data-nav2="-1">▲ CLIMB</button><button data-nav2="1">▼ DESCEND</button></div><small id="navHint2">Gates cleared: 0 / 3</small></div>
         <div id="engineerTask" class="crew-task" hidden><strong>ENGINEERING TEST</strong><p>Route power from CORE to COMMS. Rotate all four junctions until the circuit is continuous.</p><div id="circuit2" class="circuit2"><button data-wire2="0">└</button><button data-wire2="1">┐</button><button data-wire2="2">┌</button><button data-wire2="3">┘</button></div><button id="testCircuit2" class="primary">TEST CIRCUIT ⚡</button><small id="engineerHint2">CORE ○────○────○────○ COMMS</small></div>
         <div id="scoutTask" class="crew-task" hidden><strong>SCOUT TEST</strong><p>Track the moving anomaly. It appears briefly — tag it three times before it relocates.</p><div class="anomaly-grid scout-grid2" id="anomalyGrid"></div><small id="scoutHint2">Anomalies tagged: 0 / 3</small></div>
         <div id="crewFinal2" class="crew-task crew-final2" hidden><strong>CREW SYNC TEST</strong><p>All specialists are aboard. Synchronize NAV → ENG → SCOUT in the transmitted order.</p><div id="crewSyncCode2" class="crew-sync-code2">? ? ? ? ?</div><button id="showCrewSync2" class="ghost">RECEIVE SEQUENCE</button><div class="crew-sync-keys2"><button data-sync2="N">NAV</button><button data-sync2="E">ENG</button><button data-sync2="S">SCOUT</button></div><small id="crewSyncHint2">Complete the final crew protocol.</small></div>
@@ -255,5 +255,5 @@
       <div id="life9Complete" class="complete-card final-complete" hidden><span class="complete-icon">🌙</span><p class="eyebrow">9 LIVES COMPLETE</p><h3>MOONKATTY HAS RETURNED</h3><strong>+3000 MOON POINTS ⭐ • 9 LIVES COMPLETE</strong><p class="final-message">THE SIGNAL WAS NEVER CALLING US TO THE MOON.<br>IT WAS CALLING MOONKATTY HOME.</p><button id="life9ReturnBtn" class="primary">RETURN TO MISSION CONTROL</button></div>
     </section>
   </main>
-  <script src="app.js?v=20261002-1400"></script>
+  <script src="app.js?v=20261002-1430"></script>
 </body></html>
