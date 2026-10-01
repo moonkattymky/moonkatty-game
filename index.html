@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070d" />
   <title>MOONKATTY: 9 LIVES</title>
   <!-- mkty-deploy-20260930-1700 -->
-  <link rel="stylesheet" href="styles.css?v=20261002-0245" />
+  <link rel="stylesheet" href="styles.css?v=20261002-0305" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -202,11 +202,14 @@
       <div class="reactor-world"><div id="reactorCore" class="reactor-core">◉</div><div class="reactor-ring r1"></div><div class="reactor-ring r2"></div></div>
       <div class="panel objective"><span class="eyebrow">MISSION OBJECTIVE</span><h3>START THE REACTOR</h3><p>Charge all three energy cells, stabilize the core, then ignite.</p></div>
       <div class="energy-cells"><button data-cell="0"><i></i><span>CELL A</span></button><button data-cell="1"><i></i><span>CELL B</span></button><button data-cell="2"><i></i><span>CELL C</span></button></div>
+      <div class="reactor-hud5"><span>CORE TEMP <b id="temp5">22</b>°C</span><span>STABILITY <b id="stabilityRead5">15</b>%</span></div>
+      <div class="reactor-temp5"><i id="tempFill5"></i><b class="danger5"></b></div>
       <div class="stability"><span>CORE STABILITY</span><div><i id="stabilityNeedle"></i><b></b></div></div>
-      <button id="stabilizeBtn" class="primary" disabled>STABILIZE CORE ⚡</button>
+      <div class="reactor-controls5"><button id="chargeCore5">CHARGE ⚡</button><button id="coolCore5">COOL ❄</button></div>
+      <button id="stabilizeBtn" class="primary" disabled>LOCK STABILITY ⚡</button>
       <button id="igniteBtn" class="primary ignition-btn" disabled>IGNITION 🔥</button>
       <p id="ignitionStatus" class="mission-status">Charge the energy cells.</p>
-      <div id="life5Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">REACTOR ONLINE</p><h3>IGNITION SUCCESSFUL</h3><strong>+50 MOON POINTS ⭐</strong><button id="continueLife6Btn" class="primary">UNLOCK LIFE #6 🚀</button><button id="life5ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
+      <div id="life5Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">REACTOR ONLINE</p><h3>IGNITION SUCCESSFUL</h3><strong>+1250 MOON POINTS ⭐</strong><button id="continueLife6Btn" class="primary">UNLOCK LIFE #6 🚀</button><button id="life5ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
     </section>
     <section id="mission6" class="screen mission-screen life-theme life-theme-6">
       <header><div><span class="eyebrow">LIFE #6</span><h2>LIFTOFF</h2></div><div class="crew-badge">T− <span id="launchClock">30</span></div></header>
@@ -249,5 +252,5 @@
       <div id="life9Complete" class="complete-card final-complete" hidden><span class="complete-icon">🌙</span><p class="eyebrow">9 LIVES COMPLETE</p><h3>MOONKATTY HAS RETURNED</h3><strong>+90 MOON POINTS • 450 TOTAL ⭐</strong><p class="final-message">THE SIGNAL WAS NEVER CALLING US TO THE MOON.<br>IT WAS CALLING MOONKATTY HOME.</p><button id="life9ReturnBtn" class="primary">RETURN TO MISSION CONTROL</button></div>
     </section>
   </main>
-  <script src="app.js?v=20261002-0245"></script>
+  <script src="app.js?v=20261002-0305"></script>
 </body></html>
