@@ -500,3 +500,85 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 .ignition-keys3 button{background:linear-gradient(#131a25,#070b11)!important;border-color:#d2a54444!important;color:#f3ca68!important}
 .launch-timer3{height:10px!important;background:#24150d!important}.launch-timer3 i{background:linear-gradient(90deg,#e45d4f,#e9bd58,#72dda1)!important}
 #life3Complete{border-color:#d2a54466;background:radial-gradient(circle at 50% 0,#5d461b33,transparent 40%),#07100c}
+
+/* =========================================================
+   MOONKATTY 9 LIVES — unified cinematic mobile art direction
+   ========================================================= */
+#mission4,#mission5,#mission6,#mission7,#mission8,#mission9{min-height:100vh;background:#04070c;color:#f7f2e7}
+#mission4>header,#mission5>header,#mission6>header,#mission7>header,#mission8>header,#mission9>header{padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid #d6a74333}
+#mission4>header h2,#mission5>header h2,#mission6>header h2,#mission7>header h2,#mission8>header h2,#mission9>header h2{font-size:32px;letter-spacing:-.7px}
+#mission4 .crew-badge,#mission5 .crew-badge,#mission6 .crew-badge,#mission7 .crew-badge,#mission8 .crew-badge,#mission9 .crew-badge{border:1px solid #d6a74355;background:#0a0e15cc;color:#f0c65e;box-shadow:inset 0 0 16px #0008}
+#mission4 .objective,#mission5 .objective,#mission6 .objective,#mission7 .objective,#mission8 .objective,#mission9 .objective{border:1px solid #d6a7433d;background:linear-gradient(145deg,#0e151f,#070a10);box-shadow:0 16px 35px #0007}
+#mission4 .mission-status,#mission5 .mission-status,#mission6 .mission-status,#mission7 .mission-status,#mission8 .mission-status,#mission9 .mission-status{padding:12px;border:1px solid #31445c;border-radius:13px;background:#070c13;color:#b5c0ce;text-align:center}
+
+/* LIFE 4 — cockpit descent */
+#mission4{background:radial-gradient(circle at 50% 0,#34210e 0,#0b1018 30%,#030509 72%)}
+.descent-world{position:relative;height:330px!important;border:1px solid #b9873d55!important;border-radius:22px!important;overflow:hidden!important;background:radial-gradient(circle at 50% 110%,#d9a55d44,transparent 35%),linear-gradient(#070d17,#17110c)!important;box-shadow:inset 0 0 60px #000c,0 18px 40px #0007}
+.descent-world:before{content:"DESCENT CAMERA // LIVE";position:absolute;left:12px;top:10px;color:#e0b35899;font:800 7px monospace;letter-spacing:1.4px;z-index:5}
+.descent-grid{opacity:.45;background-image:linear-gradient(#e7b65a16 1px,transparent 1px),linear-gradient(90deg,#e7b65a16 1px,transparent 1px)!important;background-size:36px 36px!important}
+.landing-zone{border-color:#6fe6a488!important;color:#9bf3ba!important;box-shadow:0 0 30px #6fe6a422}
+.lander{filter:drop-shadow(0 12px 12px #000) drop-shadow(0 0 10px #e9bd5833);font-size:42px!important}
+.flight-hud{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:6px!important;margin:12px 0}
+.flight-hud span{padding:10px 3px!important;border:1px solid #d6a74333!important;border-radius:10px;background:#080d14;text-align:center;font-size:7px!important;letter-spacing:.7px}.flight-hud b{display:block;color:#f2cb6b;font-size:15px!important;margin-top:4px}
+.flight-controls button{border-color:#d6a74344!important;background:linear-gradient(#131a24,#080c12)!important;color:#f1c761!important;box-shadow:inset 0 -8px 16px #0005}
+#burnBtn{background:linear-gradient(135deg,#b35d28,#e6a13f)!important;color:#fff6df!important}
+#thrustDial{accent-color:#e9bd58}
+
+/* LIFE 5 — reactor chamber */
+#mission5{background:radial-gradient(circle at 50% 22%,#3c1a0e 0,#0a0d12 32%,#030509 72%)}
+.reactor-world{height:320px!important;border:1px solid #c87b3f55!important;border-radius:22px!important;background:radial-gradient(circle,#5b241d55,transparent 42%),linear-gradient(#080b11,#100907)!important;box-shadow:inset 0 0 65px #000c}
+.reactor-world:before{content:"LUNAR REACTOR // CORE CHAMBER";position:absolute;left:12px;top:10px;color:#e79b6299;font:800 7px monospace;letter-spacing:1.4px}
+.reactor-core{border-color:#e69b54!important;color:#ffd98a!important;box-shadow:0 0 35px #e77b3c55!important}
+.energy-cells{gap:8px!important}.energy-cells button{border:1px solid #c7773d44!important;border-radius:14px!important;background:#0b0d12!important;color:#e9b86c!important;overflow:hidden}.energy-cells button i{background:linear-gradient(#ffdf84,#e7773c)!important}
+.reactor-hud5 span{border-color:#c7773d33!important;background:#090c11!important}.reactor-controls5 button{border-color:#c7773d44!important;background:linear-gradient(#15141a,#090b10)!important}
+#chargeCore5{color:#f2bd62!important}#coolCore5{color:#8edfff!important}
+#igniteBtn{background:linear-gradient(135deg,#a83d27,#f09c43)!important;border-color:#f2bd62!important}
+
+/* LIFE 6 — launch tower */
+#mission6{background:radial-gradient(circle at 50% 0,#34220c 0,#0b0f16 32%,#030509 72%)}
+.launch-world{height:330px!important;border:1px solid #d0a04144!important;border-radius:22px!important;background:radial-gradient(circle at 50% 100%,#e1a74633,transparent 36%),linear-gradient(#06101d,#0a0c10)!important;box-shadow:inset 0 0 65px #000c}
+.launch-world:before{content:"LAUNCH PAD // ALPHA";position:absolute;left:12px;top:10px;color:#e5b55299;font:800 7px monospace;letter-spacing:1.4px}
+.launch-checklist{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}.launch-checklist button{padding:14px 8px!important;border:1px solid #d1a3443d!important;border-radius:13px!important;background:#0a1018!important;color:#d8c08d!important}.launch-checklist button.armed{border-color:#68dfa0!important;color:#8df1b5!important;background:#092017!important}
+.launch-order6{border-color:#d1a34444!important;background:#05080d!important}.launch-order6 b{color:#f0c65e!important}
+#launchBtn{background:linear-gradient(135deg,#c58d2d,#f0ca67)!important;color:#171006!important}
+#launchClock.danger{color:#ff6b64!important;text-shadow:0 0 15px #ff4e44}
+
+/* LIFE 7 — deep-space arcade */
+#mission7{background:radial-gradient(circle at 50% 0,#101f3d 0,#060914 35%,#020307 75%)}
+#voidWorld7{height:420px!important;border:1px solid #476b9b55!important;border-radius:22px!important;background:radial-gradient(circle at 50% 0,#142a4d88,transparent 45%),#02050b!important;box-shadow:inset 0 0 75px #000d}
+#voidWorld7:before{content:"DEEP SPACE // DEBRIS SECTOR";position:absolute;left:12px;top:10px;color:#79aee099;font:800 7px monospace;letter-spacing:1.4px;z-index:10}
+.void-ship{font-size:40px!important;filter:drop-shadow(0 0 15px #69bfff66)}
+.void-hud{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:7px!important}.void-hud span{padding:10px 4px;border:1px solid #41658b44;border-radius:11px;background:#07101c;text-align:center;font-size:7px}.void-hud b{display:block;margin-top:4px;color:#8ddcff;font-size:14px}
+.void-controls button{border:1px solid #41658b55!important;border-radius:13px!important;background:linear-gradient(#0e1b2a,#060b13)!important;color:#9bdcff!important}.void-controls #shieldBtn{color:#f2c966!important;border-color:#d2a54455!important}
+
+/* LIFE 8 — alien signal laboratory */
+#mission8{background:radial-gradient(circle at 50% 0,#0d3228 0,#07100f 33%,#020506 75%)}
+.signal-world{height:320px!important;border:1px solid #4bbd8955!important;border-radius:22px!important;background:radial-gradient(circle at 50% 50%,#38c48722,transparent 35%),#030b09!important;box-shadow:inset 0 0 70px #000c}
+.signal-world:before{content:"UNKNOWN SOURCE // LISTENING";position:absolute;left:12px;top:10px;color:#6de0a399;font:800 7px monospace;letter-spacing:1.4px}
+.signal-source{color:#91f0b6!important;text-shadow:0 0 30px #63e69a!important}
+.signal-stage,.pulse-panel{padding:15px!important;border:1px solid #48b77f44!important;border-radius:15px!important;background:#06100d!important}
+.signal-stage>span,.pulse-panel>p{color:#80e5a7!important;font-size:9px;letter-spacing:1.4px}
+#freq8,#phase8{accent-color:#67dda0}.phase-scope8{border-color:#4bbd8955!important}.phase-scope8 i{background:#8df1b5!important;box-shadow:0 0 12px #8df1b5!important}
+.pulse-display{border:1px solid #4bbd8955!important;background:#020806!important;color:#91efb5!important;text-shadow:0 0 14px #63e69a66}
+.pulse-keys button{border-color:#4bbd8955!important;background:#07130f!important;color:#91efb5!important}
+
+/* LIFE 9 — cinematic finale */
+#mission9{background:radial-gradient(circle at 50% 0,#30250e 0,#090d14 32%,#020408 75%)}
+.final-world{height:350px!important;border:1px solid #d6a74355!important;border-radius:24px!important;background:radial-gradient(circle at 50% 48%,#e1b5521f,transparent 35%),linear-gradient(#030713,#090b0f)!important;box-shadow:inset 0 0 80px #000d,0 20px 45px #0007}
+.final-world:before{content:"FINAL APPROACH // HOME SIGNAL";position:absolute;left:12px;top:10px;color:#e1b55299;font:800 7px monospace;letter-spacing:1.4px}
+.final-gate{color:#f2cb6b!important;text-shadow:0 0 30px #e9bd58!important}.final-gate.open{box-shadow:0 0 55px #e9bd5866!important}
+.final-phases{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:6px!important}.final-phases span{padding:9px 4px!important;border:1px solid #d2a5442d!important;border-radius:10px!important;background:#080c13!important;font-size:7px!important;text-align:center}.final-phases .active{border-color:#e9bd58!important;color:#f1c761!important}.final-phases .done{border-color:#6fe6a4!important;color:#8df1b5!important}
+.final-challenge{padding:17px!important;border:1px solid #d2a5443d!important;border-radius:17px!important;background:linear-gradient(145deg,#0d131c,#05080d)!important;box-shadow:inset 0 0 32px #0006}
+.coords-entry9 input{border-color:#d2a54444!important;background:#03060b!important;color:#f3cc6e!important}
+.sync-nodes button,.final-keys button{border:1px solid #d2a54444!important;background:#090e15!important;color:#f3cc6e!important;border-radius:12px!important}
+.final-code{border:1px solid #d2a54455!important;background:#02050a!important;color:#f3cc6e!important;text-shadow:0 0 14px #e9bd5866}
+.final-complete{border-color:#e9bd5877!important;background:radial-gradient(circle at 50% 0,#765c2038,transparent 40%),#07100c!important;box-shadow:0 0 55px #e9bd5820!important}.final-message{color:#d7c493!important;line-height:1.7!important}
+
+/* Shared touch + readability polish */
+#mission4 button,#mission5 button,#mission6 button,#mission7 button,#mission8 button,#mission9 button{min-height:44px;-webkit-tap-highlight-color:transparent}
+#mission4 input[type=range],#mission5 input[type=range],#mission6 input[type=range],#mission7 input[type=range],#mission8 input[type=range],#mission9 input[type=range]{min-height:34px}
+@media(max-width:390px){
+ #mission4>header h2,#mission5>header h2,#mission6>header h2,#mission7>header h2,#mission8>header h2,#mission9>header h2{font-size:28px}
+ .descent-world,.reactor-world,.launch-world,.signal-world,.final-world{height:290px!important}
+ #voidWorld7{height:380px!important}
+}
