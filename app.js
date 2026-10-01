@@ -377,41 +377,31 @@ $('continueLife2Btn').addEventListener('touchend',launchLife2FromCompletedMissio
 $('life2SkipBtn').onclick=openMission2;
 $('life2Video')?.addEventListener('ended',openMission2);
 
-let crewCount=0, activeMate=null, powerStep=1;
+let crewCount=0,activeMate=null,nav2X=8,nav2Y=78,nav2Gate=0,nav2Timer=null,wire2=[0,0,0,0],scout2Hits=0,scout2Timer=null,crewSync2=[],crewSyncInput2=[];
 function completeMate(btn){
  if(!btn||btn.classList.contains('joined'))return;
- btn.classList.add('joined'); crewCount++; activeMate=null;
- document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);
- $('crewChallengeTitle').textContent='SPECIALIST RECRUITED ✓';
- $('crewStatus').textContent='Crew assembled: '+crewCount+' / 3';
- tg?.HapticFeedback?.notificationOccurred?.('success');
- if(crewCount===3){
-  localStorage.setItem('mkty_life2','complete');
-  $('life2Complete').hidden=false; $('points').textContent='30 ⭐'; unlockLife3();
- }
+ btn.classList.add('joined');crewCount++;activeMate=null;document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);
+ $('crewChallengeTitle').textContent='SPECIALIST RECRUITED ✓';$('crewStatus').textContent='Crew assembled: '+crewCount+' / 3'+(crewCount===3?' • Final sync ready':' • Final sync locked');tg?.HapticFeedback?.notificationOccurred?.('success');
+ if(crewCount===3){$('crewFinal2').hidden=false;$('crewChallengeTitle').textContent='FINAL CREW PROTOCOL';}
 }
-document.querySelectorAll('.mate').forEach(btn=>btn.onclick=()=>{
- if(btn.classList.contains('joined'))return;
- activeMate=btn; document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);
- const role=btn.dataset.mate; $('crewChallengeTitle').textContent=role.toUpperCase()+' CHALLENGE';
- if(role==='Navigator')$('navigatorTask').hidden=false;
- if(role==='Engineer'){powerStep=1;document.querySelectorAll('[data-power]').forEach(x=>x.classList.remove('powered'));$('engineerTask').hidden=false;}
- if(role==='Scout'){buildAnomaly();$('scoutTask').hidden=false;}
-});
-$('navLockBtn').onclick=()=>{
- const v=Number($('navDial').value);
- if(v>=62&&v<=72)completeMate(activeMate);
- else{$('crewStatus').textContent=v<62?'Vector too low — adjust right.':'Vector too high — adjust left.';tg?.HapticFeedback?.impactOccurred('light');}
-};
-document.querySelectorAll('[data-power]').forEach(b=>b.onclick=()=>{
- const n=Number(b.dataset.power);
- if(n===powerStep){b.classList.add('powered');powerStep++;if(powerStep===4)completeMate(activeMate);}
- else{powerStep=1;document.querySelectorAll('[data-power]').forEach(x=>x.classList.remove('powered'));$('crewStatus').textContent='Power sequence reset. Try again.';}
-});
+function resetNav2(){
+ clearInterval(nav2Timer);nav2X=8;nav2Y=78;nav2Gate=0;$('navShip2').style.left=nav2X+'%';$('navShip2').style.top=nav2Y+'%';$('navHint2').textContent='Gates cleared: 0 / 3';
+ nav2Timer=setInterval(()=>{if($('navigatorTask').hidden){clearInterval(nav2Timer);return;}nav2X+=1.25;nav2Y+=Math.sin(nav2X/9)*.45;const targets=[[18,34],[48,62],[82,25]];if(nav2Gate<3){const [gx,gy]=targets[nav2Gate];if(Math.abs(nav2X-gx)<5&&Math.abs(nav2Y-gy)<14){nav2Gate++;$('navHint2').textContent='Gates cleared: '+nav2Gate+' / 3';tg?.HapticFeedback?.impactOccurred?.('light');}}if(nav2X>92){clearInterval(nav2Timer);if(nav2Gate===3)completeMate(activeMate);else{$('crewStatus').textContent='Navigator missed a gate. Flight corridor reset.';resetNav2();}}$('navShip2').style.left=nav2X+'%';$('navShip2').style.top=Math.max(8,Math.min(84,nav2Y))+'%';},90);
+}
+document.querySelectorAll('[data-nav2]').forEach(b=>b.onclick=()=>{nav2Y=Math.max(8,Math.min(84,nav2Y+Number(b.dataset.nav2)*8));});
+function resetEngineer2(){wire2=[0,0,0,0];document.querySelectorAll('[data-wire2]').forEach((b,i)=>{b.style.transform='rotate(0deg)';b.classList.remove('live');});$('engineerHint2').textContent='Rotate all junctions. Every segment must align.';}
+document.querySelectorAll('[data-wire2]').forEach((b,i)=>b.onclick=()=>{wire2[i]=(wire2[i]+1)%4;b.style.transform='rotate('+(wire2[i]*90)+'deg)';});
+$('testCircuit2').onclick=()=>{const target=[1,3,2,0];const ok=wire2.every((v,i)=>v===target[i]);if(ok){document.querySelectorAll('[data-wire2]').forEach(b=>b.classList.add('live'));$('engineerHint2').textContent='Circuit stable ✓';setTimeout(()=>completeMate(activeMate),450);}else{$('engineerHint2').textContent='Open circuit detected. Trace the junctions again.';tg?.HapticFeedback?.notificationOccurred?.('error');}};
+function stopScout2(){clearInterval(scout2Timer);scout2Timer=null;}
 function buildAnomaly(){
- const grid=$('anomalyGrid');grid.innerHTML='';const target=Math.floor(Math.random()*9);
- for(let i=0;i<9;i++){const b=document.createElement('button');b.textContent='·';b.onclick=()=>{if(i===target){b.textContent='✦';completeMate(activeMate);}else{b.textContent='×';$('crewStatus').textContent='Empty sector. Keep scanning.';}};grid.appendChild(b);}
+ stopScout2();scout2Hits=0;const grid=$('anomalyGrid');grid.innerHTML='';for(let i=0;i<9;i++){const b=document.createElement('button');b.textContent='·';grid.appendChild(b);}
+ const relocate=()=>{grid.querySelectorAll('button').forEach(b=>{b.classList.remove('target');b.textContent='·';b.onclick=null;});const cells=[...grid.querySelectorAll('button')],b=cells[Math.floor(Math.random()*cells.length)];b.classList.add('target');b.textContent='✦';b.onclick=()=>{if(!b.classList.contains('target'))return;scout2Hits++;$('scoutHint2').textContent='Anomalies tagged: '+scout2Hits+' / 3';tg?.HapticFeedback?.impactOccurred?.('medium');if(scout2Hits>=3){stopScout2();completeMate(activeMate);}else relocate();};};
+ relocate();scout2Timer=setInterval(relocate,1100);
 }
+document.querySelectorAll('.mate').forEach(btn=>btn.onclick=()=>{if(btn.classList.contains('joined'))return;stopScout2();clearInterval(nav2Timer);activeMate=btn;document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);const role=btn.dataset.mate;$('crewChallengeTitle').textContent=role.toUpperCase()+' CHALLENGE';if(role==='Navigator'){$('navigatorTask').hidden=false;resetNav2();}if(role==='Engineer'){$('engineerTask').hidden=false;resetEngineer2();}if(role==='Scout'){$('scoutTask').hidden=false;buildAnomaly();}});
+function makeCrewSync2(){crewSync2=Array.from({length:5},()=>['N','E','S'][Math.floor(Math.random()*3)]);crewSyncInput2=[];}
+$('showCrewSync2').onclick=()=>{makeCrewSync2();$('crewSyncCode2').textContent=crewSync2.join(' ');$('crewSyncHint2').textContent='Memorize the transmission…';setTimeout(()=>{$('crewSyncCode2').textContent='? ? ? ? ?';$('crewSyncHint2').textContent='Repeat the five-role sequence.';},2400);};
+document.querySelectorAll('[data-sync2]').forEach(b=>b.onclick=()=>{if(crewCount!==3||!crewSync2.length)return;const v=b.dataset.sync2;if(v!==crewSync2[crewSyncInput2.length]){crewSyncInput2=[];$('crewSyncHint2').textContent='Sync failed. Receive a new sequence.';makeCrewSync2();tg?.HapticFeedback?.notificationOccurred?.('error');return;}crewSyncInput2.push(v);$('crewSyncHint2').textContent='Synchronized: '+crewSyncInput2.length+' / 5';if(crewSyncInput2.length===5){localStorage.setItem('mkty_life2','complete');let pts=Number(localStorage.getItem('mkty_points')||0);pts+=500;localStorage.setItem('mkty_points',String(pts));$('points').textContent=pts+' ⭐';$('life2Complete').hidden=false;$('crewFinal2').hidden=true;$('crewStatus').textContent='Crew synchronized. Mission ready ✓';tg?.HapticFeedback?.notificationOccurred?.('success');}});
 $('life2ReturnBtn').onclick=()=>show('home');
 
 function unlockLife3(){
