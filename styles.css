@@ -309,3 +309,20 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 #mission1.mk-l1 .e1{left:5%!important;bottom:20%!important}
 #mission1.mk-l1 .e2{left:27%!important;bottom:48%!important}
 #mission1.mk-l1 .e3{right:7%!important;bottom:35%!important}
+
+
+/* LIFE #1 playable exploration */
+#life1World{touch-action:none;user-select:none;min-height:430px}
+#life1Player{left:48%;top:68%;z-index:8;transition:none;will-change:left,top,transform}
+#life1Player.walking .mk-helmet{animation:mktyWalkBob .24s ease-in-out infinite alternate}
+#life1Player.face-left{transform:scaleX(-1)}
+@keyframes mktyWalkBob{from{transform:translateY(0)}to{transform:translateY(-5px)}}
+.l1-hotspot{z-index:5}
+.l1-joystick{position:absolute;left:18px;bottom:18px;width:104px;height:104px;border-radius:50%;z-index:20;background:#07101dcc;border:1px solid #e9bd5855;box-shadow:inset 0 0 30px #0009,0 8px 30px #0008;touch-action:none}
+.l1-joystick:after{content:"MOVE";position:absolute;left:0;right:0;bottom:-18px;text-align:center;font-size:8px;letter-spacing:2px;color:#98a0ad}
+.l1-joystick i{position:absolute;width:46px;height:46px;left:29px;top:29px;border-radius:50%;background:linear-gradient(135deg,#d6a83e,#f1d47d);box-shadow:0 0 22px #e9bd5855;transform:translate(0,0)}
+.l1-action{position:absolute;right:20px;bottom:30px;z-index:20;width:92px;height:62px;border-radius:50%;border:1px solid #e9bd5866;background:#151b27dd;color:#f7f2e7;font-size:11px;font-weight:900;letter-spacing:1px;touch-action:manipulation}
+.l1-action.ready{background:linear-gradient(135deg,#d6a83e,#f1d47d);color:#15100a;box-shadow:0 0 28px #e9bd5855}
+.l1-action:disabled{opacity:.42}
+.l1-hotspot.nearby{filter:drop-shadow(0 0 14px #f1d47d);transform:scale(1.08)}
+@media(max-width:380px){.l1-joystick{width:92px;height:92px}.l1-joystick i{left:25px;top:25px;width:42px;height:42px}.l1-action{width:82px;height:56px}}
