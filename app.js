@@ -97,7 +97,6 @@ function openMission(){
 }
 $('enterBtn').onclick=()=>{
  tg?.HapticFeedback?.impactOccurred('medium');
- if(localStorage.getItem('mkty_life1')==='complete'){unlockLife2();startLife2();return;}
  show('life1');
  const video=$('life1Video');
  if(video){ video.currentTime=0; video.play().catch(()=>{}); }
@@ -547,3 +546,6 @@ document.querySelector('.mk-life-teaser')?.addEventListener('click',()=>{if(loca
 function routeHomeByStory(){const story=Math.max(Number((document.getElementById('livesProgress')?.textContent||'0').match(/^\s*(\d+)/)?.[1]||0),...[1,2,3,4,5,6,7,8,9].filter(n=>localStorage.getItem('mkty_life'+n)==='complete'));if(story>=1&&story<2){localStorage.setItem('mkty_life1','complete');const b=document.getElementById('enterBtn');if(b){b.textContent='START LIFE #2 🚀';b.disabled=false;b.onclick=startLife2;}const t=document.querySelector('.mk-life-teaser');if(t){t.innerHTML='<div class="mk-play">▶</div><div><small>LIFE #2</small><strong>THE CREW</strong><span>Assemble your crew…</span></div><b>›</b>';t.onclick=startLife2;}const w=document.getElementById('welcome');if(w)w.textContent='LIFE #1 COMPLETE • LIFE #2 UNLOCKED';}}
 setTimeout(routeHomeByStory,0);setTimeout(routeHomeByStory,1200);setTimeout(routeHomeByStory,3000);
 document.addEventListener('click',e=>{if(!e.target.closest?.('#enterBtn,.mk-life-teaser'))return;const story=Number((document.getElementById('livesProgress')?.textContent||'0').match(/^\s*(\d+)/)?.[1]||0);if(story>=1&&story<2){e.preventDefault();e.stopImmediatePropagation();startLife2();}},true);
+
+/* v1345: server-authoritative home launch */
+document.addEventListener('click',async e=>{const b=e.target.closest?.('#enterBtn');if(!b)return;e.preventDefault();e.stopImmediatePropagation();const p=await syncServerProgress('load');if(p&&Number(p.story_life)>=1){startLife2();return;}localStorage.removeItem('mkty_life1');show('life1');const v=document.getElementById('life1Video');if(v){v.currentTime=0;v.play().catch(()=>{});}const bar=document.getElementById('cinematicBar');if(bar){bar.classList.remove('run');void bar.offsetWidth;bar.classList.add('run');}clearTimeout(cinematicTimer);cinematicTimer=setTimeout(openMission,8000);},true);
