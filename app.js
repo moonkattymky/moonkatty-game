@@ -521,7 +521,7 @@ function restoreGameProgress(){
  // Migration: older LIFE #1 builds awarded 500 points before persistent completion routing existed.
  if(localStorage.getItem('mkty_life1')!=='complete' && Number(localStorage.getItem('mkty_points')||0)>=500){localStorage.setItem('mkty_life1','complete');}
  const completed=[1,2,3,4,5,6,7,8,9].filter(n=>localStorage.getItem('mkty_life'+n)==='complete');
- const total=completed.reduce((sum,n)=>sum+n*10,0);
+ const serverPts=Number(localStorage.getItem('mkty_points')||0);const total=serverPts||completed.reduce((sum,n)=>sum+n*10,0);
  if($('points')) $('points').textContent=total+' ⭐';
  if($('livesProgress')) $('livesProgress').textContent=completed.length+' / 9 🌙';
  unlockLife2();unlockLife3();unlockLife4();unlockLife5();unlockLife6();unlockLife7();unlockLife8();unlockLife9();
@@ -542,3 +542,8 @@ renderMissionArchive();
 /* resilient delegated home launch routing */
 document.addEventListener('click',(ev)=>{const b=ev.target.closest?.('#enterBtn');if(!b)return;if(localStorage.getItem('mkty_life1')==='complete'&&localStorage.getItem('mkty_life2')!=='complete'){ev.preventDefault();ev.stopImmediatePropagation();startLife2();}},true);
 document.querySelector('.mk-life-teaser')?.addEventListener('click',()=>{if(localStorage.getItem('mkty_life1')==='complete'&&localStorage.getItem('mkty_life2')!=='complete')startLife2();});
+
+/* v1210: story state is authoritative for home routing */
+function routeHomeByStory(){const story=Math.max(Number((document.getElementById('livesProgress')?.textContent||'0').match(/^\s*(\d+)/)?.[1]||0),...[1,2,3,4,5,6,7,8,9].filter(n=>localStorage.getItem('mkty_life'+n)==='complete'));if(story>=1&&story<2){localStorage.setItem('mkty_life1','complete');const b=document.getElementById('enterBtn');if(b){b.textContent='START LIFE #2 🚀';b.disabled=false;b.onclick=startLife2;}const t=document.querySelector('.mk-life-teaser');if(t){t.innerHTML='<div class="mk-play">▶</div><div><small>LIFE #2</small><strong>THE CREW</strong><span>Assemble your crew…</span></div><b>›</b>';t.onclick=startLife2;}const w=document.getElementById('welcome');if(w)w.textContent='LIFE #1 COMPLETE • LIFE #2 UNLOCKED';}}
+setTimeout(routeHomeByStory,0);setTimeout(routeHomeByStory,1200);setTimeout(routeHomeByStory,3000);
+document.addEventListener('click',e=>{if(!e.target.closest?.('#enterBtn,.mk-life-teaser'))return;const story=Number((document.getElementById('livesProgress')?.textContent||'0').match(/^\s*(\d+)/)?.[1]||0);if(story>=1&&story<2){e.preventDefault();e.stopImmediatePropagation();startLife2();}},true);
