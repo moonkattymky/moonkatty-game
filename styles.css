@@ -376,3 +376,26 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
  .mk-l1 .terminal{right:30%;bottom:17%}
  .mk-l1 .antenna{right:0;top:25%}
 }
+
+/* LIFE #2 visual overhaul */
+.life-theme-2{background:radial-gradient(circle at 70% 8%,#25324d 0,#080c14 38%,#03050a 78%)}
+.life-theme-2>header{padding:8px 2px 18px;border-bottom:1px solid #e9bd5828}
+.life-theme-2>header h2{font-size:34px;letter-spacing:-1px}.life-theme-2 .crew-badge{border-color:#e9bd5866;color:#f1d47d;background:#0a0d13cc}
+.crew-world-v2{position:relative;height:540px;margin:0 -20px 18px;overflow:hidden;background:linear-gradient(#02081444,#05080eaa),url('life2-poster.jpg') center/cover no-repeat;border-bottom:1px solid #e9bd5830}
+.crew-world-v2:after{content:"";position:absolute;inset:auto 0 0;height:55%;background:linear-gradient(transparent,#03050ae8);pointer-events:none}
+.crew-world-v2 .crew-orbit{position:absolute;left:50%;top:46%;width:330px;height:330px;border:1px solid #e9bd5824;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 80px #1d4d7a22}
+.crew-earth2{position:absolute;right:-110px;top:-90px;width:290px;height:290px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#6381a4,#193250 38%,#06101d 70%);opacity:.7;box-shadow:0 0 70px #5aa9ff22}
+.crew-base2{position:absolute;left:0;right:0;bottom:0;height:44%;background:linear-gradient(transparent,#0a0e16aa)}
+.crew-card2{position:absolute!important;width:128px!important;height:178px!important;padding:0!important;border:1px solid #e9bd5833!important;border-radius:22px!important;background:linear-gradient(180deg,#0b1015aa,#06080de8)!important;color:#fff!important;overflow:hidden;z-index:5!important;box-shadow:0 16px 32px #0008!important;transition:transform .2s,border-color .2s,box-shadow .2s!important}
+.crew-card2 .crew-avatar2{display:block;position:absolute;left:8px;right:8px;top:8px;height:116px;border-radius:16px;background:url('moonkatty.png') center 18%/115% auto no-repeat,linear-gradient(145deg,#182334,#070b11);filter:drop-shadow(0 8px 10px #0008)}
+.crew-card2 small{position:absolute;left:8px;right:8px;bottom:29px;color:#f1d47d;font-size:9px;letter-spacing:1.4px;font-weight:900}
+.crew-card2 b{position:absolute;left:7px;right:7px;bottom:10px;color:#9ba7b8;font-size:6px;letter-spacing:.8px;font-weight:700}
+.crew-card2.mate:hover,.crew-card2.mate:active{transform:translateY(-4px) scale(1.02);border-color:#e9bd58!important;box-shadow:0 18px 38px #0009,0 0 24px #e9bd5822!important}
+.crew-card2.joined{border-color:#63dfa0!important;box-shadow:0 0 28px #63dfa033!important}.crew-card2.joined:after{content:"RECRUITED ✓";position:absolute;inset:8px 8px auto;padding:6px;border-radius:9px;background:#0a2b1dcc;color:#8df1b5;font-size:7px;letter-spacing:1px;font-weight:900;z-index:3}
+.crew-world-v2 .captain{left:50%!important;top:34%!important;transform:translateX(-50%)!important}.crew-world-v2 .mate1{left:5%!important;top:7%!important}.crew-world-v2 .mate2{right:5%!important;left:auto!important;top:7%!important}.crew-world-v2 .mate3{left:50%!important;top:67%!important;transform:translateX(-50%)!important}
+.crew-world-v2 .captain .crew-avatar2{background-position:center 25%;filter:drop-shadow(0 8px 10px #0008) saturate(1.08)}
+.crew-world-v2 .mate1 .crew-avatar2{background-position:35% 20%;filter:drop-shadow(0 8px 10px #0008) hue-rotate(190deg) saturate(.85)}
+.crew-world-v2 .mate2 .crew-avatar2{background-position:60% 20%;filter:drop-shadow(0 8px 10px #0008) sepia(.18) saturate(1.25)}
+.crew-world-v2 .mate3 .crew-avatar2{background-position:center 28%;filter:drop-shadow(0 8px 10px #0008) hue-rotate(40deg) saturate(.9)}
+.life-theme-2 .objective{border-color:#e9bd5840;background:linear-gradient(145deg,#0c121d,#080b12);box-shadow:0 16px 38px #0008}.life-theme-2 .objective .eyebrow{color:#f1d47d}.life-theme-2 .crew-challenge{border:1px solid #29364a;border-radius:18px;padding:16px;background:#070b12e8}.life-theme-2 #crewStatus{border-color:#e9bd5830;background:#080b11;color:#cbd2dd}
+@media(max-width:390px){.crew-world-v2{height:510px}.crew-card2{width:116px!important;height:166px!important}.crew-card2 .crew-avatar2{height:108px}.crew-world-v2 .mate1{left:3%!important}.crew-world-v2 .mate2{right:3%!important}}
