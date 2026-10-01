@@ -255,7 +255,7 @@ function updateSignalStrength(){
 $('frequencyDial').oninput=updateSignalStrength;
 function finishLife1Signal(){
  clearInterval(signalHoldTimer);signalHoldTimer=null;life1Stage=3;$('antennaCount').textContent='1/1';$('qAntenna').className='done';$('antennaPanel').hidden=true;$('missionStatus').textContent='Signal synchronized. Moon Base Alpha is online!';tg?.HapticFeedback?.notificationOccurred?.('success');
- let pts=Number(localStorage.getItem('mkty_points')||0);if(localStorage.getItem('mkty_life1')!=='complete')pts+=500;localStorage.setItem('mkty_points',String(pts));localStorage.setItem('mkty_life1','complete');$('points').textContent=pts+' ⭐';$('l1Points').textContent=pts+' ⭐';$('livesProgress').textContent='1 / 9 🌙';
+ let pts=awardLifePoints(1,500);$('l1Points').textContent=pts+' ⭐';
  setTimeout(()=>{$('life1Complete').hidden=false;$('life1Complete').scrollIntoView({behavior:'smooth',block:'center'});},300);
 }
 $('tuneBtn').onclick=()=>{
