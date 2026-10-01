@@ -549,17 +549,28 @@ $('launchBtn').onclick=()=>{if(launchIndex6!==4||!faultResolved6||!launchActive6
 $('life6ReturnBtn').onclick=()=>show('home');
 
 function unlockLife7(){
- if(localStorage.getItem('mkty_life6')!=='complete')return;
- $('life6Card').classList.add('complete');$('life7Card').disabled=false;$('life7Card').classList.remove('locked');$('life7Card').classList.add('unlocked');$('life7Icon').textContent='7';$('storyProgress').style.width='77%';
+ if(localStorage.getItem('mkty_life6')!=='complete')return false;const a=$('life6Card'),b=$('life7Card'),i=$('life7Icon'),p=$('storyProgress');a?.classList.add('complete');if(b){b.disabled=false;b.classList.remove('locked');b.classList.add('unlocked');}if(i)i.textContent='7';if(p)p.style.width='77%';return true;
 }
-$('continueLife7Btn').onclick=()=>{unlockLife7();$('lifeTitle').textContent='LIFE #7 — THE VOID';$('lifeText').textContent='Cross the debris field and protect the ship.';$('enterBtn').textContent='START LIFE #7 🌌';$('enterBtn').onclick=startLife7;show('home');};
-$('life7Card').onclick=()=>$('continueLife7Btn').click();
-let lane7=1,hull7=100,shield7=3,distance7=0,shieldActive7=false,voidTimer;
-function renderVoid(){ $('hull7').textContent=hull7;$('shield7').textContent=shield7;$('distance7').textContent=distance7;$('voidShip').style.left=(20+lane7*30)+'%';}
-function spawnDebris(){const field=$('asteroidField');field.innerHTML='';const danger=Math.floor(Math.random()*3);for(let i=0;i<3;i++){const d=document.createElement('span');d.textContent=i===danger?'☄':'·';d.className=i===danger?'danger-debris':'';field.appendChild(d);}return danger;}
+$('continueLife7Btn').onclick=(ev)=>{ev?.preventDefault?.();if(!unlockLife7())return;startLife7();};if($('life7Card'))$('life7Card').onclick=()=>$('continueLife7Btn').click();
+let lane7=1,hull7=100,shield7=3,distance7=0,shieldActive7=false,voidTimer=null,spawnTimer7=null,voidActive7=false,asteroids7=[];
+function renderVoid(){
+ $('hull7').textContent=Math.max(0,Math.round(hull7));$('hullHud7').textContent=Math.max(0,Math.round(hull7));$('hullFill7').style.width=Math.max(0,hull7)+'%';$('shield7').textContent=shield7;$('distance7').textContent=Math.min(100,Math.round(distance7));
+ const left=[22,50,78][lane7];$('voidShip').style.left=left+'%';$('shieldBubble7').style.left='calc('+left+'% - 29px)';$('shieldBubble7').classList.toggle('active',shieldActive7);
+}
+function spawnAsteroid7(){
+ if(!voidActive7)return;const field=$('asteroidField'),lane=Math.floor(Math.random()*3),el=document.createElement('span');const big=Math.random()<.22;el.className='asteroid7 '+(big?'big':'small');el.textContent=big?'☄':'●';el.dataset.lane=lane;el.dataset.hit='0';el.style.left=['20%','48%','76%'][lane];const speed=Math.max(1.15,2.5-distance7*.012);el.style.setProperty('--fall7',speed+'s');field.appendChild(el);asteroids7.push(el);
+ setTimeout(()=>{if(el.isConnected)el.remove();asteroids7=asteroids7.filter(x=>x!==el);},speed*1000+150);
+}
+function stopVoid7(){voidActive7=false;clearInterval(voidTimer);clearInterval(spawnTimer7);voidTimer=spawnTimer7=null;}
+function crashVoid7(){stopVoid7();$('voidStatus').textContent='HULL FAILURE — emergency reset.';tg?.HapticFeedback?.notificationOccurred?.('error');setTimeout(openMission7,1500);}
 function startLife7(){playLifeCinematic(7,openMission7);}
-function openMission7(){lane7=1;hull7=100;shield7=3;distance7=0;shieldActive7=false;$('life7Complete').hidden=true;$('voidStatus').textContent='Unknown debris field ahead.';show('mission7');renderVoid();clearInterval(voidTimer);let danger=spawnDebris();voidTimer=setInterval(()=>{distance7+=10;if(lane7===danger){if(shieldActive7){shieldActive7=false;$('voidStatus').textContent='Shield absorbed impact.';}else{hull7-=25;$('voidStatus').textContent='Hull impact! Change course.';tg?.HapticFeedback?.notificationOccurred?.('error');}}if(hull7<=0){clearInterval(voidTimer);$('voidStatus').textContent='Hull lost — emergency reset.';setTimeout(openMission7,1200);return;}if(distance7>=100){clearInterval(voidTimer);localStorage.setItem('mkty_life7','complete');$('points').textContent='280 ⭐';$('voidStatus').textContent='Transmission gate reached ✓';$('life7Complete').hidden=false;unlockLife8();tg?.HapticFeedback?.notificationOccurred?.('success');return;}danger=spawnDebris();renderVoid();},1200);}
-$('voidLeft').onclick=()=>{lane7=Math.max(0,lane7-1);renderVoid();};$('voidRight').onclick=()=>{lane7=Math.min(2,lane7+1);renderVoid();};$('shieldBtn').onclick=()=>{if(shield7<=0||shieldActive7)return;shield7--;shieldActive7=true;$('voidStatus').textContent='Shield armed for next impact.';renderVoid();};
+function openMission7(){
+ stopVoid7();lane7=1;hull7=100;shield7=3;distance7=0;shieldActive7=false;asteroids7=[];$('asteroidField').innerHTML='';$('life7Complete').hidden=true;$('voidStatus').textContent='Debris field entered. Survive to the transmission gate.';show('mission7');voidActive7=true;renderVoid();
+ spawnTimer7=setInterval(spawnAsteroid7,720);
+ voidTimer=setInterval(()=>{if(!voidActive7)return;distance7+=.42;const world=$('voidWorld7').getBoundingClientRect(),ship=$('voidShip').getBoundingClientRect();asteroids7.forEach(el=>{if(!el.isConnected||el.dataset.hit==='1')return;const r=el.getBoundingClientRect();const overlap=!(r.right<ship.left+8||r.left>ship.right-8||r.bottom<ship.top+8||r.top>ship.bottom-8);if(overlap){el.dataset.hit='1';el.remove();if(shieldActive7){shieldActive7=false;$('voidStatus').textContent='Shield absorbed asteroid impact.';}else{hull7-=el.classList.contains('big')?34:20;$('voidStatus').textContent='HULL IMPACT! Evade!';$('voidWorld7').classList.remove('hit7');void $('voidWorld7').offsetWidth;$('voidWorld7').classList.add('hit7');tg?.HapticFeedback?.notificationOccurred?.('error');}renderVoid();}});
+ if(hull7<=0){crashVoid7();return;}if(distance7>=100){stopVoid7();localStorage.setItem('mkty_life7','complete');let pts=Number(localStorage.getItem('mkty_points')||0);pts+=1750;localStorage.setItem('mkty_points',String(pts));$('points').textContent=pts+' ⭐';$('voidStatus').textContent='Transmission gate reached ✓';$('life7Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');return;}renderVoid();},100);
+}
+$('voidLeft').onclick=()=>{if(!voidActive7)return;lane7=Math.max(0,lane7-1);renderVoid();};$('voidRight').onclick=()=>{if(!voidActive7)return;lane7=Math.min(2,lane7+1);renderVoid();};$('shieldBtn').onclick=()=>{if(!voidActive7||shield7<=0||shieldActive7)return;shield7--;shieldActive7=true;$('voidStatus').textContent='Shield armed — one impact protected.';renderVoid();};
 $('life7ReturnBtn').onclick=()=>show('home');
 
 function unlockLife8(){
