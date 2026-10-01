@@ -168,6 +168,9 @@ function stopLife1Stick(pointerId){
 }
 if(l1Joy){
  l1Joy.style.touchAction='none';
+ // iOS/Telegram WebView can still turn a downward joystick drag into page scroll.
+ // Cancel touch scrolling only while the gesture belongs to the joystick.
+ ['touchstart','touchmove'].forEach(type=>l1Joy.addEventListener(type,ev=>{ev.preventDefault();ev.stopPropagation();},{passive:false}));
  l1Joy.addEventListener('pointerdown',ev=>{ev.preventDefault();ev.stopPropagation();l1PointerId=ev.pointerId;l1Joy.setPointerCapture?.(ev.pointerId);setLife1Stick(ev.clientX,ev.clientY);},{passive:false});
  l1Joy.addEventListener('pointermove',ev=>{if(ev.pointerId!==l1PointerId)return;ev.preventDefault();ev.stopPropagation();setLife1Stick(ev.clientX,ev.clientY);},{passive:false});
  l1Joy.addEventListener('pointerup',ev=>{ev.preventDefault();stopLife1Stick(ev.pointerId);},{passive:false});
