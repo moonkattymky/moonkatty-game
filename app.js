@@ -147,7 +147,7 @@ $('tuneBtn').onclick=()=>{
  if(life1Stage!==2)return;const v=Number($('frequencyDial').value),d=Math.abs(v-targetFrequency);
  if(d>6){$('signalHint').textContent=v<targetFrequency?'Signal weak — tune higher.':'Signal weak — tune lower.';tg?.HapticFeedback?.impactOccurred('light');return;}
  life1Stage=3;$('antennaCount').textContent='1/1';$('qAntenna').className='done';$('antennaPanel').hidden=true;$('missionStatus').textContent='Signal locked. Moon Base Alpha is online!';tg?.HapticFeedback?.notificationOccurred?.('success');
- let pts=Number(localStorage.getItem('mkty_points')||0);if(localStorage.getItem('mkty_life1')!=='complete')pts+=500;localStorage.setItem('mkty_points',String(pts));localStorage.setItem('mkty_life1','complete');syncServerProgress('complete_life',1);$('points').textContent=pts+' ⭐';$('l1Points').textContent=pts+' ⭐';$('livesProgress').textContent='1 / 9 🌙';unlockLife2();
+ let pts=Number(localStorage.getItem('mkty_points')||0);if(localStorage.getItem('mkty_life1')!=='complete')pts+=500;localStorage.setItem('mkty_points',String(pts));$('missionStatus').textContent='Saving mission progress…';syncServerProgress('complete_life',1).then(p=>{if(!p||Number(p.story_life)<1){localStorage.removeItem('mkty_life1');$('missionStatus').textContent='Server save failed. Tap SCAN SIGNAL to retry.';life1Stage=2;return;}localStorage.setItem('mkty_life1','complete');localStorage.setItem('mkty_points',String(p.moon_points||0));$('points').textContent=(p.moon_points||0)+' ⭐';$('l1Points').textContent=(p.moon_points||0)+' ⭐';$('livesProgress').textContent=(p.story_life||0)+' / 9 🌙';unlockLife2();routeHomeByStory();$('missionStatus').textContent='Mission saved. LIFE #2 unlocked!';});
  setTimeout(()=>{const done=$('life1Complete');done.hidden=false;done.classList.add('completion-visible');done.style.setProperty('display','block','important');done.style.setProperty('visibility','visible','important');done.style.setProperty('opacity','1','important');done.scrollIntoView({behavior:'smooth',block:'center'});},300);
 };
 $('returnBtn').onclick=()=>show('home');
@@ -521,7 +521,7 @@ function restoreGameProgress(){
  // Migration: older LIFE #1 builds awarded 500 points before persistent completion routing existed.
  if(localStorage.getItem('mkty_life1')!=='complete' && Number(localStorage.getItem('mkty_points')||0)>=500){localStorage.setItem('mkty_life1','complete');}
  const completed=[1,2,3,4,5,6,7,8,9].filter(n=>localStorage.getItem('mkty_life'+n)==='complete');
- const serverPts=Number(localStorage.getItem('mkty_points')||0);const total=serverPts||completed.reduce((sum,n)=>sum+n*10,0);
+ const total=Number(localStorage.getItem('mkty_points')||0);
  if($('points')) $('points').textContent=total+' ⭐';
  if($('livesProgress')) $('livesProgress').textContent=completed.length+' / 9 🌙';
  unlockLife2();unlockLife3();unlockLife4();unlockLife5();unlockLife6();unlockLife7();unlockLife8();unlockLife9();
