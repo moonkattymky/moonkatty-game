@@ -160,11 +160,10 @@ function setLife1Stick(clientX,clientY){
  // Screen coordinates: +X = right, +Y = down. Player uses the same convention.
  l1MoveX=Math.max(-1,Math.min(1,dx/max));
  l1MoveY=Math.max(-1,Math.min(1,dy/max));
- if($('l1Debug'))$('l1Debug').textContent='MOVE • X '+l1MoveX.toFixed(2)+' • Y '+l1MoveY.toFixed(2);
 }
 function stopLife1Stick(pointerId){
  if(pointerId!=null&&l1PointerId!=null&&pointerId!==l1PointerId)return;
- l1PointerId=null;l1MoveX=0;l1MoveY=0;l1Stick.style.transform='translate(0,0)';if($('l1Debug'))$('l1Debug').textContent='UP • X 0.00 • Y 0.00';renderLife1Player();
+ l1PointerId=null;l1MoveX=0;l1MoveY=0;l1Stick.style.transform='translate(0,0)';renderLife1Player();
 }
 if(l1Joy){
  l1Joy.style.touchAction='none';
@@ -177,12 +176,6 @@ if(l1Joy){
  l1Joy.addEventListener('pointercancel',ev=>stopLife1Stick(ev.pointerId));
  l1Joy.addEventListener('lostpointercapture',()=>stopLife1Stick(null));
 }
-document.querySelectorAll('[data-move1]').forEach(btn=>{
- const vectors={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
- const start=ev=>{ev.preventDefault();ev.stopPropagation();const [x,y]=vectors[btn.dataset.move1];l1MoveX=x;l1MoveY=y;if($('l1Debug'))$('l1Debug').textContent='DPAD '+btn.dataset.move1.toUpperCase()+' • X '+x+' • Y '+y;};
- const stop=ev=>{ev?.preventDefault?.();l1MoveX=0;l1MoveY=0;if($('l1Debug'))$('l1Debug').textContent='DPAD UP • X 0 • Y 0';};
- btn.addEventListener('pointerdown',start,{passive:false});btn.addEventListener('pointerup',stop,{passive:false});btn.addEventListener('pointercancel',stop);btn.addEventListener('pointerleave',stop);
-});
 l1Action?.addEventListener('click',()=>{
  if(!l1Near)return;
  if(l1Near.classList.contains('energy'))collectLife1Energy(l1Near);
