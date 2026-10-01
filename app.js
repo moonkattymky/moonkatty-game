@@ -463,18 +463,42 @@ document.querySelectorAll('[data-ignite3]').forEach(b=>b.onclick=()=>{
 $('life3ReturnBtn').onclick=()=>show('home');
 
 function unlockLife4(){
- if(localStorage.getItem('mkty_life3')!=='complete')return;
- $('life3Card').classList.add('complete');$('life4Card').disabled=false;$('life4Card').classList.remove('locked');$('life4Card').classList.add('unlocked');$('life4Icon').textContent='4';$('storyProgress').style.width='44%';
+ if(localStorage.getItem('mkty_life3')!=='complete')return false;
+ const a=$('life3Card'),b=$('life4Card'),i=$('life4Icon'),p=$('storyProgress');a?.classList.add('complete');if(b){b.disabled=false;b.classList.remove('locked');b.classList.add('unlocked');}if(i)i.textContent='4';if(p)p.style.width='44%';return true;
 }
-$('continueLife4Btn').onclick=()=>{unlockLife4();$('lifeTitle').textContent='LIFE #4 — THE DESCENT';$('lifeText').textContent='Take manual control and land the ship safely.';$('enterBtn').textContent='START LIFE #4 🚀';$('enterBtn').onclick=startLife4;show('home');};
-$('life4Card').onclick=()=>$('continueLife4Btn').click();
-let alt4=2400,vel4=28,fuel4=100,drift4=0,descentTimer;
-function renderDescent(){$('altitude').textContent=Math.max(0,Math.round(alt4));$('velocity').textContent=Math.max(0,Math.round(vel4));$('fuel').textContent=Math.max(0,Math.round(fuel4));$('lander').style.transform='translateX('+drift4+'px)';}
+$('continueLife4Btn').onclick=(ev)=>{ev?.preventDefault?.();if(!unlockLife4())return;startLife4();};
+if($('life4Card'))$('life4Card').onclick=()=>$('continueLife4Btn').click();
+let alt4=2400,vel4=28,fuel4=100,drift4=0,driftVel4=0,descentTimer=null,burnHeld4=false,leftHeld4=false,rightHeld4=false,descentActive4=false;
+function renderDescent(){
+ $('altitude').textContent=Math.max(0,Math.round(alt4));$('velocity').textContent=Math.max(0,vel4.toFixed(1));$('fuel').textContent=Math.max(0,Math.round(fuel4));$('driftRead4').textContent=(drift4>0?'+':'')+Math.round(drift4);
+ $('lander').style.transform='translateX('+drift4+'px)';$('lander').style.setProperty('--drift4',drift4+'px');
+ $('safeVel4').classList.toggle('safe',vel4<=12);$('safeDrift4').classList.toggle('safe',Math.abs(drift4)<=32);document.querySelector('.landing-zone')?.classList.toggle('safe-zone',vel4<=12&&Math.abs(drift4)<=32);
+ $('thrustRead4').textContent=$('thrustDial').value+'%';
+}
 function startLife4(){playLifeCinematic(4,openMission4);}
-function openMission4(){alt4=2400;vel4=28;fuel4=100;drift4=0;$('life4Complete').hidden=true;$('descentStatus').textContent='Stabilize descent and reach the landing zone.';show('mission4');renderDescent();clearInterval(descentTimer);descentTimer=setInterval(()=>{alt4-=vel4*2;vel4+=.8;if(alt4<=0){clearInterval(descentTimer);if(vel4<=12&&Math.abs(drift4)<=45){localStorage.setItem('mkty_life4','complete');$('descentStatus').textContent='Touchdown confirmed ✓';$('points').textContent='100 ⭐';$('life4Complete').hidden=false;unlockLife5();tg?.HapticFeedback?.notificationOccurred?.('success');}else{$('descentStatus').textContent='Hard landing — retry the descent.';tg?.HapticFeedback?.notificationOccurred?.('error');setTimeout(openMission4,1400);}}renderDescent();},500);}
-$('burnBtn').onclick=()=>{if(fuel4<=0)return;const power=Number($('thrustDial').value)/100;fuel4-=4+power*4;vel4=Math.max(3,vel4-(3+power*7));tg?.HapticFeedback?.impactOccurred('medium');renderDescent();};
-$('leftThruster').onclick=()=>{if(fuel4>0){drift4=Math.max(-90,drift4-18);fuel4-=2;renderDescent();}};
-$('rightThruster').onclick=()=>{if(fuel4>0){drift4=Math.min(90,drift4+18);fuel4-=2;renderDescent();}};
+function finishDescent4(success){
+ descentActive4=false;clearInterval(descentTimer);descentTimer=null;burnHeld4=leftHeld4=rightHeld4=false;$('lander').classList.remove('thrusting');
+ if(success){localStorage.setItem('mkty_life4','complete');let pts=Number(localStorage.getItem('mkty_points')||0);pts+=1000;localStorage.setItem('mkty_points',String(pts));$('points').textContent=pts+' ⭐';$('descentStatus').textContent='Touchdown confirmed ✓';$('life4Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');}
+ else{$('lander').classList.add('crashed');$('descentStatus').textContent='HARD LANDING — velocity or drift outside safe limits. Retrying…';tg?.HapticFeedback?.notificationOccurred?.('error');setTimeout(openMission4,1600);}
+}
+function openMission4(){
+ alt4=2400;vel4=28;fuel4=100;drift4=0;driftVel4=(Math.random()-.5)*1.2;descentActive4=true;$('life4Complete').hidden=true;$('lander').classList.remove('crashed','thrusting');$('descentStatus').textContent='Manual descent active. Control velocity, drift and fuel.';show('mission4');renderDescent();clearInterval(descentTimer);
+ descentTimer=setInterval(()=>{
+  if(!descentActive4)return;const power=Number($('thrustDial').value)/100;
+  vel4+=.22;
+  if(burnHeld4&&fuel4>0){vel4=Math.max(0,vel4-(.2+power*.72));fuel4=Math.max(0,fuel4-(.12+power*.18));$('lander').classList.add('thrusting');}else $('lander').classList.remove('thrusting');
+  if(leftHeld4&&fuel4>0){driftVel4-=.18;fuel4=Math.max(0,fuel4-.07);}if(rightHeld4&&fuel4>0){driftVel4+=.18;fuel4=Math.max(0,fuel4-.07);}
+  driftVel4*=.985;drift4+=driftVel4;drift4=Math.max(-105,Math.min(105,drift4));alt4-=vel4*.48;
+  if(fuel4<=0)$('descentStatus').textContent='FUEL DEPLETED — ballistic descent!';
+  if(alt4<=0){alt4=0;renderDescent();finishDescent4(vel4<=12&&Math.abs(drift4)<=32);return;}renderDescent();
+ },100);
+}
+function holdControl4(el,setter){
+ const on=ev=>{ev.preventDefault();setter(true);el.setPointerCapture?.(ev.pointerId);},off=()=>setter(false);
+ el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointercancel',off);el.addEventListener('pointerleave',off);
+}
+holdControl4($('burnBtn'),v=>burnHeld4=v);holdControl4($('leftThruster'),v=>leftHeld4=v);holdControl4($('rightThruster'),v=>rightHeld4=v);
+$('thrustDial').oninput=renderDescent;
 $('life4ReturnBtn').onclick=()=>show('home');
 
 function unlockLife5(){
