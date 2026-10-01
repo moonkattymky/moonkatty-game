@@ -426,3 +426,20 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 #mission2 .crew-challenge{border:1px solid #293c55;border-radius:18px;background:#070d17;padding:16px;box-shadow:0 15px 35px #0006}
 #mission2 .mission-status{border:1px solid #b98b3d44;border-radius:14px;background:#080d15;padding:12px;text-align:center}
 @media(max-width:390px){.crew-world-v2{min-height:500px}.crew-card2{height:190px!important}.crew-world-v2 .captain{top:145px!important}.crew-world-v2 .mate3{top:290px!important}}
+
+/* LIFE #2 iPhone composition fix */
+.crew-world-v2{min-height:620px!important;padding:0!important}
+.crew-world-v2 .captain{left:50%!important;right:auto!important;top:18px!important;width:34%!important;height:178px!important;transform:translateX(-50%)!important;z-index:8!important}
+.crew-world-v2 .captain .crew-avatar2{inset:7px 7px 43px!important}
+.crew-world-v2 .mate1{left:3%!important;right:auto!important;top:215px!important;width:30%!important;height:190px!important;transform:none!important;z-index:9!important}
+.crew-world-v2 .mate2{left:35%!important;right:auto!important;top:215px!important;width:30%!important;height:190px!important;transform:none!important;z-index:9!important}
+.crew-world-v2 .mate3{left:67%!important;right:auto!important;top:215px!important;width:30%!important;height:190px!important;transform:none!important;z-index:9!important}
+.crew-world-v2 .mate1 .crew-avatar2,.crew-world-v2 .mate2 .crew-avatar2,.crew-world-v2 .mate3 .crew-avatar2{inset:7px 6px 48px!important;background-size:contain!important}
+.crew-world-v2 .crew-card2 small{font-size:8px!important;letter-spacing:.8px!important}
+.crew-world-v2 .crew-card2 b{font-size:5.5px!important;letter-spacing:.45px!important;white-space:nowrap}
+.crew-world-v2:after{content:"CHOOSE YOUR SPECIALISTS";position:absolute;left:0;right:0;bottom:82px;height:auto;background:none!important;color:#e9bd58;text-align:center;font-size:9px;font-weight:900;letter-spacing:2px;z-index:3}
+@media(max-width:390px){
+ .crew-world-v2{min-height:590px!important}
+ .crew-world-v2 .captain{width:36%!important;height:170px!important}
+ .crew-world-v2 .mate1,.crew-world-v2 .mate2,.crew-world-v2 .mate3{top:205px!important;height:180px!important}
+}
