@@ -315,7 +315,7 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 #life1World{touch-action:none;user-select:none;min-height:430px}
 #life1Player{left:48%;top:68%;z-index:8;transition:none;will-change:left,top,transform}
 #life1Player.walking .mk-helmet{animation:mktyWalkBob .24s ease-in-out infinite alternate}
-#life1Player.face-left{transform:scaleX(-1)}
+#life1Player.face-left{transform:none}#life1Player .l1-player-sprite{transform:scaleX(1);transform-origin:center;transition:transform .08s}#life1Player.face-left .l1-player-sprite{transform:scaleX(-1)}
 @keyframes mktyWalkBob{from{transform:translateY(0)}to{transform:translateY(-5px)}}
 .l1-hotspot{z-index:5}
 .l1-joystick{position:absolute;left:18px;bottom:18px;width:104px;height:104px;border-radius:50%;z-index:20;background:#07101dcc;border:1px solid #e9bd5855;box-shadow:inset 0 0 30px #0009,0 8px 30px #0008;touch-action:none}
