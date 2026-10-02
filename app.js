@@ -334,9 +334,12 @@ function renderLife3Gate(){
  }
 }
 function openLife3MemoryGate(){
- show('mission3');$('life3MemoryGate').hidden=false;$('life3CodeMission').hidden=true;renderLife3Gate();
+ show('mission3');$('life3MemoryGate').hidden=false;$('life3CodeMission').hidden=true;if($('journalCode3'))$('journalCode3').hidden=true;renderLife3Gate();
  clearInterval(gateTimer);gateTimer=setInterval(renderLife3Gate,1000);
 }
+$('journalCodeBtn')?.addEventListener('click',()=>{
+ const code=ensureLife1MemoryCode();$('journalCodeValue3').textContent=code;$('journalCode3').hidden=false;$('life3GateStatus').textContent='Journal entry recovered. Enter the code above to authorize launch.';tg?.HapticFeedback?.notificationOccurred?.('success');
+});
 
 function awardLifePoints(n,amount){
  const key='mkty_life'+n,awardKey=key+'_awarded';
