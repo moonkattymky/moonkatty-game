@@ -654,3 +654,10 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
  #navField2 #navShip2{width:68px!important;height:45px!important}
  #navField2 .industrial-gate2{width:102px!important;height:68px!important}
 }
+
+/* Navigator composition fix: art supplies gates, DOM supplies physics */
+#navField2 .industrial-gate2{opacity:0!important;background:none!important;box-shadow:none!important;filter:none!important}
+#navField2 .industrial-gate2.cleared{opacity:0!important;filter:none!important}
+#navField2 #navShip2{width:88px!important;height:58px!important;z-index:25!important}
+#navField2.nav-field2{background-position:center center!important}
+#navField2 .flight-direction2{display:none!important}
