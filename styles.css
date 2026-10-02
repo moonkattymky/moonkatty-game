@@ -597,3 +597,9 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 .power-route2 .circuit2{margin:0!important;padding:6px!important;gap:5px!important}
 .power-route2 .circuit2 button{height:54px!important;font-size:28px!important}
 .route-progress2{height:7px;margin:8px 0 14px;border-radius:7px;background:#ffffff10;overflow:hidden}.route-progress2 i{display:block;width:0;height:100%;background:linear-gradient(90deg,#e9bd58,#8df1b5);transition:width .2s;box-shadow:0 0 12px #8df1b566}
+
+.journal-code-btn3{margin-top:10px;border-color:#65d6c255;color:#8ce8da;background:#071411}
+.journal-code3{margin:10px 0;padding:14px;border:1px solid #63d9c155;border-radius:14px;background:#07120f;text-align:center}
+.journal-code3 span{display:block;color:#7de0d1;font-size:8px;letter-spacing:2px}
+.journal-code3 strong{display:block;margin:9px 0;color:#c8fff6;font-size:23px;letter-spacing:5px}
+.journal-code3 small{color:#748d8a;font-size:8px}
