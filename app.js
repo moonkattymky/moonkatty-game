@@ -338,7 +338,12 @@ function openLife3MemoryGate(){
  clearInterval(gateTimer);gateTimer=setInterval(renderLife3Gate,1000);
 }
 $('journalCodeBtn')?.addEventListener('click',()=>{
- const code=ensureLife1MemoryCode();$('journalCodeValue3').textContent=code;$('journalCode3').hidden=false;$('life3GateStatus').textContent='Journal entry recovered. Enter the code above to authorize launch.';tg?.HapticFeedback?.notificationOccurred?.('success');
+ const code=ensureLife1MemoryCode();
+ localStorage.removeItem('mkty_life3_code_lock_until');
+ $('journalCodeValue3').textContent=code;$('journalCode3').hidden=false;
+ $('life3GateStatus').textContent='Journal entry recovered. Security lock cleared — enter the code above.';
+ renderLife3Gate();
+ tg?.HapticFeedback?.notificationOccurred?.('success');
 });
 
 function awardLifePoints(n,amount){
