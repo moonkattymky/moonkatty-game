@@ -511,7 +511,7 @@ function unlockLife4(){
 }
 $('continueLife4Btn').onclick=(ev)=>{ev?.preventDefault?.();if(!unlockLife4())return;startLife4();};
 if($('life4Card'))$('life4Card').onclick=()=>$('continueLife4Btn').click();
-let alt4=2400,vel4=28,fuel4=100,drift4=0,driftVel4=0,descentTimer=null,burnHeld4=false,leftHeld4=false,rightHeld4=false,descentActive4=false;
+let alt4=2400,vel4=28,fuel4=100,drift4=0,driftVel4=0,descentTimer=null,burnHeld4=false,downHeld4=false,leftHeld4=false,rightHeld4=false,descentActive4=false;
 function renderDescent(){
  $('altitude').textContent=Math.max(0,Math.round(alt4));$('velocity').textContent=Math.max(0,vel4.toFixed(1));$('fuel').textContent=Math.max(0,Math.round(fuel4));$('driftRead4').textContent=(drift4>0?'+':'')+Math.round(drift4);
  $('lander').style.transform='translateX('+drift4+'px)';$('lander').style.setProperty('--drift4',drift4+'px');
@@ -520,7 +520,7 @@ function renderDescent(){
 }
 function startLife4(){playLifeCinematic(4,openMission4);}
 function finishDescent4(success){
- descentActive4=false;clearInterval(descentTimer);descentTimer=null;burnHeld4=leftHeld4=rightHeld4=false;$('lander').classList.remove('thrusting');
+ descentActive4=false;clearInterval(descentTimer);descentTimer=null;burnHeld4=downHeld4=leftHeld4=rightHeld4=false;$('lander').classList.remove('thrusting');
  if(success){awardLifePoints(4,1000);$('descentStatus').textContent='Touchdown confirmed ✓';$('life4Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');}
  else{$('lander').classList.add('crashed');$('descentStatus').textContent='HARD LANDING — velocity or drift outside safe limits. Retrying…';tg?.HapticFeedback?.notificationOccurred?.('error');setTimeout(openMission4,1600);}
 }
@@ -529,7 +529,7 @@ function openMission4(){
  descentTimer=setInterval(()=>{
   if(!descentActive4)return;const power=Number($('thrustDial').value)/100;
   vel4+=.22;
-  if(burnHeld4&&fuel4>0){vel4=Math.max(0,vel4-(.2+power*.72));fuel4=Math.max(0,fuel4-(.12+power*.18));$('lander').classList.add('thrusting');}else $('lander').classList.remove('thrusting');
+  if(burnHeld4&&fuel4>0){vel4=Math.max(0,vel4-(.2+power*.72));fuel4=Math.max(0,fuel4-(.12+power*.18));$('lander').classList.add('thrusting');}else $('lander').classList.remove('thrusting');if(downHeld4)vel4=Math.min(65,vel4+.42);
   if(leftHeld4&&fuel4>0){driftVel4-=.18;fuel4=Math.max(0,fuel4-.07);}if(rightHeld4&&fuel4>0){driftVel4+=.18;fuel4=Math.max(0,fuel4-.07);}
   driftVel4*=.985;drift4+=driftVel4;drift4=Math.max(-105,Math.min(105,drift4));alt4-=vel4*.48;
   if(fuel4<=0)$('descentStatus').textContent='FUEL DEPLETED — ballistic descent!';
@@ -540,7 +540,7 @@ function holdControl4(el,setter){
  const on=ev=>{ev.preventDefault();setter(true);el.setPointerCapture?.(ev.pointerId);},off=()=>setter(false);
  el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointercancel',off);el.addEventListener('pointerleave',off);
 }
-holdControl4($('burnBtn'),v=>burnHeld4=v);holdControl4($('leftThruster'),v=>leftHeld4=v);holdControl4($('rightThruster'),v=>rightHeld4=v);
+holdControl4($('burnBtn'),v=>burnHeld4=v);holdControl4($('downThruster4'),v=>downHeld4=v);holdControl4($('leftThruster'),v=>leftHeld4=v);holdControl4($('rightThruster'),v=>rightHeld4=v);
 $('thrustDial').oninput=renderDescent;
 $('life4ReturnBtn').onclick=()=>show('home');
 
