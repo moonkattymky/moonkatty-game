@@ -8,6 +8,7 @@
   <!-- mkty-deploy-20260930-1700 -->
   <link rel="stylesheet" href="styles.css?v=20261003-mobile-fix-1" />
   <link rel="stylesheet" href="chapters-1-4.css?v=20261003-code-en-1" />
+  <link rel="stylesheet" href="crew-scene.css?v=20261003-deck-1" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -103,17 +104,19 @@
         <button id="life2SkipBtn" class="ghost">SKIP</button>
       </div>
     </section>
-    <section id="mission2" class="screen mission-screen life-theme life-theme-2">
-      <header><div><span class="eyebrow">LIFE #2</span><h2>THE CREW</h2></div><div class="crew-badge" id="crewBadge2">MKTY-GUEST</div></header>
+    <section id="mission2" class="screen mission-screen life-theme life-theme-2 crew-deck2">
+      <header><div><span class="crew-brand2" translate="no" lang="en">MOONKATTY <i>☾</i></span><span class="eyebrow">LIFE #2</span><h2>THE CREW</h2></div><div class="crew-hud-count2"><strong id="crewCount2" aria-live="polite">0 / 3</strong><span class="crew-hud-dots2" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="crew-badge" id="crewBadge2" hidden>MKTY-GUEST</div></header>
       <div class="crew-world crew-world-v2">
         <div class="crew-orbit"></div><div class="crew-earth2"></div><div class="crew-base2"></div>
         <div class="crew-cat captain crew-card2"><span class="crew-avatar2 captain-avatar2"></span><small>CAPTAIN</small><b>YOU</b></div>
-        <button class="crew-cat mate mate1 crew-card2" data-mate="Navigator"><span class="crew-avatar2 navigator-avatar2"></span><small>NAVIGATOR</small><b>PLOTS THE WAY</b></button>
-        <button class="crew-cat mate mate2 crew-card2" data-mate="Engineer"><span class="crew-avatar2 engineer-avatar2"></span><small>ENGINEER</small><b>BUILDS THE FUTURE</b></button>
-        <button class="crew-cat mate mate3 crew-card2" data-mate="Scout"><span class="crew-avatar2 scout-avatar2"></span><small>SCOUT</small><b>FINDS THE UNKNOWN</b></button>
+        <div class="crew-station-glow2 glow-nav2" aria-hidden="true"></div><div class="crew-station-glow2 glow-scout2" aria-hidden="true"></div><div class="crew-station-glow2 glow-engineer2" aria-hidden="true"></div>
+        <button class="crew-cat mate mate1 crew-card2" data-mate="Navigator" translate="no" lang="en"><span class="crew-role-label2"><i aria-hidden="true">✧</i><small>NAVIGATOR</small><b>PLOTS THE WAY</b></span></button>
+        <button class="crew-cat mate mate2 crew-card2" data-mate="Engineer" translate="no" lang="en"><span class="crew-role-label2"><i aria-hidden="true">⚙</i><small>ENGINEER</small><b>BUILDS THE FUTURE</b></span></button>
+        <button class="crew-cat mate mate3 crew-card2" data-mate="Scout" translate="no" lang="en"><span class="crew-role-label2"><i aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg></i><small>SCOUT</small><b>FINDS THE UNKNOWN</b></span></button>
       </div>
-      <div class="panel objective"><span class="eyebrow">MISSION OBJECTIVE</span><h3>ASSEMBLE THE CREW</h3><p>Recruit all three specialists for the Moon mission.</p></div>
+      <div class="panel objective"><span class="eyebrow">MISSION OBJECTIVE</span><h3>ASSEMBLE THE CREW</h3><p>Select a specialist and complete their challenge.</p><div class="crew-dock-progress2" aria-hidden="true"><span>✧<i></i></span><span>⚙<i></i></span><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg><i></i></span></div></div>
       <div id="crewChallenge" class="crew-challenge">
+        <button id="crewBack2" class="crew-back2" type="button">← CREW</button>
         <p id="crewChallengeTitle" class="puzzle-label">SELECT A CREW MEMBER TO BEGIN</p>
         <div id="navigatorTask" class="crew-task" hidden><strong>NAVIGATION TEST</strong><p>Guide the ship through all three corridor gates without touching the hazard field.</p><div id="navField2" class="nav-field2"><div class="flight-direction2">FLIGHT →</div><div id="navShip2">▶</div><i class="gate g1 industrial-gate2" data-gate="1"><b>01</b><span>LUNAR NAV</span></i><i class="gate g2 industrial-gate2" data-gate="2"><b>02</b><span>MOON GATE</span></i><i class="gate g3 industrial-gate2" data-gate="3"><b>03</b><span>FINAL VECTOR</span></i></div><div class="nav-controls2"><button data-nav2="-1">▲ CLIMB</button><button data-nav2="1">▼ DESCEND</button></div><small id="navHint2">Gates cleared: 0 / 3</small></div>
         <div id="engineerTask" class="crew-task" hidden><strong>ENGINEERING TEST</strong><p>Route power from CORE to COMMS. Rotate all four junctions until the circuit is continuous.</p><div class="power-route2"><span class="route-end2 core-end2">CORE ⚡</span><div id="circuit2" class="circuit2"><button data-wire2="0">━</button><button data-wire2="1">┃</button><button data-wire2="2">━</button><button data-wire2="3">┃</button></div><span class="route-end2 comms-end2">📡 COMMS</span></div><div class="route-progress2"><i id="routeProgress2"></i></div><button id="testCircuit2" class="primary">TEST CIRCUIT ⚡</button><small id="engineerHint2">Rotate every junction until one continuous horizontal power line reaches COMMS.</small></div>
@@ -259,6 +262,6 @@
       <div id="life9Complete" class="complete-card final-complete" hidden><span class="complete-icon">🌙</span><p class="eyebrow">9 LIVES COMPLETE</p><h3>MOONKATTY HAS RETURNED</h3><strong>+3000 MOON POINTS ⭐ • 9 LIVES COMPLETE</strong><p class="final-message">THE SIGNAL WAS NEVER CALLING US TO THE MOON.<br>IT WAS CALLING MOONKATTY HOME.</p><button id="life9ReturnBtn" class="primary">RETURN TO MISSION CONTROL</button></div>
     </section>
   </main>
-  <script src="i18n.js?v=20261003-code-en-1"></script>
-  <script src="app.js?v=20261003-visual-1"></script>
+  <script src="i18n.js?v=20261003-deck-1"></script>
+  <script src="app.js?v=20261003-deck-1"></script>
 </body></html>

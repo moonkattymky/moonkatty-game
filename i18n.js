@@ -74,6 +74,8 @@ CAPTAIN|КАПИТАН
 YOU|ВЫ
 NAVIGATOR|ШТУРМАН
 PLOTS THE WAY|ПРОКЛАДЫВАЕТ ПУТЬ
+Select a specialist and complete their challenge.|Выберите специалиста и выполните его задание.
+← CREW|← ЭКИПАЖ
 ENGINEER|ИНЖЕНЕР
 BUILDS THE FUTURE|СТРОИТ БУДУЩЕЕ
 SCOUT|РАЗВЕДЧИК
@@ -278,6 +280,7 @@ SPECIALIST RECRUITED ✓|СПЕЦИАЛИСТ ПРИНЯТ ✓
 FINAL CREW PROTOCOL|ФИНАЛЬНЫЙ ПРОТОКОЛ ЭКИПАЖА
 Navigator missed a gate. Flight corridor reset.|Штурман пропустил ворота. Коридор полёта сброшен.
 CORE → COMMS power route stable ✓|Цепь ЯДРО → СВЯЗЬ стабильна ✓
+Power route complete — test the circuit.|Цепь замкнута — проверьте питание.
 Open circuit detected. Every junction must show ━.|Цепь разомкнута. Каждый узел должен показывать ━.
 Memorize the transmission…|Запомните передачу…
 Repeat the five-role sequence.|Повторите последовательность из пяти ролей.
@@ -357,7 +360,8 @@ TRUTH UNLOCKED|ИСТИНА ОТКРЫТА
  [/^NEXT \+1\s+(.*)$/,(_,v)=>'СЛЕД. +1 '+v],
  [/^Gates cleared: (.*)$/,(_,v)=>'Пройдено ворот: '+v.replace('Use ▲ / ▼','Используйте ▲ / ▼')],
  [/^Anomalies tagged: (.*)$/,(_,v)=>'Найдено аномалий: '+v],
- [/^Crew assembled: (.*)$/,(_,v)=>'Экипаж собран: '+v.replace('Final sync locked','Синхронизация закрыта')],
+ [/^Power connected through (\d+) \/ 4 junctions\.$/,(_,n)=>'Питание подключено: '+n+' / 4 узла.'],
+ [/^Crew assembled: (.*)$/,(_,v)=>'Экипаж собран: '+v.replace('Final sync locked','Синхронизация закрыта').replace('Final sync ready','Синхронизация готова')],
  [/^Stage (\d+) \/ (\d+) • Attempts: (\d+)$/,(_,a,b,c)=>'Этап '+a+' / '+b+' • Попытки: '+c],
  [/^SIGNAL (.*)$/,(_,v)=>'СИГНАЛ '+v],
  [/^HINT: first 5 digits are (.*) • remaining digits: (.*)$/,(_,a,b)=>'ПОДСКАЗКА: первые 5 цифр — '+a+' • остальные: '+b]

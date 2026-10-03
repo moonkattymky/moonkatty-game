@@ -400,7 +400,7 @@ function startLife2(){
 function openMission2(){
  clearTimeout(life2Timer);
  const video=$('life2Video'); if(video)video.pause();
- $('crewBadge2').textContent=crewCode; show('mission2');
+ $('crewBadge2').textContent=crewCode; show('mission2');updateCrewScene2();
 }
 $('continueLife2Btn').onclick=(ev)=>{
  ev?.preventDefault?.();
@@ -435,10 +435,19 @@ $('continueLife2Btn').addEventListener('touchend',launchLife2FromCompletedMissio
 $('life2SkipBtn').onclick=openMission2;
 $('life2Video')?.addEventListener('ended',openMission2);
 
-let crewCount=0,activeMate=null,nav2X=8,nav2Y=78,nav2Gate=0,nav2Timer=null,nav2Control=0,wire2=[0,0,0,0],scout2Hits=0,scout2Timer=null,crewSync2=[],crewSyncInput2=[];
+let crewCount=0,activeMate=null,nav2X=8,nav2Y=78,nav2Gate=0,nav2Timer=null,nav2RetryTimer=null,nav2Control=0,wire2=[0,0,0,0],scout2Hits=0,scout2Timer=null,crewSync2=[],crewSyncInput2=[];
+function updateCrewScene2(){
+ $('crewCount2').textContent=crewCount+' / 3';
+ document.querySelectorAll('.mate').forEach(btn=>{btn.classList.toggle('selected',btn===activeMate);btn.setAttribute('aria-disabled',String(btn.classList.contains('joined')));});
+}
+function stopCrewTask2(){clearInterval(nav2Timer);clearTimeout(nav2RetryTimer);nav2Timer=null;nav2RetryTimer=null;nav2Control=0;stopScout2();}
+$('crewBack2').onclick=()=>{
+ stopCrewTask2();activeMate=null;document.querySelectorAll('.crew-task').forEach(task=>task.hidden=true);
+ $('crewChallengeTitle').textContent='SELECT A CREW MEMBER TO BEGIN';updateCrewScene2();
+};
 function completeMate(btn){
  if(!btn||btn.classList.contains('joined'))return;
- btn.classList.add('joined');crewCount++;activeMate=null;document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);
+ stopCrewTask2();btn.classList.add('joined');crewCount++;activeMate=null;document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);updateCrewScene2();
  $('crewChallengeTitle').textContent='SPECIALIST RECRUITED ✓';$('crewStatus').textContent='Crew assembled: '+crewCount+' / 3'+(crewCount===3?' • Final sync ready':' • Final sync locked');tg?.HapticFeedback?.notificationOccurred?.('success');
  if(crewCount===3){$('crewFinal2').hidden=false;$('crewChallengeTitle').textContent='FINAL CREW PROTOCOL';}
 }
@@ -446,7 +455,7 @@ function resetNav2(){
  clearInterval(nav2Timer);nav2X=7;nav2Y=70;nav2Gate=0;document.querySelectorAll('#navField2 .gate').forEach(g=>g.classList.remove('cleared'));$('navShip2').style.left=nav2X+'%';$('navShip2').style.top=nav2Y+'%';$('navHint2').textContent='Gates cleared: 0 / 3 • Use ▲ / ▼';
  nav2Control=0;nav2Timer=setInterval(()=>{if($('navigatorTask').hidden){clearInterval(nav2Timer);return;}nav2X+=.72;nav2Y=Math.max(8,Math.min(84,nav2Y+nav2Control*1.7));$('navShip2').style.left=nav2X+'%';$('navShip2').style.top=nav2Y+'%';
  if(nav2Gate<3){const ship=$('navShip2').getBoundingClientRect(),gate=document.querySelectorAll('#navField2 .gate')[nav2Gate]?.getBoundingClientRect();if(gate){const sx=(ship.left+ship.right)/2,sy=(ship.top+ship.bottom)/2;const horizontal=sx>=gate.left-10&&sx<=gate.right+10,vertical=sy>=gate.top-18&&sy<=gate.bottom+18;if(horizontal&&vertical){document.querySelectorAll('#navField2 .gate')[nav2Gate]?.classList.add('cleared');nav2Gate++;$('navHint2').textContent='Gates cleared: '+nav2Gate+' / 3'+(nav2Gate<3?' • Next gate ahead':' ✓');tg?.HapticFeedback?.notificationOccurred?.('success');}}}
- if(nav2X>94){clearInterval(nav2Timer);if(nav2Gate===3)completeMate(activeMate);else{$('crewStatus').textContent='Navigator missed a gate. Flight corridor reset.';setTimeout(resetNav2,700);}}},90);
+ if(nav2X>94){clearInterval(nav2Timer);if(nav2Gate===3)completeMate(activeMate);else{$('crewStatus').textContent='Navigator missed a gate. Flight corridor reset.';nav2RetryTimer=setTimeout(()=>{if(activeMate?.dataset.mate==='Navigator'&&!$('navigatorTask').hidden)resetNav2();},700);}}},90);
 }
 document.querySelectorAll('[data-nav2]').forEach(b=>{const start=ev=>{ev.preventDefault();nav2Control=Number(b.dataset.nav2);b.setPointerCapture?.(ev.pointerId);};const stop=()=>{nav2Control=0;};b.onpointerdown=start;b.onpointerup=stop;b.onpointercancel=stop;b.onpointerleave=stop;b.onclick=()=>{nav2Y=Math.max(8,Math.min(84,nav2Y+Number(b.dataset.nav2)*4));};});
 function updateEngineerRoute2(){
@@ -457,14 +466,14 @@ function updateEngineerRoute2(){
 }
 function resetEngineer2(){wire2=[1,0,1,1];updateEngineerRoute2();}
 document.querySelectorAll('[data-wire2]').forEach((b,i)=>b.onclick=()=>{wire2[i]=(wire2[i]+1)%2;updateEngineerRoute2();tg?.HapticFeedback?.impactOccurred?.('light');});
-$('testCircuit2').onclick=()=>{const ok=wire2.every(v=>v%2===0);if(ok){document.querySelectorAll('[data-wire2]').forEach(b=>b.classList.add('live'));if($('routeProgress2'))$('routeProgress2').style.width='100%';$('engineerHint2').textContent='CORE → COMMS power route stable ✓';tg?.HapticFeedback?.notificationOccurred?.('success');setTimeout(()=>completeMate(activeMate),450);}else{$('engineerHint2').textContent='Open circuit detected. Every junction must show ━.';tg?.HapticFeedback?.notificationOccurred?.('error');}};
+$('testCircuit2').onclick=()=>{const ok=wire2.every(v=>v%2===0);if(ok){document.querySelectorAll('[data-wire2]').forEach(b=>b.classList.add('live'));if($('routeProgress2'))$('routeProgress2').style.width='100%';$('engineerHint2').textContent='CORE → COMMS power route stable ✓';tg?.HapticFeedback?.notificationOccurred?.('success');const mate=activeMate;setTimeout(()=>{if(activeMate===mate&&!$('engineerTask').hidden)completeMate(mate);},450);}else{$('engineerHint2').textContent='Open circuit detected. Every junction must show ━.';tg?.HapticFeedback?.notificationOccurred?.('error');}};
 function stopScout2(){clearInterval(scout2Timer);scout2Timer=null;}
 function buildAnomaly(){
  stopScout2();scout2Hits=0;const grid=$('anomalyGrid');grid.innerHTML='';for(let i=0;i<9;i++){const b=document.createElement('button');b.textContent='·';grid.appendChild(b);}
  const relocate=()=>{grid.querySelectorAll('button').forEach(b=>{b.classList.remove('target');b.textContent='·';b.onclick=null;});const cells=[...grid.querySelectorAll('button')],b=cells[Math.floor(Math.random()*cells.length)];b.classList.add('target');b.textContent='✦';b.onclick=()=>{if(!b.classList.contains('target'))return;scout2Hits++;$('scoutHint2').textContent='Anomalies tagged: '+scout2Hits+' / 3';tg?.HapticFeedback?.impactOccurred?.('medium');if(scout2Hits>=3){stopScout2();completeMate(activeMate);}else relocate();};};
  relocate();scout2Timer=setInterval(relocate,1100);
 }
-document.querySelectorAll('.mate').forEach(btn=>btn.onclick=()=>{if(btn.classList.contains('joined'))return;stopScout2();clearInterval(nav2Timer);activeMate=btn;document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);const role=btn.dataset.mate;$('crewChallengeTitle').textContent=role.toUpperCase()+' CHALLENGE';if(role==='Navigator'){$('navigatorTask').hidden=false;resetNav2();}if(role==='Engineer'){$('engineerTask').hidden=false;resetEngineer2();}if(role==='Scout'){$('scoutTask').hidden=false;buildAnomaly();}});
+document.querySelectorAll('.mate').forEach(btn=>btn.onclick=()=>{if(btn.classList.contains('joined'))return;stopCrewTask2();activeMate=btn;document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);const role=btn.dataset.mate;$('crewChallengeTitle').textContent=role.toUpperCase()+' CHALLENGE';if(role==='Navigator'){$('navigatorTask').hidden=false;resetNav2();}if(role==='Engineer'){$('engineerTask').hidden=false;resetEngineer2();}if(role==='Scout'){$('scoutTask').hidden=false;buildAnomaly();}updateCrewScene2();});
 function makeCrewSync2(){crewSync2=Array.from({length:5},()=>['N','E','S'][Math.floor(Math.random()*3)]);crewSyncInput2=[];}
 $('showCrewSync2').onclick=()=>{makeCrewSync2();$('crewSyncCode2').textContent=crewSync2.join(' ');$('crewSyncHint2').textContent='Memorize the transmission…';setTimeout(()=>{$('crewSyncCode2').textContent='? ? ? ? ?';$('crewSyncHint2').textContent='Repeat the five-role sequence.';},2400);};
 document.querySelectorAll('[data-sync2]').forEach(b=>b.onclick=()=>{if(crewCount!==3||!crewSync2.length)return;const v=b.dataset.sync2;if(v!==crewSync2[crewSyncInput2.length]){crewSyncInput2=[];$('crewSyncHint2').textContent='Sync failed. Receive a new sequence.';makeCrewSync2();tg?.HapticFeedback?.notificationOccurred?.('error');return;}crewSyncInput2.push(v);$('crewSyncHint2').textContent='Synchronized: '+crewSyncInput2.length+' / 5';if(crewSyncInput2.length===5){awardLifePoints(2,500);$('life2Complete').hidden=false;$('crewFinal2').hidden=true;$('crewStatus').textContent='Crew synchronized. Mission ready ✓';tg?.HapticFeedback?.notificationOccurred?.('success');}});

@@ -1,0 +1,121 @@
+/* LIFE 2: interactive stations over the approved ship-interior artwork. */
+#mission2.crew-deck2 {
+  --crew-gold:#f3d58d;--crew-ice:#a9ebff;--crew-edge:#ebd59983;
+  position:relative;isolation:isolate;box-sizing:border-box;height:100vh;height:100dvh;
+  min-height:0;padding:16px 14px max(12px,env(safe-area-inset-bottom));overflow:hidden;
+  background:#122332;
+}
+#mission2.crew-deck2.active {display:flex;flex-direction:column}
+#mission2.crew-deck2::before {content:'';display:block;position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:1;mask-image:none;background:linear-gradient(#06101c99,transparent 23%,transparent 64%,#07111aa8),url('art/life2-bridge-v2.webp') center/cover no-repeat}
+#mission2.crew-deck2 header {position:relative;z-index:2;flex:none;align-items:flex-start;margin:0;padding:0;border:0;background:none;box-shadow:none;text-shadow:0 2px 10px #0009}
+#mission2.crew-deck2 header>div:first-child {display:flex;flex-wrap:wrap;align-items:baseline;column-gap:7px;row-gap:4px}
+#mission2.crew-deck2 .crew-brand2 {display:block;flex-basis:100%;font-size:22px;font-weight:900;letter-spacing:2px;line-height:1.2;color:#fff9eb}
+#mission2.crew-deck2 .crew-brand2 i {font-style:normal;color:var(--crew-gold);font-size:27px}
+#mission2.crew-deck2 header .eyebrow {font-size:9px;letter-spacing:1.8px;color:var(--crew-gold)}
+#mission2.crew-deck2 header h2 {font-size:10px;line-height:1.4;letter-spacing:1.5px;color:#f1e8ce;margin:0}
+#mission2.crew-deck2 .crew-hud-count2 {flex:none;display:grid;justify-items:center;gap:7px;min-width:62px;padding:9px 11px;border:1px solid #bdd9df99;border-radius:12px;background:#0d2037b8;backdrop-filter:blur(12px)}
+#mission2.crew-deck2 .crew-hud-count2 strong {font-size:22px;line-height:1;font-variant-numeric:tabular-nums;color:#fff9e7}
+#mission2.crew-deck2 .crew-hud-dots2 {display:flex;gap:6px}
+#mission2.crew-deck2 .crew-hud-dots2 i {width:7px;height:7px;border-radius:50%;border:1px solid #d7eef4aa}
+#mission2.crew-deck2 .crew-world-v2 {
+  position:absolute!important;top:0!important;left:50%!important;right:auto!important;bottom:auto!important;
+  width:100%!important;height:100%!important;min-height:0!important;
+  transform:translateX(-50%)!important;margin:0!important;padding:0!important;
+  border:0!important;border-radius:0!important;overflow:visible;background:none!important;box-shadow:none!important;
+}
+#mission2.crew-deck2 .crew-world-v2 .crew-card2.mate {
+  position:absolute!important;display:block!important;top:auto!important;bottom:auto!important;right:auto!important;
+  height:28%!important;width:42%!important;margin:0!important;padding:0!important;overflow:visible;
+  border:0!important;border-radius:18px!important;background:none!important;box-shadow:none!important;
+  transform:none!important;touch-action:manipulation;outline-offset:4px;
+}
+#mission2.crew-deck2 .crew-world-v2 .crew-card2.mate1 {left:8%!important;top:12%!important}
+#mission2.crew-deck2 .crew-world-v2 .crew-card2.mate2 {left:26%!important;top:50%!important;width:65%!important}
+#mission2.crew-deck2 .crew-world-v2 .crew-card2.mate3 {left:54%!important;top:23%!important}
+#mission2.crew-deck2 .crew-role-label2 {
+  position:absolute;top:0;left:0;display:grid;grid-template-columns:23px 1fr;column-gap:5px;row-gap:3px;
+  box-sizing:border-box;min-height:48px;width:max-content;max-width:100%;padding:9px 10px 8px;
+  text-align:left;border:1px solid var(--crew-edge);border-radius:5px 12px 5px 12px;
+  background:linear-gradient(120deg,#0c2034ec,#11283cdf);backdrop-filter:blur(8px);
+  box-shadow:0 4px 16px #0006,inset 0 0 14px #ffdd8912;transition:background .2s,border-color .2s,box-shadow .2s;
+}
+#mission2.crew-deck2 .mate1 .crew-role-label2 {left:7%}
+#mission2.crew-deck2 .mate2 .crew-role-label2 {left:auto;right:0;top:5%}
+#mission2.crew-deck2 .mate3 .crew-role-label2 {left:auto;right:5%}
+#mission2.crew-deck2 .crew-role-label2::after {content:'';position:absolute;top:100%;left:28px;height:28px;width:1px;background:linear-gradient(var(--crew-gold),#f3d58d33);pointer-events:none}
+#mission2.crew-deck2 .crew-role-label2 i {grid-row:1/3;align-self:center;font-style:normal;font-size:26px;font-weight:400;line-height:1;color:var(--crew-gold)}
+#mission2.crew-deck2 .crew-role-label2 i svg,#mission2.crew-deck2 .crew-dock-progress2 svg {width:1em;height:1em;display:block;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
+#mission2.crew-deck2 .crew-world-v2 .crew-card2 small {position:static!important;inset:auto!important;display:block!important;font-size:clamp(9px,2.8vw,12px)!important;line-height:1.1;letter-spacing:.2px!important;color:#fff5df!important;white-space:nowrap;padding:0;border:0;background:none}
+#mission2.crew-deck2 .crew-world-v2 .crew-card2 b {position:static!important;inset:auto!important;display:block;grid-column:2;font-size:clamp(6px,1.8vw,8px)!important;line-height:1.25;letter-spacing:.1px!important;margin:0!important;color:#d9ebf3;white-space:nowrap}
+#mission2.crew-deck2 .crew-card2.mate:is(:hover,:focus-visible,:active) .crew-role-label2 {border-color:#fff0c6;background:#1a455de8;box-shadow:0 0 20px #a9ebff66}
+#mission2.crew-deck2 .crew-card2.mate.joined::after {display:none!important}
+#mission2.crew-deck2 .crew-card2.mate.joined .crew-role-label2 {border-color:#a8f2c6;background:#164433ee}
+#mission2.crew-deck2 .crew-card2.mate.joined .crew-role-label2 i {font-size:0}
+#mission2.crew-deck2 .crew-card2.mate.joined .crew-role-label2 i svg {display:none}
+#mission2.crew-deck2 .crew-card2.mate.joined .crew-role-label2 i::after {content:'✓';font-size:22px;color:#bcffd8}
+#mission2.crew-deck2 .crew-station-glow2 {position:absolute;pointer-events:none;border-radius:50%;mix-blend-mode:screen;background:radial-gradient(ellipse,#50dfff44,transparent 67%);animation:crew-station-glow 3.8s ease-in-out infinite}
+#mission2.crew-deck2 .glow-nav2 {left:0;top:30%;width:36%;height:13%}
+#mission2.crew-deck2 .glow-scout2 {right:0;top:34%;width:21%;height:13%;animation-delay:-1.4s}
+#mission2.crew-deck2 .glow-engineer2 {left:47%;top:59%;width:33%;height:13%;background:radial-gradient(ellipse,#ffc25e44,transparent 65%);animation-delay:-2.6s}
+@keyframes crew-station-glow {0%,100%{opacity:.3}50%{opacity:1}}
+#mission2.crew-deck2 .objective {position:relative;z-index:2;flex:none;margin:auto 0 0;padding:14px 12px 10px;border:1px solid var(--crew-edge);border-radius:7px 19px 7px 19px;background:linear-gradient(140deg,#112c41ec,#091b2ce8);backdrop-filter:blur(12px);box-shadow:0 0 0 3px #eddaac14,inset 0 0 24px #96dded12;text-align:center}
+#mission2.crew-deck2 .objective .eyebrow {display:none}
+#mission2.crew-deck2 .objective h3 {font-size:clamp(18px,5vw,24px);line-height:1.1;margin:0;color:#fff1c8;font-weight:850}
+#mission2.crew-deck2 .objective p {font-size:11px;line-height:1.45;margin:7px 0 10px;color:#d7e9ef}
+#mission2.crew-deck2 .crew-dock-progress2 {display:flex;justify-content:center;gap:32px}
+#mission2.crew-deck2 .crew-dock-progress2>span {position:relative;display:grid;place-items:center;width:34px;height:34px;border:1px solid #95d9f1;border-radius:50%;background:#15334be0;color:var(--crew-gold);font-size:24px;box-shadow:0 0 10px #81daf329}
+#mission2.crew-deck2 .crew-dock-progress2>span+span::before {content:'';position:absolute;right:100%;width:33px;height:1px;background:#85d1e660}
+#mission2.crew-deck2 .crew-dock-progress2 i {position:absolute;width:6px;height:6px;bottom:-3px;right:-2px;border-radius:50%;border:1px solid #9bccdc;background:#112437}
+#mission2.crew-deck2:has(.mate1.joined) :is(.crew-hud-dots2 i:nth-child(1),.crew-dock-progress2>span:nth-child(1) i),
+#mission2.crew-deck2:has(.mate2.joined) :is(.crew-hud-dots2 i:nth-child(2),.crew-dock-progress2>span:nth-child(2) i),
+#mission2.crew-deck2:has(.mate3.joined) :is(.crew-hud-dots2 i:nth-child(3),.crew-dock-progress2>span:nth-child(3) i) {background:#bafbd1;border-color:#e4ffdf;box-shadow:0 0 6px #b3ffda}
+#mission2.crew-deck2 .crew-challenge,#mission2.crew-deck2 #crewStatus {display:none}
+#mission2.crew-deck2:has(.crew-task:not([hidden]))::before {filter:blur(3px);opacity:.45}
+#mission2.crew-deck2:has(.crew-task:not([hidden])) header {margin-bottom:10px}
+#mission2.crew-deck2:has(.crew-task:not([hidden])) .crew-world-v2 {position:relative!important;inset:auto!important;left:auto!important;display:flex;gap:7px;flex:none;width:100%!important;height:58px!important;transform:none!important;margin:0 0 10px!important}
+#mission2.crew-deck2:has(.crew-task:not([hidden])) .crew-world-v2 .crew-card2.mate {position:relative!important;inset:auto!important;flex:1;width:0!important;min-width:0;height:100%!important}
+#mission2.crew-deck2:has(.crew-task:not([hidden])) .crew-role-label2 {position:absolute;inset:0!important;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;min-height:0;width:100%;height:100%;padding:7px 3px;text-align:center;border-color:#a7c8d24d;background:#102638df;border-radius:10px}
+#mission2.crew-deck2:has(.crew-task:not([hidden])) .crew-role-label2 i,#mission2.crew-deck2:has(.crew-task:not([hidden])) .crew-role-label2::after {display:none}
+#mission2.crew-deck2:has(.crew-task:not([hidden])) .crew-card2.mate.selected .crew-role-label2 {border-color:var(--crew-gold);background:#304353;box-shadow:inset 0 -2px 0 #e9c77e}
+#mission2.crew-deck2:has(.crew-task:not([hidden])) .crew-station-glow2 {display:none}
+#mission2.crew-deck2:has(.crew-task:not([hidden])) .crew-challenge {display:flex;flex-direction:column;position:relative;flex:1;min-height:0;margin:0;border:1px solid var(--crew-edge);border-radius:14px;padding:12px;background:linear-gradient(135deg,#142e40ee,#0b1e2bf2);box-shadow:inset 0 0 26px #5ea3b418;overflow:auto}
+#mission2.crew-deck2 .crew-back2 {align-self:flex-start;flex:none;min-height:36px;padding:7px 11px;margin:0 0 9px;border:1px solid #89aec366;border-radius:8px;background:#1b394bcc;color:#dcebf3;font-size:10px;font-weight:750;letter-spacing:.5px;touch-action:manipulation}
+#mission2.crew-deck2:has(#crewFinal2:not([hidden])) .crew-back2 {display:none}
+#mission2.crew-deck2 .puzzle-label {font-size:10px;color:var(--crew-gold);letter-spacing:1.2px}
+#mission2.crew-deck2 .crew-task {flex:none;border-radius:0;overflow:visible}
+#mission2.crew-deck2 #navigatorTask:not([hidden]) {flex:1;min-height:0;overflow:hidden}
+#mission2.crew-deck2 #navField2.nav-field2 {min-height:110px}
+#mission2.crew-deck2 .crew-task>strong {flex:none;font-size:12px;color:#f7e7bc;margin:0}
+#mission2.crew-deck2 .crew-task>p {flex:none;font-size:11px;margin:2px 0 4px}
+#mission2.crew-deck2 #engineerTask:not([hidden]),#mission2.crew-deck2 #scoutTask:not([hidden]),#mission2.crew-deck2 #crewFinal2:not([hidden]) {display:flex;flex:1;flex-direction:column;gap:8px}
+#mission2.crew-deck2 #engineerTask .power-route2 {flex:1;min-height:98px;max-height:280px;align-items:center;margin:4px 0;background:radial-gradient(ellipse,#f6cf6616,transparent),#142c39;border-color:#dbc17766}
+#mission2.crew-deck2 .route-progress2 {flex:none;height:6px;margin:3px 0}
+#mission2.crew-deck2 #testCircuit2 {flex:none;margin:0}
+#mission2.crew-deck2 .crew-task>small {flex:none;margin-top:auto;padding-top:2px;font-size:10px}
+#mission2.crew-deck2 #scoutTask .scout-grid2 {flex:none;width:min(100%,min(31dvh,300px));margin:5px auto;aspect-ratio:1}
+#mission2.crew-deck2 #crewFinal2 {background:none!important;padding:0}
+#mission2.crew-deck2 #crewSyncCode2 {margin:10px 0;padding:20px 12px;border-color:#edce8680;background:#203b4aaa!important}
+#mission2.crew-deck2 .crew-sync-keys2 {margin:2px 0}
+#mission2.crew-deck2 #crewStatus {flex:none;font-size:10px;margin:8px 0 0;padding:7px 8px;border:0;background:#081b2acd;color:#c6dce5}
+#mission2.crew-deck2:has(.crew-task:not([hidden])) #crewStatus {display:block}
+#mission2.crew-deck2:has(#life2Complete:not([hidden])) .objective {display:none}
+#mission2.crew-deck2 #life2Complete:not([hidden]) {position:relative;z-index:2;margin:auto 0 0;border-color:var(--crew-edge);background:#102c3aee;backdrop-filter:blur(12px)}
+@media(max-width:350px) {
+  #mission2.crew-deck2 {padding:12px 10px max(10px,env(safe-area-inset-bottom))}
+  #mission2.crew-deck2 .crew-brand2 {font-size:18px;letter-spacing:1.5px}
+  #mission2.crew-deck2 .crew-role-label2 {grid-template-columns:17px 1fr;gap:3px;padding:8px 6px}
+  #mission2.crew-deck2 .crew-role-label2 i {font-size:21px}
+  #mission2.crew-deck2 .crew-hud-count2 {min-width:51px;padding:8px}
+}
+@media(max-height:640px) {
+  #mission2.crew-deck2 .objective {padding:10px 10px 9px}
+  #mission2.crew-deck2 .objective p {font-size:10px;margin:6px 0 8px}
+  #mission2.crew-deck2 .crew-dock-progress2>span {width:27px;height:27px;font-size:20px}
+  #mission2.crew-deck2:has(.crew-task:not([hidden])) .crew-brand2 {display:none}
+  #mission2.crew-deck2:has(.crew-task:not([hidden])) .crew-hud-count2 {padding:5px 8px}
+  #mission2.crew-deck2:has(.crew-task:not([hidden])) .crew-hud-count2 strong {font-size:17px}
+  #mission2.crew-deck2:has(.crew-task:not([hidden])) .crew-hud-dots2 {display:none}
+  #mission2.crew-deck2:has(.crew-task:not([hidden])) .crew-challenge {padding:10px}
+  #mission2.crew-deck2 .crew-back2 {min-height:30px;margin-bottom:6px}
+}
+@media(prefers-reduced-motion:reduce) {#mission2.crew-deck2 .crew-station-glow2 {animation:none;opacity:.4}}

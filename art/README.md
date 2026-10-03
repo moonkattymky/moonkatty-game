@@ -35,3 +35,8 @@ Use case: stylized-concept. Asset: production mobile game landing environment fo
 
 Three equal square cells in one row: two different irregular silver lunar boulders and a white/gold supply crate. Consistent warm upper-left and cool blue fill lighting, transparent background, no labels or interface.
 
+## Crew deck, 3 October 2026
+
+`life2-bridge-v2.webp` is the approved crew-interior concept prepared with the built-in image generation tool and converted to WebP (quality 88). Its source is the generated preview `exec-51901225-98e6-4dba-8419-ca8e8f3ba2ec.png`.
+
+Prompt: preserve the approved ship-interior composition, the three astronaut cats at the navigation, engineering and scouting stations, warm gold/ivory materials and the Earth view; remove all baked-in headings, role labels, counters and bottom HUD, reconstructing the scene below them. No text or interface in the artwork. Role labels, recruitment status, controls and lighting accents are rendered separately by the game.
