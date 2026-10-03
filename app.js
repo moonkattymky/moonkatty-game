@@ -515,7 +515,7 @@ let alt4=2400,vel4=28,fuel4=100,drift4=0,driftVel4=0,descentTimer=null,burnHeld4
 function renderDescent(){
  $('altitude').textContent=Math.max(0,Math.round(alt4));$('velocity').textContent=Math.max(0,vel4.toFixed(1));$('fuel').textContent=Math.max(0,Math.round(fuel4));$('driftRead4').textContent=(drift4>0?'+':'')+Math.round(drift4);
  const landY=16+(1-Math.max(0,Math.min(2400,alt4))/2400)*62;$('lander').style.transform='translateX('+drift4+'px)';$('lander').style.top=landY+'%';$('lander').style.setProperty('--drift4',drift4+'px');
- $('safeVel4').classList.toggle('safe',vel4<=12);$('safeDrift4').classList.toggle('safe',Math.abs(drift4)<=32);document.querySelector('.landing-zone')?.classList.toggle('safe-zone',vel4<=12&&Math.abs(drift4)<=32);
+ $('safeVel4').classList.toggle('safe',vel4<=14);$('safeDrift4').classList.toggle('safe',Math.abs(drift4)<=42);document.querySelector('.landing-zone')?.classList.toggle('safe-zone',vel4<=14&&Math.abs(drift4)<=42);
  $('thrustRead4').textContent=$('thrustDial').value+'%';
 }
 function startLife4(){playLifeCinematic(4,openMission4);}
@@ -525,15 +525,15 @@ function finishDescent4(success){
  else{$('lander').classList.add('crashed');$('descentStatus').textContent='HARD LANDING — velocity or drift outside safe limits. Retrying…';tg?.HapticFeedback?.notificationOccurred?.('error');setTimeout(openMission4,1600);}
 }
 function openMission4(){
- alt4=2400;vel4=28;fuel4=100;drift4=0;driftVel4=(Math.random()-.5)*1.2;descentActive4=true;$('life4Complete').hidden=true;$('lander').classList.remove('crashed','thrusting');$('descentStatus').textContent='Manual descent active. Control velocity, drift and fuel.';show('mission4');renderDescent();clearInterval(descentTimer);
+ alt4=2400;vel4=18;fuel4=100;drift4=0;driftVel4=(Math.random()-.5)*.35;descentActive4=true;$('life4Complete').hidden=true;$('lander').classList.remove('crashed','thrusting');$('descentStatus').textContent='Manual descent active. Control velocity, drift and fuel.';show('mission4');renderDescent();clearInterval(descentTimer);
  descentTimer=setInterval(()=>{
   if(!descentActive4)return;const power=Number($('thrustDial').value)/100;
-  vel4+=.22;
-  if(burnHeld4&&fuel4>0){vel4=Math.max(0,vel4-(.2+power*.72));fuel4=Math.max(0,fuel4-(.12+power*.18));$('lander').classList.add('thrusting');}else $('lander').classList.remove('thrusting');if(downHeld4)vel4=Math.min(65,vel4+.42);
-  if(leftHeld4&&fuel4>0){driftVel4-=.18;fuel4=Math.max(0,fuel4-.07);}if(rightHeld4&&fuel4>0){driftVel4+=.18;fuel4=Math.max(0,fuel4-.07);}
-  driftVel4*=.985;drift4+=driftVel4;drift4=Math.max(-105,Math.min(105,drift4));alt4-=vel4*.48;
+  vel4+=.10;
+  if(burnHeld4&&fuel4>0){vel4=Math.max(0,vel4-(.28+power*.92));fuel4=Math.max(0,fuel4-(.12+power*.18));$('lander').classList.add('thrusting');}else $('lander').classList.remove('thrusting');if(downHeld4)vel4=Math.min(45,vel4+.22);
+  if(leftHeld4&&fuel4>0){driftVel4-=.11;fuel4=Math.max(0,fuel4-.07);}if(rightHeld4&&fuel4>0){driftVel4+=.11;fuel4=Math.max(0,fuel4-.07);}
+  driftVel4*=.94;drift4+=driftVel4;drift4=Math.max(-105,Math.min(105,drift4));alt4-=vel4*.25;
   if(fuel4<=0)$('descentStatus').textContent='FUEL DEPLETED — ballistic descent!';
-  if(alt4<=0){alt4=0;renderDescent();finishDescent4(vel4<=12&&Math.abs(drift4)<=32);return;}renderDescent();
+  if(alt4<=0){alt4=0;renderDescent();finishDescent4(vel4<=14&&Math.abs(drift4)<=42);return;}renderDescent();
  },100);
 }
 function holdControl4(el,setter){
