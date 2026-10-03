@@ -107,12 +107,17 @@ let life1Stage=0, energyCollected=0, repairCells=0, targetFrequency=64;
 
 // LIFE #1 mobile exploration controller
 let l1PX=50,l1PY=68,l1MoveX=0,l1MoveY=0,l1MoveFrame=0,l1Near=null;
+let l1Direction='down',l1WalkDistance=0,l1Walking=false,l1LastFrame=0;
 const l1Player=$('life1Player'),l1Joy=$('life1Joystick'),l1Stick=$('life1Stick'),l1Action=$('life1ActionBtn');
 function renderLife1Player(){
  if(!l1Player)return;
  l1Player.style.left=l1PX+'%';l1Player.style.top=l1PY+'%';
- l1Player.classList.toggle('walking',Math.abs(l1MoveX)+Math.abs(l1MoveY)>.08);
- if(l1MoveX<-.08)l1Player.classList.add('face-left');else if(l1MoveX>.08)l1Player.classList.remove('face-left');
+ l1Player.classList.toggle('walking',l1Walking);
+ l1Player.dataset.direction=l1Direction;
+ const row={down:0,up:1,left:2,right:3}[l1Direction];
+ const frame=l1Walking?Math.floor(l1WalkDistance/8)%6:0;
+ const sprite=l1Player.querySelector('.l1-player-sprite');
+ if(sprite) sprite.style.backgroundPosition=(frame*20)+'% '+(row*100/3)+'%';
 }
 function l1DistanceTo(el){
  if(!el||!l1Player)return 999;
@@ -139,16 +144,30 @@ function life1Blocked(px,py){
  ];
  return blocks.some(([x1,y1,x2,y2])=>px>x1&&px<x2&&py>y1&&py<y2);
 }
-function life1MoveLoop(){
- if(Math.abs(l1MoveX)+Math.abs(l1MoveY)>.02){
-  const speed=.32;
-  const nx=Math.max(7,Math.min(90,l1PX+l1MoveX*speed));
-  const ny=Math.max(18,Math.min(82,l1PY+l1MoveY*speed));
+function life1MoveLoop(now){
+ const dt=l1LastFrame?Math.min((now-l1LastFrame)/1000,.04):0;
+ l1LastFrame=now;
+ const active=$('mission1').classList.contains('active')&&!document.hidden;
+ const magnitude=Math.hypot(l1MoveX,l1MoveY);
+ l1Walking=false;
+ if(active&&magnitude>.08){
+  const world=$('life1World'),speed=88;
+  const scale=Math.max(1,magnitude),vx=l1MoveX/scale,vy=l1MoveY/scale;
+  // Normalize in screen pixels: diagonal speed and 60/120 Hz displays agree.
+  const nx=Math.max(7,Math.min(90,l1PX+vx*speed*dt/world.clientWidth*100));
+  const ny=Math.max(18,Math.min(88,l1PY+vy*speed*dt/world.clientHeight*100));
+  const oldX=l1PX,oldY=l1PY;
+  if(Math.abs(vx)>Math.abs(vy))l1Direction=vx<0?'left':'right';
+  else l1Direction=vy<0?'up':'down';
   // Resolve axes independently so MoonKatty slides naturally along obstacles.
   if(!life1Blocked(nx,l1PY))l1PX=nx;
   if(!life1Blocked(l1PX,ny))l1PY=ny;
-  renderLife1Player();updateLife1Nearby();
+  const traveled=Math.hypot((l1PX-oldX)*world.clientWidth/100,(l1PY-oldY)*world.clientHeight/100);
+  l1Walking=traveled>.01;
+  if(l1Walking)l1WalkDistance+=traveled;
+  updateLife1Nearby();
  }
+ renderLife1Player();
  l1MoveFrame=requestAnimationFrame(life1MoveLoop);
 }
 let l1PointerId=null,l1JoystickActive=false;
@@ -163,12 +182,13 @@ function setLife1Stick(clientX,clientY){
  const sx=dx*scale,sy=dy*scale;
  l1Stick.style.transform='translate('+sx+'px,'+sy+'px)';
  // Screen coordinates: +X = right, +Y = down. Player uses the same convention.
- l1MoveX=Math.max(-1,Math.min(1,dx/max));
- l1MoveY=Math.max(-1,Math.min(1,dy/max));
+ const strength=len<5?0:Math.min(1,(len-5)/(max-5));
+ l1MoveX=dx/len*strength;
+ l1MoveY=dy/len*strength;
 }
 function stopLife1Stick(pointerId){
  if(pointerId!=null&&l1PointerId!=null&&pointerId!==l1PointerId)return;
- l1PointerId=null;l1JoystickActive=false;l1MoveX=0;l1MoveY=0;l1Stick.style.transform='translate(0,0)';renderLife1Player();
+ l1PointerId=null;l1JoystickActive=false;l1MoveX=0;l1MoveY=0;l1Walking=false;l1WalkDistance=0;l1Stick.style.transform='translate(0,0)';renderLife1Player();
 }
 if(l1Joy){
  l1Joy.style.touchAction='none';
@@ -188,6 +208,8 @@ l1Action?.addEventListener('click',()=>{
  else if(l1Near.id==='antennaHotspot'&&life1Stage===2){$('antennaPanel').hidden=false;$('antennaPanel').scrollIntoView({behavior:'smooth',block:'center'});}
  updateLife1Nearby();
 });
+window.addEventListener('blur',()=>stopLife1Stick(null));
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stopLife1Stick(null);});
 renderLife1Player();cancelAnimationFrame(l1MoveFrame);life1MoveFrame=requestAnimationFrame(life1MoveLoop);
 
 function life1Scan(){
@@ -201,7 +223,7 @@ function life1Scan(){
 }
 $('l1ScanBtn')?.addEventListener('click',life1Scan);
 function resetLife1Mission(){
- life1Stage=0; energyCollected=0; repairCells=0; targetFrequency=58+Math.floor(Math.random()*22); l1PX=50;l1PY=68;l1Near=null;renderLife1Player();updateLife1Nearby();
+ life1Stage=0; energyCollected=0; repairCells=0; targetFrequency=58+Math.floor(Math.random()*22); l1PX=50;l1PY=68;l1Near=null;l1Direction='down';stopLife1Stick(null);renderLife1Player();updateLife1Nearby();
  document.querySelectorAll('.l1-hotspot.energy').forEach(x=>{x.disabled=false;x.classList.remove('collected','revealed','nearby')});
  document.querySelectorAll('.repair-cells button').forEach(x=>{x.disabled=false;x.classList.remove('done')});
  $('repairTerminal').disabled=true;$('antennaHotspot').disabled=true;$('repairPanel').hidden=true;$('antennaPanel').hidden=true;$('life1Complete').hidden=true;clearInterval(signalHoldTimer);signalHoldTimer=null;signalHoldProgress=0;if($('signalHold'))$('signalHold').hidden=true;newRepairSequence();

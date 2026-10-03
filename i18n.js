@@ -83,6 +83,9 @@ ASSEMBLE THE CREW|СОБЕРИТЕ ЭКИПАЖ
 Recruit all three specialists for the Moon mission.|Пригласите трёх специалистов для лунной миссии.
 SELECT A CREW MEMBER TO BEGIN|ВЫБЕРИТЕ УЧАСТНИКА ЭКИПАЖА
 NAVIGATION TEST|ПРОВЕРКА НАВИГАЦИИ
+NAVIGATOR CHALLENGE|ИСПЫТАНИЕ ШТУРМАНА
+ENGINEER CHALLENGE|ИСПЫТАНИЕ ИНЖЕНЕРА
+SCOUT CHALLENGE|ИСПЫТАНИЕ РАЗВЕДЧИКА
 Guide the ship through all three corridor gates without touching the hazard field.|Проведите корабль через трое ворот, не касаясь опасной зоны.
 FLIGHT →|ПОЛЁТ →
 LUNAR NAV|ЛУННАЯ НАВИГАЦИЯ

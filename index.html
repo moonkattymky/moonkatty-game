@@ -7,6 +7,7 @@
   <title>MOONKATTY: 9 LIVES</title>
   <!-- mkty-deploy-20260930-1700 -->
   <link rel="stylesheet" href="styles.css?v=20261003-mobile-fix-1" />
+  <link rel="stylesheet" href="chapters-1-4.css?v=20261003-visual-1" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -69,15 +70,17 @@
         <div class="l1-zone zone-a">HAB</div><div class="l1-zone zone-b">POWER</div><div class="l1-zone zone-c">COMMS</div>
         <div class="l1-obstacle rock-a"></div><div class="l1-obstacle rock-b"></div><div class="l1-obstacle crate-a">▦</div>
         <div id="l1ScannerPulse" class="l1-scanner-pulse"></div>
-        <button id="l1ScanBtn" class="l1-scan-btn" type="button">SCAN</button>
-        <div id="life1Player" class="l1-cat player" aria-label="MoonKatty"><div class="l1-player-sprite"><span class="mk-helmet"><i>🐱</i></span><span class="mk-suit">◉</span></div></div>
-        <div id="life1Joystick" class="l1-joystick" aria-label="Movement control"><i id="life1Stick"></i></div>
-        <button id="life1ActionBtn" class="l1-action" type="button" disabled>ACTION</button>
+        <div id="life1Player" class="l1-cat player" aria-label="MoonKatty"><div class="l1-player-sprite" aria-hidden="true"></div></div>
         <button class="l1-hotspot energy e1" data-energy="1"><span class="crystal-art">◆</span><span>ENERGY</span></button>
         <button class="l1-hotspot energy e2" data-energy="2"><span class="crystal-art">◆</span><span>ENERGY</span></button>
         <button class="l1-hotspot energy e3" data-energy="3"><span class="crystal-art">◆</span><span>ENERGY</span></button>
         <button id="repairTerminal" class="l1-hotspot terminal" disabled><span class="terminal-art">⌁</span><span>TERMINAL</span></button>
         <button id="antennaHotspot" class="l1-hotspot antenna" disabled><span class="antenna-art">⌁</span><span>ANTENNA</span></button>
+      </div>
+      <div class="l1-control-deck">
+        <div id="life1Joystick" class="l1-joystick" aria-label="Movement control"><i id="life1Stick"></i></div>
+        <button id="l1ScanBtn" class="l1-scan-btn" type="button">SCAN</button>
+        <button id="life1ActionBtn" class="l1-action" type="button" disabled>ACTION</button>
       </div>
       <div class="l1-quest">
         <div><span id="qEnergy" class="active">01</span><p>COLLECT ENERGY <b id="energyCount">0/3</b></p></div>
@@ -129,6 +132,7 @@
     </section>
     <section id="mission3" class="screen mission-screen life-theme life-theme-3">
       <header><div><span class="eyebrow">LIFE #3</span><h2>THE LAUNCH CODE</h2></div><div class="crew-badge">SECURITY // 03</div></header>
+      <div class="command-scene3" aria-hidden="true"><span class="scene-marker">MOONKATTY · 03</span></div>
       <div id="life3MemoryGate" class="memory-gate">
         <p class="eyebrow">MEMORY CHECK // LIFE #1</p><h3>ENTER THE 10-DIGIT CODE</h3>
         <p>The code was shown for 10 seconds after LIFE #1.</p>
@@ -255,6 +259,6 @@
       <div id="life9Complete" class="complete-card final-complete" hidden><span class="complete-icon">🌙</span><p class="eyebrow">9 LIVES COMPLETE</p><h3>MOONKATTY HAS RETURNED</h3><strong>+3000 MOON POINTS ⭐ • 9 LIVES COMPLETE</strong><p class="final-message">THE SIGNAL WAS NEVER CALLING US TO THE MOON.<br>IT WAS CALLING MOONKATTY HOME.</p><button id="life9ReturnBtn" class="primary">RETURN TO MISSION CONTROL</button></div>
     </section>
   </main>
-  <script src="i18n.js?v=20261003-mobile-fix-1"></script>
-  <script src="app.js?v=20261003-mobile-fix-1"></script>
+  <script src="i18n.js?v=20261003-visual-1"></script>
+  <script src="app.js?v=20261003-visual-1"></script>
 </body></html>
