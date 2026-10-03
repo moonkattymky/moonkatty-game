@@ -7,7 +7,7 @@
   <title>MOONKATTY: 9 LIVES</title>
   <!-- mkty-deploy-20260930-1700 -->
   <link rel="stylesheet" href="styles.css?v=20261003-mobile-fix-1" />
-  <link rel="stylesheet" href="chapters-1-4.css?v=20261003-visual-1" />
+  <link rel="stylesheet" href="chapters-1-4.css?v=20261003-code-en-1" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -118,7 +118,7 @@
         <div id="navigatorTask" class="crew-task" hidden><strong>NAVIGATION TEST</strong><p>Guide the ship through all three corridor gates without touching the hazard field.</p><div id="navField2" class="nav-field2"><div class="flight-direction2">FLIGHT →</div><div id="navShip2">▶</div><i class="gate g1 industrial-gate2" data-gate="1"><b>01</b><span>LUNAR NAV</span></i><i class="gate g2 industrial-gate2" data-gate="2"><b>02</b><span>MOON GATE</span></i><i class="gate g3 industrial-gate2" data-gate="3"><b>03</b><span>FINAL VECTOR</span></i></div><div class="nav-controls2"><button data-nav2="-1">▲ CLIMB</button><button data-nav2="1">▼ DESCEND</button></div><small id="navHint2">Gates cleared: 0 / 3</small></div>
         <div id="engineerTask" class="crew-task" hidden><strong>ENGINEERING TEST</strong><p>Route power from CORE to COMMS. Rotate all four junctions until the circuit is continuous.</p><div class="power-route2"><span class="route-end2 core-end2">CORE ⚡</span><div id="circuit2" class="circuit2"><button data-wire2="0">━</button><button data-wire2="1">┃</button><button data-wire2="2">━</button><button data-wire2="3">┃</button></div><span class="route-end2 comms-end2">📡 COMMS</span></div><div class="route-progress2"><i id="routeProgress2"></i></div><button id="testCircuit2" class="primary">TEST CIRCUIT ⚡</button><small id="engineerHint2">Rotate every junction until one continuous horizontal power line reaches COMMS.</small></div>
         <div id="scoutTask" class="crew-task" hidden><strong>SCOUT TEST</strong><p>Track the moving anomaly. It appears briefly — tag it three times before it relocates.</p><div class="anomaly-grid scout-grid2" id="anomalyGrid"></div><small id="scoutHint2">Anomalies tagged: 0 / 3</small></div>
-        <div id="crewFinal2" class="crew-task crew-final2" hidden><strong>CREW SYNC TEST</strong><p>All specialists are aboard. Synchronize NAV → ENG → SCOUT in the transmitted order.</p><div id="crewSyncCode2" class="crew-sync-code2">? ? ? ? ?</div><button id="showCrewSync2" class="ghost">RECEIVE SEQUENCE</button><div class="crew-sync-keys2"><button data-sync2="N">NAV</button><button data-sync2="E">ENG</button><button data-sync2="S">SCOUT</button></div><small id="crewSyncHint2">Complete the final crew protocol.</small></div>
+        <div id="crewFinal2" class="crew-task crew-final2" hidden><strong>CREW SYNC TEST</strong><p>Repeat the transmitted code: N — NAV (navigator), E — ENG (engineer), S — SCOUT.</p><div id="crewSyncCode2" class="crew-sync-code2" translate="no" lang="en" dir="ltr">? ? ? ? ?</div><button id="showCrewSync2" class="ghost">RECEIVE SEQUENCE</button><div class="crew-sync-keys2" translate="no" lang="en" dir="ltr"><button data-sync2="N"><b>N</b><span>NAV</span></button><button data-sync2="E"><b>E</b><span>ENG</span></button><button data-sync2="S"><b>S</b><span>SCOUT</span></button></div><small id="crewSyncHint2">Complete the final crew protocol.</small></div>
       </div>
       <p id="crewStatus" class="mission-status">Crew assembled: 0 / 3 • Final sync locked</p>
       <div id="life2Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">CREW ASSEMBLED</p><h3>MISSION READY</h3><strong>+500 MOON POINTS ⭐</strong><button id="continueLife3Btn" class="primary">UNLOCK LIFE #3 🚀</button><button id="life2ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
@@ -259,6 +259,6 @@
       <div id="life9Complete" class="complete-card final-complete" hidden><span class="complete-icon">🌙</span><p class="eyebrow">9 LIVES COMPLETE</p><h3>MOONKATTY HAS RETURNED</h3><strong>+3000 MOON POINTS ⭐ • 9 LIVES COMPLETE</strong><p class="final-message">THE SIGNAL WAS NEVER CALLING US TO THE MOON.<br>IT WAS CALLING MOONKATTY HOME.</p><button id="life9ReturnBtn" class="primary">RETURN TO MISSION CONTROL</button></div>
     </section>
   </main>
-  <script src="i18n.js?v=20261003-visual-1"></script>
+  <script src="i18n.js?v=20261003-code-en-1"></script>
   <script src="app.js?v=20261003-visual-1"></script>
 </body></html>

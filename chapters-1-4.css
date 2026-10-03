@@ -151,7 +151,9 @@
 #mission2 .scout-grid2 button.target {background:#ffe5a2!important;color:#172f42!important}
 #mission2 .crew-final2 {background:#1a3d52!important;border-color:#afd4df55!important}
 #mission2 .crew-sync-code2 {background:#214559!important;color:#ffe4a8!important;font-size:23px}
-#mission2 .crew-sync-keys2 button {background:#305a6d!important;color:#f9e4b5!important;border-color:#a1cfde66!important;min-height:52px}
+#mission2 .crew-sync-keys2 button {display:grid;justify-items:center;gap:4px;background:#305a6d!important;color:#f9e4b5!important;border-color:#a1cfde66!important;min-height:52px}
+#mission2 .crew-sync-keys2 button b {font-size:22px;line-height:1}
+#mission2 .crew-sync-keys2 button span {font-size:10px;letter-spacing:.08em}
 #mission2 .mission-status {flex:none}
 
 /* The launch puzzle now belongs to a visible ship command bridge. */

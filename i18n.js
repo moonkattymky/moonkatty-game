@@ -101,7 +101,7 @@ Rotate every junction until one continuous horizontal power line reaches COMMS.|
 SCOUT TEST|ПРОВЕРКА РАЗВЕДЧИКА
 Track the moving anomaly. It appears briefly — tag it three times before it relocates.|Следите за аномалией. Нажмите на неё три раза до того, как она исчезнет.
 CREW SYNC TEST|СИНХРОНИЗАЦИЯ ЭКИПАЖА
-All specialists are aboard. Synchronize NAV → ENG → SCOUT in the transmitted order.|Экипаж на борту. Повторите переданную последовательность: штурман, инженер, разведчик.
+Repeat the transmitted code: N — NAV (navigator), E — ENG (engineer), S — SCOUT.|Повторите переданный код: N — NAV (штурман), E — ENG (инженер), S — SCOUT (разведчик).
 RECEIVE SEQUENCE|ПОКАЗАТЬ ПОСЛЕДОВАТЕЛЬНОСТЬ
 NAV|ШТУРМ.
 ENG|ИНЖ.
@@ -383,13 +383,13 @@ TRUTH UNLOCKED|ИСТИНА ОТКРЫТА
  });
  function visit(node){
   if(node.nodeType===Node.TEXT_NODE){
-   if(node.parentElement?.closest('script,style,#languages'))return;
+   if(node.parentElement?.closest('script,style,#languages,[translate="no"]'))return;
    if(node.data!==rendered.get(node))sources.set(node,node.data);
    const text=translate(sources.get(node)??node.data);
    if(node.data!==text)node.data=text;
    rendered.set(node,text);
   }else if(node.nodeType===Node.ELEMENT_NODE){
-   if(node.matches('script,style,#languages'))return;
+   if(node.closest('script,style,#languages,[translate="no"]'))return;
    let a=attrs.get(node);if(!a){a={};attrs.set(node,a);}
    for(const name of ['aria-label','placeholder']){
     const value=node.getAttribute(name);if(value===null)continue;
