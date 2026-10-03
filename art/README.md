@@ -1,4 +1,4 @@
-# Chapter 1–4 visual assets
+# Campaign visual assets
 
 Created with the built-in ImageGen tool for MOONKATTY, 3 October 2026. Raster originals were converted to WebP for the static game. Character and prop atlases retain transparency.
 
@@ -40,3 +40,14 @@ Three equal square cells in one row: two different irregular silver lunar boulde
 `life2-bridge-v2.webp` is the approved crew-interior concept prepared with the built-in image generation tool and converted to WebP (quality 88). Its source is the generated preview `exec-51901225-98e6-4dba-8419-ca8e8f3ba2ec.png`.
 
 Prompt: preserve the approved ship-interior composition, the three astronaut cats at the navigation, engineering and scouting stations, warm gold/ivory materials and the Earth view; remove all baked-in headings, role labels, counters and bottom HUD, reconstructing the scene below them. No text or interface in the artwork. Role labels, recruitment status, controls and lighting accents are rendered separately by the game.
+
+
+## Campaign polish, 3 October 2026
+
+Three further production assets were made with the built-in ImageGen tool and converted to WebP (quality 88). The originals are retained in the generation history. Gameplay controls and statuses are rendered by HTML rather than baked into the artwork.
+
+- `life3-bridge-v2.webp`: ivory/gold command bridge with the cat captain and the existing cat-eared ship outside the window; a clear lower console for the four interactive launch stages. References: approved crew bridge and `moonkatty-life4-ship.png`.
+- `life5-reactor-v2.webp`: front-facing white/gold reactor chamber, precise concentric circular machinery and cyan plasma. Core centered within the central 60% for mobile cropping; no labels or interface.
+- `orbit-v2.webp`: open sapphire orbital playfield, detailed silver moon in the upper-right corner, sparse stars and pale blue/gold nebular edges. Central 70% kept clear of ships, debris and gates; interactive objects are separate sprites.
+
+The new backgrounds use `cover` without nonuniform scaling. The original ship and antenna use `contain`; each rock/crate sprite-atlas cell has a square element. Chapter 1 collision bounds follow the rendered props. Chapter 7 asteroids use the same square atlas cells and their own motion/collision layer.

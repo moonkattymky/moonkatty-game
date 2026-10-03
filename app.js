@@ -79,9 +79,29 @@ langs.forEach(([code,flag,name])=>{
  b.onclick=()=>setLang(code); $('languages').appendChild(b);
 });
 $('settingsBtn').onclick=()=>{$('home').classList.remove('active');$('language').classList.add('active')};
+// Delayed callbacks belong to the mission that created them.
+const missionDelays=new Map();
+function laterInMission(n,callback,delay){
+ const handles=missionDelays.get(n)||new Set();missionDelays.set(n,handles);
+ const handle=setTimeout(()=>{handles.delete(handle);if($('mission'+n)?.classList.contains('active'))callback();},delay);handles.add(handle);return handle;
+}
+function clearMissionDelays(n){missionDelays.get(n)?.forEach(clearTimeout);missionDelays.delete(n);}
+function leaveMission(id){
+ const n=Number(id.replace('mission',''));clearMissionDelays(n);
+ if(n===1){stopLife1Stick(null);clearInterval(signalHoldTimer);signalHoldTimer=null;clearInterval(memoryCodeTimer);memoryCodeTimer=null;repairShowing=false;}
+ if(n===2){stopCrewTask2();crewSyncReady2=false;$('showCrewSync2').disabled=false;}
+ if(n===3)clearLaunchPlayback3();
+ if(n===4){descentActive4=false;clearInterval(descentTimer);descentTimer=null;releaseDescentControls();}
+ if(n===5){reactorActive5=false;clearInterval(reactorTimer5);reactorTimer5=null;chargeHeld5=coolHeld5=false;}
+ if(n===6){launchActive6=false;clearInterval(launchTimer);launchTimer=null;}
+ if(n===7){stopVoid7();$('asteroidField').replaceChildren();asteroids7=[];}
+ if(n===8){clearInterval(phaseTimer8);phaseTimer8=null;pulseReady8=false;}
+ if(n===9){clearInterval(finalTimer9);finalTimer9=null;syncReady9=finalReady9=false;}
+}
 function show(id){
+ document.querySelectorAll('.mission-screen.active').forEach(s=>{if(s.id!==id)leaveMission(s.id);});
  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
- $(id).classList.add('active');
+ $(id).classList.add('active');window.scrollTo(0,0);
 }
 let cinematicTimer;
 function openMission(){
@@ -135,14 +155,11 @@ function updateLife1Nearby(){
  if(l1Action){l1Action.disabled=!best;l1Action.classList.toggle('ready',!!best);l1Action.textContent=best?.classList.contains('energy')?'COLLECT':best?.id==='repairTerminal'?'REPAIR':best?.id==='antennaHotspot'?'TUNE':'ACTION';}
 }
 function life1Blocked(px,py){
- // Collision rectangles in world-percent coordinates. They match the visible
- // lunar rocks/crate but are slightly padded for the astronaut's suit.
- const blocks=[
-  [24,48,45,66], // rock A
-  [72,60,91,76], // rock B
-  [53,37,72,57]  // cargo crate
- ];
- return blocks.some(([x1,y1,x2,y2])=>px>x1&&px<x2&&py>y1&&py<y2);
+ // Feet collide with the visible lower part of each prop, at any aspect ratio.
+ const world=$('life1World').getBoundingClientRect(),x=world.left+px*world.width/100,y=world.top+py*world.height/100;
+ return [...document.querySelectorAll('#life1World .l1-obstacle')].some(el=>{
+  const r=el.getBoundingClientRect();return x>r.left+3&&x<r.right-3&&y>r.top+r.height*.36&&y<r.bottom-2;
+ });
 }
 function life1MoveLoop(now){
  const dt=l1LastFrame?Math.min((now-l1LastFrame)/1000,.04):0;
@@ -223,6 +240,7 @@ function life1Scan(){
 }
 $('l1ScanBtn')?.addEventListener('click',life1Scan);
 function resetLife1Mission(){
+ clearMissionDelays(1);repairShowing=false;
  life1Stage=0; energyCollected=0; repairCells=0; targetFrequency=58+Math.floor(Math.random()*22); l1PX=50;l1PY=68;l1Near=null;l1Direction='down';stopLife1Stick(null);renderLife1Player();updateLife1Nearby();
  document.querySelectorAll('.l1-hotspot.energy').forEach(x=>{x.disabled=false;x.classList.remove('collected','revealed','nearby')});
  document.querySelectorAll('.repair-cells button').forEach(x=>{x.disabled=false;x.classList.remove('done')});
@@ -276,7 +294,7 @@ function showRepairSequence(){
   document.querySelectorAll('.repair-cells button').forEach(x=>x.classList.remove('cue'));
   if(i>=repairSequence.length){$('repairSequence').textContent='● ● ● ●';$('repairHint').textContent='Now repeat the sequence.';document.querySelectorAll('.repair-cells button').forEach(x=>x.disabled=false);repairShowing=false;return;}
   const n=repairSequence[i];$('repairSequence').textContent=labels[repairSequence[0]]+(i>0?' '+labels[repairSequence[1]]:'')+(i>1?' '+labels[repairSequence[2]]:'')+(i>2?' '+labels[repairSequence[3]]:'');
-  document.querySelector('[data-cell="'+n+'"]').classList.add('cue');i++;setTimeout(step,650);
+  document.querySelector('[data-cell="'+n+'"]').classList.add('cue');i++;laterInMission(1,step,650);
  };step();
 }
 $('showRepairSequenceBtn')?.addEventListener('click',showRepairSequence);
@@ -299,13 +317,13 @@ $('frequencyDial').oninput=updateSignalStrength;
 function finishLife1Signal(){
  clearInterval(signalHoldTimer);signalHoldTimer=null;life1Stage=3;$('antennaCount').textContent='1/1';$('qAntenna').className='done';$('antennaPanel').hidden=true;$('missionStatus').textContent='Signal synchronized. Moon Base Alpha is online!';tg?.HapticFeedback?.notificationOccurred?.('success');
  let pts=awardLifePoints(1,500);$('l1Points').textContent=pts+' ⭐';
- setTimeout(()=>{$('life1Complete').hidden=false;$('life1Complete').scrollIntoView({behavior:'smooth',block:'center'});},300);
+ laterInMission(1,()=>{$('life1Complete').hidden=false;$('life1Complete').scrollIntoView({behavior:'smooth',block:'center'});},300);
 }
 $('tuneBtn').onclick=()=>{
  if(life1Stage!==2||signalHoldTimer)return;const v=Number($('frequencyDial').value),d=Math.abs(v-targetFrequency);
  if(d>3){$('signalHint').textContent=v<targetFrequency?'Carrier is higher — tune right.':'Carrier is lower — tune left.';tg?.HapticFeedback?.impactOccurred('light');return;}
  signalHoldProgress=0;$('signalHold').hidden=false;$('signalHint').textContent='Carrier acquired. Hold frequency steady for synchronization.';
- signalHoldTimer=setInterval(()=>{const now=Number($('frequencyDial').value);if(Math.abs(now-targetFrequency)>3){updateSignalStrength();return;}signalHoldProgress+=4;$('signalHoldFill').style.width=signalHoldProgress+'%';$('signalHoldText').textContent=signalHoldProgress+'%';if(signalHoldProgress>=100)finishLife1Signal();},120);
+ signalHoldTimer=setInterval(()=>{if(document.hidden)return;const now=Number($('frequencyDial').value);if(Math.abs(now-targetFrequency)>3){updateSignalStrength();return;}signalHoldProgress+=4;$('signalHoldFill').style.width=signalHoldProgress+'%';$('signalHoldText').textContent=signalHoldProgress+'%';if(signalHoldProgress>=100)finishLife1Signal();},120);
 };
 $('returnBtn').onclick=()=>show('home');
 
@@ -357,7 +375,7 @@ function renderLife3Gate(){
  }
 }
 function openLife3MemoryGate(){
- show('mission3');$('life3MemoryGate').hidden=false;$('life3CodeMission').hidden=true;if($('journalCode3'))$('journalCode3').hidden=true;renderLife3Gate();
+ show('mission3');resetLaunchConsole3();if($('journalCode3'))$('journalCode3').hidden=true;renderLife3Gate();
  clearInterval(gateTimer);gateTimer=setInterval(renderLife3Gate,1000);
 }
 $('journalCodeBtn')?.addEventListener('click',()=>{
@@ -398,6 +416,7 @@ function startLife2(){
  clearTimeout(life2Timer); life2Timer=setTimeout(openMission2,10000);
 }
 function openMission2(){
+ stopCrewTask2();activeMate=null;document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);
  clearTimeout(life2Timer);
  const video=$('life2Video'); if(video)video.pause();
  $('crewBadge2').textContent=crewCode; show('mission2');updateCrewScene2();
@@ -435,7 +454,7 @@ $('continueLife2Btn').addEventListener('touchend',launchLife2FromCompletedMissio
 $('life2SkipBtn').onclick=openMission2;
 $('life2Video')?.addEventListener('ended',openMission2);
 
-let crewCount=0,activeMate=null,nav2X=8,nav2Y=78,nav2Gate=0,nav2Timer=null,nav2RetryTimer=null,nav2Control=0,wire2=[0,0,0,0],scout2Hits=0,scout2Timer=null,crewSync2=[],crewSyncInput2=[];
+let crewCount=0,activeMate=null,nav2X=8,nav2Y=78,nav2Gate=0,nav2Timer=null,nav2RetryTimer=null,nav2Control=0,wire2=[0,0,0,0],scout2Hits=0,scout2Timer=null,crewSync2=[],crewSyncInput2=[],crewSyncReady2=false;
 function updateCrewScene2(){
  $('crewCount2').textContent=crewCount+' / 3';
  document.querySelectorAll('.mate').forEach(btn=>{btn.classList.toggle('selected',btn===activeMate);btn.setAttribute('aria-disabled',String(btn.classList.contains('joined')));});
@@ -466,7 +485,7 @@ function updateEngineerRoute2(){
 }
 function resetEngineer2(){wire2=[1,0,1,1];updateEngineerRoute2();}
 document.querySelectorAll('[data-wire2]').forEach((b,i)=>b.onclick=()=>{wire2[i]=(wire2[i]+1)%2;updateEngineerRoute2();tg?.HapticFeedback?.impactOccurred?.('light');});
-$('testCircuit2').onclick=()=>{const ok=wire2.every(v=>v%2===0);if(ok){document.querySelectorAll('[data-wire2]').forEach(b=>b.classList.add('live'));if($('routeProgress2'))$('routeProgress2').style.width='100%';$('engineerHint2').textContent='CORE → COMMS power route stable ✓';tg?.HapticFeedback?.notificationOccurred?.('success');const mate=activeMate;setTimeout(()=>{if(activeMate===mate&&!$('engineerTask').hidden)completeMate(mate);},450);}else{$('engineerHint2').textContent='Open circuit detected. Every junction must show ━.';tg?.HapticFeedback?.notificationOccurred?.('error');}};
+$('testCircuit2').onclick=()=>{const ok=wire2.every(v=>v%2===0);if(ok){document.querySelectorAll('[data-wire2]').forEach(b=>b.classList.add('live'));if($('routeProgress2'))$('routeProgress2').style.width='100%';$('engineerHint2').textContent='CORE → COMMS power route stable ✓';tg?.HapticFeedback?.notificationOccurred?.('success');const mate=activeMate;laterInMission(2,()=>{if(activeMate===mate&&!$('engineerTask').hidden)completeMate(mate);},450);}else{$('engineerHint2').textContent='Open circuit detected. Every junction must show ━.';tg?.HapticFeedback?.notificationOccurred?.('error');}};
 function stopScout2(){clearInterval(scout2Timer);scout2Timer=null;}
 function buildAnomaly(){
  stopScout2();scout2Hits=0;const grid=$('anomalyGrid');grid.innerHTML='';for(let i=0;i<9;i++){const b=document.createElement('button');b.textContent='·';grid.appendChild(b);}
@@ -475,8 +494,8 @@ function buildAnomaly(){
 }
 document.querySelectorAll('.mate').forEach(btn=>btn.onclick=()=>{if(btn.classList.contains('joined'))return;stopCrewTask2();activeMate=btn;document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);const role=btn.dataset.mate;$('crewChallengeTitle').textContent=role.toUpperCase()+' CHALLENGE';if(role==='Navigator'){$('navigatorTask').hidden=false;resetNav2();}if(role==='Engineer'){$('engineerTask').hidden=false;resetEngineer2();}if(role==='Scout'){$('scoutTask').hidden=false;buildAnomaly();}updateCrewScene2();});
 function makeCrewSync2(){crewSync2=Array.from({length:5},()=>['N','E','S'][Math.floor(Math.random()*3)]);crewSyncInput2=[];}
-$('showCrewSync2').onclick=()=>{makeCrewSync2();$('crewSyncCode2').textContent=crewSync2.join(' ');$('crewSyncHint2').textContent='Memorize the transmission…';setTimeout(()=>{$('crewSyncCode2').textContent='? ? ? ? ?';$('crewSyncHint2').textContent='Repeat the five-role sequence.';},2400);};
-document.querySelectorAll('[data-sync2]').forEach(b=>b.onclick=()=>{if(crewCount!==3||!crewSync2.length)return;const v=b.dataset.sync2;if(v!==crewSync2[crewSyncInput2.length]){crewSyncInput2=[];$('crewSyncHint2').textContent='Sync failed. Receive a new sequence.';makeCrewSync2();tg?.HapticFeedback?.notificationOccurred?.('error');return;}crewSyncInput2.push(v);$('crewSyncHint2').textContent='Synchronized: '+crewSyncInput2.length+' / 5';if(crewSyncInput2.length===5){awardLifePoints(2,500);$('life2Complete').hidden=false;$('crewFinal2').hidden=true;$('crewStatus').textContent='Crew synchronized. Mission ready ✓';tg?.HapticFeedback?.notificationOccurred?.('success');}});
+$('showCrewSync2').onclick=()=>{clearMissionDelays(2);crewSyncReady2=false;$('showCrewSync2').disabled=true;document.querySelectorAll('[data-sync2]').forEach(b=>b.disabled=true);makeCrewSync2();$('crewSyncCode2').textContent=crewSync2.join(' ');$('crewSyncHint2').textContent='Memorize the transmission…';laterInMission(2,()=>{crewSyncReady2=true;$('showCrewSync2').disabled=false;document.querySelectorAll('[data-sync2]').forEach(b=>b.disabled=false);$('crewSyncCode2').textContent='? ? ? ? ?';$('crewSyncHint2').textContent='Repeat the five-role sequence.';},2400);};
+document.querySelectorAll('[data-sync2]').forEach(b=>b.onclick=()=>{if(crewCount!==3||!crewSync2.length||!crewSyncReady2)return;const v=b.dataset.sync2;if(v!==crewSync2[crewSyncInput2.length]){crewSyncInput2=[];$('crewSyncHint2').textContent='Sync failed. Receive a new sequence.';crewSyncReady2=false;makeCrewSync2();tg?.HapticFeedback?.notificationOccurred?.('error');return;}crewSyncInput2.push(v);$('crewSyncHint2').textContent='Synchronized: '+crewSyncInput2.length+' / 5';if(crewSyncInput2.length===5){crewSyncReady2=false;awardLifePoints(2,500);$('life2Complete').hidden=false;$('crewFinal2').hidden=true;$('crewStatus').textContent='Crew synchronized. Mission ready ✓';tg?.HapticFeedback?.notificationOccurred?.('success');}});
 $('life2ReturnBtn').onclick=()=>show('home');
 
 function unlockLife3(){
@@ -502,38 +521,75 @@ $('continueLife3Btn').onclick=(ev)=>{ev?.preventDefault?.();if(!unlockLife3())re
 if($('life3Card'))$('life3Card').onclick=()=>$('continueLife3Btn').click();$('life3SkipBtn').onclick=openLife3MemoryGate;
 $('verifyLife1CodeBtn').onclick=()=>{const lock=Number(localStorage.getItem('mkty_life3_code_lock_until')||0);if(lock>Date.now())return;const entered=$('life3MemoryInput').value.trim();if(entered===ensureLife1MemoryCode()){clearInterval(gateTimer);$('life3GateStatus').textContent='CODE VERIFIED ✓';localStorage.setItem('mkty_life3_memory_verified','yes');renderMissionArchive();
 renderDailyMissions();
-renderCrewNetwork();$('life3MemoryGate').hidden=true;$('life3CodeMission').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');return;}if(!spendGlobalLife()){$('life3GateStatus').textContent='No lives available. A life restores every 12 hours.';return;}localStorage.setItem('mkty_life3_code_lock_until',String(Date.now()+MKTY_CODE_LOCK_MS));$('life3MemoryInput').value='';tg?.HapticFeedback?.notificationOccurred?.('error');renderLife3Gate();};
+renderCrewNetwork();$('life3MemoryInput').blur();setLaunchPhase3('signal');newLaunchCode();$('codeStatus').textContent='Attempts remaining: '+codeAttempts;tg?.HapticFeedback?.notificationOccurred?.('success');return;}if(!spendGlobalLife()){$('life3GateStatus').textContent='No lives available. A life restores every 12 hours.';return;}localStorage.setItem('mkty_life3_code_lock_until',String(Date.now()+MKTY_CODE_LOCK_MS));$('life3MemoryInput').value='';tg?.HapticFeedback?.notificationOccurred?.('error');renderLife3Gate();};
 $('buyCodeHintBtn').onclick=()=>{if(Number(localStorage.getItem('mkty_life3_code_lock_until')||0)>Date.now())return;if(!spendGlobalLife()){$('life3GateStatus').textContent='No lives available. A life restores every 12 hours.';return;}const code=ensureLife1MemoryCode();$('life3GateStatus').textContent='HINT: first 5 digits are '+code.slice(0,5)+' • remaining digits: '+code.slice(5).replace(/./g,'•');$('life3MemoryInput').focus();};
-let launchCode=[],codeInput=[],codeAttempts=3,codeReady=false;
+let launchCode=[],codeInput=[],codeAttempts=3,codeReady=false,codeRevealTimer3=null;
 const codeSymbols=['▲','●','◆','■'];
-function newLaunchCode(){launchCode=Array.from({length:4},()=>codeSymbols[Math.floor(Math.random()*4)]);codeInput=[];codeReady=false;$('codeSequence').textContent='READY';$('codeStatus').textContent='Attempts: '+codeAttempts;}
-$('showCodeBtn').onclick=()=>{newLaunchCode();$('codeSequence').textContent=launchCode.join('  ');$('showCodeBtn').disabled=true;setTimeout(()=>{$('codeSequence').textContent='?  ?  ?  ?';codeReady=true;$('showCodeBtn').disabled=false;},2200);};
-document.querySelectorAll('[data-code]').forEach(b=>b.onclick=()=>{if(!codeReady)return;codeInput.push(b.dataset.code);$('codeSequence').textContent=codeInput.join('  ');if(codeInput.length===4){if(codeInput.join('')===launchCode.join('')){codeReady=false;$('codeStatus').textContent='STAGE I COMPLETE ✓';$('launchStage2').hidden=false;$('launchStage2').scrollIntoView({behavior:'smooth',block:'center'});tg?.HapticFeedback?.notificationOccurred?.('success');}else{codeAttempts--;tg?.HapticFeedback?.notificationOccurred?.('error');if(codeAttempts<=0){codeAttempts=3;$('codeStatus').textContent='Security reset. New code generated.';}else $('codeStatus').textContent='Incorrect sequence. Attempts: '+codeAttempts;newLaunchCode();}}});
-let ignitionOrder3=[],ignitionInput3=[],launchTimer3=null,launchTime3=100;
+let ignitionOrder3=[],ignitionInput3=[],launchTimer3=null,ignitionRevealTimer3=null,launchTime3=100;
+function paintLaunchSlots3(id,values,count,empty='?'){
+ const slots=Array.from({length:count},(_,i)=>{const span=document.createElement('span');span.textContent=values[i]??empty;span.classList.toggle('filled',values[i]!=null);return span;});$(id).replaceChildren(...slots);
+}
+function setLaunchPhase3(phase){
+ $('mission3').dataset.phase=phase;$('mission3').dataset.transmitting='false';
+ $('life3MemoryGate').hidden=phase!=='access';$('life3CodeMission').hidden=phase==='access'||phase==='complete';
+ $('launchStage1').hidden=phase!=='signal';$('launchStage2').hidden=phase!=='fuel';$('launchStage3').hidden=phase!=='ignition';$('life3Complete').hidden=phase!=='complete';
+ const phases=['access','signal','fuel','ignition'],current=phase==='complete'?4:phases.indexOf(phase);
+ $('launchStageCount3').textContent=String(Math.min(current+1,4)).padStart(2,'0')+' / 04';
+ document.querySelectorAll('[data-phase3]').forEach((item,i)=>{item.classList.toggle('current',i===current);item.classList.toggle('done',i<current);if(i===current)item.setAttribute('aria-current','step');else item.removeAttribute('aria-current');});
+ $('life3CodeMission').scrollTop=0;
+}
+function clearLaunchPlayback3(){clearTimeout(codeRevealTimer3);codeRevealTimer3=null;clearInterval(gateTimer);gateTimer=null;codeReady=false;stopLaunchTimer3();}
+function resetLaunchConsole3(){
+ clearLaunchPlayback3();codeAttempts=3;newLaunchCode();resetIgnition3();setLaunchPhase3('access');
+ $('life3MemoryInput').value='';$('life3GateStatus').textContent='Authorization required.';
+ $('mixO2').value='30';$('mixFuel').value='40';$('mixCool').value='30';updateMix3();
+ $('codeHint').textContent='Watch the four-symbol sequence. Then reproduce it.';$('codeStatus').textContent='Attempts remaining: 3';
+}
+function newLaunchCode(){
+ clearTimeout(codeRevealTimer3);codeRevealTimer3=null;launchCode=Array.from({length:4},()=>codeSymbols[Math.floor(Math.random()*4)]);codeInput=[];codeReady=false;
+ paintLaunchSlots3('codeSequence',[],4,'·');$('showCodeBtn').disabled=false;document.querySelectorAll('[data-code]').forEach(b=>{b.disabled=true;b.classList.remove('entered');});
+}
+$('showCodeBtn').onclick=()=>{
+ if($('mission3').dataset.phase!=='signal')return;newLaunchCode();paintLaunchSlots3('codeSequence',launchCode,4);$('showCodeBtn').disabled=true;$('mission3').dataset.transmitting='true';$('codeHint').textContent='Memorize the four symbols…';$('codeStatus').textContent='Attempts remaining: '+codeAttempts;
+ codeRevealTimer3=setTimeout(()=>{codeRevealTimer3=null;if($('mission3').dataset.phase!=='signal')return;paintLaunchSlots3('codeSequence',[],4);codeReady=true;$('showCodeBtn').disabled=false;$('mission3').dataset.transmitting='false';$('codeHint').textContent='Repeat the sequence using the four keys.';document.querySelectorAll('[data-code]').forEach(b=>b.disabled=false);},2200);
+};
+document.querySelectorAll('[data-code]').forEach(b=>b.onclick=()=>{
+ if(!codeReady||$('mission3').dataset.phase!=='signal')return;codeInput.push(b.dataset.code);paintLaunchSlots3('codeSequence',codeInput,4);b.classList.add('entered');
+ if(codeInput.length===4){
+  if(codeInput.join('')===launchCode.join('')){codeReady=false;setLaunchPhase3('fuel');updateMix3();tg?.HapticFeedback?.notificationOccurred?.('success');}
+  else{codeAttempts--;tg?.HapticFeedback?.notificationOccurred?.('error');const reset=codeAttempts<=0;if(reset)codeAttempts=3;newLaunchCode();$('codeStatus').textContent=reset?'Security reset. New code generated.':'Incorrect sequence. Attempts: '+codeAttempts;$('codeHint').textContent='Receive a new transmission and try again.';}
+ }
+});
 function updateMix3(){
  const a=Number($('mixO2').value),b=Number($('mixFuel').value),d=Number($('mixCool').value),total=a+b+d;
  $('mixO2Val').textContent=a;$('mixFuelVal').textContent=b;$('mixCoolVal').textContent=d;$('mixTotal3').textContent=total;
- $('mixHint3').textContent=total===100?'Total stable. Balance profile still required.':total>100?'Overpressure — reduce mixture.':'Insufficient load — increase mixture.';
+ const limits=[[25,35],[40,50],[20,35]],values=[a,b,d];
+ document.querySelectorAll('.fuel-matrix3 label').forEach((label,i)=>{label.style.setProperty('--mix-level',values[i]+'%');label.classList.toggle('stable',values[i]>=limits[i][0]&&values[i]<=limits[i][1]);});
+ const stable=total===100&&a>=25&&a<=35&&b>=40&&b<=50&&d>=20&&d<=35;$('mixStability3').textContent=stable?'STABLE':'ADJUST';$('mixTotal3').parentElement.classList.toggle('stable',stable);
+ $('mixHint3').textContent=stable?'Fuel matrix stable. Ready to lock.':total===100?'Total stable. Adjust the three stability indicators.':total>100?'Overpressure — reduce mixture.':'Insufficient load — increase mixture.';
 }
 ['mixO2','mixFuel','mixCool'].forEach(id=>$(id)?.addEventListener('input',updateMix3));
 $('lockMix3')?.addEventListener('click',()=>{
+ if($('mission3').dataset.phase!=='fuel')return;
  const a=Number($('mixO2').value),b=Number($('mixFuel').value),d=Number($('mixCool').value);
  if(a+b+d!==100){$('mixHint3').textContent='Total load must equal exactly 100.';return;}
  // Broad enough to solve by reasoning, not pixel hunting: oxygen 25-35, fuel 40-50, coolant remainder.
  if(a<25||a>35||b<40||b>50||d<20||d>35){$('mixHint3').textContent='Matrix unstable. FUEL needs the largest share; O₂ and COOLANT must remain balanced.';tg?.HapticFeedback?.impactOccurred?.('light');return;}
- $('mixHint3').textContent='Fuel matrix stable ✓';$('launchStage3').hidden=false;$('launchStage3').scrollIntoView({behavior:'smooth',block:'center'});tg?.HapticFeedback?.notificationOccurred?.('success');
+ $('mixHint3').textContent='Fuel matrix stable ✓';setLaunchPhase3('ignition');resetIgnition3();tg?.HapticFeedback?.notificationOccurred?.('success');
 });
-function stopLaunchTimer3(){clearInterval(launchTimer3);launchTimer3=null;}
-function resetIgnition3(msg='Awaiting launch order.'){stopLaunchTimer3();ignitionInput3=[];launchTime3=100;$('launchTimerFill3').style.width='100%';$('ignitionHint3').textContent=msg;}
+function stopLaunchTimer3(){clearInterval(launchTimer3);clearTimeout(ignitionRevealTimer3);launchTimer3=null;ignitionRevealTimer3=null;$('showIgnition3').disabled=false;}
+function renderLaunchTime3(){$('launchTimerFill3').style.width=Math.max(0,launchTime3)+'%';$('launchSeconds3').textContent=(Math.max(0,launchTime3)/20).toFixed(1).padStart(4,'0');$('mission3').dataset.timeLow=String(launchTime3<30);}
+function resetIgnition3(msg='Awaiting launch order.'){stopLaunchTimer3();ignitionInput3=[];launchTime3=100;renderLaunchTime3();paintLaunchSlots3('ignitionOrder3',[],3);$('ignitionHint3').textContent=msg;document.querySelectorAll('[data-ignite3]').forEach(b=>{b.disabled=true;b.classList.remove('armed');});}
 $('showIgnition3')?.addEventListener('click',()=>{
- resetIgnition3('Memorize the ignition order…');ignitionOrder3=['NAV','CORE','COMMS'].sort(()=>Math.random()-.5);$('ignitionOrder3').textContent=ignitionOrder3.join(' → ');
- setTimeout(()=>{$('ignitionOrder3').textContent='? → ? → ?';$('ignitionHint3').textContent='GO — arm all systems before time expires!';launchTimer3=setInterval(()=>{launchTime3-=2;$('launchTimerFill3').style.width=Math.max(0,launchTime3)+'%';if(launchTime3<=0){resetIgnition3('Launch window missed. Receive a new order.');tg?.HapticFeedback?.notificationOccurred?.('error');}},100);},1800);
+ if($('mission3').dataset.phase!=='ignition')return;
+ resetIgnition3('Memorize the ignition order…');ignitionOrder3=['NAV','CORE','COMMS'].sort(()=>Math.random()-.5);paintLaunchSlots3('ignitionOrder3',ignitionOrder3,3);$('showIgnition3').disabled=true;
+ ignitionRevealTimer3=setTimeout(()=>{ignitionRevealTimer3=null;if($('mission3').dataset.phase!=='ignition')return;paintLaunchSlots3('ignitionOrder3',[],3);$('showIgnition3').disabled=false;document.querySelectorAll('[data-ignite3]').forEach(b=>b.disabled=false);$('ignitionHint3').textContent='GO — arm all systems before time expires!';launchTimer3=setInterval(()=>{launchTime3-=2;renderLaunchTime3();if(launchTime3<=0){resetIgnition3('Launch window missed. Receive a new order.');tg?.HapticFeedback?.notificationOccurred?.('error');}},100);},1800);
 });
 document.querySelectorAll('[data-ignite3]').forEach(b=>b.onclick=()=>{
- if(!launchTimer3||!ignitionOrder3.length)return;const v=b.dataset.ignite3;
+ if(!launchTimer3||!ignitionOrder3.length||$('mission3').dataset.phase!=='ignition')return;const v=b.dataset.ignite3;
  if(v!==ignitionOrder3[ignitionInput3.length]){resetIgnition3('Wrong system. Launch sequence aborted — receive a new order.');tg?.HapticFeedback?.notificationOccurred?.('error');return;}
- ignitionInput3.push(v);$('ignitionHint3').textContent='Armed: '+ignitionInput3.length+' / 3';
- if(ignitionInput3.length===3){stopLaunchTimer3();awardLifePoints(3,750);$('codeStatus').textContent='LAUNCH AUTHORIZED ✓';$('life3Complete').hidden=false;$('launchStage3').hidden=true;tg?.HapticFeedback?.notificationOccurred?.('success');}
+ ignitionInput3.push(v);b.classList.add('armed');b.disabled=true;$('ignitionHint3').textContent='Armed: '+ignitionInput3.length+' / 3';
+ if(ignitionInput3.length===3){stopLaunchTimer3();awardLifePoints(3,750);setLaunchPhase3('complete');tg?.HapticFeedback?.notificationOccurred?.('success');}
 });
 $('life3ReturnBtn').onclick=()=>show('home');
 
@@ -557,9 +613,10 @@ function startLife4(){playLifeCinematic(4,openMission4);}
 function finishDescent4(success){
  descentActive4=false;clearInterval(descentTimer);descentTimer=null;burnHeld4=downHeld4=leftHeld4=rightHeld4=false;$('lander').classList.remove('thrusting');
  if(success){awardLifePoints(4,1000);$('descentStatus').textContent='Touchdown confirmed ✓';$('life4Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');}
- else{$('lander').classList.add('crashed');$('descentStatus').textContent='HARD LANDING — velocity or drift outside safe limits. Retrying…';tg?.HapticFeedback?.notificationOccurred?.('error');setTimeout(openMission4,1600);}
+ else{$('lander').classList.add('crashed');$('descentStatus').textContent='HARD LANDING — velocity or drift outside safe limits. Retrying…';tg?.HapticFeedback?.notificationOccurred?.('error');laterInMission(4,openMission4,1600);}
 }
 function openMission4(){
+ clearMissionDelays(4);
  alt4=2400;vel4=18;fuel4=100;drift4=0;driftVel4=(Math.random()-.5)*.35;descentActive4=true;$('life4Complete').hidden=true;$('lander').classList.remove('crashed','thrusting');$('descentStatus').textContent='Manual descent active. Control velocity, drift and fuel.';show('mission4');renderDescent();clearInterval(descentTimer);
  descentTimer=setInterval(()=>{
   if(!descentActive4||document.hidden||!$('mission4').classList.contains('active'))return;const power=Number($('thrustDial').value)/100;
@@ -594,21 +651,27 @@ function startLife5(){playLifeCinematic(5,openMission5);}
 function renderReactor5(){
  $('temp5').textContent=Math.round(temp5);$('stabilityRead5').textContent=Math.round(stability5);$('tempFill5').style.width=Math.min(100,temp5)+'%';$('stabilityNeedle').style.left=Math.max(0,Math.min(100,stability5))+'%';
  $('reactorCore').classList.toggle('warning',temp5>=78);$('reactorCore').classList.toggle('stable',temp5>=45&&temp5<=68&&stability5>=45&&stability5<=55);
+ document.querySelectorAll('.energy-cells button[data-cell]').forEach((b,i)=>{b.querySelector('i').style.height=cells5[i]+'%';b.querySelector('output').textContent=Math.round(cells5[i])+'%';b.classList.toggle('charged',cells5[i]>=100);});
+ $('reactorState5').textContent=stable5?'REACTOR // STABLE':temp5>=78?'REACTOR // HOT':'REACTOR // CHARGING';
  const ready=cells5.every(v=>v>=100)&&temp5>=45&&temp5<=68&&stability5>=45&&stability5<=55;$('stabilizeBtn').disabled=!ready;
 }
 function openMission5(){
+ clearMissionDelays(5);
  cells5=[0,0,0];stability5=15;temp5=22;stable5=false;reactorActive5=true;chargeHeld5=coolHeld5=false;clearInterval(reactorTimer5);
  document.querySelectorAll('.energy-cells [data-cell], .energy-cells button[data-cell]').forEach(b=>{b.classList.remove('charged');const bar=b.querySelector('i');if(bar)bar.style.height='0%';});
  $('stabilizeBtn').disabled=true;$('igniteBtn').disabled=true;$('life5Complete').hidden=true;$('ignitionStatus').textContent='Bring all cells online while controlling reactor temperature.';$('reactorCore').classList.remove('online','warning','stable');show('mission5');renderReactor5();
- reactorTimer5=setInterval(()=>{if(!reactorActive5)return;if(chargeHeld5){temp5+=1.15;stability5+=.7;cells5=cells5.map(v=>Math.min(100,v+.85));}else{temp5+=.12;stability5-=.12;}if(coolHeld5){temp5-=1.55;stability5-=.42;}temp5=Math.max(15,Math.min(100,temp5));stability5=Math.max(0,Math.min(100,stability5));
+ reactorTimer5=setInterval(()=>{if(!reactorActive5||document.hidden)return;if(chargeHeld5){temp5+=1.15;stability5+=.7;cells5=cells5.map(v=>Math.min(100,v+.85));}else{temp5+=.12;stability5-=.12;}if(coolHeld5){temp5-=1.55;stability5-=.42;}temp5=Math.max(15,Math.min(100,temp5));stability5=Math.max(0,Math.min(100,stability5));
  document.querySelectorAll('.energy-cells button[data-cell]').forEach((b,i)=>{const bar=b.querySelector('i');if(bar)bar.style.height=cells5[i]+'%';b.classList.toggle('charged',cells5[i]>=100);});
- if(temp5>=96){reactorActive5=false;clearInterval(reactorTimer5);$('ignitionStatus').textContent='CORE SCRAM — thermal overload. Restarting reactor…';tg?.HapticFeedback?.notificationOccurred?.('error');setTimeout(openMission5,1600);return;}renderReactor5();},100);
+ if(temp5>=96){reactorActive5=false;clearInterval(reactorTimer5);$('ignitionStatus').textContent='CORE SCRAM — thermal overload. Restarting reactor…';tg?.HapticFeedback?.notificationOccurred?.('error');laterInMission(5,openMission5,1600);return;}renderReactor5();},100);
 }
-function hold5(el,setter){const on=ev=>{ev.preventDefault();setter(true);el.setPointerCapture?.(ev.pointerId);},off=()=>setter(false);el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointercancel',off);el.addEventListener('pointerleave',off);}
+function releaseReactorControls5(){chargeHeld5=coolHeld5=false;}
+window.addEventListener('blur',releaseReactorControls5);
+document.addEventListener('visibilitychange',()=>{document.body.classList.toggle('mission-paused',document.hidden);if(document.hidden)releaseReactorControls5();});
+function hold5(el,setter){const on=ev=>{ev.preventDefault();setter(true);el.setPointerCapture?.(ev.pointerId);},off=()=>setter(false);el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointercancel',off);el.addEventListener('pointerleave',off);el.addEventListener('lostpointercapture',off);}
 hold5($('chargeCore5'),v=>chargeHeld5=v);hold5($('coolCore5'),v=>coolHeld5=v);
-document.querySelectorAll('.energy-cells button[data-cell]').forEach(btn=>btn.onclick=()=>{const i=Number(btn.dataset.cell);cells5[i]=Math.min(100,cells5[i]+5);temp5=Math.min(100,temp5+2.5);stability5=Math.min(100,stability5+1.5);renderReactor5();});
-$('stabilizeBtn').onclick=()=>{if($('stabilizeBtn').disabled)return;stable5=true;reactorActive5=false;clearInterval(reactorTimer5);$('stabilizeBtn').disabled=true;$('igniteBtn').disabled=false;$('ignitionStatus').textContent='Core locked in stable window. IGNITION authorized.';tg?.HapticFeedback?.notificationOccurred?.('success');};
-$('igniteBtn').onclick=()=>{if(!stable5)return;$('reactorCore').classList.add('online');$('igniteBtn').disabled=true;awardLifePoints(5,1250);$('ignitionStatus').textContent='Reactor online. Ignition successful ✓';$('life5Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');};
+document.querySelectorAll('.energy-cells button[data-cell]').forEach(btn=>btn.onclick=()=>{if(!reactorActive5)return;const i=Number(btn.dataset.cell);cells5[i]=Math.min(100,cells5[i]+5);temp5=Math.min(100,temp5+2.5);stability5=Math.min(100,stability5+1.5);renderReactor5();});
+$('stabilizeBtn').onclick=()=>{if($('stabilizeBtn').disabled)return;stable5=true;$('reactorState5').textContent='REACTOR // STABLE';reactorActive5=false;clearInterval(reactorTimer5);$('stabilizeBtn').disabled=true;$('igniteBtn').disabled=false;$('ignitionStatus').textContent='Core locked in stable window. IGNITION authorized.';tg?.HapticFeedback?.notificationOccurred?.('success');};
+$('igniteBtn').onclick=()=>{if(!stable5)return;$('reactorCore').classList.add('online');$('reactorState5').textContent='REACTOR // ONLINE';$('igniteBtn').disabled=true;awardLifePoints(5,1250);$('ignitionStatus').textContent='Reactor online. Ignition successful ✓';$('life5Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');};
 $('life5ReturnBtn').onclick=()=>show('home');
 
 function unlockLife6(){
@@ -624,12 +687,13 @@ function showFault6(){
  if(!launchActive6||!faultResolved6)return;launchFault6=faultTypes6[Math.floor(Math.random()*faultTypes6.length)];faultResolved6=false;$('launchEmergency6').hidden=false;$('launchAlert6').textContent=launchFault6.name;$('launchAlertHint6').textContent='Choose the correct emergency procedure.';$('launchStatus').textContent='WARNING — resolve flight computer alert!';
 }
 function openMission6(){
- launchSeconds=30;launchOrder6=shuffle6(launchSystems6);launchIndex6=0;launchFault6=null;faultResolved6=true;nextFaultAt6=21;launchActive6=true;$('launchClock').textContent=30;$('launchClock').classList.remove('danger');$('launchBtn').disabled=true;$('life6Complete').hidden=true;$('launchEmergency6').hidden=true;$('launchOrder6').textContent=launchOrder6.join(' → ');$('launchStatus').textContent='Follow the transmitted procedure. Watch for flight computer alerts.';document.querySelectorAll('[data-launch]').forEach(b=>b.classList.remove('armed','error','ready6'));$('launchShip').classList.remove('lifted');$('launchFlame').classList.remove('active');show('mission6');clearInterval(launchTimer);
- launchTimer=setInterval(()=>{if(!launchActive6)return;launchSeconds--;$('launchClock').textContent=launchSeconds;if(launchSeconds<=10)$('launchClock').classList.add('danger');if(launchSeconds===nextFaultAt6&&launchIndex6<4)showFault6();if(launchSeconds<=0){launchActive6=false;clearInterval(launchTimer);$('launchStatus').textContent='ABORT — launch window missed. Sequence reset.';tg?.HapticFeedback?.notificationOccurred?.('error');setTimeout(openMission6,1400);}},1000);
+ clearMissionDelays(6);
+ launchSeconds=30;launchOrder6=shuffle6(launchSystems6);launchIndex6=0;launchFault6=null;faultResolved6=true;nextFaultAt6=21;launchActive6=true;$('launchClock').textContent=30;$('launchClock').classList.remove('danger');$('launchBtn').disabled=true;$('life6Complete').hidden=true;$('launchEmergency6').hidden=true;$('launchOrder6').textContent=launchOrder6.join(' → ');$('launchStatus').textContent='Follow the transmitted procedure. Watch for flight computer alerts.';document.querySelectorAll('[data-launch]').forEach(b=>{b.disabled=false;b.classList.remove('armed','error','ready6');});$('launchShip').classList.remove('lifted');$('launchFlame').classList.remove('active');show('mission6');clearInterval(launchTimer);
+ launchTimer=setInterval(()=>{if(!launchActive6||document.hidden)return;launchSeconds--;$('launchClock').textContent=launchSeconds;if(launchSeconds<=10)$('launchClock').classList.add('danger');if(launchSeconds===nextFaultAt6&&launchIndex6<4)showFault6();if(launchSeconds<=0){launchActive6=false;clearInterval(launchTimer);$('launchStatus').textContent='ABORT — launch window missed. Sequence reset.';tg?.HapticFeedback?.notificationOccurred?.('error');laterInMission(6,openMission6,1400);}},1000);
 }
-document.querySelectorAll('[data-launch]').forEach(b=>b.onclick=()=>{if(!launchActive6||!faultResolved6)return;const system=b.dataset.launch;if(system!==launchOrder6[launchIndex6]){b.classList.add('error');launchSeconds=Math.max(1,launchSeconds-3);$('launchStatus').textContent='Wrong system — 3 seconds lost.';tg?.HapticFeedback?.impactOccurred?.('medium');return;}b.classList.remove('error');b.classList.add('armed');launchIndex6++;tg?.HapticFeedback?.impactOccurred?.('light');if(launchIndex6===2&&nextFaultAt6>12)nextFaultAt6=Math.min(nextFaultAt6,launchSeconds-2);if(launchIndex6===4&&faultResolved6){$('launchBtn').disabled=false;$('launchStatus').textContent='All systems armed. LAUNCH before T−0!';}});
+document.querySelectorAll('[data-launch]').forEach(b=>b.onclick=()=>{if(!launchActive6||!faultResolved6)return;const system=b.dataset.launch;if(system!==launchOrder6[launchIndex6]){b.classList.add('error');launchSeconds=Math.max(1,launchSeconds-3);$('launchStatus').textContent='Wrong system — 3 seconds lost.';tg?.HapticFeedback?.impactOccurred?.('medium');return;}b.classList.remove('error');b.classList.add('armed');b.disabled=true;launchIndex6++;tg?.HapticFeedback?.impactOccurred?.('light');if(launchIndex6===2&&nextFaultAt6>12)nextFaultAt6=Math.min(nextFaultAt6,launchSeconds-2);if(launchIndex6===4&&faultResolved6){$('launchBtn').disabled=false;$('launchStatus').textContent='All systems armed. LAUNCH before T−0!';}});
 document.querySelectorAll('[data-response6]').forEach(b=>b.onclick=()=>{if(!launchFault6||faultResolved6)return;if(b.dataset.response6===launchFault6.answer){faultResolved6=true;$('launchEmergency6').hidden=true;$('launchStatus').textContent='Fault cleared ✓ Continue launch procedure.';launchFault6=null;tg?.HapticFeedback?.notificationOccurred?.('success');if(launchIndex6===4)$('launchBtn').disabled=false;}else{launchSeconds=Math.max(1,launchSeconds-5);$('launchAlertHint6').textContent='Incorrect response — 5 seconds lost!';tg?.HapticFeedback?.notificationOccurred?.('error');}});
-$('launchBtn').onclick=()=>{if(launchIndex6!==4||!faultResolved6||!launchActive6)return;launchActive6=false;clearInterval(launchTimer);$('launchShip').classList.add('lifted');$('launchFlame').classList.add('active');$('launchBtn').disabled=true;awardLifePoints(6,1500);$('launchStatus').textContent='Liftoff confirmed — orbit achieved ✓';setTimeout(()=>$('life6Complete').hidden=false,900);tg?.HapticFeedback?.notificationOccurred?.('success');};
+$('launchBtn').onclick=()=>{if(launchIndex6!==4||!faultResolved6||!launchActive6)return;launchActive6=false;clearInterval(launchTimer);$('launchShip').classList.add('lifted');$('launchFlame').classList.add('active');$('launchBtn').disabled=true;awardLifePoints(6,1500);$('launchStatus').textContent='Liftoff confirmed — orbit achieved ✓';laterInMission(6,()=>$('life6Complete').hidden=false,900);tg?.HapticFeedback?.notificationOccurred?.('success');};
 $('life6ReturnBtn').onclick=()=>show('home');
 
 function unlockLife7(){
@@ -639,19 +703,20 @@ $('continueLife7Btn').onclick=(ev)=>{ev?.preventDefault?.();if(!unlockLife7())re
 let lane7=1,hull7=100,shield7=3,distance7=0,shieldActive7=false,voidTimer=null,spawnTimer7=null,voidActive7=false,asteroids7=[];
 function renderVoid(){
  $('hull7').textContent=Math.max(0,Math.round(hull7));$('hullHud7').textContent=Math.max(0,Math.round(hull7));$('hullFill7').style.width=Math.max(0,hull7)+'%';$('shield7').textContent=shield7;$('distance7').textContent=Math.min(100,Math.round(distance7));
- const left=[22,50,78][lane7];$('voidShip').style.left=left+'%';$('shieldBubble7').style.left='calc('+left+'% - 29px)';$('shieldBubble7').classList.toggle('active',shieldActive7);
+ const left=[22,50,78][lane7];$('voidShip').style.left=left+'%';$('shieldBubble7').style.left=left+'%';$('shieldBubble7').classList.toggle('active',shieldActive7);$('shieldBtn').disabled=shield7<=0||shieldActive7;
 }
 function spawnAsteroid7(){
- if(!voidActive7)return;const field=$('asteroidField'),lane=Math.floor(Math.random()*3),el=document.createElement('span');const big=Math.random()<.22;el.className='asteroid7 '+(big?'big':'small');el.textContent=big?'☄':'●';el.dataset.lane=lane;el.dataset.hit='0';el.style.left=['20%','48%','76%'][lane];const speed=Math.max(1.15,2.5-distance7*.012);el.style.setProperty('--fall7',speed+'s');field.appendChild(el);asteroids7.push(el);
- setTimeout(()=>{if(el.isConnected)el.remove();asteroids7=asteroids7.filter(x=>x!==el);},speed*1000+150);
+ if(!voidActive7||document.hidden)return;const field=$('asteroidField'),lane=Math.floor(Math.random()*3),el=document.createElement('span');const big=Math.random()<.22;el.className='asteroid7 '+(big?'big':'small');el.setAttribute('aria-hidden','true');el.dataset.lane=lane;el.dataset.hit='0';el.style.left=['22%','50%','78%'][lane];const speed=Math.max(1.15,2.5-distance7*.012);el.style.setProperty('--fall7',speed+'s');field.appendChild(el);asteroids7.push(el);
+ el.addEventListener('animationend',()=>{el.remove();asteroids7=asteroids7.filter(x=>x!==el);},{once:true});
 }
 function stopVoid7(){voidActive7=false;clearInterval(voidTimer);clearInterval(spawnTimer7);voidTimer=spawnTimer7=null;}
-function crashVoid7(){stopVoid7();$('voidStatus').textContent='HULL FAILURE — emergency reset.';tg?.HapticFeedback?.notificationOccurred?.('error');setTimeout(openMission7,1500);}
+function crashVoid7(){stopVoid7();$('voidStatus').textContent='HULL FAILURE — emergency reset.';tg?.HapticFeedback?.notificationOccurred?.('error');laterInMission(7,openMission7,1500);}
 function startLife7(){playLifeCinematic(7,openMission7);}
 function openMission7(){
+ clearMissionDelays(7);
  stopVoid7();lane7=1;hull7=100;shield7=3;distance7=0;shieldActive7=false;asteroids7=[];$('asteroidField').innerHTML='';$('life7Complete').hidden=true;$('voidStatus').textContent='Debris field entered. Survive to the transmission gate.';show('mission7');voidActive7=true;renderVoid();
  spawnTimer7=setInterval(spawnAsteroid7,720);
- voidTimer=setInterval(()=>{if(!voidActive7)return;distance7+=.42;const world=$('voidWorld7').getBoundingClientRect(),ship=$('voidShip').getBoundingClientRect();asteroids7.forEach(el=>{if(!el.isConnected||el.dataset.hit==='1')return;const r=el.getBoundingClientRect();const overlap=!(r.right<ship.left+8||r.left>ship.right-8||r.bottom<ship.top+8||r.top>ship.bottom-8);if(overlap){el.dataset.hit='1';el.remove();if(shieldActive7){shieldActive7=false;$('voidStatus').textContent='Shield absorbed asteroid impact.';}else{hull7-=el.classList.contains('big')?34:20;$('voidStatus').textContent='HULL IMPACT! Evade!';$('voidWorld7').classList.remove('hit7');void $('voidWorld7').offsetWidth;$('voidWorld7').classList.add('hit7');tg?.HapticFeedback?.notificationOccurred?.('error');}renderVoid();}});
+ voidTimer=setInterval(()=>{if(!voidActive7||document.hidden)return;distance7+=.42;const world=$('voidWorld7').getBoundingClientRect(),ship=$('voidShip').getBoundingClientRect();asteroids7.forEach(el=>{if(!el.isConnected||el.dataset.hit==='1')return;const r=el.getBoundingClientRect();const overlap=!(r.right<ship.left+8||r.left>ship.right-8||r.bottom<ship.top+8||r.top>ship.bottom-8);if(overlap){el.dataset.hit='1';el.remove();if(shieldActive7){shieldActive7=false;$('voidStatus').textContent='Shield absorbed asteroid impact.';}else{hull7-=el.classList.contains('big')?34:20;$('voidStatus').textContent='HULL IMPACT! Evade!';$('voidWorld7').classList.remove('hit7');void $('voidWorld7').offsetWidth;$('voidWorld7').classList.add('hit7');tg?.HapticFeedback?.notificationOccurred?.('error');}renderVoid();}});
  if(hull7<=0){crashVoid7();return;}if(distance7>=100){stopVoid7();awardLifePoints(7,1750);$('voidStatus').textContent='Transmission gate reached ✓';$('life7Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');return;}renderVoid();},100);
 }
 $('voidLeft').onclick=()=>{if(!voidActive7)return;lane7=Math.max(0,lane7-1);renderVoid();};$('voidRight').onclick=()=>{if(!voidActive7)return;lane7=Math.min(2,lane7+1);renderVoid();};$('shieldBtn').onclick=()=>{if(!voidActive7||shield7<=0||shieldActive7)return;shield7--;shieldActive7=true;$('voidStatus').textContent='Shield armed — one impact protected.';renderVoid();};
@@ -661,42 +726,62 @@ function unlockLife8(){
  if(localStorage.getItem('mkty_life7')!=='complete')return false;const a=$('life7Card'),b=$('life8Card'),i=$('life8Icon'),p=$('storyProgress');a?.classList.add('complete');if(b){b.disabled=false;b.classList.remove('locked');b.classList.add('unlocked');}if(i)i.textContent='8';if(p)p.style.width='88%';return true;
 }
 $('continueLife8Btn').onclick=(ev)=>{ev?.preventDefault?.();if(!unlockLife8())return;startLife8();};if($('life8Card'))$('life8Card').onclick=()=>$('continueLife8Btn').click();
-let targetFreq8=0,targetPhase8=0,pulse8=[],pulseInput8=[],pulseRound8=1,phaseTimer8=null,phaseProgress8=0;
+let targetFreq8=0,targetPhase8=0,pulse8=[],pulseInput8=[],pulseRound8=1,phaseTimer8=null,phaseProgress8=0,pulseReady8=false;
+function setSignalStage8(stage){$('mission8').dataset.stage=stage;$('frequencyPanel8').hidden=stage!=='frequency';$('lockFreq8').hidden=stage!=='frequency';$('phasePanel8').hidden=stage!=='phase';$('pulsePanel8').hidden=stage!=='pulse';}
 function startLife8(){playLifeCinematic(8,openMission8);}
 function openMission8(){
- targetFreq8=25+Math.floor(Math.random()*51);targetPhase8=25+Math.floor(Math.random()*51);pulseInput8=[];pulseRound8=1;phaseProgress8=0;clearInterval(phaseTimer8);phaseTimer8=null;$('freq8').value=20;$('phase8').value=50;$('phasePanel8').hidden=true;$('phaseHold8').hidden=true;$('pulsePanel8').hidden=true;$('coordinates8').hidden=true;$('life8Complete').hidden=true;$('signalPulse').classList.remove('decoded');$('link8').textContent=0;$('signalStatus8').textContent='Sweep the band and locate the strongest transmission.';show('mission8');updateFreq8();updatePhase8();
+ clearMissionDelays(8);
+ setSignalStage8('frequency');pulseReady8=false;targetFreq8=25+Math.floor(Math.random()*51);targetPhase8=25+Math.floor(Math.random()*51);pulseInput8=[];pulseRound8=1;phaseProgress8=0;clearInterval(phaseTimer8);phaseTimer8=null;$('freq8').value=20;$('phase8').value=50;document.querySelector('.phase-scope8').style.setProperty('--phase-target',targetPhase8+'%');$('phasePanel8').hidden=true;$('phaseHold8').hidden=true;$('pulsePanel8').hidden=true;$('coordinates8').hidden=true;$('life8Complete').hidden=true;$('signalPulse').classList.remove('decoded');$('link8').textContent=0;$('signalStatus8').textContent='Sweep the band and locate the strongest transmission.';show('mission8');updateFreq8();updatePhase8();
 }
 function updateFreq8(){const v=Number($('freq8').value),d=Math.abs(v-targetFreq8),strength=Math.max(0,100-d*4);$('freqRead8').textContent=(140+v/10).toFixed(1)+' MHz';$('strengthFill8').style.width=strength+'%';$('strengthText8').textContent='SIGNAL '+Math.round(strength)+'%';}
 $('freq8').oninput=updateFreq8;
-$('lockFreq8').onclick=()=>{const d=Math.abs(Number($('freq8').value)-targetFreq8);if(d<=3){$('link8').textContent=30;$('phasePanel8').hidden=false;$('signalStatus8').textContent='Carrier acquired. Stabilize phase.';tg?.HapticFeedback?.notificationOccurred?.('success');}else{$('signalStatus8').textContent=Number($('freq8').value)<targetFreq8?'Signal rises at higher frequency.':'Signal rises at lower frequency.';}};
+$('lockFreq8').onclick=()=>{const d=Math.abs(Number($('freq8').value)-targetFreq8);if(d<=3){$('link8').textContent=30;setSignalStage8('phase');$('signalStatus8').textContent='Carrier acquired. Stabilize phase.';tg?.HapticFeedback?.notificationOccurred?.('success');}else{$('signalStatus8').textContent=Number($('freq8').value)<targetFreq8?'Signal rises at higher frequency.':'Signal rises at lower frequency.';}};
 function updatePhase8(){const v=Number($('phase8').value);$('phaseNeedle8').style.left=v+'%';if(phaseTimer8&&Math.abs(v-targetPhase8)>4){clearInterval(phaseTimer8);phaseTimer8=null;phaseProgress8=0;$('phaseHoldFill8').style.width='0%';$('signalStatus8').textContent='Phase lock lost. Re-align and hold again.';}}
 $('phase8').oninput=updatePhase8;
-$('lockPhase8').onclick=()=>{if(phaseTimer8)return;const d=Math.abs(Number($('phase8').value)-targetPhase8);if(d>4){$('signalStatus8').textContent=Number($('phase8').value)<targetPhase8?'Phase target is to the right.':'Phase target is to the left.';return;}phaseProgress8=0;$('phaseHold8').hidden=false;$('signalStatus8').textContent='Phase aligned. Hold steady…';phaseTimer8=setInterval(()=>{if(Math.abs(Number($('phase8').value)-targetPhase8)>4){updatePhase8();return;}phaseProgress8+=4;$('phaseHoldFill8').style.width=phaseProgress8+'%';if(phaseProgress8>=100){clearInterval(phaseTimer8);phaseTimer8=null;$('link8').textContent=60;$('pulsePanel8').hidden=false;$('signalStatus8').textContent='Phase synchronized. Decode the transmission.';newPulseRound8();tg?.HapticFeedback?.notificationOccurred?.('success');}},110);};
+$('lockPhase8').onclick=()=>{if(phaseTimer8)return;const d=Math.abs(Number($('phase8').value)-targetPhase8);if(d>4){$('signalStatus8').textContent=Number($('phase8').value)<targetPhase8?'Phase target is to the right.':'Phase target is to the left.';return;}phaseProgress8=0;$('phaseHold8').hidden=false;$('signalStatus8').textContent='Phase aligned. Hold steady…';phaseTimer8=setInterval(()=>{if(document.hidden)return;if(Math.abs(Number($('phase8').value)-targetPhase8)>4){updatePhase8();return;}phaseProgress8+=4;$('phaseHoldFill8').style.width=phaseProgress8+'%';if(phaseProgress8>=100){clearInterval(phaseTimer8);phaseTimer8=null;$('link8').textContent=60;setSignalStage8('pulse');$('signalStatus8').textContent='Phase synchronized. Decode the transmission.';newPulseRound8();tg?.HapticFeedback?.notificationOccurred?.('success');}},110);};
 function newPulseRound8(){const len=3+pulseRound8;pulse8=Array.from({length:len},()=>Math.floor(Math.random()*3));pulseInput8=[];$('pulseRound8').textContent=pulseRound8;showPulse8();}
-function showPulse8(){$('pulseDisplay8').textContent=pulse8.map(n=>['◯','△','◇'][n]).join(' ');$('pulseHint8').textContent='Memorize '+pulse8.length+' symbols.';setTimeout(()=>{$('pulseDisplay8').textContent=Array(pulse8.length).fill('?').join(' ');$('pulseHint8').textContent='Repeat the pulse.';},1600+pulse8.length*220);}
+function showPulse8(){
+ clearMissionDelays(8);pulseReady8=false;pulseInput8=[];
+ document.querySelectorAll('[data-pulse8]').forEach(b=>b.disabled=true);$('replayPulse8').disabled=true;
+ paintLaunchSlots3('pulseDisplay8',pulse8.map(n=>['◯','△','◇'][n]),pulse8.length);
+ $('pulseHint8').textContent='Memorize '+pulse8.length+' symbols.';
+ laterInMission(8,()=>{paintLaunchSlots3('pulseDisplay8',[],pulse8.length);pulseReady8=true;$('replayPulse8').disabled=false;document.querySelectorAll('[data-pulse8]').forEach(b=>b.disabled=false);$('pulseHint8').textContent='Repeat the pulse.';},1600+pulse8.length*220);
+}
 $('replayPulse8').onclick=()=>{pulseInput8=[];showPulse8();};
-document.querySelectorAll('[data-pulse8]').forEach(b=>b.onclick=()=>{if($('pulsePanel8').hidden||!pulse8.length)return;const v=Number(b.dataset.pulse8);if(v!==pulse8[pulseInput8.length]){pulseInput8=[];$('signalStatus8').textContent='Pattern rejected. Transmission shifted — new pulse generated.';newPulseRound8();tg?.HapticFeedback?.notificationOccurred?.('error');return;}pulseInput8.push(v);$('pulseHint8').textContent='Decoded: '+pulseInput8.length+' / '+pulse8.length;if(pulseInput8.length===pulse8.length){if(pulseRound8<3){pulseRound8++;$('link8').textContent=60+pulseRound8*10;$('signalStatus8').textContent='Layer decoded. Signal complexity increasing…';setTimeout(newPulseRound8,600);}else{const lat=(10+Math.random()*70).toFixed(3),lon=(10+Math.random()*160).toFixed(3);$('link8').textContent=100;$('coordinatesValue8').textContent='LUNA // '+lat+' // '+lon;$('coordinates8').hidden=false;localStorage.setItem('mkty_life9_coordinates',lat+','+lon);awardLifePoints(8,2000);$('signalStatus8').textContent='Signal decoded. Final coordinates received ✓';$('signalPulse').classList.add('decoded');$('life8Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');}}});
+document.querySelectorAll('[data-pulse8]').forEach(b=>b.onclick=()=>{if($('pulsePanel8').hidden||!pulse8.length||!pulseReady8)return;const v=Number(b.dataset.pulse8);if(v!==pulse8[pulseInput8.length]){pulseInput8=[];$('signalStatus8').textContent='Pattern rejected. Transmission shifted — new pulse generated.';newPulseRound8();tg?.HapticFeedback?.notificationOccurred?.('error');return;}pulseInput8.push(v);$('pulseHint8').textContent='Decoded: '+pulseInput8.length+' / '+pulse8.length;paintLaunchSlots3('pulseDisplay8',pulseInput8.map(n=>['◯','△','◇'][n]),pulse8.length);if(pulseInput8.length===pulse8.length){pulseReady8=false;document.querySelectorAll('[data-pulse8]').forEach(b=>b.disabled=true);$('replayPulse8').disabled=true;if(pulseRound8<3){pulseRound8++;$('link8').textContent=60+pulseRound8*10;$('signalStatus8').textContent='Layer decoded. Signal complexity increasing…';laterInMission(8,newPulseRound8,600);}else{const lat=(10+Math.random()*70).toFixed(3),lon=(10+Math.random()*160).toFixed(3);$('link8').textContent=100;$('coordinatesValue8').textContent='LUNA // '+lat+' // '+lon;$('coordinates8').hidden=false;localStorage.setItem('mkty_life9_coordinates',lat+','+lon);awardLifePoints(8,2000);$('signalStatus8').textContent='Signal decoded. Final coordinates received ✓';$('signalPulse').classList.add('decoded');setSignalStage8('complete');$('life8Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');}}});
 $('life8ReturnBtn').onclick=()=>show('home');
 
 function unlockLife9(){
  if(localStorage.getItem('mkty_life8')!=='complete')return false;const a=$('life8Card'),b=$('life9Card'),i=$('life9Icon'),p=$('storyProgress');a?.classList.add('complete');if(b){b.disabled=false;b.classList.remove('locked');b.classList.add('unlocked');}if(i)i.textContent='9';if(p)p.style.width='99%';return true;
 }
 $('continueLife9Btn').onclick=(ev)=>{ev?.preventDefault?.();if(!unlockLife9())return;startLife9();};if($('life9Card'))$('life9Card').onclick=()=>$('continueLife9Btn').click();
-let navTarget9=50,syncSeq9=[],syncInput9=[],syncRound9=1,finalSeq9=[],finalInput9=[],coreHealth9=100,finalPower9=100,finalTimer9=null;
+let navTarget9=50,syncSeq9=[],syncInput9=[],syncRound9=1,finalSeq9=[],finalInput9=[],coreHealth9=100,finalPower9=100,finalTimer9=null,syncReady9=false,finalReady9=false;
+function setFinalStage9(stage){$('mission9').dataset.stage=stage;}
 function startLife9(){playLifeCinematic(9,openMission9);}
 function openMission9(){
- navTarget9=35+Math.floor(Math.random()*31);syncSeq9=[];syncInput9=[];syncRound9=1;finalSeq9=[];finalInput9=[];coreHealth9=100;finalPower9=100;clearInterval(finalTimer9);$('nav9').hidden=false;$('corridor9').hidden=true;$('sync9').hidden=true;$('transmit9').hidden=true;$('life9Complete').hidden=true;$('phase9a').className='active';$('phase9b').className='';$('phase9c').className='';$('core9').textContent=100;$('navDial9').value=10;$('corridorNeedle9').style.left='10%';$('coreHealthFill9').style.width='100%';$('finalPowerFill9').style.width='100%';$('finalStatus9').textContent='Phase I — verify the coordinates from LIFE #8.';$('finalGate').classList.remove('open');$('finalShip').classList.remove('returned');show('mission9');
+ clearMissionDelays(9);
+ syncReady9=finalReady9=false;setFinalStage9('coordinates');$('coordLat9').value='';$('coordLon9').value='';$('savedCoords9').textContent=(localStorage.getItem('mkty_life9_coordinates')||'—').replace(',',' / ');navTarget9=35+Math.floor(Math.random()*31);syncSeq9=[];syncInput9=[];syncRound9=1;finalSeq9=[];finalInput9=[];coreHealth9=100;finalPower9=100;clearInterval(finalTimer9);$('nav9').hidden=false;$('corridor9').hidden=true;$('sync9').hidden=true;$('transmit9').hidden=true;$('life9Complete').hidden=true;$('phase9a').className='active';$('phase9b').className='';$('phase9c').className='';$('core9').textContent=100;$('navDial9').value=10;document.querySelector('.corridor-meter9').style.setProperty('--corridor-target',navTarget9+'%');$('corridorNeedle9').style.left='10%';$('coreHealthFill9').style.width='100%';$('finalPowerFill9').style.width='100%';$('finalStatus9').textContent='Phase I — verify the coordinates from LIFE #8.';$('finalGate').classList.remove('open');$('finalShip').classList.remove('returned');show('mission9');
 }
-$('verifyCoords9').onclick=()=>{const saved=localStorage.getItem('mkty_life9_coordinates')||'',parts=saved.split(','),a=$('coordLat9').value.trim(),b=$('coordLon9').value.trim();if(parts.length===2&&a===parts[0]&&b===parts[1]){$('corridor9').hidden=false;$('finalStatus9').textContent='Coordinates verified ✓ Stabilize the return corridor.';tg?.HapticFeedback?.notificationOccurred?.('success');}else{$('finalStatus9').textContent='Coordinates rejected. Recheck the LIFE #8 transmission.';coreHealth9=Math.max(70,coreHealth9-5);$('coreHealthFill9').style.width=coreHealth9+'%';tg?.HapticFeedback?.notificationOccurred?.('error');}};
+$('verifyCoords9').onclick=()=>{const saved=localStorage.getItem('mkty_life9_coordinates')||'',parts=saved.split(','),a=$('coordLat9').value.trim(),b=$('coordLon9').value.trim();if(parts.length===2&&a===parts[0]&&b===parts[1]){$('corridor9').hidden=false;setFinalStage9('corridor');$('finalStatus9').textContent='Coordinates verified ✓ Stabilize the return corridor.';tg?.HapticFeedback?.notificationOccurred?.('success');}else{$('finalStatus9').textContent='Coordinates rejected. Recheck the LIFE #8 transmission.';coreHealth9=Math.max(70,coreHealth9-5);$('coreHealthFill9').style.width=coreHealth9+'%';$('core9').textContent=coreHealth9;tg?.HapticFeedback?.notificationOccurred?.('error');}};
 $('navDial9').oninput=()=>{$('corridorNeedle9').style.left=$('navDial9').value+'%';};
-function showSync9(){syncInput9=[];const len=3+syncRound9;syncSeq9=Array.from({length:len},()=>Math.floor(Math.random()*3));$('syncRound9').textContent=syncRound9;$('syncHint9').textContent=syncSeq9.map(n=>['A','B','C'][n]).join(' → ');setTimeout(()=>{$('syncHint9').textContent='Repeat core pulse • cycle '+syncRound9+'/3';},1500+len*180);}
-$('lockNav9').onclick=()=>{const v=Number($('navDial9').value),d=Math.abs(v-navTarget9);if(d<=3){$('nav9').hidden=true;$('sync9').hidden=false;$('phase9a').className='done';$('phase9b').className='active';$('finalStatus9').textContent='Phase II — damaged core synchronization.';showSync9();tg?.HapticFeedback?.notificationOccurred?.('success');}else{coreHealth9=Math.max(50,coreHealth9-4);$('coreHealthFill9').style.width=coreHealth9+'%';$('core9').textContent=Math.round(coreHealth9);$('finalStatus9').textContent=v<navTarget9?'Corridor vector is higher.':'Corridor vector is lower.';}};
+function showSync9(){
+ clearMissionDelays(9);syncReady9=false;syncInput9=[];const len=3+syncRound9;
+ syncSeq9=Array.from({length:len},()=>Math.floor(Math.random()*3));$('syncRound9').textContent=syncRound9;
+ paintLaunchSlots3('syncSequence9',syncSeq9.map(n=>['A','B','C'][n]),len);
+ $('syncHint9').textContent='Memorize '+len+' symbols.';$('replaySync9').disabled=true;document.querySelectorAll('[data-sync9]').forEach(b=>b.disabled=true);
+ laterInMission(9,()=>{paintLaunchSlots3('syncSequence9',[],len);syncReady9=true;$('replaySync9').disabled=false;document.querySelectorAll('[data-sync9]').forEach(b=>b.disabled=false);$('syncHint9').textContent='Repeat core pulse • cycle '+syncRound9+'/3';},1500+len*180);
+}
+$('lockNav9').onclick=()=>{const v=Number($('navDial9').value),d=Math.abs(v-navTarget9);if(d<=3){setFinalStage9('sync');$('nav9').hidden=true;$('sync9').hidden=false;$('phase9a').className='done';$('phase9b').className='active';$('finalStatus9').textContent='Phase II — damaged core synchronization.';showSync9();tg?.HapticFeedback?.notificationOccurred?.('success');}else{coreHealth9=Math.max(50,coreHealth9-4);$('coreHealthFill9').style.width=coreHealth9+'%';$('core9').textContent=Math.round(coreHealth9);$('finalStatus9').textContent=v<navTarget9?'Corridor vector is higher.':'Corridor vector is lower.';}};
 $('replaySync9').onclick=showSync9;
-document.querySelectorAll('[data-sync9]').forEach(b=>b.onclick=()=>{if($('sync9').hidden||!syncSeq9.length)return;const v=Number(b.dataset.sync9);if(v!==syncSeq9[syncInput9.length]){coreHealth9-=12;$('coreHealthFill9').style.width=Math.max(0,coreHealth9)+'%';$('core9').textContent=Math.max(0,Math.round(coreHealth9));$('finalStatus9').textContent='Core desynchronized — integrity lost.';tg?.HapticFeedback?.notificationOccurred?.('error');if(coreHealth9<=20){$('finalStatus9').textContent='CORE FAILURE — restarting final mission.';setTimeout(openMission9,1400);return;}showSync9();return;}syncInput9.push(v);$('syncHint9').textContent='Synchronized '+syncInput9.length+' / '+syncSeq9.length;if(syncInput9.length===syncSeq9.length){if(syncRound9<3){syncRound9++;coreHealth9=Math.min(100,coreHealth9+8);$('coreHealthFill9').style.width=coreHealth9+'%';setTimeout(showSync9,500);}else{startFinalTransmit9();}}});
-function showFinalCode9(){finalInput9=[];finalSeq9=Array.from({length:6},()=>Math.floor(Math.random()*4));$('finalCode9').textContent=finalSeq9.map(n=>['▲','●','◆','■'][n]).join(' ');setTimeout(()=>{$('finalCode9').textContent='? ? ? ? ? ?';},2600);}
-function startFinalTransmit9(){$('sync9').hidden=true;$('transmit9').hidden=false;$('phase9b').className='done';$('phase9c').className='active';$('finalStatus9').textContent='FINAL PHASE — transmit before core power collapses.';finalPower9=100;$('finalPowerFill9').style.width='100%';showFinalCode9();clearInterval(finalTimer9);finalTimer9=setInterval(()=>{finalPower9-=1;$('finalPowerFill9').style.width=Math.max(0,finalPower9)+'%';$('core9').textContent=Math.max(0,Math.round(finalPower9));if(finalPower9<=0){clearInterval(finalTimer9);$('finalStatus9').textContent='POWER LOST — final transmission failed.';setTimeout(openMission9,1400);}},120);}
-$('replayFinal9').onclick=()=>{if(finalPower9>20){finalPower9-=15;showFinalCode9();$('finalStatus9').textContent='Code replay costs 15% core power.';}};
-document.querySelectorAll('[data-final9]').forEach(b=>b.onclick=()=>{if($('transmit9').hidden||!finalSeq9.length)return;const v=Number(b.dataset.final9);if(v!==finalSeq9[finalInput9.length]){finalPower9=Math.max(0,finalPower9-18);$('finalPowerFill9').style.width=finalPower9+'%';$('finalStatus9').textContent='Transmission rejected — 18% power lost.';showFinalCode9();tg?.HapticFeedback?.notificationOccurred?.('error');return;}finalInput9.push(v);$('finalStatus9').textContent='Return code: '+finalInput9.length+' / 6';if(finalInput9.length===6){clearInterval(finalTimer9);awardLifePoints(9,3000);if($('storyProgress'))$('storyProgress').style.width='100%';$('phase9c').className='done';$('core9').textContent=Math.round(finalPower9);$('finalGate').classList.add('open');$('finalShip').classList.add('returned');$('finalStatus9').textContent='RETURN TRANSMISSION ACCEPTED ✓';setTimeout(()=>$('life9Complete').hidden=false,900);tg?.HapticFeedback?.notificationOccurred?.('success');}});
+document.querySelectorAll('[data-sync9]').forEach(b=>b.onclick=()=>{if($('sync9').hidden||!syncSeq9.length||!syncReady9)return;const v=Number(b.dataset.sync9);if(v!==syncSeq9[syncInput9.length]){coreHealth9-=12;$('coreHealthFill9').style.width=Math.max(0,coreHealth9)+'%';$('core9').textContent=Math.max(0,Math.round(coreHealth9));$('finalStatus9').textContent='Core desynchronized — integrity lost.';tg?.HapticFeedback?.notificationOccurred?.('error');if(coreHealth9<=20){syncReady9=false;document.querySelectorAll('[data-sync9]').forEach(b=>b.disabled=true);$('replaySync9').disabled=true;$('finalStatus9').textContent='CORE FAILURE — restarting final mission.';laterInMission(9,openMission9,1400);return;}showSync9();return;}syncInput9.push(v);$('syncHint9').textContent='Synchronized '+syncInput9.length+' / '+syncSeq9.length;paintLaunchSlots3('syncSequence9',syncInput9.map(n=>['A','B','C'][n]),syncSeq9.length);if(syncInput9.length===syncSeq9.length){syncReady9=false;document.querySelectorAll('[data-sync9]').forEach(b=>b.disabled=true);$('replaySync9').disabled=true;if(syncRound9<3){syncRound9++;coreHealth9=Math.min(100,coreHealth9+8);$('coreHealthFill9').style.width=coreHealth9+'%';$('core9').textContent=coreHealth9;laterInMission(9,showSync9,500);}else{startFinalTransmit9();}}});
+function showFinalCode9(){
+ clearMissionDelays(9);finalReady9=false;finalInput9=[];finalSeq9=Array.from({length:6},()=>Math.floor(Math.random()*4));
+ paintLaunchSlots3('finalCode9',finalSeq9.map(n=>['▲','●','◆','■'][n]),6);$('replayFinal9').disabled=true;document.querySelectorAll('[data-final9]').forEach(b=>b.disabled=true);
+ laterInMission(9,()=>{paintLaunchSlots3('finalCode9',[],6);finalReady9=true;$('replayFinal9').disabled=false;document.querySelectorAll('[data-final9]').forEach(b=>b.disabled=false);},2600);
+}
+function startFinalTransmit9(){setFinalStage9('transmit');$('sync9').hidden=true;$('transmit9').hidden=false;$('phase9b').className='done';$('phase9c').className='active';$('finalStatus9').textContent='FINAL PHASE — transmit before core power collapses.';finalPower9=100;$('finalPowerFill9').style.width='100%';showFinalCode9();clearInterval(finalTimer9);finalTimer9=setInterval(()=>{if(document.hidden)return;finalPower9-=1;$('finalPowerFill9').style.width=Math.max(0,finalPower9)+'%';$('core9').textContent=Math.max(0,Math.round(finalPower9));if(finalPower9<=0){finalReady9=false;clearMissionDelays(9);document.querySelectorAll('[data-final9]').forEach(b=>b.disabled=true);$('replayFinal9').disabled=true;clearInterval(finalTimer9);finalTimer9=null;$('finalStatus9').textContent='POWER LOST — final transmission failed.';laterInMission(9,openMission9,1400);}},120);}
+$('replayFinal9').onclick=()=>{if(finalReady9&&finalPower9>20){finalPower9-=15;showFinalCode9();$('finalStatus9').textContent='Code replay costs 15% core power.';}};
+document.querySelectorAll('[data-final9]').forEach(b=>b.onclick=()=>{if($('transmit9').hidden||!finalSeq9.length||!finalReady9||finalPower9<=0)return;const v=Number(b.dataset.final9);if(v!==finalSeq9[finalInput9.length]){finalPower9=Math.max(0,finalPower9-18);$('finalPowerFill9').style.width=finalPower9+'%';$('finalStatus9').textContent='Transmission rejected — 18% power lost.';showFinalCode9();tg?.HapticFeedback?.notificationOccurred?.('error');return;}finalInput9.push(v);$('finalStatus9').textContent='Return code: '+finalInput9.length+' / 6';paintLaunchSlots3('finalCode9',finalInput9.map(n=>['▲','●','◆','■'][n]),6);if(finalInput9.length===6){finalReady9=false;clearMissionDelays(9);document.querySelectorAll('[data-final9]').forEach(b=>b.disabled=true);$('replayFinal9').disabled=true;clearInterval(finalTimer9);finalTimer9=null;awardLifePoints(9,3000);if($('storyProgress'))$('storyProgress').style.width='100%';$('phase9c').className='done';$('core9').textContent=Math.round(finalPower9);$('finalGate').classList.add('open');$('finalShip').classList.add('returned');$('finalStatus9').textContent='RETURN TRANSMISSION ACCEPTED ✓';laterInMission(9,()=>{setFinalStage9('complete');$('life9Complete').hidden=false;},900);tg?.HapticFeedback?.notificationOccurred?.('success');}});
 $('life9ReturnBtn').onclick=()=>show('home');
 
 

@@ -111,6 +111,28 @@ Complete the final crew protocol.|Завершите протокол синхр
 CREW ASSEMBLED|ЭКИПАЖ СОБРАН
 MISSION READY|ГОТОВЫ К МИССИИ
 THE LAUNCH CODE|КОД ЗАПУСКА
+LAUNCH SYSTEMS|СИСТЕМЫ ЗАПУСКА
+Launch progress|Этапы запуска
+ACCESS|ДОСТУП
+SIGNAL|СИГНАЛ
+MIXTURE|СМЕСЬ
+START|ЗАПУСК
+JOURNAL • LIFE #1|ЖУРНАЛ • ГЛАВА 1
+CODE HINT • −1 LIFE|ПОДСКАЗКА • −1 ЖИЗНЬ
+Oxygen level|Уровень кислорода
+Fuel level|Уровень топлива
+Coolant level|Уровень охлаждения
+TOTAL LOAD|ОБЩАЯ НАГРУЗКА
+STABLE|СТАБИЛЬНО
+Fuel matrix stable. Ready to lock.|Смесь стабильна. Можно зафиксировать матрицу.
+Total stable. Adjust the three stability indicators.|Сумма верна. Настройте три показателя стабильности.
+Overpressure — reduce mixture.|Избыточное давление — уменьшите смесь.
+Insufficient load — increase mixture.|Недостаточная нагрузка — увеличьте смесь.
+ADJUST|НАСТРОЙТЕ
+LAUNCH WINDOW|ОКНО ЗАПУСКА
+Memorize the four symbols…|Запомните четыре символа…
+Repeat the sequence using the four keys.|Повторите порядок с помощью четырёх клавиш.
+Receive a new transmission and try again.|Получите новую последовательность и попробуйте снова.
 THE CREW IS READY. THE SHIP IS NOT.|ЭКИПАЖ ГОТОВ. КОРАБЛЬ — ЕЩЁ НЕТ.
 SECURITY // 03|ЗАЩИТА // 03
 MEMORY CHECK // LIFE #1|ПРОВЕРКА ПАМЯТИ // ГЛАВА 1
@@ -172,7 +194,22 @@ Rise or brake|Подъём или торможение
 Steer left|Влево
 Steer right|Вправо
 Descend|Вниз
+FLIGHT GUIDANCE|УПРАВЛЕНИЕ ПОЛЁТОМ
+FUEL LINE OVERPRESSURE|ИЗБЫТОЧНОЕ ДАВЛЕНИЕ ТОПЛИВА
+GUIDANCE COMPUTER DESYNC|СБОЙ СИНХРОНИЗАЦИИ НАВИГАЦИИ
+REACTOR SENSOR FAILURE|ОТКАЗ ДАТЧИКА РЕАКТОРА
 REACTOR // OFFLINE|РЕАКТОР // ОТКЛЮЧЁН
+REACTOR // CHARGING|РЕАКТОР // ЗАРЯД
+REACTOR // HOT|РЕАКТОР // ПЕРЕГРЕВ
+REACTOR // STABLE|РЕАКТОР // СТАБИЛЕН
+REACTOR // ONLINE|РЕАКТОР // ВКЛЮЧЁН
+IGNITE REACTOR|ЗАПУСК ЯДРА
+Charge all cells. Hold temperature at 45–68°C and stability at 45–55%, then lock the core.|Зарядите ячейки. Удерживайте 45–68°C и стабильность 45–55%, затем зафиксируйте ядро.
+TRANSMISSION • LIFE #8|ПЕРЕДАЧА • ГЛАВА 8
+Latitude|Широта
+Longitude|Долгота
+CYCLE|ЦИКЛ
+Awaiting core pulse.|Ожидание импульса ядра.
 START THE REACTOR|ЗАПУСТИТЕ РЕАКТОР
 Charge all three energy cells, stabilize the core, then ignite.|Зарядите три ячейки, стабилизируйте ядро и запустите реактор.
 CELL A|ЯЧЕЙКА A
@@ -350,6 +387,7 @@ TRUTH UNLOCKED|ИСТИНА ОТКРЫТА
  const prefixes={
   'Energy collected • ':'Энергия собрана • ', 'VISIBLE FOR ':'ВИДЕН ЕЩЁ ',
   'Synchronized: ':'Синхронизировано: ', 'Incorrect sequence. Attempts: ':'Неверная последовательность. Попытки: ',
+  'Attempts remaining: ':'Осталось попыток: ',
   'Armed: ':'Включено: ', 'Decoded: ':'Расшифровано: ', 'Repeat core pulse • cycle ':'Повторите импульс ядра • цикл ',
   'Synchronized ':'Синхронизировано ', 'Return code: ':'Код возвращения: ', 'RESET ':'СБРОС '
  };

@@ -7,8 +7,10 @@
   <title>MOONKATTY: 9 LIVES</title>
   <!-- mkty-deploy-20260930-1700 -->
   <link rel="stylesheet" href="styles.css?v=20261003-mobile-fix-1" />
-  <link rel="stylesheet" href="chapters-1-4.css?v=20261003-code-en-1" />
+  <link rel="stylesheet" href="chapters-1-4.css?v=20261003-polish-1" />
   <link rel="stylesheet" href="crew-scene.css?v=20261003-deck-1" />
+  <link rel="stylesheet" href="launch-console.css?v=20261003-polish-1" />
+  <link rel="stylesheet" href="mission-polish.css?v=20261003-polish-1" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -133,9 +135,10 @@
         <div class="cinematic-progress"><i id="life3Bar"></i></div><button id="life3SkipBtn" class="ghost">SKIP</button>
       </div>
     </section>
-    <section id="mission3" class="screen mission-screen life-theme life-theme-3">
-      <header><div><span class="eyebrow">LIFE #3</span><h2>THE LAUNCH CODE</h2></div><div class="crew-badge">SECURITY // 03</div></header>
-      <div class="command-scene3" aria-hidden="true"><span class="scene-marker">MOONKATTY · 03</span></div>
+    <section id="mission3" class="screen mission-screen life-theme life-theme-3 launch-bridge3" data-phase="access">
+      <header><div><span class="launch-brand3" translate="no" lang="en">MOONKATTY <i>☾</i></span><span class="eyebrow">LIFE #3</span><h2>THE LAUNCH CODE</h2></div><div class="launch-count3"><strong id="launchStageCount3">01 / 04</strong><span>LAUNCH SYSTEMS</span></div></header>
+      <div class="command-scene3" aria-hidden="true"><i class="bridge-glow3"></i></div>
+      <ol class="launch-steps3" aria-label="Launch progress"><li data-phase3="access" class="current" aria-current="step"><b>01</b><span>ACCESS</span></li><li data-phase3="signal"><b>02</b><span>SIGNAL</span></li><li data-phase3="fuel"><b>03</b><span>MIXTURE</span></li><li data-phase3="ignition"><b>04</b><span>START</span></li></ol>
       <div id="life3MemoryGate" class="memory-gate">
         <p class="eyebrow">MEMORY CHECK // LIFE #1</p><h3>ENTER THE 10-DIGIT CODE</h3>
         <p>The code was shown for 10 seconds after LIFE #1.</p>
@@ -143,18 +146,20 @@
         <button id="verifyLife1CodeBtn" class="primary">VERIFY CODE</button>
         <p id="life3GateStatus" class="mission-status">Authorization required.</p>
         <div id="life3Cooldown" class="cooldown-box" hidden><span>RETRY AVAILABLE IN</span><strong id="life3CooldownTimer">01:00:00</strong></div>
-        <button id="journalCodeBtn" class="ghost journal-code-btn3">OPEN JOURNAL • LIFE #1 CODE</button><div id="journalCode3" class="journal-code3" hidden><span>JOURNAL // LIFE #1</span><strong id="journalCodeValue3">0000000000</strong><small>Recovered memory code • no LIFE cost</small></div><button id="buyCodeHintBtn" class="ghost" hidden>BUY CODE HINT • −1 LIFE</button>
+        <div class="launch-help-actions3"><button id="journalCodeBtn" class="ghost journal-code-btn3">JOURNAL • LIFE #1</button><button id="buyCodeHintBtn" class="ghost" hidden>CODE HINT • −1 LIFE</button></div><div id="journalCode3" class="journal-code3" hidden><span>JOURNAL // LIFE #1</span><strong id="journalCodeValue3">0000000000</strong><small>Recovered memory code • no LIFE cost</small></div>
         <p class="life-bank">LIVES: <strong id="globalLives3">9 / 9</strong> • 1 life restores every 12h</p>
       </div>
       <div class="code-mission" id="life3CodeMission" hidden>
+       <div id="launchStage1" class="launch-signal3">
         <p class="eyebrow">DECRYPTION SEQUENCE</p><h3>MEMORIZE THE SIGNAL</h3>
         <p id="codeHint">Watch the four-symbol sequence. Then reproduce it.</p>
-        <div id="codeSequence" class="code-sequence">READY</div>
-        <div id="codePad" class="code-pad"><button data-code="▲">▲</button><button data-code="●">●</button><button data-code="◆">◆</button><button data-code="■">■</button></div>
+        <div id="codeSequence" class="code-sequence" translate="no" aria-live="polite"><span>·</span><span>·</span><span>·</span><span>·</span></div>
+        <div id="codePad" class="code-pad" translate="no"><button data-code="▲" disabled>▲</button><button data-code="●" disabled>●</button><button data-code="◆" disabled>◆</button><button data-code="■" disabled>■</button></div>
         <button id="showCodeBtn" class="primary">SHOW SEQUENCE</button>
         <p id="codeStatus" class="mission-status">Stage 1 / 3 • Attempts: 3</p>
-        <div id="launchStage2" class="launch-stage3" hidden><p class="eyebrow">STAGE II // FUEL MATRIX</p><h3>BALANCE THE REACTOR</h3><p>Set O₂, FUEL and COOLANT so total load is exactly 100.</p><div class="fuel-matrix3"><label>O₂ <b id="mixO2Val">30</b><input id="mixO2" type="range" min="10" max="60" value="30"></label><label>FUEL <b id="mixFuelVal">40</b><input id="mixFuel" type="range" min="10" max="60" value="40"></label><label>COOLANT <b id="mixCoolVal">30</b><input id="mixCool" type="range" min="10" max="60" value="30"></label></div><div class="mix-total3">TOTAL <strong id="mixTotal3">100</strong></div><button id="lockMix3" class="primary">LOCK FUEL MATRIX</button><small id="mixHint3">Target profile is encrypted. Watch the stability indicators.</small></div>
-        <div id="launchStage3" class="launch-stage3" hidden><p class="eyebrow">STAGE III // IGNITION</p><h3>MANUAL LAUNCH PROTOCOL</h3><p>Arm the three systems in the transmitted order before the countdown expires.</p><div id="ignitionOrder3" class="ignition-order3">? → ? → ?</div><button id="showIgnition3" class="ghost">RECEIVE IGNITION ORDER</button><div class="ignition-keys3"><button data-ignite3="NAV">NAV</button><button data-ignite3="CORE">CORE</button><button data-ignite3="COMMS">COMMS</button></div><div class="launch-timer3"><i id="launchTimerFill3"></i></div><small id="ignitionHint3">Awaiting launch order.</small></div>
+       </div>
+        <div id="launchStage2" class="launch-stage3" hidden><p class="eyebrow">STAGE II // FUEL MATRIX</p><h3>BALANCE THE REACTOR</h3><p>Set O₂, FUEL and COOLANT so total load is exactly 100.</p><div class="fuel-matrix3"><label class="mix-oxygen3"><span translate="no" lang="en">O₂</span><b id="mixO2Val">30</b><span class="mix-tank3" aria-hidden="true"><i></i></span><input id="mixO2" aria-label="Oxygen level" type="range" min="10" max="60" value="30"></label><label class="mix-fuel3"><span translate="no" lang="en">FUEL</span><b id="mixFuelVal">40</b><span class="mix-tank3" aria-hidden="true"><i></i></span><input id="mixFuel" aria-label="Fuel level" type="range" min="10" max="60" value="40"></label><label class="mix-cool3"><span translate="no" lang="en">COOLANT</span><b id="mixCoolVal">30</b><span class="mix-tank3" aria-hidden="true"><i></i></span><input id="mixCool" aria-label="Coolant level" type="range" min="10" max="60" value="30"></label></div><div class="mix-total3"><span>TOTAL LOAD</span><strong id="mixTotal3">100</strong><small>/ 100</small><i id="mixStability3">STABLE</i></div><button id="lockMix3" class="primary">LOCK FUEL MATRIX</button><small id="mixHint3">Target profile is encrypted. Watch the stability indicators.</small></div>
+        <div id="launchStage3" class="launch-stage3" hidden><p class="eyebrow">STAGE III // IGNITION</p><h3>MANUAL LAUNCH PROTOCOL</h3><p>Arm the three systems in the transmitted order before the countdown expires.</p><div id="ignitionOrder3" class="ignition-order3" translate="no" lang="en" dir="ltr"><span>?</span><span>?</span><span>?</span></div><button id="showIgnition3" class="ghost">RECEIVE IGNITION ORDER</button><div class="ignition-keys3" translate="no" lang="en" dir="ltr"><button data-ignite3="NAV" disabled><i></i>NAV</button><button data-ignite3="CORE" disabled><i></i>CORE</button><button data-ignite3="COMMS" disabled><i></i>COMMS</button></div><div class="launch-countdown3"><span>LAUNCH WINDOW</span><strong id="launchSeconds3" translate="no">05.0</strong><span translate="no">s</span></div><div class="launch-timer3"><i id="launchTimerFill3"></i></div><small id="ignitionHint3">Awaiting launch order.</small></div>
       </div>
       <div id="life3Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">ACCESS GRANTED</p><h3>LAUNCH CODE DECRYPTED</h3><strong>+750 MOON POINTS ⭐</strong><button id="continueLife4Btn" class="primary">UNLOCK LIFE #4 🚀</button><button id="life3ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
     </section>
@@ -204,32 +209,32 @@
       <p id="descentStatus" class="mission-status">Stabilize descent and reach the landing zone.</p>
       <div id="life4Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">TOUCHDOWN</p><h3>PERFECT LANDING</h3><strong>+1000 MOON POINTS ⭐</strong><button id="continueLife5Btn" class="primary">UNLOCK LIFE #5 🔥</button><button id="life4ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
     </section>
-    <section id="mission5" class="screen mission-screen life-theme life-theme-5">
-      <header><div><span class="eyebrow">LIFE #5</span><h2>IGNITION</h2></div><div class="crew-badge">REACTOR // OFFLINE</div></header>
+    <section id="mission5" class="screen mission-screen life-theme life-theme-5 mission-polished">
+      <header><div><span class="eyebrow">LIFE #5</span><h2>IGNITION</h2></div><div class="crew-badge" id="reactorState5">REACTOR // OFFLINE</div></header>
       <div class="reactor-world"><div id="reactorCore" class="reactor-core">◉</div><div class="reactor-ring r1"></div><div class="reactor-ring r2"></div></div>
-      <div class="panel objective"><span class="eyebrow">MISSION OBJECTIVE</span><h3>START THE REACTOR</h3><p>Charge all three energy cells, stabilize the core, then ignite.</p></div>
-      <div class="energy-cells"><button data-cell="0"><i></i><span>CELL A</span></button><button data-cell="1"><i></i><span>CELL B</span></button><button data-cell="2"><i></i><span>CELL C</span></button></div>
+      <div class="panel objective"><span class="eyebrow">MISSION OBJECTIVE</span><h3>START THE REACTOR</h3><p>Charge all cells. Hold temperature at 45–68°C and stability at 45–55%, then lock the core.</p></div>
+      <div class="energy-cells"><button data-cell="0"><i></i><span translate="no" lang="en">CELL A</span><output>0%</output></button><button data-cell="1"><i></i><span translate="no" lang="en">CELL B</span><output>0%</output></button><button data-cell="2"><i></i><span translate="no" lang="en">CELL C</span><output>0%</output></button></div>
       <div class="reactor-hud5"><span>CORE TEMP <b id="temp5">22</b>°C</span><span>STABILITY <b id="stabilityRead5">15</b>%</span></div>
       <div class="reactor-temp5"><i id="tempFill5"></i><b class="danger5"></b></div>
       <div class="stability"><span>CORE STABILITY</span><div><i id="stabilityNeedle"></i><b></b></div></div>
       <div class="reactor-controls5"><button id="chargeCore5">CHARGE ⚡</button><button id="coolCore5">COOL ❄</button></div>
-      <button id="stabilizeBtn" class="primary" disabled>LOCK STABILITY ⚡</button>
-      <button id="igniteBtn" class="primary ignition-btn" disabled>IGNITION 🔥</button>
+      <div class="reactor-actions5"><button id="stabilizeBtn" class="primary" disabled>LOCK STABILITY ⚡</button>
+      <button id="igniteBtn" class="primary ignition-btn" disabled>IGNITE REACTOR</button></div>
       <p id="ignitionStatus" class="mission-status">Charge the energy cells.</p>
       <div id="life5Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">REACTOR ONLINE</p><h3>IGNITION SUCCESSFUL</h3><strong>+1250 MOON POINTS ⭐</strong><button id="continueLife6Btn" class="primary">UNLOCK LIFE #6 🚀</button><button id="life5ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
     </section>
-    <section id="mission6" class="screen mission-screen life-theme life-theme-6">
+    <section id="mission6" class="screen mission-screen life-theme life-theme-6 mission-polished">
       <header><div><span class="eyebrow">LIFE #6</span><h2>LIFTOFF</h2></div><div class="crew-badge">T− <span id="launchClock">30</span></div></header>
       <div class="launch-world"><div class="launch-moon"></div><div id="launchShip" class="launch-ship">🚀</div><div id="launchFlame" class="launch-flame"></div></div>
       <div class="panel objective"><span class="eyebrow">LAUNCH SEQUENCE</span><h3>PREPARE FOR LIFTOFF</h3><p>Arm systems in the correct order before the countdown reaches zero.</p></div>
-      <div class="launch-checklist"><button data-launch="NAVIGATION">NAVIGATION</button><button data-launch="FUEL">FUEL PRESSURE</button><button data-launch="CREW">CREW LOCK</button><button data-launch="REACTOR">REACTOR LINK</button></div>
+      <div class="launch-checklist"><button data-launch="NAVIGATION"><b translate="no" lang="en">NAVIGATION</b><small>FLIGHT GUIDANCE</small></button><button data-launch="FUEL"><b translate="no" lang="en">FUEL</b><small>FUEL PRESSURE</small></button><button data-launch="CREW"><b translate="no" lang="en">CREW</b><small>CREW LOCK</small></button><button data-launch="REACTOR"><b translate="no" lang="en">REACTOR</b><small>REACTOR LINK</small></button></div>
       <div id="launchEmergency6" class="launch-emergency6" hidden><span>⚠ FLIGHT COMPUTER ALERT</span><strong id="launchAlert6">SYSTEM FAULT</strong><div class="launch-response6"><button data-response6="VENT">VENT</button><button data-response6="RESET">RESET</button><button data-response6="BYPASS">BYPASS</button></div><small id="launchAlertHint6">Resolve the fault before countdown reaches zero.</small></div>
-      <div class="launch-order6"><span>PROCEDURE</span><b id="launchOrder6">—</b></div>
+      <div class="launch-order6"><span>PROCEDURE</span><b id="launchOrder6" translate="no" lang="en" dir="ltr">—</b></div>
       <button id="launchBtn" class="primary ignition-btn" disabled>LAUNCH 🚀</button>
       <p id="launchStatus" class="mission-status">Complete the pre-flight checklist.</p>
       <div id="life6Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">LIFTOFF</p><h3>ORBIT ACHIEVED</h3><strong>+1500 MOON POINTS ⭐</strong><button id="continueLife7Btn" class="primary">UNLOCK LIFE #7 🌌</button><button id="life6ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
     </section>
-    <section id="mission7" class="screen mission-screen life-theme life-theme-7">
+    <section id="mission7" class="screen mission-screen life-theme life-theme-7 mission-polished">
       <header><div><span class="eyebrow">LIFE #7</span><h2>THE VOID</h2></div><div class="crew-badge">HULL <span id="hull7">100</span>%</div></header>
       <div id="voidWorld7" class="void-world"><div class="void-stars"></div><div class="void-lane7 l0"></div><div class="void-lane7 l1"></div><div class="void-lane7 l2"></div><div id="voidShip" class="void-ship">🚀</div><div id="shieldBubble7" class="shield-bubble7"></div><div id="asteroidField" class="asteroid-field"></div></div>
       <div class="panel objective"><span class="eyebrow">DEEP SPACE</span><h3>SURVIVE THE VOID</h3><p>Dodge the debris, preserve the hull and reach the transmission gate.</p></div>
@@ -238,30 +243,30 @@
       <p id="voidStatus" class="mission-status">Unknown debris field ahead.</p>
       <div id="life7Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">VOID CROSSED</p><h3>TRANSMISSION GATE REACHED</h3><strong>+1750 MOON POINTS ⭐</strong><button id="continueLife8Btn" class="primary">UNLOCK LIFE #8 📡</button><button id="life7ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
     </section>
-    <section id="mission8" class="screen mission-screen life-theme life-theme-8">
+    <section id="mission8" class="screen mission-screen life-theme life-theme-8 mission-polished">
       <header><div><span class="eyebrow">LIFE #8</span><h2>THE SIGNAL</h2></div><div class="crew-badge">LINK <span id="link8">0</span>%</div></header>
       <div class="signal-world"><div class="signal-orbit"></div><div class="signal-source">✦</div><div id="signalDish" class="signal-dish">📡</div><div id="signalPulse" class="signal-pulse"></div></div>
       <div class="panel objective"><span class="eyebrow">UNKNOWN TRANSMISSION</span><h3>DECODE THE SIGNAL</h3><p>Match frequency, lock phase, then repeat the alien pulse pattern.</p></div>
-      <div class="signal-stage"><span>FREQUENCY</span><div class="signal-strength8"><i id="strengthFill8"></i></div><input id="freq8" type="range" min="0" max="100" value="20"><small id="freqRead8">142.0 MHz</small><small id="strengthText8">SIGNAL 0%</small></div>
+      <div id="frequencyPanel8" class="signal-stage"><span>FREQUENCY</span><div class="signal-strength8"><i id="strengthFill8"></i></div><input id="freq8" type="range" min="0" max="100" value="20"><small id="freqRead8">142.0 MHz</small><small id="strengthText8">SIGNAL 0%</small></div>
       <button id="lockFreq8" class="primary">LOCK FREQUENCY</button>
       <div id="phasePanel8" class="signal-stage" hidden><span>PHASE ALIGNMENT</span><div class="phase-scope8"><i id="phaseNeedle8"></i><b></b></div><input id="phase8" type="range" min="0" max="100" value="50"><button id="lockPhase8" class="ghost">BEGIN PHASE HOLD</button><div id="phaseHold8" class="phase-hold8" hidden><i id="phaseHoldFill8"></i></div></div>
-      <div id="pulsePanel8" class="pulse-panel" hidden><p>DECODE TRANSMISSION • ROUND <b id="pulseRound8">1</b>/3</p><div id="pulseDisplay8" class="pulse-display">• • • •</div><button id="replayPulse8" class="ghost">REPLAY PULSE</button><div class="pulse-keys"><button data-pulse8="0">◯</button><button data-pulse8="1">△</button><button data-pulse8="2">◇</button></div><small id="pulseHint8">Each round grows longer.</small></div>
-      <div id="coordinates8" class="coordinates8" hidden><span>DECODED COORDINATES</span><strong id="coordinatesValue8">LUNA // 00.000 // 00.000</strong></div>
+      <div id="pulsePanel8" class="pulse-panel" hidden><p>DECODE TRANSMISSION • ROUND <b id="pulseRound8">1</b>/3</p><div id="pulseDisplay8" class="pulse-display" translate="no" dir="ltr">• • • •</div><button id="replayPulse8" class="ghost">REPLAY PULSE</button><div class="pulse-keys"><button data-pulse8="0">◯</button><button data-pulse8="1">△</button><button data-pulse8="2">◇</button></div><small id="pulseHint8">Each round grows longer.</small></div>
+
       <p id="signalStatus8" class="mission-status">Find the transmission frequency.</p>
-      <div id="life8Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">SIGNAL DECODED</p><h3>COORDINATES RECEIVED</h3><strong>+2000 MOON POINTS ⭐</strong><button id="continueLife9Btn" class="primary">UNLOCK FINAL LIFE 🌙</button><button id="life8ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
+      <div id="life8Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">SIGNAL DECODED</p><h3>COORDINATES RECEIVED</h3><div id="coordinates8" class="coordinates8" hidden><span>DECODED COORDINATES</span><strong id="coordinatesValue8">LUNA // 00.000 // 00.000</strong></div><strong>+2000 MOON POINTS ⭐</strong><button id="continueLife9Btn" class="primary">UNLOCK FINAL LIFE 🌙</button><button id="life8ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
     </section>
-    <section id="mission9" class="screen mission-screen life-theme life-theme-9">
+    <section id="mission9" class="screen mission-screen life-theme life-theme-9 mission-polished">
       <header><div><span class="eyebrow">LIFE #9 • FINAL LIFE</span><h2>THE RETURN</h2></div><div class="crew-badge">CORE <span id="core9">100</span>%</div></header>
       <div class="final-world"><div class="final-moon"></div><div id="finalShip" class="final-ship">🚀</div><div id="finalGate" class="final-gate">◉</div></div>
       <div class="panel objective"><span class="eyebrow">FINAL MISSION</span><h3>BRING MOONKATTY HOME</h3><p>Survive three phases: navigate the gate, synchronize the core, and transmit the final code.</p></div>
       <div class="final-phases"><span id="phase9a" class="active">I • NAVIGATE</span><span id="phase9b">II • SYNC</span><span id="phase9c">III • TRANSMIT</span></div>
-      <div id="nav9" class="final-challenge"><p>Enter the coordinates recovered from LIFE #8, then stabilize the return corridor.</p><div class="coords-entry9"><input id="coordLat9" inputmode="decimal" placeholder="LAT"><input id="coordLon9" inputmode="decimal" placeholder="LON"></div><button id="verifyCoords9" class="ghost">VERIFY COORDINATES</button><div id="corridor9" hidden><span>CORRIDOR VECTOR</span><div class="corridor-meter9"><i id="corridorNeedle9"></i><b></b></div><input id="navDial9" type="range" min="0" max="100" value="10"><button id="lockNav9" class="primary">LOCK COURSE</button></div></div>
-      <div id="sync9" class="final-challenge" hidden><p>Synchronize the damaged core through three increasingly unstable cycles.</p><div class="core-health9"><i id="coreHealthFill9"></i></div><div class="sync-nodes"><button data-sync9="0">A</button><button data-sync9="1">B</button><button data-sync9="2">C</button></div><button id="replaySync9" class="ghost">REPLAY CORE PULSE</button><small id="syncHint9">Cycle <b id="syncRound9">1</b>/3</small></div>
-      <div id="transmit9" class="final-challenge" hidden><p>Transmit the final six-symbol return code before core power collapses.</p><div id="finalCode9" class="final-code">? ? ? ? ? ?</div><button id="replayFinal9" class="ghost">REPLAY RETURN CODE</button><div class="final-keys"><button data-final9="0">▲</button><button data-final9="1">●</button><button data-final9="2">◆</button><button data-final9="3">■</button></div><div class="final-power9"><i id="finalPowerFill9"></i></div></div>
+      <div id="nav9" class="final-challenge"><p>Enter the coordinates recovered from LIFE #8, then stabilize the return corridor.</p><div class="coordinate-record9"><span>TRANSMISSION • LIFE #8</span><strong id="savedCoords9" translate="no">—</strong></div><div class="coords-entry9"><input aria-label="Latitude" id="coordLat9" inputmode="decimal" placeholder="LAT"><input aria-label="Longitude" id="coordLon9" inputmode="decimal" placeholder="LON"></div><button id="verifyCoords9" class="ghost">VERIFY COORDINATES</button><div id="corridor9" hidden><span>CORRIDOR VECTOR</span><div class="corridor-meter9"><i id="corridorNeedle9"></i><b></b></div><input id="navDial9" type="range" min="0" max="100" value="10"><button id="lockNav9" class="primary">LOCK COURSE</button></div></div>
+      <div id="sync9" class="final-challenge" hidden><p>Synchronize the damaged core through three increasingly unstable cycles.</p><div class="core-health9"><i id="coreHealthFill9"></i></div><p class="sync-cycle9">CYCLE <b id="syncRound9">1</b> / 3</p><div id="syncSequence9" class="sync-sequence9" translate="no" dir="ltr"></div><div class="sync-nodes" translate="no" dir="ltr"><button data-sync9="0">A</button><button data-sync9="1">B</button><button data-sync9="2">C</button></div><button id="replaySync9" class="ghost">REPLAY CORE PULSE</button><small id="syncHint9">Awaiting core pulse.</small></div>
+      <div id="transmit9" class="final-challenge" hidden><p>Transmit the final six-symbol return code before core power collapses.</p><div id="finalCode9" class="final-code" translate="no" dir="ltr">? ? ? ? ? ?</div><button id="replayFinal9" class="ghost">REPLAY RETURN CODE</button><div class="final-keys"><button data-final9="0">▲</button><button data-final9="1">●</button><button data-final9="2">◆</button><button data-final9="3">■</button></div><div class="final-power9"><i id="finalPowerFill9"></i></div></div>
       <p id="finalStatus9" class="mission-status">Phase I — align the return corridor.</p>
       <div id="life9Complete" class="complete-card final-complete" hidden><span class="complete-icon">🌙</span><p class="eyebrow">9 LIVES COMPLETE</p><h3>MOONKATTY HAS RETURNED</h3><strong>+3000 MOON POINTS ⭐ • 9 LIVES COMPLETE</strong><p class="final-message">THE SIGNAL WAS NEVER CALLING US TO THE MOON.<br>IT WAS CALLING MOONKATTY HOME.</p><button id="life9ReturnBtn" class="primary">RETURN TO MISSION CONTROL</button></div>
     </section>
   </main>
-  <script src="i18n.js?v=20261003-deck-1"></script>
-  <script src="app.js?v=20261003-deck-1"></script>
+  <script src="i18n.js?v=20261003-polish-1"></script>
+  <script src="app.js?v=20261003-polish-1"></script>
 </body></html>
