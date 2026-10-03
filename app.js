@@ -514,7 +514,7 @@ if($('life4Card'))$('life4Card').onclick=()=>$('continueLife4Btn').click();
 let alt4=2400,vel4=28,fuel4=100,drift4=0,driftVel4=0,descentTimer=null,burnHeld4=false,downHeld4=false,leftHeld4=false,rightHeld4=false,descentActive4=false;
 function renderDescent(){
  $('altitude').textContent=Math.max(0,Math.round(alt4));$('velocity').textContent=Math.max(0,vel4.toFixed(1));$('fuel').textContent=Math.max(0,Math.round(fuel4));$('driftRead4').textContent=(drift4>0?'+':'')+Math.round(drift4);
- $('lander').style.transform='translateX('+drift4+'px)';$('lander').style.setProperty('--drift4',drift4+'px');
+ const landY=16+(1-Math.max(0,Math.min(2400,alt4))/2400)*62;$('lander').style.transform='translateX('+drift4+'px)';$('lander').style.top=landY+'%';$('lander').style.setProperty('--drift4',drift4+'px');
  $('safeVel4').classList.toggle('safe',vel4<=12);$('safeDrift4').classList.toggle('safe',Math.abs(drift4)<=32);document.querySelector('.landing-zone')?.classList.toggle('safe-zone',vel4<=12&&Math.abs(drift4)<=32);
  $('thrustRead4').textContent=$('thrustDial').value+'%';
 }
