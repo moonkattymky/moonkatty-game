@@ -71,6 +71,7 @@ function setLang(code){
  const t=copy[code]||copy.en;
  $('chooseText').textContent=t[0]; $('welcome').textContent=t[1]; $('enterBtn').textContent=t[2];
  if($('lifeTitle')) $('lifeTitle').textContent=t[3]; if($('lifeText')) $('lifeText').textContent=t[4];
+ window.MKTYI18n?.setLanguage(code);
  $('language').classList.remove('active'); $('home').classList.add('active');
 }
 langs.forEach(([code,flag,name])=>{
@@ -513,8 +514,11 @@ $('continueLife4Btn').onclick=(ev)=>{ev?.preventDefault?.();if(!unlockLife4())re
 if($('life4Card'))$('life4Card').onclick=()=>$('continueLife4Btn').click();
 let alt4=2400,vel4=28,fuel4=100,drift4=0,driftVel4=0,descentTimer=null,burnHeld4=false,downHeld4=false,leftHeld4=false,rightHeld4=false,descentActive4=false;
 function renderDescent(){
- $('altitude').textContent=Math.max(0,Math.round(alt4));$('velocity').textContent=Math.max(0,vel4.toFixed(1));$('fuel').textContent=Math.max(0,Math.round(fuel4));$('driftRead4').textContent=(drift4>0?'+':'')+Math.round(drift4);
- const landY=16+(1-Math.max(0,Math.min(2400,alt4))/2400)*62;$('lander').style.transform='translateX('+drift4+'px)';$('lander').style.top=landY+'%';$('lander').style.setProperty('--drift4',drift4+'px');
+ $('altitude').textContent=Math.max(0,Math.round(alt4));$('velocity').textContent=vel4.toFixed(1);$('fuel').textContent=Math.max(0,Math.round(fuel4));$('driftRead4').textContent=(drift4>0?'+':'')+Math.round(drift4);
+ const world=$('lander').parentElement, ship=$('lander');
+ const startY=12, endY=Math.max(startY,world.clientHeight-ship.offsetHeight-34);
+ const landY=startY+(1-Math.max(0,Math.min(2400,alt4))/2400)*(endY-startY);
+ ship.style.transform='translateX(calc(-50% + '+drift4+'px))';ship.style.top=landY+'px';ship.style.setProperty('--drift4',drift4+'px');
  $('safeVel4').classList.toggle('safe',vel4<=14);$('safeDrift4').classList.toggle('safe',Math.abs(drift4)<=42);document.querySelector('.landing-zone')?.classList.toggle('safe-zone',vel4<=14&&Math.abs(drift4)<=42);
  $('thrustRead4').textContent=$('thrustDial').value+'%';
 }
@@ -527,20 +531,26 @@ function finishDescent4(success){
 function openMission4(){
  alt4=2400;vel4=18;fuel4=100;drift4=0;driftVel4=(Math.random()-.5)*.35;descentActive4=true;$('life4Complete').hidden=true;$('lander').classList.remove('crashed','thrusting');$('descentStatus').textContent='Manual descent active. Control velocity, drift and fuel.';show('mission4');renderDescent();clearInterval(descentTimer);
  descentTimer=setInterval(()=>{
-  if(!descentActive4)return;const power=Number($('thrustDial').value)/100;
+  if(!descentActive4||document.hidden||!$('mission4').classList.contains('active'))return;const power=Number($('thrustDial').value)/100;
   vel4+=.10;
-  if(burnHeld4&&fuel4>0){vel4=Math.max(0,vel4-(.28+power*.92));fuel4=Math.max(0,fuel4-(.12+power*.18));$('lander').classList.add('thrusting');}else $('lander').classList.remove('thrusting');if(downHeld4)vel4=Math.min(45,vel4+.22);
+  if(burnHeld4&&fuel4>0){vel4=Math.max(-16,vel4-(.28+power*.92));fuel4=Math.max(0,fuel4-(.12+power*.18));$('lander').classList.add('thrusting');}else $('lander').classList.remove('thrusting');if(downHeld4)vel4=Math.min(45,vel4+.22);
   if(leftHeld4&&fuel4>0){driftVel4-=.11;fuel4=Math.max(0,fuel4-.07);}if(rightHeld4&&fuel4>0){driftVel4+=.11;fuel4=Math.max(0,fuel4-.07);}
-  driftVel4*=.94;drift4+=driftVel4;drift4=Math.max(-105,Math.min(105,drift4));alt4-=vel4*.25;
+  driftVel4*=.94;drift4+=driftVel4;
+  const driftLimit=Math.max(0,Math.min(105,($('lander').parentElement.clientWidth-$('lander').offsetWidth)/2-8));
+  drift4=Math.max(-driftLimit,Math.min(driftLimit,drift4));alt4=Math.min(2400,alt4-vel4*.25);
   if(fuel4<=0)$('descentStatus').textContent='FUEL DEPLETED — ballistic descent!';
   if(alt4<=0){alt4=0;renderDescent();finishDescent4(vel4<=14&&Math.abs(drift4)<=42);return;}renderDescent();
  },100);
 }
 function holdControl4(el,setter){
  const on=ev=>{ev.preventDefault();setter(true);el.setPointerCapture?.(ev.pointerId);},off=()=>setter(false);
- el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointercancel',off);el.addEventListener('pointerleave',off);
+ el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointercancel',off);el.addEventListener('lostpointercapture',off);
 }
 holdControl4($('burnBtn'),v=>burnHeld4=v);holdControl4($('downThruster4'),v=>downHeld4=v);holdControl4($('leftThruster'),v=>leftHeld4=v);holdControl4($('rightThruster'),v=>rightHeld4=v);
+function releaseDescentControls(){burnHeld4=downHeld4=leftHeld4=rightHeld4=false;}
+window.addEventListener('blur',releaseDescentControls);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseDescentControls();});
+window.addEventListener('resize',()=>{if($('mission4').classList.contains('active'))renderDescent();});
 $('thrustDial').oninput=renderDescent;
 $('life4ReturnBtn').onclick=()=>show('home');
 
@@ -808,4 +818,3 @@ function restoreGameProgress(){
 restoreGameProgress();
 renderGlobalLivesHome();
 renderMissionArchive();
-
