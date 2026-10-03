@@ -1,0 +1,223 @@
+/* Chapters 1–4: luminous worlds, quiet HUDs, touch controls beside the playfield.
+   Scoped to these missions so later chapters retain their existing appearance. */
+:is(#mission1,#mission2,#mission3,#mission4) {
+  --life-accent:#8ee9ef;
+  --muted:#b7c8d6;
+  color:#f4f8fb;
+  background:linear-gradient(150deg,#19374b 0,#102638 42%,#0b192a 100%);
+  padding:calc(14px + env(safe-area-inset-top)) 14px calc(14px + env(safe-area-inset-bottom));
+  isolation:isolate;
+}
+:is(#mission1,#mission2,#mission3,#mission4)::before {display:none}
+:is(#mission1,#mission2,#mission3,#mission4) > header {
+  flex:none;gap:12px;min-height:52px;margin:0 0 12px;padding:0 0 10px;
+  border-bottom:1px solid #b8dcea30;align-items:center;
+}
+:is(#mission1,#mission2,#mission3,#mission4) > header h2 {
+  color:#f4f8fb;font-size:clamp(20px,5.5vw,28px);font-weight:750;
+  line-height:1.08;letter-spacing:-.8px;text-shadow:none;margin:5px 0 0;
+}
+:is(#mission1,#mission2,#mission3,#mission4) > header .eyebrow {
+  color:#f7d99b;font-size:10px;letter-spacing:2.5px;
+}
+:is(#mission1,#mission2,#mission3,#mission4) .crew-badge {
+  color:#b9eaf4;border:1px solid #8fc6d244;border-radius:9px;background:#19384c;
+  font:600 9px/1.3 monospace;letter-spacing:.5px;text-align:center;
+}
+:is(#mission1,#mission2,#mission3,#mission4) .primary {
+  min-height:48px;border-radius:12px;box-shadow:0 5px 18px #0002;
+  background:linear-gradient(120deg,#ffe9b1,#edc57d);color:#233747;font-size:13px;
+}
+:is(#mission1,#mission2,#mission3,#mission4) .ghost {
+  min-height:44px;border-color:#89b2c24d;color:#d1e9f3;font-size:12px;
+}
+:is(#mission1,#mission2,#mission3,#mission4) .mission-status {
+  border:0;background:#c2e8f20c;border-radius:10px;color:#c9deea;
+  font-size:11px;line-height:1.45;letter-spacing:0;padding:8px 10px;margin:8px 0 0;
+}
+:is(#mission1,#mission2,#mission3,#mission4) button {font-family:inherit;cursor:pointer}
+:is(#mission1,#mission2,#mission3,#mission4) button:disabled {cursor:default}
+:is(#mission1,#mission2,#mission3,#mission4) [hidden] {display:none!important}
+
+/* The world and its controls share one viewport; controls never cover objects. */
+#mission1.active {display:flex;flex-direction:column;height:100vh;height:100dvh;min-height:0;overflow:hidden}
+#mission1 .l1-hud {gap:4px;flex-shrink:0}
+#mission1 .l1-hud b {padding:7px 6px;border:1px solid #8fc6d244;border-radius:8px;background:#19384c;font-size:10px;white-space:nowrap}
+#mission1.mk-l1 #life1World {
+  flex:1 1 auto;width:100%;height:auto;min-height:180px;max-height:none;margin:0;
+  border:1px solid #d1e9ed60;border-radius:20px;overflow:hidden;
+  background:url('art/life1-base.webp') center center/cover no-repeat;
+  box-shadow:0 12px 30px #0003;
+}
+#mission1 .l1-zone {background:#112d42dc;color:#e1f1f6;border:1px solid #abdcec77;border-radius:5px;letter-spacing:.6px;font-size:7px;padding:4px 6px}
+#mission1 .zone-a {left:5%;top:9%} #mission1 .zone-b {right:5%;top:34%} #mission1 .zone-c {left:43%;top:17%}
+#mission1.mk-l1 #life1Player {
+  width:78px;height:78px;transform:translate(-50%,-85%);background:none;
+  filter:none;z-index:9;
+}
+#mission1.mk-l1 #life1Player::before {content:'';position:absolute;left:24%;right:24%;bottom:1%;height:10%;border-radius:50%;background:#172a3a55;filter:blur(2px);z-index:-1}
+#mission1.mk-l1 #life1Player .l1-player-sprite {display:block!important;position:absolute;inset:0;background-image:url('art/moonkatty-walk.webp');background-size:600% 400%;background-repeat:no-repeat;background-position:0 0;transform:none;transition:none;filter:drop-shadow(0 2px 1px #12304755)}
+#mission1.mk-l1 .l1-hotspot.energy {width:52px;height:62px;filter:drop-shadow(0 3px 4px #4deaff90)}
+#mission1.mk-l1 .e1 {left:10%!important;bottom:20%!important}
+#mission1.mk-l1 .e2 {left:29%!important;bottom:52%!important}
+#mission1.mk-l1 .e3 {right:6%!important;bottom:41%!important}
+#mission1.mk-l1 #repairTerminal {right:12%!important;bottom:4%!important;width:74px!important;height:85px!important;background-image:url('terminal-clean.png');filter:drop-shadow(0 4px 4px #17232c60)}
+#mission1.mk-l1 #antennaHotspot {right:4%!important;top:16%!important;width:72px!important;height:94px!important;background-image:url('antenna-clean.png');filter:drop-shadow(0 4px 4px #17232c60)}
+#mission1.mk-l1 .l1-hotspot:disabled {opacity:.58}
+#mission1.mk-l1 .l1-hotspot.nearby {filter:drop-shadow(0 0 9px #fff8b0)}
+#mission1.mk-l1 .l1-hotspot>span:last-child {font-size:8px;border-color:#b9efff;background:#102c40ed;bottom:-9px}
+#mission1 .rock-a {left:26%;top:51%;width:17%;height:12%;background:linear-gradient(145deg,#c0c5c5,#78858a 55%,#4f5b64);box-shadow:inset -5px -6px 8px #14222b44,3px 5px 4px #192b3844;clip-path:polygon(12% 15%,47% 0,89% 18%,100% 61%,82% 98%,23% 100%,0 64%)}
+#mission1 .rock-b {left:74%;right:auto;top:63%;width:14%;height:10%;background:linear-gradient(140deg,#c6c9c3,#7c8584 50%,#535f69);box-shadow:4px 5px 4px #192b3844;clip-path:polygon(15% 0,63% 4%,100% 48%,78% 95%,16% 99%,0 52%)}
+#mission1 .crate-a {left:56%;top:41%;width:13%;height:12%;min-height:30px;border:2px solid #8b977f;border-radius:5px;background:linear-gradient(140deg,#e3e7d9,#a5b6ac);color:#516966;font-size:25px;box-shadow:3px 6px 4px #24343b55}
+#mission1 .l1-obstacle {background-image:url('art/lunar-props.webp');background-size:300% 100%;background-repeat:no-repeat;background-color:transparent;border:0;box-shadow:none;clip-path:none;border-radius:0;color:transparent;filter:drop-shadow(3px 5px 2px #2536424d)}
+#mission1 .rock-a {background-position:0 0}
+#mission1 .rock-b {background-position:50% 0}
+#mission1 .crate-a {background-position:100% 0}
+#mission1 .l1-control-deck {display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none;height:98px;padding:9px 10px;margin-top:8px;border:1px solid #9bd8e534;border-radius:18px;background:linear-gradient(120deg,#27485a,#173348)}
+#mission1 .l1-joystick {position:relative;left:auto;bottom:auto;width:76px;height:76px;flex:none;border:1px solid #aadce673;background:radial-gradient(circle,#9dc6d51a 0 43%,transparent 44% 59%,#a6d7e223 60% 62%,transparent 63%),#102c40;box-shadow:inset 0 3px 8px #07162766}
+#mission1 .l1-joystick::after {display:none}
+#mission1 .l1-joystick i {width:34px;height:34px;left:20px;top:20px;background:linear-gradient(145deg,#ffe9b4,#d2ab6a);box-shadow:0 3px 8px #0005}
+#mission1.mk-l1 .l1-scan-btn,#mission1.mk-l1 .l1-action {position:relative;inset:auto;width:auto;flex:1;height:51px;border-radius:12px;letter-spacing:.2px;font-size:11px;border:1px solid #a4dce170;box-shadow:none}
+#mission1.mk-l1 .l1-scan-btn {background:#254e64;color:#d0f9ff}
+#mission1.mk-l1 .l1-action {background:#304a59;color:#d0e2e8}
+#mission1.mk-l1 .l1-action.ready {background:linear-gradient(120deg,#ffe7aa,#edc078);color:#182d3b}
+#mission1 .l1-quest {flex:none;gap:4px;margin:8px 0 0}
+#mission1 .l1-quest>div {min-height:29px;padding:4px 9px;gap:8px;border:1px solid #a9d3e322;border-radius:8px;background:#1b3547}
+#mission1 .l1-quest span {width:21px;height:21px;flex:none;border-color:#91b3c451;font-size:9px}
+#mission1 .l1-quest p,body.mkty-ru #mission1 .l1-quest p {font-size:10px;line-height:1.1;letter-spacing:.1px}
+#mission1 .l1-quest b {color:#f2d49b}
+#mission1 .mission-status {flex:none;min-height:30px;margin:6px 0 0;padding:5px 8px}
+#mission1 .l1-nav {display:none!important}
+#mission1 .l1-panel:not([hidden]),#mission1 .complete-card:not([hidden]) {
+  position:absolute;inset:80px 14px auto;max-height:calc(100% - 105px);overflow:auto;
+  margin:0;padding:22px 18px;z-index:60;border:1px solid #a3d9e7aa;
+  background:linear-gradient(135deg,#234759f7,#122e44fc);box-shadow:0 0 0 900px #0618279c,0 20px 50px #0008;
+}
+
+/* Crew selection: one coherent piece of scene art, with real role buttons. */
+#mission2 .crew-world-v2 {
+  min-height:0!important;height:clamp(260px,calc((100vw - 28px)*.75 + 70px),430px)!important;margin:0 0 12px;
+  border:1px solid #d2e9e778;border-radius:20px;background:#15364a url('art/life2-crew.webp') center top/100% auto no-repeat;
+  box-shadow:0 12px 30px #0003;
+}
+#mission2 .crew-world-v2::before,#mission2 .crew-world-v2::after,
+#mission2 .crew-earth2,#mission2 .crew-base2,#mission2 .crew-orbit,#mission2 .captain {display:none!important}
+#mission2 .crew-world-v2 .crew-card2.mate {
+  top:auto!important;bottom:10px!important;width:30%!important;height:59px!important;
+  padding:9px 2px!important;border:1px solid #c2e4e780!important;border-radius:11px!important;
+  background:#123047e8!important;box-shadow:0 4px 10px #0004!important;transform:none!important;justify-content:center;
+}
+#mission2 .crew-world-v2 .mate1 {left:3%!important}
+#mission2 .crew-world-v2 .mate2 {left:35%!important;right:auto!important}
+#mission2 .crew-world-v2 .mate3 {left:67%!important}
+#mission2 .crew-card2 .crew-avatar2 {display:none!important}
+#mission2 .crew-world-v2 .crew-card2 small {position:static;inset:auto;font-size:10px!important;letter-spacing:0!important;margin:0!important;color:#f8dfae!important}
+#mission2 .crew-world-v2 .crew-card2 b {position:static;inset:auto;font-size:8px!important;white-space:normal;line-height:1.25;letter-spacing:0!important;margin:4px 0 0;color:#c3e0ed}
+#mission2 .crew-card2.mate.joined::after {content:'✓';background:#163e3ae6;font-size:24px;color:#aeffcc;letter-spacing:0}
+#mission2 .objective {margin:0 0 12px;padding:12px 14px;background:#254659;border:1px solid #b4deeb38;border-radius:14px;box-shadow:none}
+#mission2 .objective .eyebrow {font-size:9px;letter-spacing:2px;color:#95d8e9}
+#mission2 .objective h3 {margin:4px 0;font-size:19px;letter-spacing:0;color:#f4e1ba}
+#mission2 .objective p {margin:4px 0 0;font-size:12px;color:#c8dce6}
+#mission2 .crew-challenge {padding:13px;border:1px solid #a9d9e844;border-radius:16px;background:#17364a;box-shadow:none}
+#mission2 .puzzle-label {font-size:11px;line-height:1.4;letter-spacing:1px;color:#c4e4ef;margin:0}
+#mission2 .crew-task {margin-top:10px;border:0;background:none;padding:0;box-shadow:none}
+#mission2 .crew-task::before {display:none}
+#mission2 .crew-task>strong {color:#f5dda9;font-size:13px;letter-spacing:1px}
+#mission2 .crew-task>p {font-size:12px;line-height:1.4;color:#c5dbe7;margin:7px 0}
+#mission2 .crew-task>small {font-size:11px;line-height:1.4;color:#a8e8d9}
+#mission2:has(.crew-task:not([hidden])).active {display:flex;flex-direction:column;height:100vh;height:100dvh;min-height:0;overflow:hidden}
+#mission2:has(.crew-task:not([hidden])) .crew-world-v2 {flex:none;height:68px!important;margin-bottom:8px;border:0;background:#234455;box-shadow:none}
+#mission2:has(.crew-task:not([hidden])) .crew-card2.mate {bottom:5px!important}
+#mission2:has(.crew-task:not([hidden])) .objective {display:none}
+#mission2:has(.crew-task:not([hidden])) .crew-challenge {flex:1;min-height:0;overflow:auto}
+#mission2:has(#navigatorTask:not([hidden])) .crew-challenge {display:flex;flex-direction:column;overflow:hidden}
+#mission2 #navigatorTask:not([hidden]) {display:flex;flex-direction:column;flex:1;min-height:0}
+#mission2 #navField2.nav-field2 {flex:1;min-height:170px;height:auto!important;margin:8px 0;border-color:#c0e5ed77;border-radius:13px;background-image:url('art/life4-landing.webp')!important;background-position:center 47%!important;box-shadow:none!important}
+#mission2 #navField2::before,#mission2 #navField2::after {display:none}
+#mission2 #navField2 .industrial-gate2 {width:88px!important;height:60px!important}
+#mission2 #navField2 .industrial-gate2.g1 {left:17%!important;top:64%!important}
+#mission2 #navField2 .industrial-gate2.g2 {left:42%!important;top:40%!important}
+#mission2 #navField2 .industrial-gate2.g3 {left:auto!important;right:4%!important;top:17%!important}
+#mission2 #navField2 #navShip2 {width:65px!important;height:44px!important;filter:drop-shadow(0 5px 4px #0007)!important}
+#mission2 .nav-controls2 {gap:8px;flex:none;margin:0 0 5px}
+#mission2 .nav-controls2 button {min-height:48px;font-size:12px!important;border:1px solid #b1e3e98c!important;background:linear-gradient(#37647b,#254b64)!important;color:#e4fbff!important;touch-action:none}
+#mission2 .power-route2 {grid-template-columns:42px minmax(0,1fr) 44px;gap:4px;padding:14px 3px;background:#1d3d50;border-color:#a3d8e855}
+#mission2 .route-end2 {font-size:8px;color:#c5e4ef}
+#mission2 .power-route2 .circuit2 {padding:4px!important;gap:4px;background:#254a5c;border-color:#8ac3d252}
+#mission2 .power-route2 .circuit2 button {height:64px!important;padding:0!important;font-size:30px!important;border-color:#bddbe366!important;background:#315769!important;color:#f5dda9!important}
+#mission2 .power-route2 .circuit2 button.live {background:#1d5b53!important;border-color:#a5f0cc!important;color:#bafcce!important}
+#mission2 .scout-grid2 {max-width:300px;margin:12px auto;background:radial-gradient(circle,#527e9144 0 3%,transparent 4% 24%,#90e5d433 25% 26%,transparent 27% 49%,#90e5d433 50% 51%,transparent 52%),#204b56!important;border-color:#90e5d489}
+#mission2 .scout-grid2 button {background:#245862aa!important;border-color:#a4e8df44!important}
+#mission2 .scout-grid2 button.target {background:#ffe5a2!important;color:#172f42!important}
+#mission2 .crew-final2 {background:#1a3d52!important;border-color:#afd4df55!important}
+#mission2 .crew-sync-code2 {background:#214559!important;color:#ffe4a8!important;font-size:23px}
+#mission2 .crew-sync-keys2 button {background:#305a6d!important;color:#f9e4b5!important;border-color:#a1cfde66!important;min-height:52px}
+#mission2 .mission-status {flex:none}
+
+/* The launch puzzle now belongs to a visible ship command bridge. */
+#mission3 .command-scene3 {position:relative;height:clamp(170px,29dvh,260px);margin-bottom:14px;border:1px solid #d2e9e778;border-radius:20px;background:url('art/life3-command.webp') center/cover no-repeat;box-shadow:0 12px 30px #0003;overflow:hidden}
+#mission3 .scene-marker {position:absolute;left:12px;bottom:12px;padding:6px 10px;border-radius:7px;border:1px solid #d9eced6a;background:#163b4ddd;color:#e5f9fc;font:10px monospace;letter-spacing:1.5px}
+#mission3 #life3MemoryGate,#mission3 .code-mission {margin:0;padding:20px 16px;border-color:#a9d9e855;background:linear-gradient(145deg,#25495b,#18384c);box-shadow:0 8px 24px #0002;border-radius:18px}
+#mission3 #life3MemoryGate::before,#mission3 .code-mission::before {display:none}
+#mission3 :is(.memory-gate,.code-mission)>p:not(.eyebrow):not(.mission-status) {color:#c5dce7;font-size:12px;line-height:1.5}
+#mission3 :is(.memory-gate,.code-mission) h3 {color:#f3e2bd;font-size:20px;letter-spacing:0}
+#mission3 .eyebrow {font-size:10px;letter-spacing:1.8px;color:#a3e0eb}
+#mission3 #life3MemoryInput {color:#17344a;background:#e8f0ec;border:1px solid #fff2c4;border-radius:11px;box-shadow:inset 0 2px 5px #1a384b22;font:700 clamp(18px,5.6vw,24px)/1.3 monospace;letter-spacing:3px;padding:14px 8px}
+#mission3 #life3MemoryInput::placeholder {color:#77909a}
+#mission3 .journal-code3 {background:#1e554f;border-color:#a3e5d477}
+#mission3 .life-bank {font-size:11px;color:#b5d0dd}
+#mission3 .code-sequence {background:#0d2d40;border:1px solid #84d1e478;color:#f9e4b6!important;box-shadow:inset 0 0 22px #82dbef14;text-shadow:none}
+#mission3 .code-pad button {background:linear-gradient(#466f7f,#2a5267)!important;border-color:#c0e0e67d!important;color:#fff0c9!important;box-shadow:0 4px 8px #0002;height:60px}
+#mission3 .launch-stage3 {background:#21485b!important;border-color:#b1d5df55!important;padding:14px!important}
+#mission3 .fuel-matrix3 label {background:#284f61;color:#d4e7ee;border-color:#a0c5d455}
+#mission3 .ignition-keys3 button {min-height:48px;background:#355d71;color:#fff0ca;border-color:#aacddb77}
+
+/* Landing: full-height scenery and one compact physical control deck. */
+#mission4.active {gap:6px}
+#mission4>header {margin:0;min-height:50px;padding-bottom:7px}
+#mission4 .descent-world {border:1px solid #d2e9e778;border-radius:20px;background-image:url('art/life4-landing.webp')!important;background-position:center center!important;box-shadow:0 10px 25px #0003!important;min-height:150px!important}
+#mission4 .descent-world::before {display:none}
+#mission4 .landing-zone {bottom:34px!important;width:140px!important;height:54px!important;border:2px solid #d2fbf2!important;background:radial-gradient(ellipse,#83ffeb50,transparent 68%)!important;box-shadow:0 0 16px #60e9e867,inset 0 0 12px #c4fff44d!important}
+#mission4 .landing-zone::before {border-color:#d8f9ff9e}
+#mission4 .landing-zone small {color:#e7fffb;background:#143b4acc;border:1px solid #c2f7ef77;border-radius:5px;padding:3px 6px;bottom:-24px;letter-spacing:1px;font-size:8px}
+#mission4 .landing-zone.safe-zone {border-color:#fff1ac!important;box-shadow:0 0 25px #fff3a580!important}
+#mission4 #lander {width:96px!important;height:64px!important;filter:drop-shadow(0 6px 5px #061e3877)!important}
+#mission4 #lander.thrusting {filter:drop-shadow(0 8px 8px #39dcffbb)!important}
+#mission4 .flight-hud {gap:5px;order:0}
+#mission4 .flight-hud span {padding:7px 2px;background:#25495b;border:1px solid #b2dbe73a;border-radius:10px;color:#a7c9d8;font-size:9px;letter-spacing:0}
+#mission4 .flight-hud b {display:block;font:700 17px/1.4 monospace;color:#f5dfaf}
+#mission4 .descent-warning4 span {font-size:10px;padding:3px 8px;background:#5b4946;border:1px solid #edc5a06a;color:#f2d0b3;border-radius:5px}
+#mission4 .descent-warning4 span.safe {background:#1d5952;color:#bef4dc;border-color:#88e1c577}
+#mission4 .objective p {font-size:10px;line-height:1.4;color:#c9dfe9}
+#mission4 .thrust-label4 {font-size:10px;color:#c4dce8;letter-spacing:.5px}
+#mission4 #thrustDial {accent-color:#e6cf97;background:transparent}
+#mission4 .landing-pad-controls4 {width:228px;height:102px;gap:5px;margin:0 auto}
+#mission4 .landing-pad-controls4 button {border:1px solid #b3d9e68c;border-radius:12px;background:linear-gradient(#3f6c82,#285169);color:#fff1c9;box-shadow:0 4px 7px #0003;font-size:22px;min-height:48px}
+#mission4 .landing-pad-controls4 button:active {background:#b4e6e6;color:#183646;box-shadow:0 0 15px #a0edee55}
+#mission4 .landing-pad-controls4 .up4 {background:linear-gradient(#f8e1ab,#d8b777);color:#243d4c;border-color:#fff0c4}
+#mission4 .complete-card:not([hidden]) {background:linear-gradient(145deg,#2a5365f7,#15334cfb);border-color:#c2e1e8a1}
+
+@media(max-height:700px) {
+  :is(#mission1,#mission2,#mission3,#mission4) {padding-top:calc(8px + env(safe-area-inset-top));padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+  :is(#mission1,#mission2,#mission3,#mission4)>header {min-height:45px;margin-bottom:7px}
+  #mission1 .l1-control-deck {height:81px;padding:6px 9px;gap:8px}
+  #mission1 .l1-joystick {width:64px;height:64px}
+  #mission1 .l1-joystick i {left:14px;top:14px}
+  #mission1 .l1-quest>div {min-height:26px;padding:3px 8px}
+  #mission1 .mission-status {font-size:10px;line-height:1.3}
+  #mission2 .crew-world-v2 {height:calc((100vw - 28px)*.75 + 65px)!important}
+  #mission2 .crew-task>p {font-size:11px;margin:5px 0}
+  #mission4 .flight-hud span {padding:3px 2px}
+  #mission4 .landing-pad-controls4 {height:98px}
+}
+@media(max-width:360px) {
+  :is(#mission1,#mission2,#mission3,#mission4) {padding-left:10px;padding-right:10px}
+  #mission1 .l1-hud b {padding:6px 4px;font-size:9px}
+  #mission2 .crew-world-v2 .crew-card2 small {font-size:9px!important}
+  #mission2 .crew-world-v2 .crew-card2 b {font-size:7px!important}
+}
+@media(prefers-reduced-motion:reduce) {
+  :is(#mission1,#mission2,#mission3,#mission4) *,
+  :is(#mission1,#mission2,#mission3,#mission4) *::before,
+  :is(#mission1,#mission2,#mission3,#mission4) *::after {animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
