@@ -546,6 +546,101 @@ Decrease Fuel level|Уменьшить топливо на 1
 Increase Fuel level|Увеличить топливо на 1
 Decrease Coolant level|Уменьшить охладитель на 1
 Increase Coolant level|Увеличить охладитель на 1
+MOONKATTY / LIFE #6|MOONKATTY / ГЛАВА 6
+HEAT|НАГРЕВ
+RESTART|РЕСТАРТ
+CONTINUE TO THE VOID|ПРОДОЛЖИТЬ В ПУСТОТЕ
+FLIGHT CHECK|ПРОВЕРКА
+ASCENT|НАБОР ВЫСОТЫ
+PAD ALPHA|ПЛОЩАДКА АЛЬФА
+ALL SYSTEMS STANDBY|СИСТЕМЫ В ОЖИДАНИИ
+ALL SYSTEMS READY|СИСТЕМЫ ГОТОВЫ
+CLIMB RATE|СКОРОСТЬ ПОДЪЁМА
+DEPARTURE CLEARANCE|РАЗРЕШЕНИЕ НА ВЫЛЕТ
+THE MOON IS ONLY THE BEGINNING.|ЛУНА — ТОЛЬКО НАЧАЛО.
+The reactor is online. Bring your crew home through the ascent corridor.|Реактор работает. Проведите корабль по коридору взлёта — экипаж ждёт вашей команды.
+FLIGHT STAGES|ЭТАПА ВЫЛЕТА
+BEACONS|МАЯКА
+BEGIN FLIGHT CHECK|НАЧАТЬ ПРОВЕРКУ
+ARM SYSTEMS IN THIS ORDER|ВКЛЮЧИТЕ СИСТЕМЫ ПО ПОРЯДКУ
+GUIDANCE|НАВИГАЦИЯ
+PRESSURE|ДАВЛЕНИЕ
+AIRLOCK|ШЛЮЗ
+FLIGHT COMPUTER ALERT|СИГНАЛ БОРТОВОГО КОМПЬЮТЕРА
+VENT|СБРОС ДАВЛЕНИЯ
+RESET|ПЕРЕЗАПУСК
+BYPASS|РЕЗЕРВНЫЙ КАНАЛ
+ENGINE START|ЗАПУСК ДВИГАТЕЛЕЙ
+STABILIZE THRUST|СТАБИЛИЗИРУЙТЕ ТЯГУ
+Set thrust to 54–70%. Hold IGNITION for three steady seconds.|Установите тягу 54–70%. Удерживайте кнопку запуска три секунды подряд.
+HOLD IGNITION|УДЕРЖИВАТЬ ЗАПУСК
+FOLLOW THE GREEN CORRIDOR|СЛЕДУЙТЕ ПО ЗЕЛЁНОМУ КОРИДОРУ
+LEFT|ВЛЕВО
+RIGHT|ВПРАВО
+HOLD TO STEER|УДЕРЖИВАЙТЕ ДЛЯ ПОВОРОТА
+ENGINE THRUST|ТЯГА ДВИГАТЕЛЕЙ
+GREEN ZONE: 54–70%|ЗЕЛЁНАЯ ЗОНА: 54–70%
+FLIGHT INTERRUPTED|ВЫЛЕТ ПРЕРВАН
+RETRY FROM CHECKPOINT|ПОВТОРИТЬ С КОНТРОЛЬНОЙ ТОЧКИ
+ALL BEACONS CONFIRMED|ВСЕ МАЯКИ ПРОЙДЕНЫ
+INSERTING INTO ORBIT|ВЫХОД НА ОРБИТУ
+Engines settling. Waiting for flight control confirmation.|Двигатели стабилизируются. Ожидаем подтверждение центра управления.
+LIFE #6 COMPLETE|ГЛАВА 6 ПРОЙДЕНА
+The Moon falls behind. A new signal is waiting in the void.|Луна остаётся позади. В пустоте вас уже ждёт новый сигнал.
+Flight control is standing by.|Центр управления ожидает начала проверки.
+MOONKATTY / FLIGHT MANUAL|MOONKATTY / ПОЛЁТНАЯ ИНСТРУКЦИЯ
+FLIGHT PAUSED|ПОЛЁТ ПРИОСТАНОВЛЕН
+Arm NAV, FUEL, CREW and CORE in the transmitted order. After two systems, diagnose the fault and choose the matching repair.|Включите NAV, FUEL, CREW и CORE в указанном порядке. После второй системы изучите неисправность и выберите подходящий способ ремонта.
+Hold ◀ or ▶ to follow the green corridor. Cross all three beacons at 35–110 m/s. Stay below 92° and watch fuel.|Удерживайте ◀ или ▶, следуя по зелёному коридору. Пройдите три маяка со скоростью 35–110 м/с и температурой ниже 92°. Следите за топливом.
+Each beacon saves a retry checkpoint. A failed attempt never removes a completed chapter.|Каждый маяк сохраняет контрольную точку. Неудачная попытка не отменяет уже пройденные главы.
+RESUME FLIGHT|ПРОДОЛЖИТЬ ПОЛЁТ
+FUEL PRESSURE TOO HIGH|ПОВЫШЕННОЕ ДАВЛЕНИЕ ТОПЛИВА
+Pressure exceeds the limit. Open the relief valve to vent the line.|Давление выше нормы. Откройте клапан сброса давления в топливной магистрали.
+Navigation data is out of sync. Reset the guidance computer.|Данные навигации рассинхронизированы. Перезапустите навигационный компьютер.
+BACKUP SENSOR REQUIRED|ТРЕБУЕТСЯ РЕЗЕРВНЫЙ ДАТЧИК
+The primary sensor has failed. Bypass it to use the backup sensor.|Основной датчик отказал. Переключитесь на резервный канал.
+Wrong system. Four seconds lost. Follow the highlighted order.|Неверная система: −4 секунды. Соблюдайте подсвеченный порядок.
+The pre-flight window expired.|Время предполётной проверки истекло.
+Diagnose the fault. Select the matching repair.|Изучите неисправность и выберите подходящий способ ремонта.
+Wrong repair. Six seconds lost. Read the fault diagnosis.|Неверный ремонт: −6 секунд. Прочитайте описание неисправности.
+Fault cleared. Arm the remaining two systems.|Неисправность устранена. Включите оставшиеся две системы.
+Engine temperature exceeded the safety limit.|Температура двигателя превысила безопасный предел.
+Fuel exhausted before the final beacon.|Топливо закончилось до последнего маяка.
+The ship stayed outside the protected corridor.|Корабль слишком долго находился вне защищённого коридора.
+The ascent beacon was missed.|Маяк на траектории взлёта пропущен.
+Beacon crossing speed was outside 35–110 m/s.|Скорость прохождения маяка вышла за пределы 35–110 м/с.
+The engine was too hot at the beacon.|Температура двигателя при прохождении маяка была слишком высокой.
+Beacon confirmed. Retry checkpoint saved.|Маяк пройден. Контрольная точка сохранена.
+Arm the highlighted system. Wrong inputs cost countdown time.|Включите подсвеченную систему. Ошибки уменьшают оставшееся время.
+Increase thrust into the green zone.|Увеличьте тягу до зелёной зоны.
+Reduce thrust into the green zone.|Уменьшите тягу до зелёной зоны.
+Ignition stable. Keep holding.|Запуск стабилен. Продолжайте удерживать кнопку.
+Thrust is ready. Hold IGNITION for three seconds.|Тяга в норме. Удерживайте кнопку запуска три секунды.
+Ignition confirmed. Stand by for liftoff.|Двигатели запущены. Приготовьтесь к взлёту.
+Engine hot. Reduce thrust into the green zone.|Двигатель перегревается. Уменьшите тягу до зелёной зоны.
+Fuel reserve low. Maintain a steady climb.|Малый запас топлива. Сохраняйте равномерный подъём.
+Hold ◀ to return to the green corridor.|Удерживайте ◀, чтобы вернуться в зелёный коридор.
+Hold ▶ to return to the green corridor.|Удерживайте ▶, чтобы вернуться в зелёный коридор.
+Building climb speed. Keep thrust in the green zone.|Набираем скорость. Держите тягу в зелёной зоне.
+Climb too fast. Reduce thrust before the beacon.|Слишком быстрый подъём. Уменьшите тягу до прохождения маяка.
+On course. Keep the gold marker inside the green zone.|Курс верный. Держите золотой маркер внутри зелёной зоны.
+Flight safely interrupted. Your last beacon is preserved.|Полёт безопасно прерван. Последний пройденный маяк сохранён.
+All three beacons passed. Orbital insertion in progress.|Все три маяка пройдены. Выходим на орбиту.
+Orbit confirmed. Crew and ship are safe.|Орбита подтверждена. Корабль и экипаж в безопасности.
+ORBITAL INSERTION|ВЫХОД НА ОРБИТУ
+ORBIT SECURED|НА ОРБИТЕ
+CREW SAFE / FLIGHT COMPLETE|ЭКИПАЖ В БЕЗОПАСНОСТИ
+ASCENT CORRIDOR|КОРИДОР ВЗЛЁТА
+FLIGHT HOLD|ПОЛЁТ ОСТАНОВЛЕН
+Read the system order and fault diagnosis. You have 45 seconds for the check.|Изучите порядок включения систем и описание неисправности. На проверку даётся 45 секунд.
+Use ◀ and ▶ to track the green zone. Keep thrust at 54–70%. Your ship is restored at the last beacon.|Следуйте по зелёной зоне кнопками ◀ и ▶. Держите тягу 54–70%. Корабль восстановится у последнего маяка.
+Engine thrust|Тяга двигателей
+Decrease thrust|Уменьшить тягу
+Increase thrust|Увеличить тягу
+Steer left|Повернуть влево
+Steer right|Повернуть вправо
+Flight alignment|Отклонение от курса
+MOONKATTY spacecraft above the lunar launch pad|Корабль MOONKATTY над лунной стартовой площадкой
 `;
  const ru = Object.fromEntries(pairs.trim().split('\n').map(line => { const i=line.indexOf('|'); return [line.slice(0,i),line.slice(i+1)]; }));
  const sources=new WeakMap(), rendered=new WeakMap(), attrs=new WeakMap();

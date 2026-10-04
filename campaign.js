@@ -1,6 +1,6 @@
-/* Campaign navigation and local checkpoints for the five reviewed chapters. */
+/* Campaign navigation and local checkpoints for the six reviewed chapters. */
 window.MKTYCampaign=(()=>{
- const titles=['THE AWAKENING','THE CREW','THE LAUNCH CODE','THE DESCENT','IGNITION'];
+ const titles=['THE AWAKENING','THE CREW','THE LAUNCH CODE','THE DESCENT','IGNITION','LIFTOFF'];
  const key=n=>'mkty_campaign_checkpoint_'+n;
  const done=n=>localStorage.getItem('mkty_life'+n)==='complete';
  const unlocked=n=>n===1||done(n-1);
@@ -64,14 +64,14 @@ window.MKTYCampaign=(()=>{
  function destination(){
   if(needsCode())return 1;
   const last=Number(localStorage.getItem('mkty_current_chapter'));
-  if(last>=1&&last<=5&&unlocked(last)&&!done(last))return last;
-  return [1,2,3,4,5].find(n=>!done(n)&&unlocked(n))||0;
+  if(last>=1&&last<=6&&unlocked(last)&&!done(last))return last;
+  return [1,2,3,4,5,6].find(n=>!done(n)&&unlocked(n))||0;
  }
  function openChapter(n,cinematic=false){
-  if(!Number.isInteger(n)||n<1||n>5||!unlocked(n))return;
+  if(!Number.isInteger(n)||n<1||n>6||!unlocked(n))return;
   if(n>1&&needsCode())n=1;
-  const open=[null,openMission,openMission2,openLife3MemoryGate,openMission4,openMission5];
-  const intro=[null,startLife1,startLife2,startLife3,startLife4,startLife5];
+  const open=[null,openMission,openMission2,openLife3MemoryGate,openMission4,openMission5,openMission6];
+  const intro=[null,startLife1,startLife2,startLife3,startLife4,startLife5,startLife6];
   if(cinematic&&!done(n))intro[n]();else open[n]();
  }
  function render(){
@@ -79,7 +79,7 @@ window.MKTYCampaign=(()=>{
   $('enterBtn').textContent=n?(n===1&&!done(1)&&!read(1)?'ENTER THE MISSION 🚀':'CONTINUE LIFE #'+n+' 🚀'):'CHOOSE A MISSION';
   $('enterBtn').onclick=()=>n?openChapter(n,!localStorage.getItem('mkty_current_chapter')):show('chapters');
   const list=$('chapterList');list.replaceChildren(...titles.map((title,i)=>{
-   const n=i+1,b=document.createElement('button');b.className='chapter-card';b.dataset.chapter=String(n);b.style.setProperty('--chapter-art',"url('art/"+['life1-base.webp','life2-bridge-v2.webp','life3-bridge-v2.webp','life4-landing.webp','life5-reactor-v2.webp'][i]+"')");b.disabled=!unlocked(n);
+   const n=i+1,b=document.createElement('button');b.className='chapter-card';b.dataset.chapter=String(n);b.style.setProperty('--chapter-art',"url('art/"+['life1-base.webp','life2-bridge-v2.webp','life3-bridge-v2.webp','life4-landing.webp','life5-reactor-v2.webp','life6-launchpad.webp'][i]+"')");b.disabled=!unlocked(n);
    const number=document.createElement('b');number.textContent=String(n).padStart(2,'0');
    const body=document.createElement('span'),name=document.createElement('strong'),status=document.createElement('small');name.textContent=title;
    status.textContent=done(n)?'COMPLETE • VIEW':unlocked(n)?'CONTINUE':'COMPLETE THE PREVIOUS CHAPTER';body.append(name,status);b.append(number,body);b.onclick=()=>openChapter(n);return b;
@@ -88,7 +88,7 @@ window.MKTYCampaign=(()=>{
  function onScreen(id){
   const n=Number(id.match(/^(?:mission|life)([1-9])$/)?.[1]||0);
   current=id.startsWith('mission')?n:0;
-  if(n>=1&&n<=5)localStorage.setItem('mkty_current_chapter',String(n));
+  if(n>=1&&n<=6)localStorage.setItem('mkty_current_chapter',String(n));
   if(id==='home'||id==='chapters')render();
  }
  $('missionsBtn').onclick=()=>show('chapters');$('chaptersBack').onclick=()=>show('home');

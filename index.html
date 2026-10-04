@@ -13,7 +13,8 @@
   <link rel="stylesheet" href="mission-polish.css?v=20261003-polish-1" />
   <link rel="stylesheet" href="reactor5.css?v=20261004-cinematic-2" />
   <link rel="stylesheet" href="campaign.css?v=20261004-repair-1" />
-  <link rel="stylesheet" href="experience.css?v=20261004-state-4" />
+  <link rel="stylesheet" href="experience.css?v=20261004-liftoff-1" />
+  <link rel="stylesheet" href="liftoff6.css?v=20261004-liftoff-1" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -288,16 +289,31 @@
       </div>
       <div id="reactorOverlay5" class="reactor-overlay5" role="dialog" aria-modal="true" aria-labelledby="reactorOverlayTitle5" hidden><div class="reactor-dialog5"><span class="eyebrow">ENGINEERING / 05</span><h3 id="reactorOverlayTitle5">REACTOR GUIDE</h3><p id="reactorPauseNote5">Simulation paused. Your current progress is preserved.</p><ol><li><b>01</b><div><strong>CHARGE</strong><p>Select A, B or C. Hold CHARGE to fill it; hold COOL when temperature rises.</p></div></li><li><b>02</b><div><strong>STABILIZE</strong><p>More coolant lowers temperature. Move the magnetic field slider until stability reaches 45–55%.</p></div></li><li><b>03</b><div><strong>IGNITE</strong><p>Start the sweep. Fire inside the green window three times. A missed pulse can be retried.</p></div></li></ol><div class="reactor-dialog-actions5"><button id="reactorResume5" class="reactor-primary5">RESUME REACTOR</button><button id="reactorExit5" class="reactor-secondary5">MISSION CONTROL</button></div></div></div>
     </section>
-    <section id="mission6" class="screen mission-screen life-theme life-theme-6 mission-polished">
-      <header><div><span class="eyebrow">LIFE #6</span><h2>LIFTOFF</h2></div><div class="crew-badge">T− <span id="launchClock">30</span></div></header>
-      <div class="launch-world"><div class="launch-moon"></div><div id="launchShip" class="launch-ship">🚀</div><div id="launchFlame" class="launch-flame"></div></div>
-      <div class="panel objective"><span class="eyebrow">LAUNCH SEQUENCE</span><h3>PREPARE FOR LIFTOFF</h3><p>Arm systems in the correct order before the countdown reaches zero.</p></div>
-      <div class="launch-checklist"><button data-launch="NAVIGATION"><b translate="no" lang="en">NAVIGATION</b><small>FLIGHT GUIDANCE</small></button><button data-launch="FUEL"><b translate="no" lang="en">FUEL</b><small>FUEL PRESSURE</small></button><button data-launch="CREW"><b translate="no" lang="en">CREW</b><small>CREW LOCK</small></button><button data-launch="REACTOR"><b translate="no" lang="en">REACTOR</b><small>REACTOR LINK</small></button></div>
-      <div id="launchEmergency6" class="launch-emergency6" hidden><span>⚠ FLIGHT COMPUTER ALERT</span><strong id="launchAlert6">SYSTEM FAULT</strong><div class="launch-response6"><button data-response6="VENT">VENT</button><button data-response6="RESET">RESET</button><button data-response6="BYPASS">BYPASS</button></div><small id="launchAlertHint6">Resolve the fault before countdown reaches zero.</small></div>
-      <div class="launch-order6"><span>PROCEDURE</span><b id="launchOrder6" translate="no" lang="en" dir="ltr">—</b></div>
-      <button id="launchBtn" class="primary ignition-btn" disabled>LAUNCH 🚀</button>
-      <p id="launchStatus" class="mission-status">Complete the pre-flight checklist.</p>
-      <div id="life6Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">LIFTOFF</p><h3>ORBIT ACHIEVED</h3><strong>+1500 MOON POINTS ⭐</strong><button id="continueLife7Btn" class="primary">UNLOCK LIFE #7 🌌</button><button id="life6ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
+    <section id="mission6" class="screen mission-screen liftoff-six" data-flight-phase="briefing">
+      <header class="lf-header"><div><span class="eyebrow">MOONKATTY / LIFE #6</span><h2>LIFTOFF</h2></div><div class="lf-badge"><i></i><span id="lfState6">PAD ALPHA</span></div><button id="liftoffHelp6" class="lf-help" aria-label="Pause and mission guide">Ⅱ</button></header>
+      <ol class="lf-steps" aria-label="Launch progress"><li data-lf-step="0"><b>01</b><span>FLIGHT CHECK</span></li><li data-lf-step="1"><b>02</b><span>IGNITION</span></li><li data-lf-step="2"><b>03</b><span>ASCENT</span></li></ol>
+      <div id="liftoffWorkspace6" class="lf-workspace">
+        <div id="liftoffScene6" class="lf-scene" role="group" aria-label="MOONKATTY spacecraft above the lunar launch pad">
+          <div id="lfEnvironment6" class="lf-environment"></div><div class="lf-orbit-backdrop"></div>
+          <canvas id="liftoffCanvas6" aria-hidden="true"></canvas>
+          <div class="lf-scene-heading"><span translate="no">ALPHA / FLIGHT 006</span><span id="lfSceneTag6">ALL SYSTEMS STANDBY</span></div>
+          <div id="lfShip6" class="lf-ship"><img src="moonkatty-life4-ship.png" alt="" draggable="false"><i></i></div>
+          <div id="lfCountdown6" class="lf-countdown" hidden translate="no">3</div>
+          <div class="lf-telemetry"><div><span>ALTITUDE</span><b id="lfAltitude6" translate="no">0000</b><small>m</small></div><div><span>CLIMB RATE</span><b id="lfSpeed6" translate="no">0</b><small>m/s</small></div><div><span>FUEL</span><b id="lfFuel6" translate="no">100</b><small>%</small></div></div>
+        </div>
+        <div class="lf-console">
+          <section id="lfBrief6" class="lf-panel"><span class="eyebrow">DEPARTURE CLEARANCE</span><h3>THE MOON IS ONLY THE BEGINNING.</h3><p>The reactor is online. Bring your crew home through the ascent corridor.</p><div class="lf-brief-stats"><span><b>03</b><small>FLIGHT STAGES</small></span><span><b>03</b><small>BEACONS</small></span><span><b>+1500</b><small>MOON POINTS</small></span></div><button id="lfBegin6" class="lf-primary">BEGIN FLIGHT CHECK</button></section>
+          <section id="lfCheck6" class="lf-panel" hidden><div class="lf-panel-heading"><span class="eyebrow">ARM SYSTEMS IN THIS ORDER</span><strong class="lf-clock" translate="no">T−<span id="lfClock6">45.0</span></strong></div><div id="lfOrder6" class="lf-order" translate="no" dir="ltr"></div><div id="lfSystems6" class="lf-systems"><button data-lf-system="NAV"><b translate="no">NAV</b><small>GUIDANCE</small></button><button data-lf-system="FUEL"><b translate="no">FUEL</b><small>PRESSURE</small></button><button data-lf-system="CREW"><b translate="no">CREW</b><small>AIRLOCK</small></button><button data-lf-system="CORE"><b translate="no">CORE</b><small>REACTOR</small></button></div><div id="lfFault6" class="lf-fault" hidden><span class="eyebrow">FLIGHT COMPUTER ALERT</span><h3 id="lfFaultTitle6"></h3><p id="lfFaultHint6"></p><div class="lf-response"><button data-lf-response="vent">VENT</button><button data-lf-response="reset">RESTART</button><button data-lf-response="bypass">BYPASS</button></div></div></section>
+          <section id="lfIgnition6" class="lf-panel" hidden><div class="lf-panel-heading"><div><span class="eyebrow">ENGINE START</span><h3>STABILIZE THRUST</h3></div><b id="lfHold6" translate="no">0.0 / 3.0 s</b></div><p>Set thrust to 54–70%. Hold IGNITION for three steady seconds.</p><div class="lf-hold-track"><i id="lfHoldFill6"></i></div><button id="lfIgnite6" class="lf-primary">HOLD IGNITION</button></section>
+          <section id="lfFlight6" class="lf-panel" hidden><div class="lf-flight-heading"><span class="eyebrow">FOLLOW THE GREEN CORRIDOR</span><b id="lfBeacons6" translate="no">0 / 3</b></div><div class="lf-alignment" aria-label="Flight alignment"><i id="lfTarget6"></i><b id="lfPosition6"></b></div><div class="lf-flight-readings"><span>HULL <b id="lfHull6" translate="no">100%</b></span><span>HEAT <b id="lfHeat6" translate="no">22°</b></span><span id="lfGateDistance6" translate="no">1000 m</span></div><div class="lf-steering"><button id="lfLeft6" aria-label="Steer left">◀<span>LEFT</span></button><span class="lf-steer-note">HOLD TO STEER</span><button id="lfRight6" aria-label="Steer right"><span>RIGHT</span>▶</button></div></section>
+          <section id="lfThrottlePanel6" class="lf-throttle" hidden><label for="lfThrottle6"><span>ENGINE THRUST</span><output id="lfThrust6" for="lfThrottle6" translate="no">35%</output></label><div><button id="lfThrustDown6" aria-label="Decrease thrust">−</button><input id="lfThrottle6" type="range" min="0" max="100" value="35" aria-label="Engine thrust"><button id="lfThrustUp6" aria-label="Increase thrust">+</button></div><small>GREEN ZONE: 54–70%</small></section>
+          <section id="lfAbort6" class="lf-panel lf-abort" hidden><span class="eyebrow">FLIGHT REVIEW</span><h3>FLIGHT INTERRUPTED</h3><p id="lfAbortReason6"></p><p id="lfAbortAdvice6"></p><button id="lfRetry6" class="lf-primary">RETRY FROM CHECKPOINT</button></section>
+          <section id="lfOrbit6" class="lf-panel lf-orbit" hidden><span class="eyebrow">ALL BEACONS CONFIRMED</span><h3>INSERTING INTO ORBIT</h3><p>Engines settling. Waiting for flight control confirmation.</p></section>
+          <section id="life6Complete" class="lf-panel lf-complete" hidden><span class="lf-complete-mark">✓</span><span class="eyebrow">LIFE #6 COMPLETE</span><h3>ORBIT ACHIEVED</h3><p>The Moon falls behind. A new signal is waiting in the void.</p><strong id="lfReward6">+1500 MOON POINTS</strong><button id="continueLife7Btn" class="lf-primary">CONTINUE TO THE VOID</button><button id="life6ReturnBtn" class="lf-secondary">MISSION CONTROL</button></section>
+          <p id="lfStatus6" class="lf-status" role="status">Flight control is standing by.</p>
+        </div>
+      </div>
+      <dialog id="liftoffGuide6" class="lf-guide" aria-labelledby="lfGuideTitle6"><div class="lf-guide-copy"><span class="eyebrow">MOONKATTY / FLIGHT MANUAL</span><h2 id="lfGuideTitle6">FLIGHT PAUSED</h2><p>Simulation paused. Your current progress is preserved.</p><ol><li><b>01</b><div><strong>FLIGHT CHECK</strong><p>Arm NAV, FUEL, CREW and CORE in the transmitted order. After two systems, diagnose the fault and choose the matching repair.</p></div></li><li><b>02</b><div><strong>IGNITION</strong><p>Set thrust to 54–70%. Hold IGNITION for three steady seconds.</p></div></li><li><b>03</b><div><strong>ASCENT</strong><p>Hold ◀ or ▶ to follow the green corridor. Cross all three beacons at 35–110 m/s. Stay below 92° and watch fuel.</p></div></li></ol><p>Each beacon saves a retry checkpoint. A failed attempt never removes a completed chapter.</p><div class="experience-options"></div></div><div class="lf-guide-actions"><button id="lfResume6" class="lf-primary">RESUME FLIGHT</button><button id="lfExit6" class="lf-secondary">MISSIONS</button></div></dialog>
     </section>
     <section id="mission7" class="screen mission-screen life-theme life-theme-7 mission-polished">
       <header><div><span class="eyebrow">LIFE #7</span><h2>THE VOID</h2></div><div class="crew-badge">HULL <span id="hull7">100</span>%</div></header>
@@ -332,10 +348,11 @@
       <div id="life9Complete" class="complete-card final-complete" hidden><span class="complete-icon">🌙</span><p class="eyebrow">9 LIVES COMPLETE</p><h3>MOONKATTY HAS RETURNED</h3><strong>+3000 MOON POINTS ⭐ • 9 LIVES COMPLETE</strong><p class="final-message">THE SIGNAL WAS NEVER CALLING US TO THE MOON.<br>IT WAS CALLING MOONKATTY HOME.</p><button id="life9ReturnBtn" class="primary">RETURN TO MISSION CONTROL</button></div>
     </section>
   </main>
-  <script src="i18n.js?v=20261004-state-4"></script>
-  <script src="app.js?v=20261004-state-4"></script>
-  <script src="reactor5-fx.js?v=20261004-state-4"></script>
-  <script src="reactor5.js?v=20261004-state-4"></script>
-  <script src="campaign.js?v=20261004-state-4"></script>
-  <script src="experience.js?v=20261004-state-4"></script>
+  <script src="i18n.js?v=20261004-liftoff-1"></script>
+  <script src="app.js?v=20261004-liftoff-1"></script>
+  <script src="reactor5-fx.js?v=20261004-liftoff-1"></script>
+  <script src="reactor5.js?v=20261004-liftoff-1"></script>
+  <script src="liftoff6.js?v=20261004-liftoff-1"></script>
+  <script src="campaign.js?v=20261004-liftoff-1"></script>
+  <script src="experience.js?v=20261004-liftoff-1"></script>
 </body></html>

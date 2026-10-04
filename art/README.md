@@ -60,3 +60,10 @@ The new backgrounds use `cover` without nonuniform scaling. The original ship an
 ### LIFE 5 cinematic effects — 4 October 2026
 
 The original reactor artwork is retained. `reactor5-fx.js` overlays a transparent canvas using the SVG camera coordinates (144, 0, 1160, 1086), with a tighter vertical crop (144, 130, 1160, 780) for short, wide galleries. The image and procedural effects always use the same uniform scale. Cached glow textures, capped pixel density (1.75), bounded particles and adaptive detail keep the light rig lightweight. All particle motion shares the gameplay animation loop and freezes on pause; reduced-motion preferences suppress decorative motion.
+
+
+## LIFE 6 launch pad — 4 October 2026
+
+`life6-launchpad.webp` was created with the built-in ImageGen tool and encoded as WebP (quality 88). Source: `exec-10a18d55-295d-40a2-86a8-5b13143e1275.png`. The unchanged `moonkatty-life4-ship.png` preserves spacecraft continuity. Canvas exhaust, dust, corridor markers and beacons are separate from the image.
+
+Prompt: Production background for MOONKATTY chapter 6 LIFTOFF, portrait 3:4. Premium cinematic 3D lunar launch environment: luminous silver terrain, white ceramic and gold science base at the far edges, blue Earth at upper right, warm sun at upper left, sapphire space. Upper 70% and central 65% clear for flight. Empty circular ivory launch pad at bottom centre, amber lights, titanium rails, detailed lunar dust. Brilliant readable lighting, crisp material microdetail, coherent perspective. No spacecraft, characters, exhaust, text, labels, HUD or watermarks.

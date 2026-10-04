@@ -104,7 +104,7 @@ function leaveMission(id){
  if(n===3)clearLaunchPlayback3();
  if(n===4){descentActive4=false;cancelAnimationFrame(descentTimer);descentTimer=null;releaseDescentControls();}
  if(n===5)stopReactor5();
- if(n===6){launchActive6=false;clearInterval(launchTimer);launchTimer=null;}
+ if(n===6)stopLiftoff6();
  if(n===7){stopVoid7();$('asteroidField').replaceChildren();asteroids7=[];}
  if(n===8){clearInterval(phaseTimer8);phaseTimer8=null;pulseReady8=false;}
  if(n===9){clearInterval(finalTimer9);finalTimer9=null;syncReady9=finalReady9=false;}
@@ -769,23 +769,6 @@ function unlockLife6(){
  if(localStorage.getItem('mkty_life5')!=='complete')return false;const a=$('life5Card'),b=$('life6Card'),i=$('life6Icon'),p=$('storyProgress');a?.classList.add('complete');if(b){b.disabled=false;b.classList.remove('locked');b.classList.add('unlocked');}if(i)i.textContent='6';if(p)p.style.width='66%';return true;
 }
 $('continueLife6Btn').onclick=(ev)=>{ev?.preventDefault?.();if(!unlockLife6())return;startLife6();};if($('life6Card'))$('life6Card').onclick=()=>$('continueLife6Btn').click();
-let launchSeconds=30,launchTimer=null,launchOrder6=[],launchIndex6=0,launchFault6=null,faultResolved6=true,nextFaultAt6=21,launchActive6=false;
-const launchSystems6=['NAVIGATION','FUEL','CREW','REACTOR'];
-const faultTypes6=[{name:'FUEL LINE OVERPRESSURE',answer:'VENT'},{name:'GUIDANCE COMPUTER DESYNC',answer:'RESET'},{name:'REACTOR SENSOR FAILURE',answer:'BYPASS'}];
-function startLife6(){playLifeCinematic(6,openMission6);}
-function shuffle6(a){return [...a].sort(()=>Math.random()-.5);}
-function showFault6(){
- if(!launchActive6||!faultResolved6)return;launchFault6=faultTypes6[Math.floor(Math.random()*faultTypes6.length)];faultResolved6=false;$('launchEmergency6').hidden=false;$('launchAlert6').textContent=launchFault6.name;$('launchAlertHint6').textContent='Choose the correct emergency procedure.';$('launchStatus').textContent='WARNING — resolve flight computer alert!';
-}
-function openMission6(){
- clearMissionDelays(6);
- launchSeconds=30;launchOrder6=shuffle6(launchSystems6);launchIndex6=0;launchFault6=null;faultResolved6=true;nextFaultAt6=21;launchActive6=true;$('launchClock').textContent=30;$('launchClock').classList.remove('danger');$('launchBtn').disabled=true;$('life6Complete').hidden=true;$('launchEmergency6').hidden=true;$('launchOrder6').textContent=launchOrder6.join(' → ');$('launchStatus').textContent='Follow the transmitted procedure. Watch for flight computer alerts.';document.querySelectorAll('[data-launch]').forEach(b=>{b.disabled=false;b.classList.remove('armed','error','ready6');});$('launchShip').classList.remove('lifted');$('launchFlame').classList.remove('active');show('mission6');clearInterval(launchTimer);
- launchTimer=setInterval(()=>{if(!launchActive6||document.hidden)return;launchSeconds--;$('launchClock').textContent=launchSeconds;if(launchSeconds<=10)$('launchClock').classList.add('danger');if(launchSeconds===nextFaultAt6&&launchIndex6<4)showFault6();if(launchSeconds<=0){launchActive6=false;clearInterval(launchTimer);$('launchStatus').textContent='ABORT — launch window missed. Sequence reset.';tg?.HapticFeedback?.notificationOccurred?.('error');laterInMission(6,openMission6,1400);}},1000);
-}
-document.querySelectorAll('[data-launch]').forEach(b=>b.onclick=()=>{if(!launchActive6||!faultResolved6)return;const system=b.dataset.launch;if(system!==launchOrder6[launchIndex6]){b.classList.add('error');launchSeconds=Math.max(1,launchSeconds-3);$('launchStatus').textContent='Wrong system — 3 seconds lost.';tg?.HapticFeedback?.impactOccurred?.('medium');return;}b.classList.remove('error');b.classList.add('armed');b.disabled=true;launchIndex6++;tg?.HapticFeedback?.impactOccurred?.('light');if(launchIndex6===2&&nextFaultAt6>12)nextFaultAt6=Math.min(nextFaultAt6,launchSeconds-2);if(launchIndex6===4&&faultResolved6){$('launchBtn').disabled=false;$('launchStatus').textContent='All systems armed. LAUNCH before T−0!';}});
-document.querySelectorAll('[data-response6]').forEach(b=>b.onclick=()=>{if(!launchFault6||faultResolved6)return;if(b.dataset.response6===launchFault6.answer){faultResolved6=true;$('launchEmergency6').hidden=true;$('launchStatus').textContent='Fault cleared ✓ Continue launch procedure.';launchFault6=null;tg?.HapticFeedback?.notificationOccurred?.('success');if(launchIndex6===4)$('launchBtn').disabled=false;}else{launchSeconds=Math.max(1,launchSeconds-5);$('launchAlertHint6').textContent='Incorrect response — 5 seconds lost!';tg?.HapticFeedback?.notificationOccurred?.('error');}});
-$('launchBtn').onclick=()=>{if(launchIndex6!==4||!faultResolved6||!launchActive6)return;launchActive6=false;clearInterval(launchTimer);$('launchShip').classList.add('lifted');$('launchFlame').classList.add('active');$('launchBtn').disabled=true;awardLifePoints(6,1500);$('launchStatus').textContent='Liftoff confirmed — orbit achieved ✓';laterInMission(6,()=>$('life6Complete').hidden=false,900);tg?.HapticFeedback?.notificationOccurred?.('success');};
-$('life6ReturnBtn').onclick=()=>show('home');
 
 function unlockLife7(){
  if(localStorage.getItem('mkty_life6')!=='complete')return false;const a=$('life6Card'),b=$('life7Card'),i=$('life7Icon'),p=$('storyProgress');a?.classList.add('complete');if(b){b.disabled=false;b.classList.remove('locked');b.classList.add('unlocked');}if(i)i.textContent='7';if(p)p.style.width='77%';return true;

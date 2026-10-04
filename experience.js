@@ -27,6 +27,7 @@ window.MKTYExperience=(()=>{
   fx.onclick=()=>{light=!light;localStorage.setItem('mkty_light_fx',light?'yes':'no');updateOptions();};root.append(soundButton,fx);
  }
  makeOptions(guide.querySelector('.experience-options'));
+ makeOptions($('liftoffGuide6').querySelector('.experience-options'));
  const options5=document.createElement('div');options5.className='experience-options';$('reactorOverlay5').querySelector('.reactor-dialog-actions5').before(options5);makeOptions(options5);updateOptions();media.addEventListener('change',updateOptions);
  // Instructions scroll independently so RESUME is always reachable on a phone.
  for(const [dialog,actions,cls] of [[guide,guide.querySelector('.guide-actions'),'guide-copy'],[$('reactorOverlay5').querySelector('.reactor-dialog5'),$('reactorOverlay5').querySelector('.reactor-dialog-actions5'),'reactor-guide-copy5']]){
