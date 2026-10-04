@@ -1,8 +1,8 @@
 /* LIFE 6: deterministic flight physics, explicit stage transitions and resumable checkpoints. */
 const Liftoff6=(()=>{
- const root=$('mission6'),scene=$('liftoffScene6'),canvas=$('liftoffCanvas6'),ctx=canvas.getContext('2d');
+ const root=$('mission6'),scene=$('liftoffScene6'),canvas=$('liftoffCanvas6');
  const guide=$('liftoffGuide6'),ship=$('lfShip6'),environment=$('lfEnvironment6'),motionMedia=matchMedia('(prefers-reduced-motion: reduce)');
- const KEY='mkty_liftoff6_checkpoint_v1',systems=['NAV','FUEL','CREW','CORE'],phases=['briefing','preflight','ignition','countdown','flight','abort','orbit','complete'];
+ const KEY='mkty_liftoff6_checkpoint_v1',REPORT='mkty_liftoff6_report_v1',systems=['NAV','FUEL','CREW','CORE'],phases=['briefing','preflight','ignition','countdown','flight','abort','orbit','complete'];
  const faults=[
   {title:'FUEL PRESSURE TOO HIGH',hint:'Pressure exceeds the limit. Open the relief valve to vent the line.',answer:'vent'},
   {title:'GUIDANCE COMPUTER DESYNC',hint:'Navigation data is out of sync. Reset the guidance computer.',answer:'reset'},
@@ -10,16 +10,17 @@ const Liftoff6=(()=>{
  ];
  const panels={briefing:$('lfBrief6'),preflight:$('lfCheck6'),ignition:$('lfIgnition6'),flight:$('lfFlight6'),abort:$('lfAbort6'),orbit:$('lfOrbit6'),complete:$('life6Complete')};
  const cache=new Map(),controls=[];let s=null,frameId=0,last=0,uiTime=0,saveTime=0,paintTime=0,focusBefore=null;
- let width=1,height=1,dpr=1,shipSize=110,hudHeight=45,ignitionHeld=false,leftHeld=false,rightHeld=false;
+ let ignitionHeld=false,leftHeld=false,rightHeld=false,trimStep=0,trimHeld=0,trimRepeat=0,paintCost=0;
  const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),active=()=>root.classList.contains('active');
  const target=alt=>50+Math.sin(alt/600)*20;
+ const fx=Liftoff6FX.create({scene,canvas,ship,environment,target});
  function shuffle(a){const out=[...a];for(let i=out.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[out[i],out[j]]=[out[j],out[i]];}return out;}
  function text(id,value){value=String(value);if(cache.get(id)!==value){cache.set(id,value);$(id).textContent=value;}}
- function fresh(){return {phase:'briefing',phaseTime:0,order:shuffle(systems),armed:0,clock:45,fault:Math.floor(Math.random()*faults.length),faultActive:false,faultSolved:false,throttle:35,hold:0,alt:0,x:50,vx:0,speed:0,fuel:100,hull:100,temp:22,gates:0,offCourse:0,elapsed:0,failedStage:'preflight',reason:'',paused:false,notice:'',noticeFor:0,flash:0};}
+ function fresh(){return {phase:'briefing',phaseTime:0,order:shuffle(systems),armed:0,clock:45,fault:Math.floor(Math.random()*faults.length),faultActive:false,faultSolved:false,throttle:35,hold:0,alt:0,x:50,vx:0,speed:0,fuel:100,hull:100,temp:22,gates:0,offCourse:0,elapsed:0,flightTime:0,flightTimeKnown:true,failedStage:'preflight',reason:'',paused:false,notice:'',noticeFor:0,flash:0,eventFor:0};}
  function save(){
   if(!s||s.phase==='complete')return;
   const data={version:1};
-  for(const key of ['phase','phaseTime','order','armed','clock','fault','faultActive','faultSolved','throttle','alt','x','vx','speed','fuel','hull','temp','gates','offCourse','elapsed','failedStage','reason'])data[key]=s[key];
+  for(const key of ['phase','phaseTime','order','armed','clock','fault','faultActive','faultSolved','throttle','alt','x','vx','speed','fuel','hull','temp','gates','offCourse','elapsed','flightTime','flightTimeKnown','failedStage','reason'])data[key]=s[key];
   try{localStorage.setItem(KEY,JSON.stringify(data));}catch{/* Storage failure must not stop flight. */}
  }
  function restore(){
@@ -33,7 +34,9 @@ const Liftoff6=(()=>{
    if(['ignition','countdown','flight','orbit'].includes(v.phase)&&(v.armed!==4||!v.faultSolved))return false;
    if(v.phase==='orbit'&&(v.gates!==3||v.alt!==3000))return false;
    if(v.phase==='flight'&&(v.gates>2||v.alt<v.gates*1000||v.alt>=(v.gates+1)*1000))return false;
-   Object.assign(s,v,{hold:0,paused:false,notice:'',noticeFor:0,flash:0});return true;
+   if(v.flightTime!==undefined&&(!Number.isFinite(v.flightTime)||v.flightTime<0||v.flightTime>100000))return false;
+   const alreadyFlying=['flight','orbit'].includes(v.phase)||v.phase==='abort'&&v.failedStage==='flight';
+   Object.assign(s,v,{flightTimeKnown:v.flightTime!==undefined&&v.flightTimeKnown!==false||!alreadyFlying,hold:0,paused:false,notice:'',noticeFor:0,flash:0,eventFor:0});return true;
   }catch{return false;}
  }
  function release(){controls.forEach(c=>c());ignitionHeld=leftHeld=rightHeld=false;}
@@ -61,12 +64,15 @@ const Liftoff6=(()=>{
   else{Object.assign(s,{alt:s.gates*1000,x:target(s.gates*1000),vx:0,speed:s.gates?55:0,fuel:100,hull:100,temp:45,throttle:62,offCourse:0,noticeFor:0});enter('flight');}
  }
  function finish(){
+  try{localStorage.setItem(REPORT,JSON.stringify({version:1,time:s.flightTimeKnown?s.flightTime:null,hull:s.hull,fuel:s.fuel}));}catch{}
   const rewarded=localStorage.getItem('mkty_life6_awarded')==='yes';awardLifePoints(6,1500);unlockLife7();
   try{localStorage.removeItem(KEY);}catch{}
   s.speed=0;s.throttle=0;enter('complete');text('lfReward6',rewarded?'MISSION COMPLETE':'+1500 MOON POINTS');signal('complete');
  }
  function tick(dt){
-  s.elapsed+=dt;s.noticeFor=Math.max(0,s.noticeFor-dt);s.flash*=Math.exp(-dt*3);
+  s.elapsed+=dt;s.noticeFor=Math.max(0,s.noticeFor-dt);s.eventFor=Math.max(0,s.eventFor-dt);s.flash*=Math.exp(-dt*3);
+  if(trimStep&&['ignition','flight'].includes(s.phase)){trimHeld+=dt;if(trimHeld>=.35){trimRepeat+=dt;while(trimRepeat>=.075){s.throttle=clamp(s.throttle+trimStep,0,100);trimRepeat-=.075;}}}
+  if(['flight','orbit'].includes(s.phase))s.flightTime+=dt;
   if(s.phase==='preflight'){s.clock=Math.max(0,s.clock-dt);if(s.clock===0)abort('The pre-flight window expired.');}
   else if(s.phase==='ignition'){
    s.hold=ignitionHeld&&s.throttle>=54&&s.throttle<=70?Math.min(3,s.hold+dt):0;
@@ -87,7 +93,7 @@ const Liftoff6=(()=>{
     if(Math.abs(s.x-target((s.gates+1)*1000))>14){abort('The ascent beacon was missed.');return;}
     if(s.speed<35||s.speed>110){abort('Beacon crossing speed was outside 35–110 m/s.');return;}
     if(s.temp>92){abort('The engine was too hot at the beacon.');return;}
-    s.gates++;signal('gate');notice('Beacon confirmed. Retry checkpoint saved.');
+    s.gates++;s.eventFor=2.6;signal('gate');notice('Beacon confirmed. Retry checkpoint saved.');
     if(s.gates===3){s.alt=3000;enter('orbit');}else save();
    }
   }else if(s.phase==='orbit'){s.speed*=Math.exp(-dt*1.8);s.phaseTime+=dt;if(s.phaseTime>=3)finish();}
@@ -129,51 +135,39 @@ const Liftoff6=(()=>{
   text('lfFaultTitle6',faults[s.fault].title);text('lfFaultHint6',faults[s.fault].hint);
   text('lfThrust6',s.throttle+'%');text('lfHold6',s.hold.toFixed(1)+' / 3.0 s');$('lfHoldFill6').style.transform='scaleX('+(s.hold/3)+')';
   text('lfBeacons6',s.gates+' / 3');text('lfHull6',Math.ceil(s.hull)+'%');text('lfHeat6',Math.round(s.temp)+'°');text('lfGateDistance6',Math.max(0,Math.ceil((s.gates+1)*1000-s.alt))+' m');
+  const offset=s.x-target(s.alt);text('lfCourse6',Math.abs(offset)>12?(offset>0?'CORRECT LEFT':'CORRECT RIGHT'):'ON COURSE');
+  root.dataset.course=Math.abs(offset)>14?'outside':'aligned';
+  $('lfRoute6').hidden=!['flight','orbit','complete'].includes(s.phase);
+  $('lfRouteFill6').style.transform='scaleX('+clamp((s.alt-1000)/2000,0,1)+')';
+  root.querySelectorAll('[data-lf-beacon]').forEach((e,i)=>{e.classList.toggle('passed',s.gates>i);e.classList.toggle('next',s.gates===i);});
+  $('lfSceneEvent6').hidden=s.eventFor<=0||s.phase==='abort';text('lfEventNumber6',String(s.gates).padStart(2,'0'));
+  $('lfSpeed6').parentElement.style.setProperty('--reading',clamp(s.speed/110,0,1));$('lfFuel6').parentElement.style.setProperty('--reading',s.fuel/100);
+  $('lfSpeed6').parentElement.dataset.caution=String(s.speed>110);$('lfFuel6').parentElement.dataset.caution=String(s.fuel<20);
   $('lfPosition6').style.left=s.x+'%';$('lfTarget6').style.left=target(s.alt)+'%';
   $('lfCountdown6').hidden=s.phase!=='countdown';if(s.phase==='countdown')text('lfCountdown6',Math.max(1,Math.ceil(3-s.phaseTime)));
   text('lfAbortReason6',s.reason);text('lfAbortAdvice6',s.failedStage==='preflight'?'Read the system order and fault diagnosis. You have 45 seconds for the check.':'Use ◀ and ▶ to track the green zone. Keep thrust at 54–70%. Your ship is restored at the last beacon.');
   $('lfStatus6').hidden=s.phase==='complete';text('lfStatus6',status());
+  if(s.phase==='complete')renderReport();
  }
- function resize(){width=scene.clientWidth;height=scene.clientHeight;if(!width||!height)return;dpr=Math.min(devicePixelRatio||1,1.5);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);shipSize=Math.max(56,Math.min(135,width*.30,(height-65)*1.5));ship.style.width=shipSize+'px';hudHeight=scene.querySelector('.lf-telemetry').offsetHeight;if(s)draw();}
+ function readReport(){
+  let report;try{report=JSON.parse(localStorage.getItem(REPORT)||'null');}catch{}
+  const valid=report?.version===1&&(report.time===null||Number.isFinite(report.time)&&report.time>=0&&report.time<=100000)&&['fuel','hull'].every(k=>Number.isFinite(report[k])&&report[k]>=0&&report[k]<=100);
+  return valid?report:null;
+ }
+ function renderReport(){
+  const report=readReport();$('lfReport6').hidden=!report;if(!report)return;
+  const seconds=Math.round(report.time);text('lfReportTime6',report.time===null?'—':String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0'));text('lfReportHull6',Math.ceil(report.hull)+'%');text('lfReportFuel6',Math.ceil(report.fuel)+'%');
+ }
+ function reduced(){return motionMedia.matches||window.MKTYExperience?.effectsReduced;}
+ function draw(){if(s)fx.draw(s,{left:leftHeld,right:rightHeld,reduced:reduced(),detail:paintCost>5?.6:1});}
+ function resize(){fx.resize();if(s){fx.pose(s,0,reduced());draw();}}
  new ResizeObserver(resize).observe(scene);
- const glowTexture=document.createElement('canvas');glowTexture.width=glowTexture.height=64;
- {const g=glowTexture.getContext('2d');if(g){const r=g.createRadialGradient(32,32,0,32,32,32);r.addColorStop(0,'#ecffff');r.addColorStop(.15,'#99edffb0');r.addColorStop(.45,'#56bfff30');r.addColorStop(1,'#56bfff00');g.fillStyle=r;g.fillRect(0,0,64,64);}}
- function glow(x,y,r,a){ctx.globalAlpha=a;ctx.drawImage(glowTexture,x-r,y-r,r*2,r*2);}
- function draw(){
-  if(!s||!width||!height)return;
-  const flight=['flight','orbit','complete'].includes(s.phase)||s.phase==='abort'&&s.failedStage==='flight';
-  const rise=clamp(s.alt/500,0,1),reduced=motionMedia.matches||window.MKTYExperience?.effectsReduced;
-  const y=Math.min((flight?(.69-rise*.23):.71)*height,height-hudHeight-14-shipSize*.33),x=s.x/100*width,time=reduced?0:s.elapsed;
-  const orbit=s.phase==='orbit'?s.phaseTime/3:s.phase==='complete'?1:0;
-  ship.style.left=s.x+'%';ship.style.top=y+'px';ship.style.transform='translate(-50%,-50%) rotate('+clamp(s.vx*.45,-9,9)+'deg) scale('+(1-orbit*.25)+')';
-  scene.style.setProperty('--engine',String(flight?s.throttle/80:s.phase==='ignition'?.2+s.hold/4:s.phase==='countdown'?.9:.12));scene.style.setProperty('--orbit',String(Math.min(.85,s.alt/4000)));
-  environment.style.transform='translateY('+(rise*height*.06)+'px) scale('+(1.04+rise*.12)+')';environment.style.opacity=String(1-clamp((s.alt-600)/1800,0,1));
-  if(!ctx)return;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,width,height);
-  if(flight&&s.phase!=='complete'){
-   ctx.save();ctx.strokeStyle='#abf7d05c';ctx.lineWidth=1;ctx.setLineDash([4,7]);
-   for(const side of [-14,14]){ctx.beginPath();for(let d=-120;d<650;d+=20){const px=(target(s.alt+d)+side)/100*width,py=y-d/600*height;if(d===-120)ctx.moveTo(px,py);else ctx.lineTo(px,py);}ctx.stroke();}ctx.setLineDash([]);
-   const next=(s.gates+1)*1000,gy=y-(next-s.alt)/600*height,gx=target(next)/100*width;
-   if(s.gates<3&&gy>-30&&gy<height){ctx.strokeStyle='#adffcd';ctx.lineWidth=2;ctx.shadowColor='#80eec7';ctx.shadowBlur=reduced?0:12;ctx.beginPath();ctx.ellipse(gx,gy,width*.145,Math.min(14,height*.05),0,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle='#d6ffe7';ctx.font='bold 10px monospace';ctx.fillText(String(s.gates+1).padStart(2,'0'),gx+width*.15+4,gy+3);}
-   ctx.restore();
-  }
-  ctx.globalCompositeOperation='screen';
-  const power=flight?s.throttle/100:s.phase==='ignition'?s.hold/4:s.phase==='countdown'?.7:.07;
-  const spread=shipSize,engineY=y+spread*.17;
-  for(const side of [-1,1]){
-   const engineX=x+side*spread*.21;glow(engineX,engineY,18+power*12,.12+power*.4);
-   const count=reduced?3:16;
-   for(let i=0;i<count;i++){const t=(time*1.8+i/count)%1;glow(engineX+Math.sin(i*3.7+time*7)*t*7,engineY+t*(20+power*60),4+t*9,(1-t)*power*.42);}
-  }
-  if(s.alt<400&&!reduced){const energy=power*(1-s.alt/400);for(let i=0;i<18;i++){const t=(time*.55+i/18)%1,sign=i%2?1:-1;glow(width*.5+sign*t*width*.4,height*.85-t*16,9+t*24,(1-t)*energy*.16);}}
-  if(flight&&!reduced)for(let i=0;i<18;i++){const sx=(i*79.7)%width,sy=(i*43.9+time*s.speed*.22)%height;ctx.globalAlpha=.15;ctx.strokeStyle='#c0e6ff';ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(sx,sy+2+s.speed*.035);ctx.stroke();}
-  if(s.flash>.05&&!reduced){ctx.globalAlpha=s.flash*.35;ctx.strokeStyle='#d7ffcf';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x,y,30+(1-s.flash)*70,15+(1-s.flash)*35,0,0,Math.PI*2);ctx.stroke();}
-  ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
- }
  function frame(now){
   frameId=0;if(!s||s.paused||!active()||document.hidden)return;
   const dt=clamp((now-last)/1000,0,.04);last=now;tick(dt);uiTime+=dt;saveTime+=dt;
-  if(uiTime>=.1){render();uiTime=0;}if(now-paintTime>=32){draw();paintTime=now;}if(saveTime>=1){save();saveTime=0;}
-  frameId=requestAnimationFrame(frame);
+  fx.pose(s,dt,reduced());
+  if(uiTime>=.1){render();uiTime=0;}if(now-paintTime>=(reduced()?100:paintCost>5?48:32)||s.phase==='complete'){const began=performance.now();draw();paintCost=paintCost*.9+(performance.now()-began)*.1;paintTime=now;}if(saveTime>=1){save();saveTime=0;}
+  if(s.phase!=='complete')frameId=requestAnimationFrame(frame);
  }
  function startClock(){cancelAnimationFrame(frameId);last=performance.now();uiTime=saveTime=0;frameId=requestAnimationFrame(frame);}
  function pause(title='FLIGHT PAUSED'){
@@ -184,8 +178,8 @@ const Liftoff6=(()=>{
  function stop(){if(active())save();cancelAnimationFrame(frameId);frameId=0;release();if(s)s.paused=true;if(guide.open)guide.close();}
  function open(){
   if(localStorage.getItem('mkty_life5')!=='complete'){show('chapters');return;}
-  stop();cache.clear();s=fresh();const complete=localStorage.getItem('mkty_life6')==='complete',restored=!complete&&restore();
-  if(complete){Object.assign(s,{phase:'complete',armed:4,faultSolved:true,alt:3000,gates:3,throttle:0,speed:0,x:50});text('lfReward6','MISSION COMPLETE');try{localStorage.removeItem(KEY);}catch{}}
+  stop();cache.clear();fx.reset();s=fresh();const complete=localStorage.getItem('mkty_life6')==='complete',restored=!complete&&restore();
+  if(complete){Object.assign(s,{phase:'complete',armed:4,faultSolved:true,alt:3000,gates:3,throttle:0,speed:0,x:50});const report=readReport();if(report)Object.assign(s,{fuel:report.fuel,hull:report.hull,flightTime:report.time||0});text('lfReward6','MISSION COMPLETE');try{localStorage.removeItem(KEY);}catch{}}
   show('mission6');resize();render();draw();if(restored)pause('SAVED SESSION RESTORED');else startClock();
  }
  function bindHold(id,set){
@@ -201,7 +195,15 @@ const Liftoff6=(()=>{
  bindHold('lfIgnite6',v=>ignitionHeld=v);bindHold('lfLeft6',v=>leftHeld=v);bindHold('lfRight6',v=>rightHeld=v);
  $('lfBegin6').onclick=begin;root.querySelectorAll('[data-lf-system]').forEach(b=>b.onclick=()=>arm(b.dataset.lfSystem));root.querySelectorAll('[data-lf-response]').forEach(b=>b.onclick=()=>repair(b.dataset.lfResponse));
  function throttle(value){if(!s||s.paused||!active()||!['ignition','flight'].includes(s.phase))return;s.throttle=clamp(Math.round(value),0,100);render();save();}
- $('lfThrottle6').oninput=e=>throttle(Number(e.target.value));$('lfThrustDown6').onclick=()=>throttle(s.throttle-1);$('lfThrustUp6').onclick=()=>throttle(s.throttle+1);
+ $('lfThrottle6').oninput=e=>throttle(Number(e.target.value));
+ function bindTrim(id,direction){
+  const b=$(id);let pointer=null;
+  const release=()=>{pointer=null;if(trimStep===direction){trimStep=0;trimHeld=trimRepeat=0;}b.classList.remove('held');};controls.push(release);
+  b.addEventListener('pointerdown',e=>{if(e.button!==0||!s||s.paused||!active()||!['ignition','flight'].includes(s.phase))return;e.preventDefault();pointer=e.pointerId;b.setPointerCapture?.(pointer);trimStep=direction;trimHeld=trimRepeat=0;b.classList.add('held');throttle(s.throttle+direction);});
+  for(const type of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(type,e=>{if(e.pointerId!==pointer)return;release();render();save();});
+  b.addEventListener('blur',release);b.onclick=e=>{if(e.detail===0)throttle(s.throttle+direction);};
+ }
+ bindTrim('lfThrustDown6',-1);bindTrim('lfThrustUp6',1);
  $('lfRetry6').onclick=retry;$('liftoffHelp6').onclick=()=>pause();$('lfResume6').onclick=resume;$('lfExit6').onclick=()=>show('chapters');$('life6ReturnBtn').onclick=()=>show('home');
  guide.addEventListener('cancel',e=>{e.preventDefault();resume();});
  document.addEventListener('visibilitychange',()=>{if(document.hidden&&active())pause();});window.addEventListener('pagehide',()=>{if(active())pause();});window.addEventListener('blur',()=>{if(active())pause();else release();});

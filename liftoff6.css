@@ -113,3 +113,46 @@
 @media(prefers-reduced-motion:reduce){#mission6 *{scroll-behavior:auto!important}#liftoffGuide6::backdrop{backdrop-filter:none}}
 @media(min-width:640px) and (max-height:600px){#app:has(#mission6.active){max-width:none;width:100%}}
 @media(max-height:560px){#mission6.liftoff-six{padding-top:calc(6px + env(safe-area-inset-top));padding-bottom:calc(6px + env(safe-area-inset-bottom));padding-left:max(9px,env(safe-area-inset-left));padding-right:max(9px,env(safe-area-inset-right))}}
+
+/* Ascent instruments stay over the scene, leaving the thumb controls in place. */
+#mission6 .lf-scene{box-shadow:inset 0 1px #e4f8ff77,0 8px 28px #09192e4d;transition:border-color .2s}
+#mission6 .lf-scene:after{content:'';position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 0 1px #e1f7ff18,inset 0 0 35px #0a28452b}
+#mission6 .lf-orbit-backdrop{background:linear-gradient(180deg,#12345020,#154e6120),url('art/orbit-v2.webp') center/cover}
+#mission6 .lf-scene-heading{padding:6px 8px;inset:6px 6px auto;background:linear-gradient(90deg,#08263bcc,#13364885);border:1px solid #c0e9eb24;border-radius:7px;letter-spacing:.7px}
+#mission6 .lf-ship{will-change:transform;transform-origin:50% 50%}
+#mission6 .lf-ship img{filter:drop-shadow(0 7px 7px #03244580) drop-shadow(0 0 8px #b0eaff15)}
+#mission6 .lf-route{position:absolute;z-index:6;left:19%;right:19%;top:44px;display:flex;justify-content:space-between;pointer-events:none}
+#mission6 .lf-route-track{position:absolute;top:5px;left:0;right:0;height:1px;background:#a4d7df30}
+#mission6 .lf-route-track>i{display:block;width:100%;height:100%;background:#b4f4d7;transform-origin:left;box-shadow:0 0 6px #a0f4d78c}
+#mission6 .lf-route>span{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;transform:translateX(-50%);color:#b0d2dd}
+#mission6 .lf-route>span:last-child{transform:translateX(50%)}
+#mission6 .lf-route>span:nth-of-type(2){transform:none}
+#mission6 .lf-route>span>i{width:10px;height:10px;border:1px solid #d3e8ec82;background:#17384f;border-radius:50%}
+#mission6 .lf-route>span>b{font:500 8px monospace;text-shadow:0 2px 4px #001f39}
+#mission6 .lf-route>span.next>i{border-color:#ffe5b0;background:#8c7452;box-shadow:0 0 8px #ffdfa348}
+#mission6 .lf-route>span.passed{color:#caffdf}
+#mission6 .lf-route>span.passed>i{background:#c7f6d8;border-color:#ddffe9;box-shadow:0 0 8px #adf4d781}
+#mission6 .lf-scene-event{position:absolute;z-index:7;top:84px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:9px;padding:9px 12px;max-width:94%;width:max-content;border:1px solid #d0fbe08c;border-radius:12px;background:#1c4c50eb;box-shadow:0 5px 22px #041f3940;color:#d6ffe4;pointer-events:none}
+#mission6 .lf-scene-event>b{font:700 16px monospace;white-space:nowrap;color:#e6ffd6}
+#mission6 .lf-scene-event>span{font-size:8px;letter-spacing:.4px;max-width:175px;line-height:1.4}
+#mission6 .lf-telemetry>div{position:relative;overflow:hidden;box-shadow:inset 0 1px #f0ffff15}
+#mission6 .lf-telemetry>div:nth-child(n+2):after{content:'';position:absolute;left:0;bottom:0;width:calc(var(--reading,0)*100%);height:2px;background:#a3efcd;transition:width .1s linear}
+#mission6 .lf-telemetry>div[data-caution="true"]:after{background:#ffc79a}
+#mission6 .lf-telemetry>div[data-caution="true"] b{color:#ffe0bc}
+#mission6 .lf-flight-heading .eyebrow{color:#c0f0d8;letter-spacing:1px}
+#mission6[data-course="outside"] .lf-flight-heading .eyebrow{color:#ffd7af}
+#mission6[data-warning="true"] .lf-scene{border-color:#f4be91}
+#mission6 .lf-alignment{border-radius:5px;background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),#b2deeb35 calc(10% - 1px) 10%),#102e403b}
+#mission6 .lf-alignment i{box-shadow:inset 0 0 8px #9bf4c517}
+#mission6 .lf-panel{background:linear-gradient(145deg,#355c70,#22465a);border-color:#abd6df61}
+#mission6 .lf-steering button{box-shadow:inset 0 1px #f2ffff25,0 3px 0 #143247;border-bottom:2px solid #a2c4cd80;transition:background .12s,box-shadow .12s}
+#mission6 .lf-steering button.held{box-shadow:inset 0 0 18px #d8f2e927,0 1px 0 #143247;background:linear-gradient(#597f8d,#396779);color:#fff2c8}
+#mission6 .lf-throttle button{touch-action:none;user-select:none}
+#mission6 .lf-throttle button.held{background:#547987;border-color:#ffe7b3;color:#ffe8b2}
+#mission6 .lf-report{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:12px 0 5px;padding:10px 0;border-block:1px solid #acd2dd38}
+#mission6 .lf-report>div{display:grid;gap:5px;min-width:0}
+#mission6 .lf-report b{font:600 19px/1 monospace;color:#bff2e3}
+#mission6 .lf-report span{font-size:7px;letter-spacing:.45px;color:#c8e0e7;line-height:1.3}
+@media(max-height:700px){#mission6 .lf-scene-event{top:69px;padding:7px 10px}#mission6 .lf-route{top:39px}}
+@media(max-height:560px){#mission6 .lf-scene-heading{inset:4px 4px auto;padding:4px 6px;font-size:6px}#mission6 .lf-scene-heading span:last-child{font-size:6px}#mission6 .lf-route{top:30px;left:24%;right:24%}#mission6 .lf-route>span>b{display:none}#mission6 .lf-route>span>i{width:7px;height:7px}#mission6 .lf-route-track{top:3px}#mission6 .lf-scene-event{display:none}#mission6 .lf-report{margin:7px 0 3px;padding:7px 0}#mission6 .lf-report b{font-size:15px}#mission6 .lf-report span{font-size:6px;letter-spacing:0}#mission6 .lf-complete:has(.lf-report:not([hidden]))>p{display:none}}
+@media(prefers-reduced-motion:reduce){#mission6 .lf-scene,#mission6 .lf-steering button,#mission6 .lf-telemetry>div:after{transition:none}}

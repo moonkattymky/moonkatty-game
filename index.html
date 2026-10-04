@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="reactor5.css?v=20261004-cinematic-2" />
   <link rel="stylesheet" href="campaign.css?v=20261004-repair-1" />
   <link rel="stylesheet" href="experience.css?v=20261004-liftoff-1" />
-  <link rel="stylesheet" href="liftoff6.css?v=20261004-liftoff-1" />
+  <link rel="stylesheet" href="liftoff6.css?v=20261004-flight-polish-1" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -297,7 +297,9 @@
           <div id="lfEnvironment6" class="lf-environment"></div><div class="lf-orbit-backdrop"></div>
           <canvas id="liftoffCanvas6" aria-hidden="true"></canvas>
           <div class="lf-scene-heading"><span translate="no">ALPHA / FLIGHT 006</span><span id="lfSceneTag6">ALL SYSTEMS STANDBY</span></div>
-          <div id="lfShip6" class="lf-ship"><img src="moonkatty-life4-ship.png" alt="" draggable="false"><i></i></div>
+          <div id="lfRoute6" class="lf-route" aria-label="Ascent checkpoints" hidden><div class="lf-route-track"><i id="lfRouteFill6"></i></div><span data-lf-beacon="0"><i></i><b translate="no">1000</b></span><span data-lf-beacon="1"><i></i><b translate="no">2000</b></span><span data-lf-beacon="2"><i></i><b translate="no">3000</b></span></div>
+          <div id="lfSceneEvent6" class="lf-scene-event" hidden><b translate="no">✓ <span id="lfEventNumber6">01</span></b><span>CHECKPOINT SAVED</span></div>
+          <div id="lfShip6" class="lf-ship"><img src="moonkatty-life4-ship.png" width="520" height="343" alt="" draggable="false"><i></i></div>
           <div id="lfCountdown6" class="lf-countdown" hidden translate="no">3</div>
           <div class="lf-telemetry"><div><span>ALTITUDE</span><b id="lfAltitude6" translate="no">0000</b><small>m</small></div><div><span>CLIMB RATE</span><b id="lfSpeed6" translate="no">0</b><small>m/s</small></div><div><span>FUEL</span><b id="lfFuel6" translate="no">100</b><small>%</small></div></div>
         </div>
@@ -305,11 +307,11 @@
           <section id="lfBrief6" class="lf-panel"><span class="eyebrow">DEPARTURE CLEARANCE</span><h3>THE MOON IS ONLY THE BEGINNING.</h3><p>The reactor is online. Bring your crew home through the ascent corridor.</p><div class="lf-brief-stats"><span><b>03</b><small>FLIGHT STAGES</small></span><span><b>03</b><small>BEACONS</small></span><span><b>+1500</b><small>MOON POINTS</small></span></div><button id="lfBegin6" class="lf-primary">BEGIN FLIGHT CHECK</button></section>
           <section id="lfCheck6" class="lf-panel" hidden><div class="lf-panel-heading"><span class="eyebrow">ARM SYSTEMS IN THIS ORDER</span><strong class="lf-clock" translate="no">T−<span id="lfClock6">45.0</span></strong></div><div id="lfOrder6" class="lf-order" translate="no" dir="ltr"></div><div id="lfSystems6" class="lf-systems"><button data-lf-system="NAV"><b translate="no">NAV</b><small>GUIDANCE</small></button><button data-lf-system="FUEL"><b translate="no">FUEL</b><small>PRESSURE</small></button><button data-lf-system="CREW"><b translate="no">CREW</b><small>AIRLOCK</small></button><button data-lf-system="CORE"><b translate="no">CORE</b><small>REACTOR</small></button></div><div id="lfFault6" class="lf-fault" hidden><span class="eyebrow">FLIGHT COMPUTER ALERT</span><h3 id="lfFaultTitle6"></h3><p id="lfFaultHint6"></p><div class="lf-response"><button data-lf-response="vent">VENT</button><button data-lf-response="reset">RESTART</button><button data-lf-response="bypass">BYPASS</button></div></div></section>
           <section id="lfIgnition6" class="lf-panel" hidden><div class="lf-panel-heading"><div><span class="eyebrow">ENGINE START</span><h3>STABILIZE THRUST</h3></div><b id="lfHold6" translate="no">0.0 / 3.0 s</b></div><p>Set thrust to 54–70%. Hold IGNITION for three steady seconds.</p><div class="lf-hold-track"><i id="lfHoldFill6"></i></div><button id="lfIgnite6" class="lf-primary">HOLD IGNITION</button></section>
-          <section id="lfFlight6" class="lf-panel" hidden><div class="lf-flight-heading"><span class="eyebrow">FOLLOW THE GREEN CORRIDOR</span><b id="lfBeacons6" translate="no">0 / 3</b></div><div class="lf-alignment" aria-label="Flight alignment"><i id="lfTarget6"></i><b id="lfPosition6"></b></div><div class="lf-flight-readings"><span>HULL <b id="lfHull6" translate="no">100%</b></span><span>HEAT <b id="lfHeat6" translate="no">22°</b></span><span id="lfGateDistance6" translate="no">1000 m</span></div><div class="lf-steering"><button id="lfLeft6" aria-label="Steer left">◀<span>LEFT</span></button><span class="lf-steer-note">HOLD TO STEER</span><button id="lfRight6" aria-label="Steer right"><span>RIGHT</span>▶</button></div></section>
-          <section id="lfThrottlePanel6" class="lf-throttle" hidden><label for="lfThrottle6"><span>ENGINE THRUST</span><output id="lfThrust6" for="lfThrottle6" translate="no">35%</output></label><div><button id="lfThrustDown6" aria-label="Decrease thrust">−</button><input id="lfThrottle6" type="range" min="0" max="100" value="35" aria-label="Engine thrust"><button id="lfThrustUp6" aria-label="Increase thrust">+</button></div><small>GREEN ZONE: 54–70%</small></section>
+          <section id="lfFlight6" class="lf-panel" hidden><div class="lf-flight-heading"><span id="lfCourse6" class="eyebrow">ON COURSE</span><b id="lfBeacons6" translate="no">0 / 3</b></div><div class="lf-alignment" aria-label="Flight alignment"><i id="lfTarget6"></i><b id="lfPosition6"></b></div><div class="lf-flight-readings"><span>HULL <b id="lfHull6" translate="no">100%</b></span><span>HEAT <b id="lfHeat6" translate="no">22°</b></span><span id="lfGateDistance6" translate="no">1000 m</span></div><div class="lf-steering"><button id="lfLeft6" aria-label="Steer left">◀<span>LEFT</span></button><span class="lf-steer-note">HOLD TO STEER</span><button id="lfRight6" aria-label="Steer right"><span>RIGHT</span>▶</button></div></section>
+          <section id="lfThrottlePanel6" class="lf-throttle" hidden><label for="lfThrottle6"><span>ENGINE THRUST</span><output id="lfThrust6" for="lfThrottle6" translate="no">35%</output></label><div><button id="lfThrustDown6" aria-label="Decrease thrust">−</button><input id="lfThrottle6" type="range" min="0" max="100" value="35" aria-label="Engine thrust"><button id="lfThrustUp6" aria-label="Increase thrust">+</button></div><small>54–70% SAFE · HOLD ± TO ADJUST</small></section>
           <section id="lfAbort6" class="lf-panel lf-abort" hidden><span class="eyebrow">FLIGHT REVIEW</span><h3>FLIGHT INTERRUPTED</h3><p id="lfAbortReason6"></p><p id="lfAbortAdvice6"></p><button id="lfRetry6" class="lf-primary">RETRY FROM CHECKPOINT</button></section>
           <section id="lfOrbit6" class="lf-panel lf-orbit" hidden><span class="eyebrow">ALL BEACONS CONFIRMED</span><h3>INSERTING INTO ORBIT</h3><p>Engines settling. Waiting for flight control confirmation.</p></section>
-          <section id="life6Complete" class="lf-panel lf-complete" hidden><span class="lf-complete-mark">✓</span><span class="eyebrow">LIFE #6 COMPLETE</span><h3>ORBIT ACHIEVED</h3><p>The Moon falls behind. A new signal is waiting in the void.</p><strong id="lfReward6">+1500 MOON POINTS</strong><button id="continueLife7Btn" class="lf-primary">CONTINUE TO THE VOID</button><button id="life6ReturnBtn" class="lf-secondary">MISSION CONTROL</button></section>
+          <section id="life6Complete" class="lf-panel lf-complete" hidden><span class="lf-complete-mark">✓</span><span class="eyebrow">LIFE #6 COMPLETE</span><h3>ORBIT ACHIEVED</h3><p>The Moon falls behind. A new signal is waiting in the void.</p><div id="lfReport6" class="lf-report" aria-label="Flight summary" hidden><div><b id="lfReportTime6" translate="no">00:00</b><span>FLIGHT TIME</span></div><div><b id="lfReportHull6" translate="no">100%</b><span>HULL</span></div><div><b id="lfReportFuel6" translate="no">100%</b><span>FUEL LEFT</span></div></div><strong id="lfReward6">+1500 MOON POINTS</strong><button id="continueLife7Btn" class="lf-primary">CONTINUE TO THE VOID</button><button id="life6ReturnBtn" class="lf-secondary">MISSION CONTROL</button></section>
           <p id="lfStatus6" class="lf-status" role="status">Flight control is standing by.</p>
         </div>
       </div>
@@ -348,11 +350,12 @@
       <div id="life9Complete" class="complete-card final-complete" hidden><span class="complete-icon">🌙</span><p class="eyebrow">9 LIVES COMPLETE</p><h3>MOONKATTY HAS RETURNED</h3><strong>+3000 MOON POINTS ⭐ • 9 LIVES COMPLETE</strong><p class="final-message">THE SIGNAL WAS NEVER CALLING US TO THE MOON.<br>IT WAS CALLING MOONKATTY HOME.</p><button id="life9ReturnBtn" class="primary">RETURN TO MISSION CONTROL</button></div>
     </section>
   </main>
-  <script src="i18n.js?v=20261004-liftoff-1"></script>
+  <script src="i18n.js?v=20261004-flight-polish-1"></script>
   <script src="app.js?v=20261004-integrity-1"></script>
   <script src="reactor5-fx.js?v=20261004-liftoff-1"></script>
   <script src="reactor5.js?v=20261004-liftoff-1"></script>
-  <script src="liftoff6.js?v=20261004-liftoff-1"></script>
+  <script src="liftoff6-fx.js?v=20261004-flight-polish-1"></script>
+  <script src="liftoff6.js?v=20261004-flight-polish-1"></script>
   <script src="campaign.js?v=20261004-integrity-1"></script>
   <script src="experience.js?v=20261004-integrity-1"></script>
 </body></html>

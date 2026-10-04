@@ -640,6 +640,15 @@ Increase thrust|Увеличить тягу
 Steer left|Повернуть влево
 Steer right|Повернуть вправо
 Flight alignment|Отклонение от курса
+CHECKPOINT SAVED|КОНТРОЛЬНАЯ ТОЧКА СОХРАНЕНА
+ON COURSE|КУРС В НОРМЕ
+CORRECT LEFT|ВЫРОВНЯЙТЕ КУРС ВЛЕВО
+CORRECT RIGHT|ВЫРОВНЯЙТЕ КУРС ВПРАВО
+54–70% SAFE · HOLD ± TO ADJUST|54–70% — НОРМА · УДЕРЖИВАЙТЕ ± ДЛЯ НАСТРОЙКИ
+FLIGHT TIME|ВРЕМЯ ПОЛЁТА
+FUEL LEFT|ОСТАТОК ТОПЛИВА
+Ascent checkpoints|Контрольные точки взлёта
+Flight summary|Итоги полёта
 MOONKATTY spacecraft above the lunar launch pad|Корабль MOONKATTY над лунной стартовой площадкой
 `;
  const ru = Object.fromEntries(pairs.trim().split('\n').map(line => { const i=line.indexOf('|'); return [line.slice(0,i),line.slice(i+1)]; }));
