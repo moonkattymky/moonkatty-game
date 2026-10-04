@@ -188,7 +188,7 @@ const Liftoff6=(()=>{
  function stop(){if(active())save();cancelAnimationFrame(frameId);frameId=0;release();if(s)s.paused=true;if(guide.open)guide.close();}
  function open(){
   if(localStorage.getItem('mkty_life5')!=='complete'){show('chapters');return;}
-  stop();cache.clear();fx.reset();s=fresh();const complete=localStorage.getItem('mkty_life6')==='complete',restored=!complete&&restore();
+  stop();cache.clear();fx.reset();s=fresh();const complete=localStorage.getItem('mkty_life6')==='complete'&&!window.MKTYOps?.isRun(6),restored=!complete&&restore();
   if(complete){Object.assign(s,{phase:'complete',armed:4,faultSolved:true,alt:3000,gates:3,throttle:0,speed:0,x:50});const report=readReport();if(report)Object.assign(s,{fuel:report.fuel,hull:report.hull,flightTime:report.time||0});text('lfReward6','MISSION COMPLETE');try{localStorage.removeItem(KEY);}catch{}}
   show('mission6');resize();render();draw();if(restored)pause('SAVED SESSION RESTORED');else startClock();
  }

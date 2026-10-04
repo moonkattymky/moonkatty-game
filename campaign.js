@@ -8,7 +8,7 @@ window.MKTYCampaign=(()=>{
  function read(n){try{const v=JSON.parse(localStorage.getItem(key(n))||'null');return v?.version===1?v:null;}catch{return null;}}
  function save(){
   if(restoring||!current||current===5||current===6)return;
-  if(done(current)){localStorage.removeItem(key(current));return;}
+  if(done(current)&&!window.MKTYOps?.isRun(current)){localStorage.removeItem(key(current));return;}
   if(current===7){window.Void7?.save();return;}
   let v={version:1};
   if(current>=8){v=window.MKTYContinuation?.save(current);if(!v){localStorage.removeItem(key(current));return;}}
@@ -37,7 +37,7 @@ window.MKTYCampaign=(()=>{
   if(n===7)return; // Chapter 7 owns version-2 restoration and legacy migration.
   restoring=true;
   try{
-   if(done(n)){review(n);return;}
+   if(done(n)&&!window.MKTYOps?.isRun(n)){review(n);return;}
    if(n===3&&localStorage.getItem('mkty_life3_memory_verified')==='yes')setLaunchPhase3('signal');
    const v=read(n);if(!v)return;
    if(n>=8){if(window.MKTYContinuation?.restore(n,v))window.MKTYExperience?.pause();return;}
@@ -70,7 +70,7 @@ window.MKTYCampaign=(()=>{
  function destination(){
   if(needsCode())return 1;
   const last=Number(localStorage.getItem('mkty_current_chapter'));
-  if(last>=1&&last<=9&&unlocked(last)&&!done(last))return last;
+  if(last>=1&&last<=9&&unlocked(last)&&(!done(last)||window.MKTYOps?.pending(last)))return last;
   return [1,2,3,4,5,6,7,8,9].find(n=>!done(n)&&unlocked(n))||0;
  }
  function openChapter(n,cinematic=false){
@@ -88,7 +88,7 @@ window.MKTYCampaign=(()=>{
    const n=i+1;if(n>6&&!unlocked(n)&&!done(n))return null;const b=document.createElement('button');b.className='chapter-card';b.dataset.chapter=String(n);b.style.setProperty('--chapter-art',"url('art/"+['life1-base.webp','life2-bridge-v2.webp','life3-bridge-v2.webp','life4-landing.webp','life5-reactor-v2.webp','life6-launchpad.webp','life7-void.webp','life1-base.webp','orbit-v2.webp'][i]+"')");b.disabled=!unlocked(n);
    const number=document.createElement('b');number.textContent=String(n).padStart(2,'0');
    const body=document.createElement('span'),name=document.createElement('strong'),status=document.createElement('small');name.textContent=title;
-   status.textContent=done(n)?'COMPLETE • VIEW':unlocked(n)?'CONTINUE':'COMPLETE THE PREVIOUS CHAPTER';body.append(name,status);b.append(number,body);b.onclick=()=>openChapter(n);return b;
+   status.textContent=window.MKTYOps?.pending(n)?'CONTINUE':done(n)?(n>=4?'COMPLETE • REPLAY':'COMPLETE • VIEW'):unlocked(n)?'CONTINUE':'COMPLETE THE PREVIOUS CHAPTER';body.append(name,status);b.append(number,body);b.onclick=()=>openChapter(n);return b;
   }).filter(Boolean));
  }
  function onScreen(id){

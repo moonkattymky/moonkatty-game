@@ -80,7 +80,7 @@ const Reactor5 = (() => {
  function open(){
   stop();textCache.clear();
   state={phase:'charge',cells:[0,0,0],selected:0,temp:22,field:15,fieldTarget:42+Math.random()*24,flow:25,trim:30,hold:0,elapsed:0,chargeHeld:false,coolHeld:false,chargeTap:0,coolTap:0,paused:false,pulses:0,pulseState:'ready',pulseTime:0,pulsePosition:0,pulseDelay:0,startup:0,status:''};
-  const completed=localStorage.getItem('mkty_life5')==='complete';
+  const completed=localStorage.getItem('mkty_life5')==='complete'&&!window.MKTYOps?.isRun(5);
   const restored=!completed&&restoreCheckpoint();
   if(completed){clearCheckpoint();Object.assign(state,{phase:'online',cells:[100,100,100],temp:55,field:50,flow:50,trim:50,pulses:3,startup:2.4});text('reactorReward5','MISSION COMPLETE');}
   $('coolantFlow5').value=state.flow;$('fieldTrim5').value=state.trim;root.dataset.paused='false';root.dataset.pulseResult='';

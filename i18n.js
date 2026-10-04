@@ -525,6 +525,7 @@ MISSIONS|МИССИИ
 CHOOSE A MISSION|ВЫБРАТЬ МИССИЮ
 Choose an unlocked chapter. Your progress is saved on this device.|Выберите доступную главу. Прогресс сохраняется на этом устройстве.
 COMPLETE • VIEW|ПРОЙДЕНО • ПОСМОТРЕТЬ
+COMPLETE • REPLAY|ПРОЙДЕНО • ИГРАТЬ СНОВА
 CONTINUE|ПРОДОЛЖИТЬ
 COMPLETE THE PREVIOUS CHAPTER|ПРОЙДИТЕ ПРЕДЫДУЩУЮ ГЛАВУ
 Move closer to collect this energy.|Подойдите ближе, чтобы собрать энергию.

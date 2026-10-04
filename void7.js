@@ -118,7 +118,7 @@ window.Void7=(()=>{
  function stop(){if(s&&active())save();cancelAnimationFrame(frame);frame=0;last=0;release();clearRocks();s=null;}
  function open(){
   stop();show('mission7');s=fresh();clearRocks();cache.clear();
-  const done=localStorage.getItem('mkty_life7')==='complete';let restored=false;
+  const done=localStorage.getItem('mkty_life7')==='complete'&&!window.MKTYOps?.isRun(7);let restored=false;
   if(done){s.phase='complete';s.distance=100;try{const v=JSON.parse(localStorage.getItem(REPORT)||'null');if(v?.version===2&&(v.time===null||finite(v.time,0,1e6))&&finite(v.hull,1,100)&&integer(v.evaded,0,1e6)){s.report=v;s.hull=v.hull;if(integer(v.shields,0,3))s.shields=v.shields;}}catch{}text('v7Reward','MISSION COMPLETE');}
   else restored=restore();
   render();fx.resize();render();fx.layout(s);fx.draw(s);if(restored&&['flight','approach'].includes(s.phase))window.MKTYExperience?.pause();

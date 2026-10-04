@@ -10,6 +10,30 @@ Telegram Mini App starter for the MOONKATTY universe.
 - Playable LIFE #1–#9 with one-time completion rewards and local checkpoints
 - Moon Points demo UI
 
+## Chapters 4–9 — mission depth update
+
+Each chapter now contains three persistent operations with increasing complexity, followed by its existing live mission. These are decision puzzles, with no added countdown or enforced waiting:
+
+| Chapter | Operations | Live mission |
+| --- | --- | --- |
+| 4 | Three terrain routes, mandatory beacons, obstacles and a fuel budget | Manual descent and landing |
+| 5 | Three rotating power circuits through required nodes, from 4×4 to 6×6 | Charge, calibrate and ignite the reactor |
+| 6 | Three mass-distribution layouts with simultaneous row and column targets | Preflight, engine start and ascent |
+| 7 | Three interacting shield arrays, from 3×3 to 5×5 | Three asteroid sectors |
+| 8 | Three deduced keys of 3, 4 and 5 unique symbols, using positional feedback | Acquire and decode the transmission |
+| 9 | Three resource-constrained restoration sequences with 6–8 systems | Navigate and transmit the return code |
+
+`mission-rules.js` generates deterministic solvable boards and validates checkpoint input. `operations.js` owns the operation deck, per-move saves, undo, reset, optional hints, pause and the handoff to the existing chapter controller. Failures restart only the current operation. The resource puzzle allows dead ends, with an explicit explanation and reversible actions. Circuit validation requires a continuous powered path through all three nodes, not merely a powered exit. Cargo accepts any arrangement that meets every target. Cipher feedback counts matches without exposing their positions.
+
+Players with old completion flags can play the expanded chapters without deleting achievements. New completed runs expose an explicit replay with new boards. Rewards remain one-time; replaying chapter 8 preserves chapter 9's existing coordinates. Old in-progress flight/reactor/puzzle checkpoints remain available after the new operations. Chapter 1–3 rules and unlock requirements are unchanged. Operation saves use separate versioned keys; no old save format is rewritten.
+
+```sh
+node tests/mission-rules.cjs
+node tests/operations.cjs
+```
+
+The rules regression checks 1,440 generated boards for valid, non-complete starting positions and reachable solutions. The browser journey solves all 18 operations through controls and then completes all six live missions; it also checks reload, pause, false confirmations, resource dead ends, replay, rewards and short-screen controls. Chapter-specific legacy regressions seed completed operations to isolate the live controllers. All browser verification uses isolated Chromium profiles, not physical phones or Telegram clients. Automated solution times are not human playtime estimates.
+
 ## LIFE #5 — Reactor engineering
 
 The reactor chapter uses three sequential stages: charge three cells while controlling heat, keep temperature at 45–68°C and magnetic field at 45–55% for three seconds, then time three ignition pulses. Fully charged cells survive thermal shutdown; accepted pulses survive a miss. The guide, window blur and app backgrounding pause the simulation and release held controls. Charging routes automatically to the next unfinished cell. A versioned local checkpoint restores unfinished cells, calibration and accepted pulses after closing the app, behind an explicit resume button.
