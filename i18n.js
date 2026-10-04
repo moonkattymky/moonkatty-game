@@ -458,6 +458,18 @@ Reactor online. Full power available for liftoff.|Реактор работае�
 Cell selected. Hold CHARGE and monitor temperature.|Ячейка выбрана. Удерживайте «ЗАРЯДИТЬ» и следите за температурой.
 Core locked. Start the ignition sweep.|Ядро зафиксировано. Начните запуск.
 Chamber vented. Completed cells preserved. Continue charging.|Отсек охлаждён. Заряженные ячейки сохранены. Продолжайте зарядку.
+MISSIONS|МИССИИ
+CHOOSE A MISSION|ВЫБРАТЬ МИССИЮ
+Choose an unlocked chapter. Your progress is saved on this device.|Выберите доступную главу. Прогресс сохраняется на этом устройстве.
+COMPLETE • VIEW|ПРОЙДЕНО • ПОСМОТРЕТЬ
+CONTINUE|ПРОДОЛЖИТЬ
+COMPLETE THE PREVIOUS CHAPTER|ПРОЙДИТЕ ПРЕДЫДУЩУЮ ГЛАВУ
+Move closer to collect this energy.|Подойдите ближе, чтобы собрать энергию.
+REMEMBER THIS CODE FOR LIFE #3|ЗАПОМНИТЕ КОД ДЛЯ ТРЕТЬЕЙ ГЛАВЫ
+CODE RULES|ПРАВИЛА КОДА
+Remember the code shown after LIFE #1. A wrong code costs one life and locks retries for one hour. After the timer, a code hint costs one more life.|Запомните код после первой главы. Ошибка отнимает одну жизнь и блокирует ввод на час. После отсчёта восстановление кода стоит ещё одну жизнь.
+CODE HINT • 10 SECONDS|КОД • ВИДЕН 10 СЕКУНД
+Enter all 10 digits. No life has been spent.|Введите все 10 цифр. Жизнь не потрачена.
 `;
  const ru = Object.fromEntries(pairs.trim().split('\n').map(line => { const i=line.indexOf('|'); return [line.slice(0,i),line.slice(i+1)]; }));
  const sources=new WeakMap(), rendered=new WeakMap(), attrs=new WeakMap();
@@ -470,6 +482,8 @@ Chamber vented. Completed cells preserved. Continue charging.|Отсек охл�
   'Synchronized ':'Синхронизировано ', 'Return code: ':'Код возвращения: ', 'RESET ':'СБРОС '
  };
  const dynamic=[
+ [/^CONTINUE LIFE #(\d+) 🚀$/,(_,n)=>'ПРОДОЛЖИТЬ ГЛАВУ '+n+' 🚀'],
+ [/^VISIBLE FOR (\d+) SECONDS$/,(_,n)=>'ВИДЕН ЕЩЁ '+n+' СЕК.'],
  [/^LIFE #(\d+)$/,(_,n)=>'ГЛАВА '+n],
  [/^UNLOCK LIFE #(\d+)(.*)$/,(_,n,end)=>'ОТКРЫТЬ ГЛАВУ '+n+end],
  [/^Story progress: (.*)$/,(_,v)=>'Прогресс сюжета: '+v],

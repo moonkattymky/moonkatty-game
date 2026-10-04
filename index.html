@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="launch-console.css?v=20261003-polish-1" />
   <link rel="stylesheet" href="mission-polish.css?v=20261003-polish-1" />
   <link rel="stylesheet" href="reactor5.css?v=20261004-cinematic-2" />
+  <link rel="stylesheet" href="campaign.css?v=20261004-repair-1" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -53,11 +54,16 @@
           <div class="mk-life-teaser"><div class="mk-play">▶</div><div><small>LIFE #1</small><strong>THE AWAKENING</strong><span>A new signal has been detected…</span></div><b>›</b></div>
         </div>
       </div>
-      <nav class="mk-bottom-nav"><button class="active">⌂<span>Home</span></button><button>🚀<span>Missions</span></button><button>♙<span>Crew</span></button><button>♜<span>Leaderboard</span></button><button>•••<span>More</span></button></nav>
+      <nav class="mk-bottom-nav"><button class="active">⌂<span>Home</span></button><button id="missionsBtn">🚀<span>Missions</span></button><button>♙<span>Crew</span></button><button>♜<span>Leaderboard</span></button><button>•••<span>More</span></button></nav>
       <section id="communityHub" class="community-hub" hidden></section>
       <section id="crewNetwork" class="crew-network" hidden></section>
       <section id="dailyMissions" class="daily-missions" hidden></section>
       <div id="missionArchive" class="mission-archive" hidden></div>
+    </section>
+    <section id="chapters" class="screen campaign-screen">
+      <header><div><span class="eyebrow">MOONKATTY</span><h2>MISSIONS</h2></div><button id="chaptersBack" class="ghost">MISSION CONTROL</button></header>
+      <p>Choose an unlocked chapter. Your progress is saved on this device.</p>
+      <div id="chapterList" class="chapter-list"></div>
     </section>
     <section id="life1" class="screen cinematic-screen">
       <div class="cinematic">
@@ -94,7 +100,7 @@
       <div id="repairPanel" class="l1-panel" hidden><span class="eyebrow">TERMINAL OFFLINE</span><h3>RESTORE POWER</h3><p id="repairHint">Memorize the power sequence, then repeat it.</p><div id="repairSequence" class="repair-sequence">● ● ● ●</div><button id="showRepairSequenceBtn" class="ghost">READ POWER TRACE</button><div class="repair-cells"><button data-cell="0">⚡ A</button><button data-cell="1">⚡ B</button><button data-cell="2">⚡ C</button></div><div class="l1-progress"><i id="repairFill"></i></div></div>
       <div id="antennaPanel" class="l1-panel" hidden><span class="eyebrow">SIGNAL CALIBRATION</span><h3>TUNE THE ANTENNA</h3><div class="frequency-readout"><strong id="frequencyValue">142.0</strong><span>MHz</span></div><div class="signal-meter"><i id="signalMeterFill"></i></div><input id="frequencyDial" class="frequency-dial" type="range" min="0" max="100" value="20"><button id="tuneBtn" class="primary">LOCK SIGNAL 📡</button><p id="signalHint">Find the carrier frequency, then hold it steady.</p><div id="signalHold" class="signal-hold" hidden><span>SYNC</span><div><i id="signalHoldFill"></i></div><b id="signalHoldText">0%</b></div></div>
       <p id="missionStatus" class="mission-status">Explore Moon Base Alpha. Use SCAN to reveal nearby energy signatures.</p>
-      <div id="life1Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">MISSION COMPLETE</p><h3>MOON BASE ALPHA ONLINE</h3><strong>+500 MOON POINTS ⭐</strong><p>Story progress: 1 / 9 🌙</p><button id="continueLife2Btn" class="primary">UNLOCK LIFE #2 🚀</button><button id="returnBtn" class="ghost return-control">MISSION CONTROL</button></div>
+      <div id="life1Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">MISSION COMPLETE</p><h3>MOON BASE ALPHA ONLINE</h3><strong>+500 MOON POINTS ⭐</strong><p>Story progress: 1 / 9 🌙</p><div id="life1MemoryCode" class="memory-code" hidden><span>REMEMBER THIS CODE FOR LIFE #3</span><strong id="life1CodeValue" translate="no"></strong><small id="life1CodeTimer"></small></div><button id="continueLife2Btn" class="primary">UNLOCK LIFE #2 🚀</button><button id="returnBtn" class="ghost return-control">MISSION CONTROL</button></div>
       <nav class="mk-bottom-nav l1-nav"><button class="active">🚀<span>Mission</span></button><button>🎒<span>Inventory</span></button><button>⌖<span>Map</span></button><button>▤<span>Journal</span></button><button>♙<span>Crew</span></button></nav>
       <div id="crewBadge" hidden></div><div id="missionClock" hidden></div><div id="worldBeacon" hidden></div><div id="scannerFill" hidden></div><div id="scannerPuzzle" hidden></div><button id="beaconBtn" hidden></button><span id="stepExplore" hidden></span><span id="stepTune" hidden></span><span id="stepReach" hidden></span><span id="stepActivate" hidden></span><i id="frequencyTarget" hidden></i><i id="frequencyNeedle" hidden></i><span id="frequencyHint" hidden></span>
     </section>
@@ -147,8 +153,8 @@
         <button id="verifyLife1CodeBtn" class="primary">VERIFY CODE</button>
         <p id="life3GateStatus" class="mission-status">Authorization required.</p>
         <div id="life3Cooldown" class="cooldown-box" hidden><span>RETRY AVAILABLE IN</span><strong id="life3CooldownTimer">01:00:00</strong></div>
-        <div class="launch-help-actions3"><button id="journalCodeBtn" class="ghost journal-code-btn3">JOURNAL • LIFE #1</button><button id="buyCodeHintBtn" class="ghost" hidden>CODE HINT • −1 LIFE</button></div><div id="journalCode3" class="journal-code3" hidden><span>JOURNAL // LIFE #1</span><strong id="journalCodeValue3">0000000000</strong><small>Recovered memory code • no LIFE cost</small></div>
-        <p class="life-bank">LIVES: <strong id="globalLives3">9 / 9</strong> • 1 life restores every 12h</p>
+        <div class="launch-help-actions3"><button id="journalCodeBtn" class="ghost journal-code-btn3">CODE RULES</button><button id="buyCodeHintBtn" class="ghost" hidden>CODE HINT • −1 LIFE</button></div><div id="journalCode3" class="journal-code3" hidden><span>JOURNAL // LIFE #1</span><small>Remember the code shown after LIFE #1. A wrong code costs one life and locks retries for one hour. After the timer, a code hint costs one more life.</small></div>
+        <div id="paidCodeHint3" class="memory-code" hidden><span>CODE HINT • 10 SECONDS</span><strong id="paidCodeValue3" translate="no"></strong></div><p class="life-bank">LIVES: <strong id="globalLives3">9 / 9</strong> • 1 life restores every 12h</p>
       </div>
       <div class="code-mission" id="life3CodeMission" hidden>
        <div id="launchStage1" class="launch-signal3">
@@ -325,8 +331,9 @@
       <div id="life9Complete" class="complete-card final-complete" hidden><span class="complete-icon">🌙</span><p class="eyebrow">9 LIVES COMPLETE</p><h3>MOONKATTY HAS RETURNED</h3><strong>+3000 MOON POINTS ⭐ • 9 LIVES COMPLETE</strong><p class="final-message">THE SIGNAL WAS NEVER CALLING US TO THE MOON.<br>IT WAS CALLING MOONKATTY HOME.</p><button id="life9ReturnBtn" class="primary">RETURN TO MISSION CONTROL</button></div>
     </section>
   </main>
-  <script src="i18n.js?v=20261004-cinematic-2"></script>
-  <script src="app.js?v=20261004-cinematic-2"></script>
+  <script src="i18n.js?v=20261004-repair-1"></script>
+  <script src="app.js?v=20261004-repair-1"></script>
   <script src="reactor5-fx.js?v=20261004-cinematic-2"></script>
-  <script src="reactor5.js?v=20261004-cinematic-2"></script>
+  <script src="reactor5.js?v=20261004-repair-1"></script>
+  <script src="campaign.js?v=20261004-repair-1"></script>
 </body></html>
