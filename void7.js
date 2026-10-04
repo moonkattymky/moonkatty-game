@@ -10,7 +10,7 @@ window.Void7=(()=>{
  const finite=(v,a,b)=>Number.isFinite(v)&&v>=a&&v<=b,integer=(v,a,b)=>Number.isInteger(v)&&finite(v,a,b);
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),sector=d=>Math.min(2,Math.floor(d/(100/3))),canFly=()=>active()&&s?.phase==='flight'&&!paused();
  const text=(id,value)=>{value=String(value);if(cache.get(id)!==value){cache.set(id,value);$(id).textContent=value;}};
- function fresh(){return {phase:'briefing',lane:1,x:.5,hull:100,shields:3,distance:0,shieldActive:false,rocks:[],nextWave:1.4,seed:Math.floor(Math.random()*0xffffffff),lastSafe:1,elapsed:0,timeKnown:true,attempts:0,evaded:0,blocked:0,hits:0,phaseTime:0,grace:0,notice:'',noticeFor:0,checkpointFor:0,flash:0,flashKind:'shield',report:null};}
+ function fresh(){return {phase:'briefing',lane:1,x:.5,hull:100,shields:3,distance:0,shieldActive:false,rocks:[],nextWave:1.4,seed:Math.floor(Math.random()*0xffffffff),lastSafe:1,elapsed:0,timeKnown:true,attempts:0,evaded:0,blocked:0,hits:0,phaseTime:0,grace:0,notice:'',noticeFor:0,checkpointFor:0,flash:0,flashKind:'shield',impact:null,report:null};}
  function random(){s.seed=(Math.imul(s.seed,1664525)+1013904223)>>>0;return s.seed/4294967296;}
  function clearRocks(){field.replaceChildren();if(s)s.rocks=[];}
  function addRock(data){const el=document.createElement('span');el.className='asteroid7 '+(data.big?'big':'small');el.dataset.lane=data.lane;el.setAttribute('aria-hidden','true');field.append(el);s.rocks.push({...data,el});}
@@ -43,7 +43,7 @@ window.Void7=(()=>{
  function release(){held=0;holdTime=repeat=0;swipe=null;releases.forEach(fn=>fn());}
  function notice(value){s.notice=value;s.noticeFor=3.2;text('voidStatus',value);}
  function feedback(kind){window.MKTYExperience?.signal(kind);tg?.HapticFeedback?.notificationOccurred?.(kind==='error'?'error':'success');}
- function enter(phase){release();s.phase=phase;s.phaseTime=0;render();fx.resize();fx.layout(s);fx.draw(s);save();}
+ function enter(phase){release();s.phase=phase;s.phaseTime=0;render();fx.resize();render();fx.layout(s);fx.draw(s);save();}
  function begin(){if(!active()||!s||paused()||s.phase!=='briefing')return;enter('flight');notice('Watch the amber markers. Keep a clear lane.');startLoop();}
  function move(direction){if(!canFly())return;s.lane=clamp(s.lane+direction,0,2);render();}
  function shield(){if(!canFly()||s.shields===0||s.shieldActive)return;s.shields--;s.shieldActive=true;notice('Shield armed. One impact protected.');window.MKTYExperience?.signal('success');render();save();}
@@ -78,7 +78,7 @@ window.Void7=(()=>{
    const size=fx.rockSize(r),oldY=fx.rockY(r);r.age+=dt;const y=fx.rockY(r),radius=size*.33;
    const overlap=r.age>=0&&Math.abs(lanes[r.lane]*g.w-shipX)<radius+g.shipW*.28&&y+radius>=shipY-g.shipH*.23&&oldY-radius<=shipY+g.shipH*.23;
    if(overlap&&s.grace<=0){
-    r.el.remove();s.rocks=s.rocks.filter(x=>x!==r);s.flash=1;s.grace=.45;
+    r.el.remove();s.rocks=s.rocks.filter(x=>x!==r);s.flash=1;s.impact={x:lanes[r.lane],y:clamp(y/g.h,0,1)};s.grace=.45;
     if(s.shieldActive){s.shieldActive=false;s.blocked++;s.flashKind='shield';notice('Impact absorbed. Shield charge spent.');feedback('success');}
     else{s.hull=Math.max(0,s.hull-(r.big?28:18));s.hits++;s.flashKind='hull';notice('Hull impact. Move to a clear lane or arm a shield.');feedback('error');}
     render();if(s.hull<=0){fail();return;}
@@ -95,9 +95,12 @@ window.Void7=(()=>{
   text('v7ShieldState',s.shieldActive?'SHIELD ACTIVE':s.shields?'ARM SHIELD':'NO CHARGES');
   $('voidLeft').disabled=s.lane===0;$('voidRight').disabled=s.lane===2;
   [...$('v7Charges').children].forEach((e,i)=>e.classList.toggle('charged',i<s.shields));
-  const n=sector(s.distance);text('v7Sector',String(n+1).padStart(2,'0')+' / 03');
-  root.querySelectorAll('.v7-route li').forEach((el,i)=>{el.classList.toggle('current',i===n&&s.distance<100);el.classList.toggle('done',i<n||s.distance>=100);});
-  root.querySelectorAll('[data-v7-lane]').forEach((e,i)=>{e.classList.toggle('danger',s.rocks.some(r=>r.lane===i&&r.age<r.duration*.74));e.classList.toggle('selected',s.lane===i);});
+  const n=sector(s.distance);root.dataset.sector=String(n);text('v7Sector',String(n+1).padStart(2,'0')+' / 03');
+  root.querySelectorAll('.v7-route li').forEach((el,i)=>{el.classList.toggle('current',i===n&&s.distance<100);el.classList.toggle('done',i<n||s.distance>=100);el.style.setProperty('--sector-fill',clamp(s.distance/100*3-i,0,1));});
+  const threats=fx.threats(s),currentThreat=threats[s.lane];root.dataset.alert=String(currentThreat.active&&currentThreat.critical&&!s.shieldActive);
+  root.querySelectorAll('[data-v7-lane]').forEach((e,i)=>{e.classList.toggle('danger',threats[i].active);e.classList.toggle('critical',threats[i].active&&threats[i].critical&&s.lane===i);e.classList.toggle('selected',s.lane===i);});
+  root.querySelectorAll('[data-v7-radar]').forEach((e,i)=>{e.classList.toggle('danger',threats[i].active);e.classList.toggle('selected',s.lane===i);e.style.setProperty('--contact',Math.min(.83,threats[i].progress));});
+  text('v7LaneRead',['LEFT LANE','CENTER LANE','RIGHT LANE'][s.lane]);text('v7ThreatRead',s.shieldActive?'SHIELD ONLINE':currentThreat.active?(currentThreat.critical?'EVADE NOW':'INCOMING'):'LANE CLEAR');
   text('v7SceneTitle',s.phase==='briefing'?'TRAJECTORY PREVIEW':s.phase==='abort'?'EMERGENCY BEACON':s.distance>=100?'SIGNAL CORRIDOR':['OUTER BELT','DEBRIS FIELD','SIGNAL GATE'][n]);
   text('v7SceneState',s.shieldActive?'SHIELD ONLINE':s.phase==='flight'?'GUIDANCE ONLINE':s.phase==='abort'?'RECOVERY READY':s.phase==='complete'?'TRANSMISSION ACQUIRED':'GUIDANCE ONLINE');
   if(s.noticeFor<=0)text('voidStatus',s.phase==='briefing'?'The next signal lies beyond the belt.':s.phase==='flight'?'Amber means incoming debris. Keep a clear lane.':s.phase==='abort'?'Flight interrupted. Your last sector is preserved.':s.phase==='complete'?'Transmission gate reached. Follow the signal.':'All three sectors crossed. Approaching the gate.');
@@ -109,7 +112,7 @@ window.Void7=(()=>{
    let remaining=dt;while(remaining>0){const step=Math.min(1/60,remaining);tick(step);remaining-=step;}
    fx.layout(s);if(now-paintAt>=33){fx.draw(s);paintAt=now;}if(now-uiAt>=100){render();uiAt=now;}if(now-saveAt>=1000){save();saveAt=now;}
   }else release();
-  if(['flight','approach'].includes(s.phase))frame=requestAnimationFrame(loop);
+  if(['flight','approach'].includes(s.phase)||s.flash>0)frame=requestAnimationFrame(loop);
  }
  function startLoop(){if(!frame){last=0;frame=requestAnimationFrame(loop);}}
  function stop(){if(s&&active())save();cancelAnimationFrame(frame);frame=0;last=0;release();clearRocks();s=null;}
@@ -118,7 +121,7 @@ window.Void7=(()=>{
   const done=localStorage.getItem('mkty_life7')==='complete';let restored=false;
   if(done){s.phase='complete';s.distance=100;try{const v=JSON.parse(localStorage.getItem(REPORT)||'null');if(v?.version===2&&(v.time===null||finite(v.time,0,1e6))&&finite(v.hull,1,100)&&integer(v.evaded,0,1e6)){s.report=v;s.hull=v.hull;if(integer(v.shields,0,3))s.shields=v.shields;}}catch{}text('v7Reward','MISSION COMPLETE');}
   else restored=restore();
-  render();fx.resize();fx.layout(s);fx.draw(s);if(restored&&['flight','approach'].includes(s.phase))window.MKTYExperience?.pause();
+  render();fx.resize();render();fx.layout(s);fx.draw(s);if(restored&&['flight','approach'].includes(s.phase))window.MKTYExperience?.pause();
   if(['flight','approach'].includes(s.phase))startLoop();else save();
  }
  function bindHold(id,direction){
@@ -135,6 +138,6 @@ window.Void7=(()=>{
  world.addEventListener('pointerup',e=>{if(swipe?.id===e.pointerId){const dx=e.clientX-swipe.x,dy=e.clientY-swipe.y;if(Math.abs(dx)>24&&Math.abs(dx)>Math.abs(dy))move(Math.sign(dx));swipe=null;}});
  world.addEventListener('pointercancel',()=>swipe=null);window.addEventListener('blur',release);
  document.addEventListener('visibilitychange',()=>{if(document.hidden&&active()){release();save();}last=0;});window.addEventListener('pagehide',()=>{if(active())save();});
- new ResizeObserver(()=>{if(active()&&s){fx.resize();fx.layout(s);fx.draw(s);}}).observe(world);
+ new ResizeObserver(()=>{if(active()&&s){fx.resize();render();fx.layout(s);fx.draw(s);}}).observe(world);
  return {open,stop,save};
 })();

@@ -101,3 +101,44 @@
 @media(orientation:landscape) and (max-height:619px){#mission7.void-seven{padding:calc(6px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left));gap:5px}#mission7 .v7-header{min-height:34px}#mission7 .v7-header h2{font-size:20px!important}#mission7 .v7-header .eyebrow{font-size:7px}#mission7 .chapter-menu{width:40px;height:40px}#mission7 .v7-route li{padding:1px 0 4px;font-size:7px}#mission7 .v7-workspace{flex-direction:row;gap:10px}#mission7 .v7-world{min-width:0;min-height:0}#mission7 .v7-console{width:clamp(265px,39vw,330px);gap:5px;align-self:center}#mission7 .v7-panel{padding:9px}#mission7 .v7-panel .eyebrow,#mission7 .v7-brief-spec,#mission7 .v7-flight-note{display:none}#mission7 .v7-panel h3{font-size:14px;margin:2px 0 6px}#mission7 .v7-panel p{font-size:10px;line-height:1.35;margin-bottom:7px}#mission7 .v7-instruments>div{padding:7px 9px;gap:4px}#mission7 .v7-instruments strong{font-size:20px}#mission7 .v7-controls button{min-height:54px}#mission7 .v7-status{font-size:9px;min-height:23px}#mission7 .v7-report{margin:5px 0}#mission7 .v7-report b{font-size:17px}#mission7 .v7-report small{font-size:6px}#mission7 .v7-complete>strong{font-size:10px;margin:6px 0}}
 @media(prefers-reduced-motion:reduce){#mission7 *{transition:none!important}}
 @media(orientation:landscape) and (max-height:360px){#mission7[data-phase="complete"] .v7-instruments{display:none}}
+
+/* Optical depth, a live tactical strip and physically aligned danger cues. */
+#mission7.void-seven{background:radial-gradient(ellipse at 10% 0,#42627155,transparent 55%),linear-gradient(135deg,#25445e,#122e46 70%)!important}
+#mission7 .v7-environment{will-change:transform;transform-origin:center}
+#mission7 .v7-atmosphere{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 110% -15%,#abf3f51a,transparent 63%),linear-gradient(180deg,#ffe7a409,transparent 28%);box-shadow:inset 0 0 36px #06213428}
+#mission7[data-sector="1"] .v7-atmosphere{background:radial-gradient(ellipse at -10% 10%,#ffc78425,transparent 65%)}
+#mission7[data-sector="2"] .v7-atmosphere{background:radial-gradient(ellipse at 60% -10%,#9cebdd2b,transparent 75%)}
+#mission7[data-alert="true"] .v7-atmosphere{box-shadow:inset 0 -24px 45px -24px #f5996d80}
+#mission7 .v7-scene-heading{padding-bottom:7px;border-bottom:1px solid #c4eaf422}
+#mission7 .v7-world{box-shadow:inset 0 1px 0 #dbf7ff55,0 10px 30px #02162955}
+#mission7 .v7-warnings .critical{border-color:#ffd3ae;color:#fff0d0;background:#7f4431ee;box-shadow:0 0 16px #f3985733}
+#mission7 .asteroid7.big{background:transparent url('art/life7-asteroid-v2.webp') center/83% 83% no-repeat;filter:drop-shadow(2px 4px 3px #061222a0)}
+#mission7 .v7-route{gap:9px}
+#mission7 .v7-route li{gap:5px;padding:4px 1px;border:0;font-size:8px;letter-spacing:.3px;min-width:0}
+#mission7 .v7-route li:after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;transform:scaleX(var(--sector-fill,0));transform-origin:left;background:#a4e8d1;border-radius:3px}
+#mission7 .v7-route li.current:after{background:#efd293;min-width:2px}
+#mission7 .v7-route b{display:grid;place-items:center;flex:none;width:19px;height:19px;border:1px solid #b4d4df44;border-radius:50%;background:#173a5155;font:600 8px monospace}
+#mission7 .v7-route li.current b{border-color:#eed2a4;background:#edd09a;color:#29485c;box-shadow:0 0 12px #f3d6a41a}
+#mission7 .v7-route li.done b{background:#bae4d529;border-color:#bae4d588;color:#cbf6e6}
+#mission7 .v7-route li>span{line-height:1.25}
+#mission7 .v7-route li>i{font-size:8px}
+#mission7 .v7-panel{background:radial-gradient(ellipse at 15% 0,#bddbd710,transparent 65%),linear-gradient(130deg,#345b72,#24465b);box-shadow:inset 0 1px 0 #d9f0ef18,0 5px 14px #05162b17}
+#mission7 #shieldBubble7.v7-bubble{border:1px solid #d7ffffc9;box-shadow:inset -5px -4px 18px #98f3ff33,inset 3px 3px 10px #edffff4a,0 0 18px #85dfec4a;background:radial-gradient(circle at 35% 25%,#d6ffff11,transparent 47%,#a1e7ff21 78%)}
+#mission7 .v7-bubble svg{width:100%;height:100%;display:block;color:#bceff7;overflow:hidden;border-radius:50%;transform:rotate(var(--shield-angle,0deg));transform-origin:center}
+#mission7 .v7-bubble i{inset:5%;border-style:solid;border-color:#d0ffff28;transform:rotate(-25deg) scaleX(.48)}
+#mission7 .v7-tactical{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:45px;padding:6px 9px;border:1px solid #a8d2e135;border-radius:11px;background:#102f4399}
+#mission7 .v7-tactical>div:not(.v7-radar){display:grid;gap:3px;flex:1;min-width:0}
+#mission7 .v7-tactical span{color:#96becc;font-size:6px;letter-spacing:1px;line-height:1.25}
+#mission7 .v7-tactical strong{color:#d6eee9;font-size:8px;letter-spacing:.25px;line-height:1.25;font-weight:600}
+#mission7 .v7-tactical-state{text-align:end}
+#mission7[data-alert="true"] .v7-tactical-state strong{color:#ffc59a}
+#mission7 .v7-radar{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;width:85px;height:30px;flex:none;direction:ltr}
+#mission7 .v7-radar>i{position:relative;display:block;width:auto;height:100%;border-radius:4px;border:1px solid #8fbcd331;background:linear-gradient(#69a1bb08,#8ebccb0d);overflow:hidden}
+#mission7 .v7-radar>i.selected{border-color:#b7e9d59c;background:#86ddcf12}
+#mission7 .v7-radar b{position:absolute;left:50%;top:2px;width:3px;height:3px;border-radius:50%;background:#f7d7a0;box-shadow:0 0 4px #f0cf9870;transform:translate(-50%,calc(var(--contact,0)*25px));opacity:0}
+#mission7 .v7-radar .danger b{opacity:1}
+#mission7 .v7-radar em{position:absolute;bottom:2px;left:50%;width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent;border-bottom:4px solid #c1ecdf;transform:translateX(-50%);opacity:0}
+#mission7 .v7-radar .selected em{opacity:1}
+@media(max-width:350px){#mission7 .v7-route{gap:6px}#mission7 .v7-route li{font-size:7px;gap:4px}#mission7 .v7-route li>i{display:none}}
+@media(max-height:570px) and (orientation:portrait){#mission7 .v7-route li{padding:2px 0;font-size:7px}#mission7 .v7-route b{width:15px;height:15px;font-size:7px}#mission7 .v7-tactical{display:none}#mission7 .v7-scene-heading{padding-bottom:5px}}
+@media(orientation:landscape) and (max-height:619px){#mission7 .v7-route li{padding:1px 0;font-size:7px}#mission7 .v7-route b{width:17px;height:17px;font-size:7px}#mission7 .v7-tactical{display:none}}

@@ -50,7 +50,12 @@ Sector boundaries save progress, repair 12% hull and restore one shield charge (
 
 ```sh
 node tests/void7.cjs
+node tests/void7-effects.cjs
 node tests/continuation.cjs
 ```
 
 The chapter-specific regression flies all three sectors through actual controls, reloads amid moving hazards, checks shields, failure/retry, old-save migration, keyboard/hold/swipe input and scene cleanup. Layout checks cover nine viewport sizes in English and Russian. The continuation regression also exercises chapter 8–9 puzzles and prevents duplicate rewards. These are isolated Chromium browser tests; they do not represent physical-device or Telegram-client certification.
+
+### Chapter 7 visual and feedback refinement
+
+The cockpit now shows a live three-lane threat scanner. Incoming warnings persist until a rock clears the actual hull bounds; a close threat in the current lane receives a stronger cue. The scanner, lane brackets and collision checks use the same geometry. Sector-route markers fill with actual progress. New large-asteroid artwork, subtle camera parallax, shield mesh, maneuvering jets, fixed-origin impact fragments and a beveled exit gate add depth while keeping the playfield readable. The final approach smoothly centers and scales the ship into the gate. The renderer uses cached glows, bounded decorative objects and adaptive detail. All moving effects freeze with flight; reduced-motion mode retains the playable hazards. Existing version-2 saves and chapter rewards remain compatible.

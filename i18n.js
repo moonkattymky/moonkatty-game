@@ -1,6 +1,15 @@
 /* Russian UI text stays in sync with dynamic mission updates and language changes. */
 (() => {
  const pairs = `
+TRAJECTORY|ТРАЕКТОРИЯ
+CENTER LANE|СРЕДНЯЯ ПОЛОСА
+LEFT LANE|ЛЕВАЯ ПОЛОСА
+RIGHT LANE|ПРАВАЯ ПОЛОСА
+THREAT SCAN|СКАНЕР УГРОЗ
+LANE CLEAR|ПОЛОСА СВОБОДНА
+INCOMING|ПРИБЛИЖЕНИЕ
+EVADE NOW|УВОРАЧИВАЙТЕСЬ
+
 LIFE #7 / DEEP SPACE|ГЛАВА 7 / ДАЛЬНИЙ КОСМОС
 FLIGHT CONTROL|ЦЕНТР ПОЛЁТА
 Flight sectors|Секторы полёта
