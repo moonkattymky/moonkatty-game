@@ -10,7 +10,7 @@ window.MKTYCampaign=(()=>{
   if(restoring||!current||current>4)return;
   if(done(current)){localStorage.removeItem(key(current));return;}
   let v={version:1};
-  if(current===1)Object.assign(v,{stage:life1Stage,x:l1PX,y:l1PY,energy:[...document.querySelectorAll('.energy.collected')].map(e=>e.dataset.energy),frequency:targetFrequency});
+  if(current===1)Object.assign(v,{stage:life1Stage,x:l1PX,y:l1PY,energy:[...document.querySelectorAll('.energy.collected')].map(e=>e.dataset.energy),frequency:targetFrequency,dial:Number($('frequencyDial').value)});
   if(current===2)Object.assign(v,{joined:[...document.querySelectorAll('.mate.joined')].map(e=>e.dataset.mate),pipes:engineerTiles2});
   if(current===3)Object.assign(v,{phase:$('mission3').dataset.phase,mix:['mixO2','mixFuel','mixCool'].map(id=>Number($(id).value))});
   if(current===4){if(!descentActive4||alt4<=0){localStorage.removeItem(key(4));return;}Object.assign(v,{alt:alt4,velocity:vel4,fuel:fuel4,drift:drift4,driftVelocity:driftVel4,power:Number($('thrustDial').value)});}
@@ -26,11 +26,13 @@ window.MKTYCampaign=(()=>{
   restoring=true;
   try{
    if(done(n)){review(n);return;}
+   if(n===3&&localStorage.getItem('mkty_life3_memory_verified')==='yes')setLaunchPhase3('signal');
    const v=read(n);if(!v)return;
    if(n===1&&[0,1,2].includes(v.stage)&&Array.isArray(v.energy)&&v.energy.every(x=>['1','2','3'].includes(x))&&Number.isFinite(v.x)&&Number.isFinite(v.y)){
     const collected=new Set(v.energy);if(v.stage>0&&collected.size!==3)return;
     life1Stage=v.stage;energyCollected=collected.size;l1PX=Math.max(7,Math.min(90,v.x));l1PY=Math.max(18,Math.min(88,v.y));
     if(Number.isFinite(v.frequency)&&v.frequency>=58&&v.frequency<=79)targetFrequency=v.frequency;
+    if(Number.isFinite(v.dial)&&v.dial>=0&&v.dial<=100)$('frequencyDial').value=String(v.dial);updateSignalStrength();
     document.querySelectorAll('.energy').forEach(e=>{e.disabled=collected.has(e.dataset.energy);e.classList.toggle('collected',e.disabled);});
     $('energyCount').textContent=energyCollected+'/3';$('repairCount').textContent=(v.stage===2?'1':'0')+'/1';
     ['qEnergy','qRepair','qAntenna'].forEach((id,i)=>$(id).className=i<v.stage?'done':i===v.stage?'active':'');

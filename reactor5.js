@@ -177,7 +177,7 @@ const Reactor5 = (() => {
  function resume(){
   if(!state||!active())return;
   state.paused=false;root.dataset.paused='false';$('reactorOverlay5').hidden=true;$('reactorWorkspace5').inert=false;$('reactorHelp5').disabled=false;panelAnimation?.play();render();startClock();
-  if(returnFocus?.isConnected&&!returnFocus.disabled)returnFocus.focus({preventScroll:true});else $('reactorHelp5').focus({preventScroll:true});
+  if(returnFocus?.isConnected&&!returnFocus.disabled&&returnFocus.getClientRects().length)returnFocus.focus({preventScroll:true});else $('reactorHelp5').focus({preventScroll:true});
  }
  function bindHold(id,name,tapName){
   const button=$(id),pointers=new Set(),keys=new Set();

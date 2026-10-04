@@ -496,6 +496,7 @@ Rotate the pipes to carry power from the left CORE inlet to the right COMMS outl
 Rotate the pipes. Connect the left inlet to the right outlet.|Поворачивайте трубы. Соедините левый вход с правым выходом.
 Open circuit. Every connected pipe must meet its neighbour.|Цепь разомкнута. Выход каждой трубы должен совпадать со входом соседней.
 Signal detected|Сигнал обнаружен
+No signal|Нет сигнала
 APPROACH|СБЛИЖЕНИЕ
 BRAKING ZONE|ЗОНА ТОРМОЖЕНИЯ
 FINAL APPROACH|ФИНАЛЬНЫЙ ЗАХОД
@@ -520,7 +521,7 @@ HOLD ▲ TO CLIMB|УДЕРЖИВАЙТЕ ▲ ДЛЯ ПОДЪЁМА
 ON COURSE • HOLD ALTITUDE|НА КУРСЕ • СОХРАНЯЙТЕ ВЫСОТУ
 Gate missed. Review the flight and try again.|Ворота пропущены. Посмотрите разбор и повторите попытку.
 Landing aborted. Review the flight and try again.|Посадка не удалась. Посмотрите разбор и повторите попытку.
-Pass through the three highlighted gates in order. Hold the arrows to change altitude.|Пройдите три подсвеченных ворот по порядку. Удерживайте стрелки для изменения высоты.
+Pass through the three highlighted gates in order. Hold the arrows to change altitude.|Пройдите через трое подсвеченных ворот по порядку. Удерживайте стрелки для изменения высоты.
 ↑ INCREASE|↑ УВЕЛИЧИТЬ
 ↓ REDUCE|↓ УМЕНЬШИТЬ
 ✓ IN RANGE|✓ В НОРМЕ

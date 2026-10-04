@@ -81,6 +81,7 @@ langs.forEach(([code,flag,name])=>{
 $('settingsBtn').onclick=()=>show('language');
 // Delayed callbacks belong to the mission that created them.
 const missionDelays=new Map();
+let activeCinematic=null;
 let missionClockResumedAt=0;
 document.addEventListener('visibilitychange',()=>{missionClockResumedAt=performance.now();});
 function missionTimeout(n,callback,delay){
@@ -109,15 +110,14 @@ function leaveMission(id){
  if(n===9){clearInterval(finalTimer9);finalTimer9=null;syncReady9=finalReady9=false;}
 }
 function show(id){
+ if(activeCinematic&&activeCinematic.id!==id)activeCinematic.cleanup();
  window.MKTYCampaign?.save();
  document.querySelectorAll('.mission-screen.active').forEach(s=>{if(s.id!==id)leaveMission(s.id);});
  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
  $(id).classList.add('active');window.scrollTo(0,0);window.MKTYCampaign?.onScreen(id);window.MKTYExperience?.onScreen(id);
  if(id==='mission1'){refreshLife1Geometry();l1LastFrame=0;cancelAnimationFrame(l1MoveFrame);l1MoveFrame=requestAnimationFrame(life1MoveLoop);}
 }
-let cinematicTimer;
 function openMission(){
- clearTimeout(cinematicTimer);
  const video=$('life1Video'); if(video) video.pause();
  $('crewBadge').textContent=crewCode;
  show('mission1');
@@ -125,17 +125,9 @@ function openMission(){
 }
 function startLife1(){
  tg?.HapticFeedback?.impactOccurred('medium');
- show('life1');
- const video=$('life1Video');
- if(video){ video.currentTime=0; video.play().catch(()=>{}); }
- $('cinematicBar').classList.remove('run');
- void $('cinematicBar').offsetWidth;
- $('cinematicBar').classList.add('run');
- clearTimeout(cinematicTimer);cinematicTimer=setTimeout(openMission,8000);
+ playLifeCinematic(1,openMission);
 }
 $('enterBtn').onclick=startLife1;
-$('skipBtn').onclick=openMission;
-$('life1Video')?.addEventListener('ended',openMission);
 let life1Stage=0, energyCollected=0, repairCells=0, targetFrequency=64;
 
 // LIFE #1 mobile exploration controller
@@ -272,6 +264,7 @@ function resetLife1Mission(){
  document.querySelectorAll('.l1-hotspot.energy').forEach(x=>{x.disabled=false;x.classList.remove('collected','revealed','nearby')});
  document.querySelectorAll('.repair-cells button').forEach(x=>{x.disabled=false;x.classList.remove('done')});
  $('repairTerminal').disabled=true;$('antennaHotspot').disabled=true;$('repairPanel').hidden=true;$('antennaPanel').hidden=true;$('life1Complete').hidden=true;clearInterval(signalHoldTimer);signalHoldTimer=null;signalHoldProgress=0;if($('signalHold'))$('signalHold').hidden=true;newRepairSequence();
+ $('frequencyDial').value='20';updateSignalStrength();
  $('energyCount').textContent='0/3';$('repairCount').textContent='0/1';$('antennaCount').textContent='0/1';$('repairFill').style.width='0%';
  $('qEnergy').className='active';$('qRepair').className='';$('qAntenna').className='';
  $('missionStatus').textContent='Explore Moon Base Alpha. Use SCAN to reveal nearby energy signatures.';
@@ -294,6 +287,7 @@ function collectLife1Energy(btn){
   $('repairTerminal').disabled=false;
   $('missionStatus').textContent='Energy restored. Repair the terminal 🔧';
  }
+ updateLife1Nearby();window.MKTYCampaign?.save();
 }
 document.querySelectorAll('.l1-hotspot.energy').forEach(btn=>{
  btn.type='button'; btn.style.pointerEvents='auto';
@@ -319,7 +313,7 @@ function newRepairSequence(){
  document.querySelectorAll('.repair-cells button').forEach(x=>{x.disabled=false;x.classList.remove('done','cue')});
 }
 function showRepairSequence(){
- if(repairShowing)return;repairShowing=true;repairInput=[];$('repairHint').textContent='Watch carefully…';
+ if(repairShowing)return;repairShowing=true;repairInput=[];repairCells=0;$('repairFill').style.width='0%';$('repairHint').textContent='Watch carefully…';
  document.querySelectorAll('.repair-cells button').forEach(x=>x.disabled=true);
  let i=0;const labels=['A','B','C'];
  const step=()=>{
@@ -334,11 +328,11 @@ document.querySelectorAll('.repair-cells button').forEach(btn=>btn.onclick=()=>{
  if(life1Stage!==1||repairShowing)return;
  const n=Number(btn.dataset.cell),expected=repairSequence[repairInput.length];
  if(n!==expected){
-  repairInput=[];repairCells=0;$('repairFill').style.width='0%';$('repairHint').textContent='Wrong circuit. Power trace reset — read it again.';tg?.HapticFeedback?.notificationOccurred?.('error');return;
+  repairInput=[];repairCells=0;$('repairFill').style.width='0%';$('repairSequence').textContent='● ● ● ●';$('repairHint').textContent='Wrong circuit. Power trace reset — read it again.';tg?.HapticFeedback?.notificationOccurred?.('error');return;
  }
  repairInput.push(n);repairCells=repairInput.length;$('repairFill').style.width=(repairCells/4*100)+'%';tg?.HapticFeedback?.impactOccurred('medium');
  $('repairSequence').textContent=repairInput.map(v=>['A','B','C'][v]).concat(Array(4-repairInput.length).fill('·')).join(' ');
- if(repairCells===4){life1Stage=2;$('repairCount').textContent='1/1';$('qRepair').className='done';$('qAntenna').className='active';$('repairPanel').hidden=true;$('antennaHotspot').disabled=false;$('missionStatus').textContent='Terminal online. Reach COMMS and calibrate the antenna 📡';updateLife1Nearby();}
+ if(repairCells===4){life1Stage=2;$('repairCount').textContent='1/1';$('qRepair').className='done';$('qAntenna').className='active';$('repairPanel').hidden=true;$('antennaHotspot').disabled=false;$('missionStatus').textContent='Terminal online. Reach COMMS and calibrate the antenna 📡';updateLife1Nearby();window.MKTYCampaign?.save();}
 });
 $('antennaHotspot').onclick=()=>{if(life1Stage!==2||!canReachLife1($('antennaHotspot')))return;$('antennaPanel').hidden=false;$('antennaPanel').scrollIntoView({behavior:'smooth',block:'center'});};
 function updateSignalStrength(){
@@ -346,7 +340,7 @@ function updateSignalStrength(){
  $('frequencyValue').textContent=(136+v/10).toFixed(1);if($('signalMeterFill'))$('signalMeterFill').style.width=strength+'%';
  if(signalHoldTimer&&d>3){clearInterval(signalHoldTimer);signalHoldTimer=null;signalHoldProgress=0;$('signalHoldFill').style.width='0%';$('signalHoldText').textContent='0%';$('signalHint').textContent='Signal lost — reacquire the carrier.';}
 }
-$('frequencyDial').oninput=updateSignalStrength;
+$('frequencyDial').oninput=()=>{updateSignalStrength();window.MKTYCampaign?.save();};
 function finishLife1Signal(){
  clearInterval(signalHoldTimer);signalHoldTimer=null;life1Stage=3;$('antennaCount').textContent='1/1';$('qAntenna').className='done';$('antennaPanel').hidden=true;$('missionStatus').textContent='Signal synchronized. Moon Base Alpha is online!';tg?.HapticFeedback?.notificationOccurred?.('success');
  let pts=awardLifePoints(1,500);$('l1Points').textContent=pts+' ⭐';
@@ -355,7 +349,7 @@ function finishLife1Signal(){
 $('tuneBtn').onclick=()=>{
  if(life1Stage!==2||signalHoldTimer)return;const v=Number($('frequencyDial').value),d=Math.abs(v-targetFrequency);
  if(d>3){$('signalHint').textContent=v<targetFrequency?'Carrier is higher — tune right.':'Carrier is lower — tune left.';tg?.HapticFeedback?.impactOccurred('light');return;}
- signalHoldProgress=0;$('signalHold').hidden=false;$('signalHint').textContent='Carrier acquired. Hold frequency steady for synchronization.';
+ signalHoldProgress=0;$('signalHoldFill').style.width='0%';$('signalHoldText').textContent='0%';$('signalHold').hidden=false;$('signalHint').textContent='Carrier acquired. Hold frequency steady for synchronization.';
  signalHoldTimer=setInterval(()=>{if(document.hidden||window.MKTYExperience?.paused)return;const now=Number($('frequencyDial').value);if(Math.abs(now-targetFrequency)>3){updateSignalStrength();return;}signalHoldProgress+=4;$('signalHoldFill').style.width=signalHoldProgress+'%';$('signalHoldText').textContent=signalHoldProgress+'%';if(signalHoldProgress>=100)finishLife1Signal();},120);
 };
 $('returnBtn').onclick=()=>show('home');
@@ -444,17 +438,11 @@ function unlockLife2(){
  if(life2Icon)life2Icon.textContent='2';
  if(storyProgress)storyProgress.style.width='22%';
 }
-let life2Timer;
 function startLife2(){
- show('life2');
- const video=$('life2Video');
- if(video){video.currentTime=0;video.play().catch(()=>{});}
- $('life2Bar').classList.remove('run'); void $('life2Bar').offsetWidth; $('life2Bar').classList.add('run');
- clearTimeout(life2Timer); life2Timer=setTimeout(openMission2,10000);
+ playLifeCinematic(2,openMission2);
 }
 function openMission2(){
  stopCrewTask2();activeMate=null;document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);
- clearTimeout(life2Timer);
  const video=$('life2Video'); if(video)video.pause();
  $('crewBadge2').textContent=crewCode; show('mission2');window.MKTYCampaign?.restore(2);updateCrewScene2();
 }
@@ -485,15 +473,12 @@ function launchLife2FromCompletedMission(ev){
 document.addEventListener('pointerup',launchLife2FromCompletedMission);
 $('continueLife2Btn').addEventListener('touchend',launchLife2FromCompletedMission,{passive:false});
 
-$('life2SkipBtn').onclick=openMission2;
-$('life2Video')?.addEventListener('ended',openMission2);
-
-let crewCount=0,activeMate=null,nav2X=8,nav2Y=78,nav2Gate=0,nav2Timer=null,nav2RetryTimer=null,nav2Control=0,wire2=[0,0,0,0],scout2Hits=0,scout2Timer=null,crewSync2=[],crewSyncInput2=[],crewSyncReady2=false;
+let crewCount=0,activeMate=null,nav2X=8,nav2Y=78,nav2Gate=0,nav2Timer=null,nav2RetryTimer=null,nav2Control=0,wire2=[0,0,0,0],scout2Hits=0,scout2Timer=null,crewSync2=[],crewSyncInput2=[],crewSyncReady2=false,engineerChecking2=false;
 function updateCrewScene2(){
  $('crewCount2').textContent=crewCount+' / 3';
  document.querySelectorAll('.mate').forEach(btn=>{btn.classList.toggle('selected',btn===activeMate);btn.setAttribute('aria-disabled',String(btn.classList.contains('joined')));});
 }
-function stopCrewTask2(){cancelAnimationFrame(nav2Timer);clearTimeout(nav2RetryTimer);nav2Timer=null;nav2RetryTimer=null;nav2Control=0;stopScout2();}
+function stopCrewTask2(){cancelAnimationFrame(nav2Timer);clearTimeout(nav2RetryTimer);clearMissionDelays(2);nav2Timer=null;nav2RetryTimer=null;nav2Control=0;stopScout2();engineerChecking2=false;$('testCircuit2').disabled=false;document.querySelectorAll('[data-wire2]').forEach(b=>b.disabled=false);}
 $('crewBack2').onclick=()=>{
  stopCrewTask2();activeMate=null;document.querySelectorAll('.crew-task').forEach(task=>task.hidden=true);
  $('crewChallengeTitle').textContent='SELECT A CREW MEMBER TO BEGIN';updateCrewScene2();
@@ -503,6 +488,7 @@ function completeMate(btn){
  window.MKTYExperience?.signal('success',btn);stopCrewTask2();btn.classList.add('joined');crewCount++;activeMate=null;document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);updateCrewScene2();
  $('crewChallengeTitle').textContent='SPECIALIST RECRUITED ✓';$('crewStatus').textContent='Crew assembled: '+crewCount+' / 3'+(crewCount===3?' • Final sync ready':' • Final sync locked');tg?.HapticFeedback?.notificationOccurred?.('success');
  if(crewCount===3){$('crewFinal2').hidden=false;$('crewChallengeTitle').textContent='FINAL CREW PROTOCOL';}
+ window.MKTYCampaign?.save();
 }
 function resetNav2(){
  cancelAnimationFrame(nav2Timer);nav2X=7;nav2Y=70;nav2Gate=0;nav2Control=0;
@@ -546,7 +532,7 @@ function engineerReach2(){
 function updateEngineerRoute2(){
  const reached=engineerReach2();engineerSolved2=reached.has(5)&&pipePorts2(engineerTiles2[5]).includes(1);
  const grid=$('circuit2');
- if(grid.children.length!==9){grid.replaceChildren(...Array.from({length:9},(_,i)=>{const b=document.createElement('button');b.type='button';b.dataset.wire2=i;b.onclick=()=>{if(window.MKTYExperience?.paused)return;engineerTiles2[i].rotation=(engineerTiles2[i].rotation+1)%4;updateEngineerRoute2();window.MKTYExperience?.signal('tap',b);};return b;}));}
+ if(grid.children.length!==9){grid.replaceChildren(...Array.from({length:9},(_,i)=>{const b=document.createElement('button');b.type='button';b.dataset.wire2=i;b.onclick=()=>{if(window.MKTYExperience?.paused||engineerChecking2)return;engineerTiles2[i].rotation=(engineerTiles2[i].rotation+1)%4;updateEngineerRoute2();window.MKTYExperience?.signal('tap',b);window.MKTYCampaign?.save();};return b;}));}
  [...grid.children].forEach((b,i)=>{
   const ports=pipePorts2(engineerTiles2[i]);b.classList.toggle('live',reached.has(i));b.dataset.ports=ports.join(',');b.setAttribute('aria-label','Junction '+(i+1)+' • rotate clockwise');
   const points=['25 0','50 25','25 50','0 25'];
@@ -566,14 +552,14 @@ function resetEngineer2(){
  updateEngineerRoute2();
 }
 $('testCircuit2').onclick=()=>{
- if(!engineerTiles2||window.MKTYExperience?.paused)return;
- if(engineerSolved2){$('engineerHint2').textContent='CORE → COMMS power route stable ✓';window.MKTYExperience?.signal('success',$('circuit2'));const mate=activeMate;laterInMission(2,()=>{if(activeMate===mate&&!$('engineerTask').hidden)completeMate(mate);},450);}
+ if(!engineerTiles2||window.MKTYExperience?.paused||engineerChecking2)return;
+ if(engineerSolved2){engineerChecking2=true;$('testCircuit2').disabled=true;document.querySelectorAll('[data-wire2]').forEach(b=>b.disabled=true);$('engineerHint2').textContent='CORE → COMMS power route stable ✓';window.MKTYExperience?.signal('success',$('circuit2'));const mate=activeMate;laterInMission(2,()=>{if(activeMate===mate&&!$('engineerTask').hidden&&engineerSolved2)completeMate(mate);},450);}
  else{$('engineerHint2').textContent='Open circuit. Every connected pipe must meet its neighbour.';window.MKTYExperience?.signal('error',$('testCircuit2'));}
 };
 function stopScout2(){clearInterval(scout2Timer);scout2Timer=null;}
 function buildAnomaly(){
  stopScout2();scout2Hits=0;const grid=$('anomalyGrid');grid.innerHTML='';for(let i=0;i<9;i++){const b=document.createElement('button');b.textContent='·';grid.appendChild(b);}
- const relocate=()=>{grid.querySelectorAll('button').forEach(b=>{b.classList.remove('target');b.textContent='·';b.onclick=null;});const cells=[...grid.querySelectorAll('button')],b=cells[Math.floor(Math.random()*cells.length)];b.classList.add('target');b.textContent='✦';b.setAttribute('aria-label','Signal detected');b.onclick=()=>{if(!b.classList.contains('target')||window.MKTYExperience?.paused)return;window.MKTYExperience?.signal('collect',b);scout2Hits++;$('scoutHint2').textContent='Anomalies tagged: '+scout2Hits+' / 3';tg?.HapticFeedback?.impactOccurred?.('medium');if(scout2Hits>=3){stopScout2();completeMate(activeMate);}else relocate();};};
+ const relocate=()=>{grid.querySelectorAll('button').forEach(b=>{b.classList.remove('target');b.textContent='·';b.setAttribute('aria-label','No signal');b.onclick=null;});const cells=[...grid.querySelectorAll('button')],b=cells[Math.floor(Math.random()*cells.length)];b.classList.add('target');b.textContent='✦';b.setAttribute('aria-label','Signal detected');b.onclick=()=>{if(!b.classList.contains('target')||window.MKTYExperience?.paused)return;window.MKTYExperience?.signal('collect',b);scout2Hits++;$('scoutHint2').textContent='Anomalies tagged: '+scout2Hits+' / 3';tg?.HapticFeedback?.impactOccurred?.('medium');if(scout2Hits>=3){stopScout2();completeMate(activeMate);}else relocate();};};
  relocate();scout2Timer=setInterval(()=>{if(!document.hidden&&!window.MKTYExperience?.paused)relocate();},1100);
 }
 document.querySelectorAll('.mate').forEach(btn=>btn.onclick=()=>{if(btn.classList.contains('joined'))return;stopCrewTask2();activeMate=btn;document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);const role=btn.dataset.mate;$('crewChallengeTitle').textContent=role.toUpperCase()+' CHALLENGE';if(role==='Navigator'){$('navigatorTask').hidden=false;resetNav2();}if(role==='Engineer'){$('engineerTask').hidden=false;resetEngineer2();}if(role==='Scout'){$('scoutTask').hidden=false;buildAnomaly();}updateCrewScene2();});
@@ -592,20 +578,25 @@ function unlockLife3(){
  return true;
 }
 function playLifeCinematic(n,onDone){
- const screen=$('life'+n),video=$('life'+n+'Video'),bar=$('life'+n+'Bar'),skip=$('life'+n+'SkipBtn');
+ const id='life'+n,screen=$(id),video=$('life'+n+'Video'),bar=$(n===1?'cinematicBar':'life'+n+'Bar'),skip=$(n===1?'skipBtn':'life'+n+'SkipBtn');
  if(!screen||!video){onDone();return;}
- show('life'+n); let finished=false;
- const finish=()=>{if(finished)return;finished=true;video.pause();video.removeEventListener('ended',finish);skip?.removeEventListener('click',finish);onDone();};
- video.currentTime=0; video.addEventListener('ended',finish,{once:true}); skip?.addEventListener('click',finish,{once:true});
- if(bar){bar.classList.remove('run');void bar.offsetWidth;bar.classList.add('run');}
- video.play().catch(()=>{});
+ if(activeCinematic?.id===id)return;
+ show(id);let finished=false,last=performance.now(),remaining=n===1?8000:n===2?10000:20000,watchdog;
+ const cleanup=()=>{finished=true;clearInterval(watchdog);video.pause();video.removeEventListener('ended',finish);video.removeEventListener('error',finish);document.removeEventListener('visibilitychange',visibility);if(skip?.onclick===finish)skip.onclick=null;if(activeCinematic?.cleanup===cleanup)activeCinematic=null;};
+ const finish=()=>{if(finished)return;const visible=screen.classList.contains('active');cleanup();if(visible)onDone();};
+ const visibility=()=>{last=performance.now();if(finished||!screen.classList.contains('active'))return;if(bar)bar.style.animationPlayState=document.hidden?'paused':'running';if(document.hidden)video.pause();else video.play().catch(()=>{});};
+ activeCinematic={id,cleanup};video.addEventListener('ended',finish);video.addEventListener('error',finish);document.addEventListener('visibilitychange',visibility);if(skip)skip.onclick=finish;
+ watchdog=setInterval(()=>{const now=performance.now(),dt=Math.min(250,Math.max(0,now-last));last=now;if(document.hidden)return;if(!screen.classList.contains('active')){cleanup();return;}remaining-=dt;if(remaining<=0)finish();},250);
+ if(bar){bar.style.animationPlayState='running';bar.classList.remove('run');void bar.offsetWidth;bar.classList.add('run');}
+ video.currentTime=0;video.play().catch(()=>{});
 }
 function startLife3(){playLifeCinematic(3,openLife3MemoryGate);}
 $('continueLife3Btn').onclick=(ev)=>{ev?.preventDefault?.();if(!unlockLife3())return;if($('lifeTitle'))$('lifeTitle').textContent='LIFE #3 — THE LAUNCH CODE';if($('lifeText'))$('lifeText').textContent='Decrypt the ship launch authorization sequence.';startLife3();};
-if($('life3Card'))$('life3Card').onclick=()=>$('continueLife3Btn').click();$('life3SkipBtn').onclick=openLife3MemoryGate;
+if($('life3Card'))$('life3Card').onclick=()=>$('continueLife3Btn').click();
 $('verifyLife1CodeBtn').onclick=()=>{const lock=Number(localStorage.getItem('mkty_life3_code_lock_until')||0);if(lock>Date.now())return;const entered=$('life3MemoryInput').value.trim();if(!/^\d{10}$/.test(entered)){$('life3GateStatus').textContent='Enter all 10 digits. No life has been spent.';return;}if(entered===ensureLife1MemoryCode()){clearInterval(gateTimer);$('life3GateStatus').textContent='CODE VERIFIED ✓';localStorage.setItem('mkty_life3_memory_verified','yes');renderMissionArchive();
 renderDailyMissions();
-renderCrewNetwork();$('life3MemoryInput').blur();setLaunchPhase3('signal');newLaunchCode();$('codeStatus').textContent='Attempts remaining: '+codeAttempts;tg?.HapticFeedback?.notificationOccurred?.('success');return;}if(!spendGlobalLife()){$('life3GateStatus').textContent='No lives available. A life restores every 12 hours.';return;}localStorage.setItem('mkty_life3_hint_available','yes');localStorage.setItem('mkty_life3_code_lock_until',String(Date.now()+MKTY_CODE_LOCK_MS));$('life3MemoryInput').value='';tg?.HapticFeedback?.notificationOccurred?.('error');renderLife3Gate();};
+renderCrewNetwork();$('life3MemoryInput').blur();setLaunchPhase3('signal');newLaunchCode();$('codeStatus').textContent='Attempts remaining: '+codeAttempts;window.MKTYCampaign?.save();tg?.HapticFeedback?.notificationOccurred?.('success');return;}if(!spendGlobalLife()){$('life3GateStatus').textContent='No lives available. A life restores every 12 hours.';return;}localStorage.setItem('mkty_life3_hint_available','yes');localStorage.setItem('mkty_life3_code_lock_until',String(Date.now()+MKTY_CODE_LOCK_MS));$('life3MemoryInput').value='';tg?.HapticFeedback?.notificationOccurred?.('error');renderLife3Gate();};
+$('life3MemoryInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&$('mission3').classList.contains('active')&&$('mission3').dataset.phase==='access'&&!$('verifyLife1CodeBtn').disabled&&!window.MKTYExperience?.paused){e.preventDefault();$('verifyLife1CodeBtn').click();}});
 $('buyCodeHintBtn').onclick=()=>{
  if(Number(localStorage.getItem('mkty_life3_code_lock_until')||0)>Date.now()||localStorage.getItem('mkty_life3_hint_available')!=='yes')return;
  if(!spendGlobalLife()){$('life3GateStatus').textContent='No lives available. A life restores every 12 hours.';return;}
@@ -646,7 +637,7 @@ $('showCodeBtn').onclick=()=>{
 document.querySelectorAll('[data-code]').forEach(b=>b.onclick=()=>{
  if(!codeReady||$('mission3').dataset.phase!=='signal')return;codeInput.push(b.dataset.code);paintLaunchSlots3('codeSequence',codeInput,4);b.classList.add('entered');
  if(codeInput.length===4){
-  if(codeInput.join('')===launchCode.join('')){codeReady=false;setLaunchPhase3('fuel');updateMix3();tg?.HapticFeedback?.notificationOccurred?.('success');}
+  if(codeInput.join('')===launchCode.join('')){codeReady=false;setLaunchPhase3('fuel');updateMix3();window.MKTYCampaign?.save();tg?.HapticFeedback?.notificationOccurred?.('success');}
   else{codeAttempts--;tg?.HapticFeedback?.notificationOccurred?.('error');const reset=codeAttempts<=0;if(reset)codeAttempts=3;newLaunchCode();$('codeStatus').textContent=reset?'Security reset. New code generated.':'Incorrect sequence. Attempts: '+codeAttempts;$('codeHint').textContent='Receive a new transmission and try again.';}
  }
 });
@@ -659,14 +650,14 @@ function updateMix3(){
  const stable=total===100&&a>=25&&a<=35&&b>=40&&b<=50&&d>=20&&d<=35;$('lockMix3').disabled=!stable;$('mixStability3').textContent=stable?'STABLE':'ADJUST';$('mixTotal3').parentElement.classList.toggle('stable',stable);
  $('mixHint3').textContent=stable?'Fuel matrix stable. Ready to lock.':total===100?'Total stable. Adjust the three stability indicators.':total>100?'Overpressure — reduce mixture.':'Insufficient load — increase mixture.';
 }
-['mixO2','mixFuel','mixCool'].forEach(id=>$(id)?.addEventListener('input',updateMix3));
+['mixO2','mixFuel','mixCool'].forEach(id=>$(id)?.addEventListener('input',()=>{updateMix3();window.MKTYCampaign?.save();}));
 $('lockMix3')?.addEventListener('click',()=>{
  if($('mission3').dataset.phase!=='fuel')return;
  const a=Number($('mixO2').value),b=Number($('mixFuel').value),d=Number($('mixCool').value);
  if(a+b+d!==100){$('mixHint3').textContent='Total load must equal exactly 100.';return;}
  // Broad enough to solve by reasoning, not pixel hunting: oxygen 25-35, fuel 40-50, coolant remainder.
  if(a<25||a>35||b<40||b>50||d<20||d>35){$('mixHint3').textContent='Matrix unstable. FUEL needs the largest share; O₂ and COOLANT must remain balanced.';tg?.HapticFeedback?.impactOccurred?.('light');return;}
- $('mixHint3').textContent='Fuel matrix stable ✓';setLaunchPhase3('ignition');resetIgnition3();tg?.HapticFeedback?.notificationOccurred?.('success');
+ $('mixHint3').textContent='Fuel matrix stable ✓';setLaunchPhase3('ignition');resetIgnition3();window.MKTYCampaign?.save();tg?.HapticFeedback?.notificationOccurred?.('success');
 });
 function stopLaunchTimer3(){clearInterval(launchTimer3);clearTimeout(ignitionRevealTimer3);launchTimer3=null;ignitionRevealTimer3=null;$('showIgnition3').disabled=false;}
 function renderLaunchTime3(){$('launchTimerFill3').style.width=Math.max(0,launchTime3)+'%';$('launchSeconds3').textContent=(Math.max(0,launchTime3)/20).toFixed(1).padStart(4,'0');$('mission3').dataset.timeLow=String(launchTime3<30);}
