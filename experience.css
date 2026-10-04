@@ -124,3 +124,80 @@ html[data-light-fx="true"] :is(#mission1,#mission2,#mission3,#mission4,#mission5
  #mission3.launch-bridge3 #launchStage2 .mix-total3 {margin:6px 0;padding:7px}
  #mission3.launch-bridge3 #launchStage2>small {margin-top:5px;min-height:0}
 }
+
+/* Depth follows the feet; the scene isolates props from modal controls. */
+#mission1.mk-l1 #life1World {isolation:isolate}
+#mission1 #life1World>.experience-canvas {z-index:120}
+#mission1 #life1World>.l1-zone {z-index:125}
+#mission1 #l1ScannerPulse {z-index:110}
+#mission1.mk-l1 #life1Player:not(.walking) .l1-player-sprite {transform-origin:50% 88%;animation:cat-breathe 3.6s ease-in-out infinite}
+@keyframes cat-breathe {0%,100%{transform:scale(1)}50%{transform:scale(1.012,1.018)}}
+#mission1 .l1-hotspot.quest-target {filter:drop-shadow(0 0 7px #ffefb7)!important}
+#mission1 .l1-hotspot.quest-target>span:last-child {color:#ffeab6;border-color:#ffe6a6}
+#mission2 #navField2 .gate {transition:filter .2s}
+#mission2 #navField2 .gate.next-gate {filter:drop-shadow(0 0 8px #ffe4a8)!important}
+#mission2 #navHint2 {display:block;padding:7px 9px;border-radius:8px;background:#101f2faa;color:#ffe2b2;min-height:30px;line-height:1.25}
+#mission2 #navHint2[data-aligned="true"] {background:#17433dd9;color:#c4f4d9}
+#mission4[data-brake="true"] #burnBtn {outline:2px solid #fff2b5;outline-offset:2px;box-shadow:0 0 16px #ffdb9655}
+#mission4[data-brake="true"] #descentStatus {background:#684e32;color:#fff0c9}
+#mission4 #thrustDial,#mission1 #frequencyDial {height:44px;min-height:44px;touch-action:none}
+#mission3 #journalCodeBtn {min-height:44px!important}
+#mission3 .fuel-matrix3 input {min-height:44px;touch-action:none}
+#mission3 .fuel-matrix3 .mix-advice3 {display:block;min-height:12px;font-size:8px;font-weight:700;letter-spacing:.2px;line-height:1.4;color:#ffe0a3;text-align:center}
+#mission3 .fuel-matrix3 label.stable .mix-advice3 {color:#b6f4ce}
+#mission3 .mix-fine3 {display:grid;grid-template-columns:1fr 1fr;gap:4px;width:100%}
+#mission3 .mix-fine3 button {padding:0;min-width:0;min-height:44px;border:1px solid #b5dbe45c;border-radius:8px;background:#143448;color:#e9f5f1;font:500 23px/1 system-ui;touch-action:manipulation}
+#mission3 .mix-fine3 button:active {background:#42696a;color:#ffebb5}
+@media(max-height:640px) {
+ #mission3.launch-bridge3 #launchStage2 .mix-tank3 {display:none}
+ #mission3.launch-bridge3 #launchStage2 .fuel-matrix3 label {gap:3px;padding:6px 5px}
+ #mission3.launch-bridge3 #launchStage2 .fuel-matrix3 b {font-size:24px;line-height:1.1}
+ #mission3.launch-bridge3 #launchStage2 .mix-total3 {margin:6px 0;padding:7px}
+ #mission3.launch-bridge3 #launchStage2>small {margin-top:4px}
+}
+@media(orientation:landscape) and (max-height:600px) {
+ #mission4.active {grid-template-rows:44px minmax(0,1fr) auto auto 44px 48px auto}
+ #mission3.launch-bridge3 #launchStage2 {padding:10px}
+ #mission3.launch-bridge3 #launchStage2>.eyebrow {display:none}
+ #mission3.launch-bridge3 #launchStage2 .fuel-matrix3 {margin-top:5px}
+ #mission3.launch-bridge3 #launchStage2>h3 {font-size:17px;margin:0 0 5px}
+}
+/* Keep the action footer visible while long guidance scrolls above it. */
+#chapterGuide {padding:0;overflow:hidden}
+#chapterGuide[open],#flightReview[open] {display:flex;flex-direction:column}
+#chapterGuide .guide-copy {flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;padding:23px 20px 12px}
+#chapterGuide .guide-actions,#flightReview .guide-actions {flex:none;margin:0;padding:13px 20px 17px;background:#143246;border-top:1px solid #a7d7df29}
+#chapterGuide .guide-actions .ghost,#flightReview .guide-actions .ghost {color:#d6ebef;border-color:#accdd35c;background:#1e4257}
+#flightReview {box-sizing:border-box;width:min(420px,calc(100% - 24px));max-height:calc(100dvh - 24px);padding:0;border:1px solid #efd9a78f;border-radius:22px;background:linear-gradient(145deg,#254e63,#102638);color:#edf7f8;overflow:hidden;box-shadow:0 18px 60px #0008}
+#flightReview::backdrop {background:#071825bf;backdrop-filter:blur(7px)}
+.flight-review-copy {flex:1 1 auto;min-height:0;overflow:auto;padding:24px 20px 10px}
+#flightReview .eyebrow {font-size:9px;color:#acdce5;letter-spacing:1.8px}
+#flightReview h2 {color:#ffe5ad;font-size:23px;line-height:1.15;margin:9px 0 12px}
+#flightReview p {font-size:12px;line-height:1.5;color:#c9e1e9}
+#flightReviewMetrics {display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:18px 0}
+#flightReviewMetrics>div {border:1px solid #b8d9dc59;border-radius:11px;background:#102f43;padding:11px 9px}
+#flightReviewMetrics span {display:block;color:#9ecbd8;font-size:8px;letter-spacing:.5px}
+#flightReviewMetrics b {display:block;color:#ffe8b2;font:700 clamp(18px,5vw,23px)/1.5 monospace;white-space:nowrap;margin-top:6px}
+#mission5.engineering5 .reactor-dialog5 {display:flex;flex-direction:column;padding:0;overflow:hidden}
+#mission5.engineering5 .reactor-guide-copy5 {flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;padding:22px 18px 12px}
+#mission5.engineering5 .reactor-guide-copy5>.eyebrow {color:#a7dbe7;font-size:9px;letter-spacing:2px}
+#mission5.engineering5 .reactor-guide-copy5>p {font-size:12px;line-height:1.4;color:#c2dce8;margin:9px 0 18px}
+#mission5.engineering5 .reactor-dialog-actions5 {flex:none;padding:12px 18px 16px;background:#143246;border-top:1px solid #a7d7df29}
+@media(max-height:500px) {
+ #chapterGuide .guide-copy,.flight-review-copy,#mission5.engineering5 .reactor-guide-copy5 {padding:16px 15px 8px}
+ #chapterGuide .guide-actions,#flightReview .guide-actions,#mission5.engineering5 .reactor-dialog-actions5 {padding:10px 15px;gap:6px}
+ #flightReviewMetrics {margin:10px 0}
+}
+@media(max-height:600px) {
+ #mission3.launch-bridge3 #launchStage2>p {display:none}
+}
+@media(orientation:landscape) and (max-height:500px) {
+ #mission3.launch-bridge3 #launchStage2 .fuel-matrix3 label {display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;gap:2px 4px}
+ #mission3.launch-bridge3 #launchStage2 .fuel-matrix3 label>span:first-child {grid-column:1/-1;grid-row:1}
+ #mission3.launch-bridge3 #launchStage2 .fuel-matrix3 label>b {grid-column:2;grid-row:2}
+ #mission3.launch-bridge3 #launchStage2 .fuel-matrix3 input {grid-column:1/-1;grid-row:3}
+ #mission3.launch-bridge3 #launchStage2 .mix-advice3 {grid-column:1/-1;grid-row:4}
+ #mission3.launch-bridge3 #launchStage2 .mix-fine3 {display:contents}
+ #mission3.launch-bridge3 #launchStage2 .mix-fine3 button:first-child {grid-column:1;grid-row:2}
+ #mission3.launch-bridge3 #launchStage2 .mix-fine3 button:last-child {grid-column:3;grid-row:2}
+}

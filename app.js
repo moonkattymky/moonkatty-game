@@ -72,13 +72,13 @@ function setLang(code){
  $('chooseText').textContent=t[0]; $('welcome').textContent=t[1]; $('enterBtn').textContent=t[2];
  if($('lifeTitle')) $('lifeTitle').textContent=t[3]; if($('lifeText')) $('lifeText').textContent=t[4];
  window.MKTYI18n?.setLanguage(code);
- $('language').classList.remove('active'); $('home').classList.add('active');window.MKTYCampaign?.render();
+ show('home');window.MKTYCampaign?.render();
 }
 langs.forEach(([code,flag,name])=>{
  const b=document.createElement('button'); b.className='lang'; b.textContent=`${flag} ${name}`;
  b.onclick=()=>setLang(code); $('languages').appendChild(b);
 });
-$('settingsBtn').onclick=()=>{$('home').classList.remove('active');$('language').classList.add('active')};
+$('settingsBtn').onclick=()=>show('language');
 // Delayed callbacks belong to the mission that created them.
 const missionDelays=new Map();
 let missionClockResumedAt=0;
@@ -98,7 +98,7 @@ function laterInMission(n,callback,delay){
 function clearMissionDelays(n){missionDelays.get(n)?.forEach(clearTimeout);missionDelays.delete(n);}
 function leaveMission(id){
  const n=Number(id.replace('mission',''));clearMissionDelays(n);
- if(n===1){stopLife1Stick(null);clearInterval(signalHoldTimer);signalHoldTimer=null;clearInterval(memoryCodeTimer);memoryCodeTimer=null;repairShowing=false;}
+ if(n===1){cancelAnimationFrame(l1MoveFrame);stopLife1Stick(null);clearInterval(signalHoldTimer);signalHoldTimer=null;clearInterval(memoryCodeTimer);memoryCodeTimer=null;repairShowing=false;}
  if(n===2){stopCrewTask2();crewSyncReady2=false;$('showCrewSync2').disabled=false;}
  if(n===3)clearLaunchPlayback3();
  if(n===4){descentActive4=false;cancelAnimationFrame(descentTimer);descentTimer=null;releaseDescentControls();}
@@ -113,6 +113,7 @@ function show(id){
  document.querySelectorAll('.mission-screen.active').forEach(s=>{if(s.id!==id)leaveMission(s.id);});
  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
  $(id).classList.add('active');window.scrollTo(0,0);window.MKTYCampaign?.onScreen(id);window.MKTYExperience?.onScreen(id);
+ if(id==='mission1'){refreshLife1Geometry();l1LastFrame=0;cancelAnimationFrame(l1MoveFrame);l1MoveFrame=requestAnimationFrame(life1MoveLoop);}
 }
 let cinematicTimer;
 function openMission(){
@@ -141,15 +142,27 @@ let life1Stage=0, energyCollected=0, repairCells=0, targetFrequency=64;
 let l1PX=50,l1PY=68,l1MoveX=0,l1MoveY=0,l1MoveFrame=0,l1Near=null;
 let l1Direction='down',l1WalkDistance=0,l1Walking=false,l1LastFrame=0;
 const l1Player=$('life1Player'),l1Joy=$('life1Joystick'),l1Stick=$('life1Stick'),l1Action=$('life1ActionBtn');
+const l1Sprite=l1Player.querySelector('.l1-player-sprite'),l1RenderCache={};
+let l1Geometry={width:1,height:1,obstacles:[]},l1NearbyAt=0;
+function refreshLife1Geometry(){
+ const world=$('life1World').getBoundingClientRect();if(!world.width||!world.height)return;
+ l1Geometry={width:world.width,height:world.height,obstacles:[...document.querySelectorAll('#life1World .l1-obstacle')].map(el=>{
+  const r=el.getBoundingClientRect();el.style.zIndex=String(Math.round((r.bottom-world.top)/world.height*100));
+  return {left:(r.left+3-world.left)/world.width*100,right:(r.right-3-world.left)/world.width*100,top:(r.top+r.height*.36-world.top)/world.height*100,bottom:(r.bottom-2-world.top)/world.height*100};
+ })};
+ document.querySelectorAll('#life1World .l1-hotspot').forEach(el=>{const r=el.getBoundingClientRect();el.style.zIndex=String(Math.round((r.bottom-world.top)/world.height*100));});
+}
+new ResizeObserver(refreshLife1Geometry).observe($('life1World'));
 function renderLife1Player(){
  if(!l1Player)return;
- l1Player.style.left=l1PX+'%';l1Player.style.top=l1PY+'%';
- l1Player.classList.toggle('walking',l1Walking);
- l1Player.dataset.direction=l1Direction;
+ if(l1RenderCache.x!==l1PX){l1Player.style.left=l1PX+'%';l1RenderCache.x=l1PX;}
+ if(l1RenderCache.y!==l1PY){l1Player.style.top=l1PY+'%';l1Player.style.zIndex=String(Math.round(l1PY));l1RenderCache.y=l1PY;}
+ if(l1RenderCache.walking!==l1Walking){l1Player.classList.toggle('walking',l1Walking);l1RenderCache.walking=l1Walking;}
+ if(l1RenderCache.direction!==l1Direction){l1Player.dataset.direction=l1Direction;l1RenderCache.direction=l1Direction;}
  const row={down:0,up:1,left:2,right:3}[l1Direction];
  const frame=l1Walking?Math.floor(l1WalkDistance/8)%6:0;
- const sprite=l1Player.querySelector('.l1-player-sprite');
- if(sprite) sprite.style.backgroundPosition=(frame*20)+'% '+(row*100/3)+'%';
+ const position=(frame*20)+'% '+(row*100/3)+'%';
+ if(l1RenderCache.frame!==position){l1Sprite.style.backgroundPosition=position;l1RenderCache.frame=position;}
 }
 function l1DistanceTo(el){
  if(!el||!l1Player)return 999;
@@ -158,46 +171,46 @@ function l1DistanceTo(el){
  return Math.hypot(ax-bx,ay-by)/Math.max(1,Math.min(w.width,w.height));
 }
 function updateLife1Nearby(){
- document.querySelectorAll('.l1-hotspot').forEach(x=>x.classList.remove('nearby'));
+ const world=$('life1World').getBoundingClientRect(),player=l1Player.getBoundingClientRect();
+ const ax=(player.left+player.right)/2,ay=(player.top+player.bottom)/2;
  const candidates=[...document.querySelectorAll('.l1-hotspot')].filter(x=>!x.disabled&&!x.classList.contains('collected'));
  let best=null,bestD=.24;
- candidates.forEach(x=>{const d=l1DistanceTo(x);if(d<bestD){best=x;bestD=d;}});
+ candidates.forEach(x=>{const r=x.getBoundingClientRect(),d=Math.hypot(ax-(r.left+r.right)/2,ay-(r.top+r.bottom)/2)/Math.max(1,Math.min(world.width,world.height));if(d<bestD){best=x;bestD=d;}});
+ if(l1Near!==best){l1Near?.classList.remove('nearby');best?.classList.add('nearby');}
  l1Near=best;
- if(best)best.classList.add('nearby');
- if(l1Action){l1Action.disabled=!best;l1Action.classList.toggle('ready',!!best);l1Action.textContent=best?.classList.contains('energy')?'COLLECT':best?.id==='repairTerminal'?'REPAIR':best?.id==='antennaHotspot'?'TUNE':'ACTION';}
+ if(l1Action){const action=best?.classList.contains('energy')?'COLLECT':best?.id==='repairTerminal'?'REPAIR':best?.id==='antennaHotspot'?'TUNE':'ACTION';if(l1Action.dataset.action!==action){l1Action.disabled=!best;l1Action.classList.toggle('ready',!!best);l1Action.textContent=action;l1Action.dataset.action=action;}}
+ $('repairTerminal').classList.toggle('quest-target',life1Stage===1);$('antennaHotspot').classList.toggle('quest-target',life1Stage===2);
 }
 function life1Blocked(px,py){
- // Feet collide with the visible lower part of each prop, at any aspect ratio.
- const world=$('life1World').getBoundingClientRect(),x=world.left+px*world.width/100,y=world.top+py*world.height/100;
- return [...document.querySelectorAll('#life1World .l1-obstacle')].some(el=>{
-  const r=el.getBoundingClientRect();return x>r.left+3&&x<r.right-3&&y>r.top+r.height*.36&&y<r.bottom-2;
- });
+ // Geometry is measured on resize, never once per obstacle on every frame.
+ return l1Geometry.obstacles.some(r=>px>r.left&&px<r.right&&py>r.top&&py<r.bottom);
 }
 function life1MoveLoop(now){
  const dt=l1LastFrame?Math.min((now-l1LastFrame)/1000,.04):0;
  l1LastFrame=now;
- const active=$('mission1').classList.contains('active')&&!document.hidden&&!window.MKTYExperience?.paused;
- if(!active){l1MoveFrame=requestAnimationFrame(life1MoveLoop);return;}
+ if(!$('mission1').classList.contains('active'))return;
+ const active=!document.hidden&&!window.MKTYExperience?.paused&&$('repairPanel').hidden&&$('antennaPanel').hidden&&$('life1Complete').hidden;
+ if(!active){if(l1Walking||l1MoveX||l1MoveY)stopLife1Stick(null);l1MoveFrame=requestAnimationFrame(life1MoveLoop);return;}
  const magnitude=Math.hypot(l1MoveX,l1MoveY);
  l1Walking=false;
  if(active&&magnitude>.08){
-  const world=$('life1World'),speed=88;
+  const world=l1Geometry,speed=88;
   const scale=Math.max(1,magnitude),vx=l1MoveX/scale,vy=l1MoveY/scale;
   // Normalize in screen pixels: diagonal speed and 60/120 Hz displays agree.
-  const nx=Math.max(7,Math.min(90,l1PX+vx*speed*dt/world.clientWidth*100));
-  const ny=Math.max(18,Math.min(88,l1PY+vy*speed*dt/world.clientHeight*100));
+  const nx=Math.max(7,Math.min(90,l1PX+vx*speed*dt/world.width*100));
+  const ny=Math.max(18,Math.min(88,l1PY+vy*speed*dt/world.height*100));
   const oldX=l1PX,oldY=l1PY;
   if(Math.abs(vx)>Math.abs(vy))l1Direction=vx<0?'left':'right';
   else l1Direction=vy<0?'up':'down';
   // Resolve axes independently so MoonKatty slides naturally along obstacles.
   if(!life1Blocked(nx,l1PY))l1PX=nx;
   if(!life1Blocked(l1PX,ny))l1PY=ny;
-  const traveled=Math.hypot((l1PX-oldX)*world.clientWidth/100,(l1PY-oldY)*world.clientHeight/100);
+  const traveled=Math.hypot((l1PX-oldX)*world.width/100,(l1PY-oldY)*world.height/100);
   l1Walking=traveled>.01;
   if(l1Walking)l1WalkDistance+=traveled;
-  updateLife1Nearby();
  }
  renderLife1Player();
+ if(magnitude>.08&&now-l1NearbyAt>=90){updateLife1Nearby();l1NearbyAt=now;}
  l1MoveFrame=requestAnimationFrame(life1MoveLoop);
 }
 let l1PointerId=null,l1JoystickActive=false;
@@ -232,6 +245,7 @@ if(l1Joy){
  l1Joy.addEventListener('lostpointercapture',()=>stopLife1Stick(null));
 }
 l1Action?.addEventListener('click',()=>{
+ updateLife1Nearby();
  if(!l1Near)return;
  if(l1Near.classList.contains('energy'))collectLife1Energy(l1Near);
  else if(l1Near.id==='repairTerminal'&&life1Stage===1){$('repairPanel').hidden=false;$('repairPanel').scrollIntoView({behavior:'smooth',block:'center'});}
@@ -323,6 +337,7 @@ document.querySelectorAll('.repair-cells button').forEach(btn=>btn.onclick=()=>{
   repairInput=[];repairCells=0;$('repairFill').style.width='0%';$('repairHint').textContent='Wrong circuit. Power trace reset — read it again.';tg?.HapticFeedback?.notificationOccurred?.('error');return;
  }
  repairInput.push(n);repairCells=repairInput.length;$('repairFill').style.width=(repairCells/4*100)+'%';tg?.HapticFeedback?.impactOccurred('medium');
+ $('repairSequence').textContent=repairInput.map(v=>['A','B','C'][v]).concat(Array(4-repairInput.length).fill('·')).join(' ');
  if(repairCells===4){life1Stage=2;$('repairCount').textContent='1/1';$('qRepair').className='done';$('qAntenna').className='active';$('repairPanel').hidden=true;$('antennaHotspot').disabled=false;$('missionStatus').textContent='Terminal online. Reach COMMS and calibrate the antenna 📡';updateLife1Nearby();}
 });
 $('antennaHotspot').onclick=()=>{if(life1Stage!==2||!canReachLife1($('antennaHotspot')))return;$('antennaPanel').hidden=false;$('antennaPanel').scrollIntoView({behavior:'smooth',block:'center'});};
@@ -491,10 +506,10 @@ function completeMate(btn){
 }
 function resetNav2(){
  cancelAnimationFrame(nav2Timer);nav2X=7;nav2Y=70;nav2Gate=0;nav2Control=0;
- const ship=$('navShip2'),gates=[...document.querySelectorAll('#navField2 .gate')];gates.forEach(g=>g.classList.remove('cleared'));
+ const ship=$('navShip2'),gates=[...document.querySelectorAll('#navField2 .gate')];gates.forEach((g,i)=>{g.classList.remove('cleared');g.classList.toggle('next-gate',i===0);});
  ship.style.left=nav2X+'%';ship.style.top=nav2Y+'%';ship.style.setProperty('--bank','0deg');
  $('navHint2').textContent='Gates cleared: 0 / 3 • Use ▲ / ▼';
- let last=performance.now();
+ let last=performance.now(),lastHint='';
  const frame=now=>{
   nav2Timer=null;const dt=Math.min(.04,Math.max(0,(now-last)/1000));last=now;
   if($('navigatorTask').hidden||!$('mission2').classList.contains('active'))return;
@@ -502,9 +517,12 @@ function resetNav2(){
    nav2X+=8*dt;nav2Y=Math.max(8,Math.min(84,nav2Y+nav2Control*(1.7/.09)*dt));
    ship.style.left=nav2X+'%';ship.style.top=nav2Y+'%';ship.style.setProperty('--bank',(nav2Control*8)+'deg');
    if(nav2Gate<3){const s=ship.getBoundingClientRect(),g=gates[nav2Gate].getBoundingClientRect(),sx=(s.left+s.right)/2,sy=(s.top+s.bottom)/2;
-    if(sx>=g.left-10&&sx<=g.right+10&&sy>=g.top-18&&sy<=g.bottom+18){gates[nav2Gate].classList.add('cleared');window.MKTYExperience?.signal('gate',gates[nav2Gate]);nav2Gate++;$('navHint2').textContent='Gates cleared: '+nav2Gate+' / 3';tg?.HapticFeedback?.impactOccurred?.('light');}
+    const hint=sy<g.top-18?'HOLD ▼ TO DESCEND':sy>g.bottom+18?'HOLD ▲ TO CLIMB':'ON COURSE • HOLD ALTITUDE';
+    if(hint!==lastHint){lastHint=hint;$('navHint2').textContent=hint;$('navHint2').dataset.aligned=String(hint.startsWith('ON COURSE'));}
+    if(sx>=g.left-10&&sx<=g.right+10&&sy>=g.top-18&&sy<=g.bottom+18){gates[nav2Gate].classList.add('cleared');gates[nav2Gate].classList.remove('next-gate');window.MKTYExperience?.signal('gate',gates[nav2Gate]);nav2Gate++;gates[nav2Gate]?.classList.add('next-gate');$('navHint2').textContent='Gates cleared: '+nav2Gate+' / 3';lastHint='';tg?.HapticFeedback?.impactOccurred?.('light');}
+    else if(sx>g.right+10){nav2Control=0;ship.style.setProperty('--bank','0deg');$('crewStatus').textContent='Gate missed. Review the flight and try again.';window.MKTYExperience?.flightFailed(2,{gate:nav2Gate+1,cleared:nav2Gate},resetNav2);return;}
    }
-   if(nav2X>94){if(nav2Gate===3)completeMate(activeMate);else{$('crewStatus').textContent='Navigator missed a gate. Flight corridor reset.';nav2RetryTimer=missionTimeout(2,()=>{if(activeMate?.dataset.mate==='Navigator'&&!$('navigatorTask').hidden)resetNav2();},700);}return;}
+   if(nav2X>94){if(nav2Gate===3)completeMate(activeMate);else{nav2Control=0;ship.style.setProperty('--bank','0deg');$('crewStatus').textContent='Gate missed. Review the flight and try again.';window.MKTYExperience?.flightFailed(2,{gate:nav2Gate+1,cleared:nav2Gate},resetNav2);}return;}
   }
   nav2Timer=requestAnimationFrame(frame);
  };nav2Timer=requestAnimationFrame(frame);
@@ -637,6 +655,7 @@ function updateMix3(){
  $('mixO2Val').textContent=a;$('mixFuelVal').textContent=b;$('mixCoolVal').textContent=d;$('mixTotal3').textContent=total;
  const limits=[[25,35],[40,50],[20,35]],values=[a,b,d];
  document.querySelectorAll('.fuel-matrix3 label').forEach((label,i)=>{label.style.setProperty('--mix-level',values[i]+'%');label.classList.toggle('stable',values[i]>=limits[i][0]&&values[i]<=limits[i][1]);});
+ document.querySelectorAll('.fuel-matrix3 label').forEach((label,i)=>{const advice=label.querySelector('.mix-advice3');if(advice){const message=values[i]<limits[i][0]?'↑ INCREASE':values[i]>limits[i][1]?'↓ REDUCE':'✓ IN RANGE';if(advice.dataset.state!==message){advice.textContent=message;advice.dataset.state=message;}}});
  const stable=total===100&&a>=25&&a<=35&&b>=40&&b<=50&&d>=20&&d<=35;$('lockMix3').disabled=!stable;$('mixStability3').textContent=stable?'STABLE':'ADJUST';$('mixTotal3').parentElement.classList.toggle('stable',stable);
  $('mixHint3').textContent=stable?'Fuel matrix stable. Ready to lock.':total===100?'Total stable. Adjust the three stability indicators.':total>100?'Overpressure — reduce mixture.':'Insufficient load — increase mixture.';
 }
@@ -672,31 +691,42 @@ function unlockLife4(){
 $('continueLife4Btn').onclick=(ev)=>{ev?.preventDefault?.();if(!unlockLife4())return;startLife4();};
 if($('life4Card'))$('life4Card').onclick=()=>$('continueLife4Btn').click();
 let alt4=2400,vel4=28,fuel4=100,drift4=0,driftVel4=0,descentTimer=null,burnHeld4=false,downHeld4=false,leftHeld4=false,rightHeld4=false,descentActive4=false;
+const descentWorld4=$('lander').parentElement;
+let descentBounds4={height:1,width:1,shipWidth:96,shipHeight:64},descentAdvice4='';
+function measureDescent4(){if(!descentWorld4.clientWidth)return;descentBounds4={height:descentWorld4.clientHeight,width:descentWorld4.clientWidth,shipWidth:$('lander').offsetWidth,shipHeight:$('lander').offsetHeight};}
+new ResizeObserver(measureDescent4).observe(descentWorld4);
 function renderDescent(readouts=true){
  if(readouts){
  $('altitude').textContent=Math.max(0,Math.round(alt4));$('velocity').textContent=vel4.toFixed(1);$('fuel').textContent=Math.max(0,Math.round(fuel4));$('driftRead4').textContent=(drift4>0?'+':'')+Math.round(drift4);
  }
- const world=$('lander').parentElement, ship=$('lander');
- const startY=12, endY=Math.max(startY,world.clientHeight-ship.offsetHeight-34);
+ const ship=$('lander');
+ const startY=12, endY=Math.max(startY,descentBounds4.height-descentBounds4.shipHeight-34);
  const landY=startY+(1-Math.max(0,Math.min(2400,alt4))/2400)*(endY-startY);
- ship.style.transform='translateX(calc(-50% + '+drift4+'px))';ship.style.top=landY+'px';ship.style.setProperty('--drift4',drift4+'px');
+ ship.style.transform='translateX(calc(-50% + '+drift4+'px)) rotate('+Math.max(-8,Math.min(8,driftVel4*5))+'deg)';ship.style.top=landY+'px';ship.style.setProperty('--drift4',drift4+'px');
  if(readouts){
  $('safeVel4').classList.toggle('safe',vel4<=14);$('safeDrift4').classList.toggle('safe',Math.abs(drift4)<=42);document.querySelector('.landing-zone')?.classList.toggle('safe-zone',vel4<=14&&Math.abs(drift4)<=42);
  $('thrustRead4').textContent=$('thrustDial').value+'%';
  const flight=alt4>700?'approach':alt4>180?'braking':'final';
  if($('mission4').dataset.flight!==flight){$('mission4').dataset.flight=flight;if($('landingPhase4'))$('landingPhase4').textContent=alt4>700?'APPROACH':alt4>180?'BRAKING ZONE':'FINAL APPROACH';}
  if($('landingVector4'))$('landingVector4').style.setProperty('--vector',Math.max(-42,Math.min(42,drift4))+'%');
+ if(descentActive4){
+  const deceleration=1.8+Number($('thrustDial').value)*.092;
+  const brakeDistance=Math.max(0,(vel4*vel4-196)*2.5/(2*deceleration))+Math.max(65,vel4*2);
+  const advice=fuel4<=0?'FUEL EMPTY • NO THRUST':Math.abs(drift4)>42?(drift4>0?'STEER ◀ TO THE LANDING PAD':'STEER ▶ TO THE LANDING PAD'):vel4>14&&alt4<brakeDistance?'BRAKE NOW • HOLD ▲':vel4<0?'RISING • RELEASE ▲':alt4<180?'FINAL APPROACH • KEEP SPEED ≤ 14':'DESCENDING • SAVE FUEL FOR BRAKING';
+  if(advice!==descentAdvice4){descentAdvice4=advice;$('descentStatus').textContent=advice;}
+  $('mission4').dataset.brake=String(vel4>14&&alt4<brakeDistance&&fuel4>0);
+ }
  }
 }
 function startLife4(){playLifeCinematic(4,openMission4);}
 function finishDescent4(success){
  descentActive4=false;cancelAnimationFrame(descentTimer);descentTimer=null;burnHeld4=downHeld4=leftHeld4=rightHeld4=false;$('lander').classList.remove('thrusting');
  if(success){awardLifePoints(4,1000);$('descentStatus').textContent='Touchdown confirmed ✓';$('life4Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');}
- else{localStorage.removeItem('mkty_campaign_checkpoint_4');$('lander').classList.add('crashed');$('descentStatus').textContent='HARD LANDING — velocity or drift outside safe limits. Retrying…';tg?.HapticFeedback?.notificationOccurred?.('error');laterInMission(4,openMission4,1600);}
+ else{localStorage.removeItem('mkty_campaign_checkpoint_4');$('lander').classList.add('crashed');$('descentStatus').textContent='Landing aborted. Review the flight and try again.';tg?.HapticFeedback?.notificationOccurred?.('error');window.MKTYExperience?.flightFailed(4,{velocity:vel4,drift:drift4,fuel:fuel4},openMission4);}
 }
 function openMission4(){
  clearMissionDelays(4);
- alt4=2400;vel4=18;fuel4=100;drift4=0;driftVel4=(Math.random()-.5)*.35;descentActive4=true;$('life4Complete').hidden=true;$('lander').classList.remove('crashed','thrusting');$('descentStatus').textContent='Manual descent active. Control velocity, drift and fuel.';show('mission4');renderDescent();cancelAnimationFrame(descentTimer);
+ alt4=2400;vel4=18;fuel4=100;drift4=0;driftVel4=(Math.random()-.5)*.35;descentActive4=true;descentAdvice4='';$('life4Complete').hidden=true;$('lander').classList.remove('crashed','thrusting');$('descentStatus').textContent='Manual descent active. Control velocity, drift and fuel.';show('mission4');measureDescent4();renderDescent();cancelAnimationFrame(descentTimer);
  let last=performance.now(),hud=0;
  const frame=now=>{
   descentTimer=null;const dt=Math.min(.04,Math.max(0,(now-last)/1000));last=now;
@@ -708,9 +738,8 @@ function openMission4(){
    if(downHeld4)vel4=Math.min(45,vel4+.22*step);
    if(leftHeld4&&fuel4>0){driftVel4-=.11*step;fuel4=Math.max(0,fuel4-.07*step);}if(rightHeld4&&fuel4>0){driftVel4+=.11*step;fuel4=Math.max(0,fuel4-.07*step);}
    driftVel4*=Math.pow(.94,step);drift4+=driftVel4*step;
-   const driftLimit=Math.max(0,Math.min(105,($('lander').parentElement.clientWidth-$('lander').offsetWidth)/2-8));
+   const driftLimit=Math.max(0,Math.min(105,(descentBounds4.width-descentBounds4.shipWidth)/2-8));
    drift4=Math.max(-driftLimit,Math.min(driftLimit,drift4));alt4=Math.min(2400,alt4-vel4*.25*step);
-   if(fuel4<=0)$('descentStatus').textContent='FUEL DEPLETED — ballistic descent!';
    hud+=dt;if(alt4<=0){alt4=0;renderDescent();finishDescent4(vel4<=14&&Math.abs(drift4)<=42);return;}renderDescent(hud>=.1);if(hud>=.1)hud=0;
   }
   descentTimer=requestAnimationFrame(frame);

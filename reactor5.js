@@ -144,7 +144,7 @@ const Reactor5 = (() => {
 
   $('reactorTempDial5').classList.toggle('safe',state.temp>=45&&state.temp<=68);$('reactorFieldDial5').classList.toggle('safe',state.field>=45&&state.field<=55);
   text('reactorHoldRead5',state.hold.toFixed(1)+' / 3.0 s');$('stabilizeBtn').disabled=!ready||state.paused;
-  if(state.phase==='balance')text('ignitionStatus',ready?'Stable window confirmed. Lock the core.':inWindow()?'Both readings are green. Hold steady.':state.status);
+  if(state.phase==='balance')text('ignitionStatus',ready?'Stable window confirmed. Lock the core.':inWindow()?'Both readings are green. Hold steady.':state.temp>68?'Too hot. Increase coolant flow and let the temperature settle.':state.temp<45?'Too cold. Reduce coolant flow and let the core warm up.':state.field<45?'Temperature is safe. Increase magnetic field trim.':'Temperature is safe. Reduce magnetic field trim.');
   else if(state.phase==='charge'&&warning)text('ignitionStatus','Temperature rising. Release CHARGE and hold COOL.');
   else text('ignitionStatus',state.status);
   const center=pulseCenters[Math.min(state.pulses,2)];$('reactorPulseWindow5').style.left=(center-10)+'%';$('reactorPulseWindow5').style.width='20%';
@@ -159,7 +159,7 @@ const Reactor5 = (() => {
   if(!state||state.paused||state.phase!=='ignite')return;
   if(state.pulseState==='ready'||state.pulseState==='miss'){startPulse();render();return;}
   if(state.pulseState!=='running')return;
-  if(Math.abs(state.pulsePosition-pulseCenters[state.pulses])>10){state.pulseState='miss';root.dataset.pulseResult='miss';effects.signal('miss');setStatus('Pulse missed. Previous pulses are saved. Retry this pulse.');tg?.HapticFeedback?.notificationOccurred?.('error');}
+  if(Math.abs(state.pulsePosition-pulseCenters[state.pulses])>10){const forward=(state.pulseTime*42)%200<=100,early=forward?state.pulsePosition<pulseCenters[state.pulses]:state.pulsePosition>pulseCenters[state.pulses];state.pulseState='miss';root.dataset.pulseResult='miss';effects.signal('miss');setStatus(early?'Too early. Fire when the marker enters green. Previous pulses are saved.':'Too late. Fire before the marker leaves green. Previous pulses are saved.');tg?.HapticFeedback?.notificationOccurred?.('error');}
   else{state.pulses++;root.dataset.pulseResult='hit';effects.signal('pulse');saveCheckpoint();tg?.HapticFeedback?.impactOccurred?.('medium');if(state.pulses===3){state.startup=0;enter('startup','Three pulses accepted. Reactor coming online…');}else{state.pulseState='settle';state.pulseDelay=.65;setStatus('Pulse accepted. Prepare for the next green window.');}}
   render();
  }
@@ -172,7 +172,7 @@ const Reactor5 = (() => {
  function pause(title='REACTOR PAUSED'){
   if(!state||!active()||state.paused)return;
   release();cancelAnimationFrame(frameId);frameId=null;state.paused=true;saveCheckpoint();panelAnimation?.pause();root.dataset.paused='true';returnFocus=document.activeElement;
-  text('reactorOverlayTitle5',title);$('reactorOverlay5').hidden=false;$('reactorWorkspace5').inert=true;$('reactorHelp5').disabled=true;render();$('reactorResume5').focus({preventScroll:true});
+  text('reactorOverlayTitle5',title);$('reactorOverlay5').hidden=false;$('reactorOverlay5').querySelector('.reactor-guide-copy5')?.scrollTo(0,0);$('reactorWorkspace5').inert=true;$('reactorHelp5').disabled=true;render();$('reactorResume5').focus({preventScroll:true});
  }
  function resume(){
   if(!state||!active())return;

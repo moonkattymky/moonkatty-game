@@ -500,6 +500,51 @@ APPROACH|СБЛИЖЕНИЕ
 BRAKING ZONE|ЗОНА ТОРМОЖЕНИЯ
 FINAL APPROACH|ФИНАЛЬНЫЙ ЗАХОД
 Horizontal alignment|Горизонтальное выравнивание
+FLIGHT REVIEW|РАЗБОР ПОЛЁТА
+CORRIDOR MISSED|ВОРОТА ПРОПУЩЕНЫ
+LANDING ABORTED|ПОСАДКА НЕ УДАЛАСЬ
+TRY AGAIN|ПОВТОРИТЬ ПОПЫТКУ
+Pass through each highlighted gate in order.|Пройдите через каждые подсвеченные ворота по порядку.
+Speed and alignment were outside the safe limits.|Скорость и смещение вышли за допустимые пределы.
+Touchdown speed was too high.|Скорость в момент посадки была слишком высокой.
+The ship landed outside the safe zone.|Корабль сел за пределами безопасной зоны.
+Hold ▲ or ▼ to align with the next gate. Release when the course indicator turns green.|Удерживайте ▲ или ▼, чтобы выйти на следующие ворота. Отпустите кнопку, когда индикатор курса станет зелёным.
+Begin braking when BRAKE NOW appears. Hold ▲; use the power slider to adjust thrust.|Начните торможение при подсказке «ТОРМОЗИТЕ». Удерживайте ▲ и регулируйте тягу ползунком.
+Use ◀ or ▶ to centre the ship. Keep the marker inside the green alignment zone.|Кнопками ◀ и ▶ выровняйте корабль. Удерживайте маркер в зелёной зоне индикатора.
+GATES PASSED|ПРОЙДЕНО ВОРОТ
+MISSED GATE|ПРОПУЩЕНЫ ВОРОТА
+TOUCHDOWN SPEED|СКОРОСТЬ ПОСАДКИ
+HORIZONTAL DRIFT|СМЕЩЕНИЕ
+HOLD ▼ TO DESCEND|УДЕРЖИВАЙТЕ ▼ ДЛЯ СНИЖЕНИЯ
+HOLD ▲ TO CLIMB|УДЕРЖИВАЙТЕ ▲ ДЛЯ ПОДЪЁМА
+ON COURSE • HOLD ALTITUDE|НА КУРСЕ • СОХРАНЯЙТЕ ВЫСОТУ
+Gate missed. Review the flight and try again.|Ворота пропущены. Посмотрите разбор и повторите попытку.
+Landing aborted. Review the flight and try again.|Посадка не удалась. Посмотрите разбор и повторите попытку.
+Pass through the three highlighted gates in order. Hold the arrows to change altitude.|Пройдите три подсвеченных ворот по порядку. Удерживайте стрелки для изменения высоты.
+↑ INCREASE|↑ УВЕЛИЧИТЬ
+↓ REDUCE|↓ УМЕНЬШИТЬ
+✓ IN RANGE|✓ В НОРМЕ
+FUEL EMPTY • NO THRUST|ТОПЛИВО ИСЧЕРПАНО • ТЯГИ НЕТ
+STEER ◀ TO THE LANDING PAD|НАЖМИТЕ ◀ ДЛЯ ВЫРАВНИВАНИЯ
+STEER ▶ TO THE LANDING PAD|НАЖМИТЕ ▶ ДЛЯ ВЫРАВНИВАНИЯ
+BRAKE NOW • HOLD ▲|ТОРМОЗИТЕ • УДЕРЖИВАЙТЕ ▲
+RISING • RELEASE ▲|КОРАБЛЬ ПОДНИМАЕТСЯ • ОТПУСТИТЕ ▲
+FINAL APPROACH • KEEP SPEED ≤ 14|ПОСАДКА • СКОРОСТЬ НЕ ВЫШЕ 14
+DESCENDING • SAVE FUEL FOR BRAKING|СНИЖЕНИЕ • БЕРЕГИТЕ ТОПЛИВО ДЛЯ ТОРМОЖЕНИЯ
+Too hot. Increase coolant flow and let the temperature settle.|Перегрев. Увеличьте охлаждение и дождитесь снижения температуры.
+Too cold. Reduce coolant flow and let the core warm up.|Слишком холодно. Уменьшите охлаждение и дайте ядру прогреться.
+Temperature is safe. Increase magnetic field trim.|Температура в норме. Увеличьте магнитное поле.
+Temperature is safe. Reduce magnetic field trim.|Температура в норме. Уменьшите магнитное поле.
+Too early. Fire when the marker enters green. Previous pulses are saved.|Слишком рано. Подайте импульс, когда маркер войдёт в зелёную зону. Успешные импульсы сохранены.
+Too late. Fire before the marker leaves green. Previous pulses are saved.|Слишком поздно. Подайте импульс до выхода маркера из зелёной зоны. Успешные импульсы сохранены.
+Thrust power|Мощность тяги
+Antenna frequency|Частота антенны
+Decrease Oxygen level|Уменьшить кислород на 1
+Increase Oxygen level|Увеличить кислород на 1
+Decrease Fuel level|Уменьшить топливо на 1
+Increase Fuel level|Увеличить топливо на 1
+Decrease Coolant level|Уменьшить охладитель на 1
+Increase Coolant level|Увеличить охладитель на 1
 `;
  const ru = Object.fromEntries(pairs.trim().split('\n').map(line => { const i=line.indexOf('|'); return [line.slice(0,i),line.slice(i+1)]; }));
  const sources=new WeakMap(), rendered=new WeakMap(), attrs=new WeakMap();
