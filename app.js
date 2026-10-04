@@ -81,9 +81,19 @@ langs.forEach(([code,flag,name])=>{
 $('settingsBtn').onclick=()=>{$('home').classList.remove('active');$('language').classList.add('active')};
 // Delayed callbacks belong to the mission that created them.
 const missionDelays=new Map();
+let missionClockResumedAt=0;
+document.addEventListener('visibilitychange',()=>{missionClockResumedAt=performance.now();});
+function missionTimeout(n,callback,delay){
+ let remaining=delay,last=performance.now();
+ const handle=setInterval(()=>{const now=performance.now(),dt=Math.min(100,now-Math.max(last,missionClockResumedAt));last=now;
+  if(!$('mission'+n)?.classList.contains('active')){clearInterval(handle);return;}
+  if(document.hidden||window.MKTYExperience?.paused)return;
+  remaining-=dt;if(remaining<=0){clearInterval(handle);callback();}
+ },50);return handle;
+}
 function laterInMission(n,callback,delay){
  const handles=missionDelays.get(n)||new Set();missionDelays.set(n,handles);
- const handle=setTimeout(()=>{handles.delete(handle);if($('mission'+n)?.classList.contains('active'))callback();},delay);handles.add(handle);return handle;
+ const handle=missionTimeout(n,()=>{handles.delete(handle);if($('mission'+n)?.classList.contains('active'))callback();},delay);handles.add(handle);return handle;
 }
 function clearMissionDelays(n){missionDelays.get(n)?.forEach(clearTimeout);missionDelays.delete(n);}
 function leaveMission(id){
@@ -91,7 +101,7 @@ function leaveMission(id){
  if(n===1){stopLife1Stick(null);clearInterval(signalHoldTimer);signalHoldTimer=null;clearInterval(memoryCodeTimer);memoryCodeTimer=null;repairShowing=false;}
  if(n===2){stopCrewTask2();crewSyncReady2=false;$('showCrewSync2').disabled=false;}
  if(n===3)clearLaunchPlayback3();
- if(n===4){descentActive4=false;clearInterval(descentTimer);descentTimer=null;releaseDescentControls();}
+ if(n===4){descentActive4=false;cancelAnimationFrame(descentTimer);descentTimer=null;releaseDescentControls();}
  if(n===5)stopReactor5();
  if(n===6){launchActive6=false;clearInterval(launchTimer);launchTimer=null;}
  if(n===7){stopVoid7();$('asteroidField').replaceChildren();asteroids7=[];}
@@ -102,7 +112,7 @@ function show(id){
  window.MKTYCampaign?.save();
  document.querySelectorAll('.mission-screen.active').forEach(s=>{if(s.id!==id)leaveMission(s.id);});
  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
- $(id).classList.add('active');window.scrollTo(0,0);window.MKTYCampaign?.onScreen(id);
+ $(id).classList.add('active');window.scrollTo(0,0);window.MKTYCampaign?.onScreen(id);window.MKTYExperience?.onScreen(id);
 }
 let cinematicTimer;
 function openMission(){
@@ -166,7 +176,8 @@ function life1Blocked(px,py){
 function life1MoveLoop(now){
  const dt=l1LastFrame?Math.min((now-l1LastFrame)/1000,.04):0;
  l1LastFrame=now;
- const active=$('mission1').classList.contains('active')&&!document.hidden;
+ const active=$('mission1').classList.contains('active')&&!document.hidden&&!window.MKTYExperience?.paused;
+ if(!active){l1MoveFrame=requestAnimationFrame(life1MoveLoop);return;}
  const magnitude=Math.hypot(l1MoveX,l1MoveY);
  l1Walking=false;
  if(active&&magnitude>.08){
@@ -252,10 +263,14 @@ function resetLife1Mission(){
  $('missionStatus').textContent='Explore Moon Base Alpha. Use SCAN to reveal nearby energy signatures.';
  const bank=getLifeBank?.()??9;$('life1Lives').textContent=bank+'/9 ❤️';$('l1Points').textContent=(Number(localStorage.getItem('mkty_points')||0))+' ⭐';
 }
+function canReachLife1(el){
+ if(l1DistanceTo(el)<.24)return true;
+ $('missionStatus').textContent='Move closer to interact with this station.';return false;
+}
 function collectLife1Energy(btn){
  if(!btn||btn.disabled||btn.classList.contains('collected')||life1Stage!==0)return;
  if(l1DistanceTo(btn)>=.24){$('missionStatus').textContent='Move closer to collect this energy.';return;}
- btn.disabled=true; btn.classList.add('collected'); energyCollected++;
+ window.MKTYExperience?.signal('collect',btn);btn.disabled=true; btn.classList.add('collected'); energyCollected++;
  $('energyCount').textContent=energyCollected+'/3';
  tg?.HapticFeedback?.impactOccurred('light');
  $('missionStatus').textContent='Energy collected • '+energyCollected+'/3';
@@ -276,12 +291,12 @@ $('life1World')?.addEventListener('pointerup',(ev)=>{
  ev.preventDefault(); ev.stopPropagation();
  collectLife1Energy(btn);
 });
-$('repairTerminal').onclick=()=>{if(life1Stage!==1)return;$('repairPanel').hidden=false;$('repairPanel').scrollIntoView({behavior:'smooth',block:'center'});};
+$('repairTerminal').onclick=()=>{if(life1Stage!==1||!canReachLife1($('repairTerminal')))return;$('repairPanel').hidden=false;$('repairPanel').scrollIntoView({behavior:'smooth',block:'center'});};
 $('life1World')?.addEventListener('pointerup',(ev)=>{
  const terminal=ev.target.closest?.('#repairTerminal');
- if(terminal && life1Stage===1){ev.preventDefault();$('repairPanel').hidden=false;$('repairPanel').scrollIntoView({behavior:'smooth',block:'center'});}
+ if(terminal && life1Stage===1&&canReachLife1(terminal)){ev.preventDefault();$('repairPanel').hidden=false;$('repairPanel').scrollIntoView({behavior:'smooth',block:'center'});}
  const antenna=ev.target.closest?.('#antennaHotspot');
- if(antenna && life1Stage===2){ev.preventDefault();$('antennaPanel').hidden=false;$('antennaPanel').scrollIntoView({behavior:'smooth',block:'center'});}
+ if(antenna && life1Stage===2&&canReachLife1(antenna)){ev.preventDefault();$('antennaPanel').hidden=false;$('antennaPanel').scrollIntoView({behavior:'smooth',block:'center'});}
 });
 let repairSequence=[],repairInput=[],repairShowing=false,signalHoldTimer=null,signalHoldProgress=0;
 function newRepairSequence(){
@@ -310,7 +325,7 @@ document.querySelectorAll('.repair-cells button').forEach(btn=>btn.onclick=()=>{
  repairInput.push(n);repairCells=repairInput.length;$('repairFill').style.width=(repairCells/4*100)+'%';tg?.HapticFeedback?.impactOccurred('medium');
  if(repairCells===4){life1Stage=2;$('repairCount').textContent='1/1';$('qRepair').className='done';$('qAntenna').className='active';$('repairPanel').hidden=true;$('antennaHotspot').disabled=false;$('missionStatus').textContent='Terminal online. Reach COMMS and calibrate the antenna 📡';updateLife1Nearby();}
 });
-$('antennaHotspot').onclick=()=>{if(life1Stage!==2)return;$('antennaPanel').hidden=false;$('antennaPanel').scrollIntoView({behavior:'smooth',block:'center'});};
+$('antennaHotspot').onclick=()=>{if(life1Stage!==2||!canReachLife1($('antennaHotspot')))return;$('antennaPanel').hidden=false;$('antennaPanel').scrollIntoView({behavior:'smooth',block:'center'});};
 function updateSignalStrength(){
  const v=Number($('frequencyDial').value),d=Math.abs(v-targetFrequency),strength=Math.max(0,100-d*4);
  $('frequencyValue').textContent=(136+v/10).toFixed(1);if($('signalMeterFill'))$('signalMeterFill').style.width=strength+'%';
@@ -326,7 +341,7 @@ $('tuneBtn').onclick=()=>{
  if(life1Stage!==2||signalHoldTimer)return;const v=Number($('frequencyDial').value),d=Math.abs(v-targetFrequency);
  if(d>3){$('signalHint').textContent=v<targetFrequency?'Carrier is higher — tune right.':'Carrier is lower — tune left.';tg?.HapticFeedback?.impactOccurred('light');return;}
  signalHoldProgress=0;$('signalHold').hidden=false;$('signalHint').textContent='Carrier acquired. Hold frequency steady for synchronization.';
- signalHoldTimer=setInterval(()=>{if(document.hidden)return;const now=Number($('frequencyDial').value);if(Math.abs(now-targetFrequency)>3){updateSignalStrength();return;}signalHoldProgress+=4;$('signalHoldFill').style.width=signalHoldProgress+'%';$('signalHoldText').textContent=signalHoldProgress+'%';if(signalHoldProgress>=100)finishLife1Signal();},120);
+ signalHoldTimer=setInterval(()=>{if(document.hidden||window.MKTYExperience?.paused)return;const now=Number($('frequencyDial').value);if(Math.abs(now-targetFrequency)>3){updateSignalStrength();return;}signalHoldProgress+=4;$('signalHoldFill').style.width=signalHoldProgress+'%';$('signalHoldText').textContent=signalHoldProgress+'%';if(signalHoldProgress>=100)finishLife1Signal();},120);
 };
 $('returnBtn').onclick=()=>show('home');
 
@@ -398,7 +413,7 @@ function awardLifePoints(n,amount){
  const key='mkty_life'+n,awardKey=key+'_awarded';
  let pts=Number(localStorage.getItem('mkty_points')||0);
  if(localStorage.getItem(awardKey)!=='yes'){pts+=amount;localStorage.setItem('mkty_points',String(pts));localStorage.setItem(awardKey,'yes');}
- localStorage.setItem(key,'complete');if($('points'))$('points').textContent=pts+' ⭐';if($('livesProgress')){const done=[1,2,3,4,5,6,7,8,9].filter(x=>localStorage.getItem('mkty_life'+x)==='complete').length;$('livesProgress').textContent=done+' / 9 🌙';}return pts;
+ localStorage.setItem(key,'complete');window.MKTYExperience?.signal('complete');if($('points'))$('points').textContent=pts+' ⭐';if($('livesProgress')){const done=[1,2,3,4,5,6,7,8,9].filter(x=>localStorage.getItem('mkty_life'+x)==='complete').length;$('livesProgress').textContent=done+' / 9 🌙';}return pts;
 }
 
 function unlockLife2(){
@@ -463,40 +478,85 @@ function updateCrewScene2(){
  $('crewCount2').textContent=crewCount+' / 3';
  document.querySelectorAll('.mate').forEach(btn=>{btn.classList.toggle('selected',btn===activeMate);btn.setAttribute('aria-disabled',String(btn.classList.contains('joined')));});
 }
-function stopCrewTask2(){clearInterval(nav2Timer);clearTimeout(nav2RetryTimer);nav2Timer=null;nav2RetryTimer=null;nav2Control=0;stopScout2();}
+function stopCrewTask2(){cancelAnimationFrame(nav2Timer);clearTimeout(nav2RetryTimer);nav2Timer=null;nav2RetryTimer=null;nav2Control=0;stopScout2();}
 $('crewBack2').onclick=()=>{
  stopCrewTask2();activeMate=null;document.querySelectorAll('.crew-task').forEach(task=>task.hidden=true);
  $('crewChallengeTitle').textContent='SELECT A CREW MEMBER TO BEGIN';updateCrewScene2();
 };
 function completeMate(btn){
  if(!btn||btn.classList.contains('joined'))return;
- stopCrewTask2();btn.classList.add('joined');crewCount++;activeMate=null;document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);updateCrewScene2();
+ window.MKTYExperience?.signal('success',btn);stopCrewTask2();btn.classList.add('joined');crewCount++;activeMate=null;document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);updateCrewScene2();
  $('crewChallengeTitle').textContent='SPECIALIST RECRUITED ✓';$('crewStatus').textContent='Crew assembled: '+crewCount+' / 3'+(crewCount===3?' • Final sync ready':' • Final sync locked');tg?.HapticFeedback?.notificationOccurred?.('success');
  if(crewCount===3){$('crewFinal2').hidden=false;$('crewChallengeTitle').textContent='FINAL CREW PROTOCOL';}
 }
 function resetNav2(){
- clearInterval(nav2Timer);nav2X=7;nav2Y=70;nav2Gate=0;document.querySelectorAll('#navField2 .gate').forEach(g=>g.classList.remove('cleared'));$('navShip2').style.left=nav2X+'%';$('navShip2').style.top=nav2Y+'%';$('navHint2').textContent='Gates cleared: 0 / 3 • Use ▲ / ▼';
- nav2Control=0;nav2Timer=setInterval(()=>{if($('navigatorTask').hidden){clearInterval(nav2Timer);return;}if(document.hidden||!$('mission2').classList.contains('active'))return;nav2X+=.72;nav2Y=Math.max(8,Math.min(84,nav2Y+nav2Control*1.7));$('navShip2').style.left=nav2X+'%';$('navShip2').style.top=nav2Y+'%';
- if(nav2Gate<3){const ship=$('navShip2').getBoundingClientRect(),gate=document.querySelectorAll('#navField2 .gate')[nav2Gate]?.getBoundingClientRect();if(gate){const sx=(ship.left+ship.right)/2,sy=(ship.top+ship.bottom)/2;const horizontal=sx>=gate.left-10&&sx<=gate.right+10,vertical=sy>=gate.top-18&&sy<=gate.bottom+18;if(horizontal&&vertical){document.querySelectorAll('#navField2 .gate')[nav2Gate]?.classList.add('cleared');nav2Gate++;$('navHint2').textContent='Gates cleared: '+nav2Gate+' / 3'+(nav2Gate<3?' • Next gate ahead':' ✓');tg?.HapticFeedback?.notificationOccurred?.('success');}}}
- if(nav2X>94){clearInterval(nav2Timer);if(nav2Gate===3)completeMate(activeMate);else{$('crewStatus').textContent='Navigator missed a gate. Flight corridor reset.';nav2RetryTimer=setTimeout(()=>{if(activeMate?.dataset.mate==='Navigator'&&!$('navigatorTask').hidden)resetNav2();},700);}}},90);
+ cancelAnimationFrame(nav2Timer);nav2X=7;nav2Y=70;nav2Gate=0;nav2Control=0;
+ const ship=$('navShip2'),gates=[...document.querySelectorAll('#navField2 .gate')];gates.forEach(g=>g.classList.remove('cleared'));
+ ship.style.left=nav2X+'%';ship.style.top=nav2Y+'%';ship.style.setProperty('--bank','0deg');
+ $('navHint2').textContent='Gates cleared: 0 / 3 • Use ▲ / ▼';
+ let last=performance.now();
+ const frame=now=>{
+  nav2Timer=null;const dt=Math.min(.04,Math.max(0,(now-last)/1000));last=now;
+  if($('navigatorTask').hidden||!$('mission2').classList.contains('active'))return;
+  if(!document.hidden&&!window.MKTYExperience?.paused){
+   nav2X+=8*dt;nav2Y=Math.max(8,Math.min(84,nav2Y+nav2Control*(1.7/.09)*dt));
+   ship.style.left=nav2X+'%';ship.style.top=nav2Y+'%';ship.style.setProperty('--bank',(nav2Control*8)+'deg');
+   if(nav2Gate<3){const s=ship.getBoundingClientRect(),g=gates[nav2Gate].getBoundingClientRect(),sx=(s.left+s.right)/2,sy=(s.top+s.bottom)/2;
+    if(sx>=g.left-10&&sx<=g.right+10&&sy>=g.top-18&&sy<=g.bottom+18){gates[nav2Gate].classList.add('cleared');window.MKTYExperience?.signal('gate',gates[nav2Gate]);nav2Gate++;$('navHint2').textContent='Gates cleared: '+nav2Gate+' / 3';tg?.HapticFeedback?.impactOccurred?.('light');}
+   }
+   if(nav2X>94){if(nav2Gate===3)completeMate(activeMate);else{$('crewStatus').textContent='Navigator missed a gate. Flight corridor reset.';nav2RetryTimer=missionTimeout(2,()=>{if(activeMate?.dataset.mate==='Navigator'&&!$('navigatorTask').hidden)resetNav2();},700);}return;}
+  }
+  nav2Timer=requestAnimationFrame(frame);
+ };nav2Timer=requestAnimationFrame(frame);
 }
 document.addEventListener('visibilitychange',()=>{if(document.hidden)nav2Control=0;});
 window.addEventListener('blur',()=>{nav2Control=0;});
-document.querySelectorAll('[data-nav2]').forEach(b=>{const start=ev=>{ev.preventDefault();nav2Control=Number(b.dataset.nav2);b.setPointerCapture?.(ev.pointerId);};const stop=()=>{nav2Control=0;};b.onpointerdown=start;b.onpointerup=stop;b.onpointercancel=stop;b.onpointerleave=stop;b.onlostpointercapture=stop;b.onclick=()=>{nav2Y=Math.max(8,Math.min(84,nav2Y+Number(b.dataset.nav2)*4));};});
-function updateEngineerRoute2(){
- let connected=0;
- document.querySelectorAll('[data-wire2]').forEach((b,i)=>{const horizontal=wire2[i]%2===0;b.textContent=horizontal?'━':'┃';b.style.transform='none';b.classList.toggle('live',horizontal);if(horizontal&&connected===i)connected++;});
- if($('routeProgress2'))$('routeProgress2').style.width=(connected/4*100)+'%';
- $('engineerHint2').textContent=connected===4?'Power route complete — test the circuit.':'Power connected through '+connected+' / 4 junctions.';
+document.querySelectorAll('[data-nav2]').forEach(b=>{const start=ev=>{ev.preventDefault();nav2Control=Number(b.dataset.nav2);b.setPointerCapture?.(ev.pointerId);};const stop=()=>{nav2Control=0;};b.onpointerdown=start;b.onpointerup=stop;b.onpointercancel=stop;b.onpointerleave=stop;b.onlostpointercapture=stop;b.onclick=e=>{if(e.detail===0)nav2Y=Math.max(8,Math.min(84,nav2Y+Number(b.dataset.nav2)*4));};});
+let engineerTiles2=null,engineerSolved2=false;
+const pipeDirections2=[[-1,0],[0,1],[1,0],[0,-1]];
+function pipePorts2(tile){return tile.base.map(p=>(p+tile.rotation)%4);}
+function engineerReach2(){
+ const reached=new Set();if(!engineerTiles2||!pipePorts2(engineerTiles2[3]).includes(3))return reached;
+ const queue=[3];reached.add(3);
+ while(queue.length){const i=queue.shift(),row=Math.floor(i/3),col=i%3;
+  for(const p of pipePorts2(engineerTiles2[i])){const [dr,dc]=pipeDirections2[p],r=row+dr,c=col+dc,j=r*3+c;
+   if(r<0||r>2||c<0||c>2||reached.has(j))continue;
+   if(pipePorts2(engineerTiles2[j]).includes((p+2)%4)){reached.add(j);queue.push(j);}
+  }
+ }return reached;
 }
-function resetEngineer2(){wire2=[1,0,1,1];updateEngineerRoute2();}
-document.querySelectorAll('[data-wire2]').forEach((b,i)=>b.onclick=()=>{wire2[i]=(wire2[i]+1)%2;updateEngineerRoute2();tg?.HapticFeedback?.impactOccurred?.('light');});
-$('testCircuit2').onclick=()=>{const ok=wire2.every(v=>v%2===0);if(ok){document.querySelectorAll('[data-wire2]').forEach(b=>b.classList.add('live'));if($('routeProgress2'))$('routeProgress2').style.width='100%';$('engineerHint2').textContent='CORE → COMMS power route stable ✓';tg?.HapticFeedback?.notificationOccurred?.('success');const mate=activeMate;laterInMission(2,()=>{if(activeMate===mate&&!$('engineerTask').hidden)completeMate(mate);},450);}else{$('engineerHint2').textContent='Open circuit detected. Every junction must show ━.';tg?.HapticFeedback?.notificationOccurred?.('error');}};
+function updateEngineerRoute2(){
+ const reached=engineerReach2();engineerSolved2=reached.has(5)&&pipePorts2(engineerTiles2[5]).includes(1);
+ const grid=$('circuit2');
+ if(grid.children.length!==9){grid.replaceChildren(...Array.from({length:9},(_,i)=>{const b=document.createElement('button');b.type='button';b.dataset.wire2=i;b.onclick=()=>{if(window.MKTYExperience?.paused)return;engineerTiles2[i].rotation=(engineerTiles2[i].rotation+1)%4;updateEngineerRoute2();window.MKTYExperience?.signal('tap',b);};return b;}));}
+ [...grid.children].forEach((b,i)=>{
+  const ports=pipePorts2(engineerTiles2[i]);b.classList.toggle('live',reached.has(i));b.dataset.ports=ports.join(',');b.setAttribute('aria-label','Junction '+(i+1)+' • rotate clockwise');
+  const points=['25 0','50 25','25 50','0 25'];
+  b.innerHTML='<svg viewBox="0 0 50 50" aria-hidden="true"><path class="pipe-bed" d="M'+points[ports[0]]+' L25 25 L'+points[ports[1]]+'"/><path class="pipe-flow" d="M'+points[ports[0]]+' L25 25 L'+points[ports[1]]+'"/><circle cx="25" cy="25" r="4"/></svg><span>'+String(i+1).padStart(2,'0')+'</span>';
+ });
+ $('routeProgress2').style.width=(engineerSolved2?100:reached.size/9*85)+'%';$('circuit2').classList.toggle('connected',engineerSolved2);
+ $('engineerHint2').textContent=engineerSolved2?'Power route complete — test the circuit.':'Rotate the pipes. Connect the left inlet to the right outlet.';
+}
+function resetEngineer2(){
+ if(!engineerTiles2){
+  const paths=[[3,0,1,2,5],[3,6,7,8,5],[3,0,1,4,7,8,5],[3,6,7,4,1,2,5]],path=paths[Math.floor(Math.random()*paths.length)];
+  engineerTiles2=Array.from({length:9},()=>({base:Math.random()<.5?[0,2]:[0,1],rotation:Math.floor(Math.random()*4)}));
+  path.forEach((index,k)=>{const direction=other=>{const diff=other-index;return diff===-3?0:diff===1?1:diff===3?2:3;};engineerTiles2[index]={base:[k===0?3:direction(path[k-1]),k===path.length-1?1:direction(path[k+1])],rotation:Math.floor(Math.random()*4)};});
+  // Guarantee an unsolved entry instead of occasionally generating a free win.
+  while(pipePorts2(engineerTiles2[3]).includes(3))engineerTiles2[3].rotation=(engineerTiles2[3].rotation+1)%4;
+ }
+ updateEngineerRoute2();
+}
+$('testCircuit2').onclick=()=>{
+ if(!engineerTiles2||window.MKTYExperience?.paused)return;
+ if(engineerSolved2){$('engineerHint2').textContent='CORE → COMMS power route stable ✓';window.MKTYExperience?.signal('success',$('circuit2'));const mate=activeMate;laterInMission(2,()=>{if(activeMate===mate&&!$('engineerTask').hidden)completeMate(mate);},450);}
+ else{$('engineerHint2').textContent='Open circuit. Every connected pipe must meet its neighbour.';window.MKTYExperience?.signal('error',$('testCircuit2'));}
+};
 function stopScout2(){clearInterval(scout2Timer);scout2Timer=null;}
 function buildAnomaly(){
  stopScout2();scout2Hits=0;const grid=$('anomalyGrid');grid.innerHTML='';for(let i=0;i<9;i++){const b=document.createElement('button');b.textContent='·';grid.appendChild(b);}
- const relocate=()=>{grid.querySelectorAll('button').forEach(b=>{b.classList.remove('target');b.textContent='·';b.onclick=null;});const cells=[...grid.querySelectorAll('button')],b=cells[Math.floor(Math.random()*cells.length)];b.classList.add('target');b.textContent='✦';b.onclick=()=>{if(!b.classList.contains('target'))return;scout2Hits++;$('scoutHint2').textContent='Anomalies tagged: '+scout2Hits+' / 3';tg?.HapticFeedback?.impactOccurred?.('medium');if(scout2Hits>=3){stopScout2();completeMate(activeMate);}else relocate();};};
- relocate();scout2Timer=setInterval(()=>{if(!document.hidden)relocate();},1100);
+ const relocate=()=>{grid.querySelectorAll('button').forEach(b=>{b.classList.remove('target');b.textContent='·';b.onclick=null;});const cells=[...grid.querySelectorAll('button')],b=cells[Math.floor(Math.random()*cells.length)];b.classList.add('target');b.textContent='✦';b.setAttribute('aria-label','Signal detected');b.onclick=()=>{if(!b.classList.contains('target')||window.MKTYExperience?.paused)return;window.MKTYExperience?.signal('collect',b);scout2Hits++;$('scoutHint2').textContent='Anomalies tagged: '+scout2Hits+' / 3';tg?.HapticFeedback?.impactOccurred?.('medium');if(scout2Hits>=3){stopScout2();completeMate(activeMate);}else relocate();};};
+ relocate();scout2Timer=setInterval(()=>{if(!document.hidden&&!window.MKTYExperience?.paused)relocate();},1100);
 }
 document.querySelectorAll('.mate').forEach(btn=>btn.onclick=()=>{if(btn.classList.contains('joined'))return;stopCrewTask2();activeMate=btn;document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);const role=btn.dataset.mate;$('crewChallengeTitle').textContent=role.toUpperCase()+' CHALLENGE';if(role==='Navigator'){$('navigatorTask').hidden=false;resetNav2();}if(role==='Engineer'){$('engineerTask').hidden=false;resetEngineer2();}if(role==='Scout'){$('scoutTask').hidden=false;buildAnomaly();}updateCrewScene2();});
 function makeCrewSync2(){crewSync2=Array.from({length:5},()=>['N','E','S'][Math.floor(Math.random()*3)]);crewSyncInput2=[];}
@@ -563,7 +623,7 @@ function newLaunchCode(){
 }
 $('showCodeBtn').onclick=()=>{
  if($('mission3').dataset.phase!=='signal')return;newLaunchCode();paintLaunchSlots3('codeSequence',launchCode,4);$('showCodeBtn').disabled=true;$('mission3').dataset.transmitting='true';$('codeHint').textContent='Memorize the four symbols…';$('codeStatus').textContent='Attempts remaining: '+codeAttempts;
- codeRevealTimer3=setTimeout(()=>{codeRevealTimer3=null;if($('mission3').dataset.phase!=='signal')return;paintLaunchSlots3('codeSequence',[],4);codeReady=true;$('showCodeBtn').disabled=false;$('mission3').dataset.transmitting='false';$('codeHint').textContent='Repeat the sequence using the four keys.';document.querySelectorAll('[data-code]').forEach(b=>b.disabled=false);},2200);
+ codeRevealTimer3=missionTimeout(3,()=>{codeRevealTimer3=null;if($('mission3').dataset.phase!=='signal')return;paintLaunchSlots3('codeSequence',[],4);codeReady=true;$('showCodeBtn').disabled=false;$('mission3').dataset.transmitting='false';$('codeHint').textContent='Repeat the sequence using the four keys.';document.querySelectorAll('[data-code]').forEach(b=>b.disabled=false);},2200);
 };
 document.querySelectorAll('[data-code]').forEach(b=>b.onclick=()=>{
  if(!codeReady||$('mission3').dataset.phase!=='signal')return;codeInput.push(b.dataset.code);paintLaunchSlots3('codeSequence',codeInput,4);b.classList.add('entered');
@@ -577,7 +637,7 @@ function updateMix3(){
  $('mixO2Val').textContent=a;$('mixFuelVal').textContent=b;$('mixCoolVal').textContent=d;$('mixTotal3').textContent=total;
  const limits=[[25,35],[40,50],[20,35]],values=[a,b,d];
  document.querySelectorAll('.fuel-matrix3 label').forEach((label,i)=>{label.style.setProperty('--mix-level',values[i]+'%');label.classList.toggle('stable',values[i]>=limits[i][0]&&values[i]<=limits[i][1]);});
- const stable=total===100&&a>=25&&a<=35&&b>=40&&b<=50&&d>=20&&d<=35;$('mixStability3').textContent=stable?'STABLE':'ADJUST';$('mixTotal3').parentElement.classList.toggle('stable',stable);
+ const stable=total===100&&a>=25&&a<=35&&b>=40&&b<=50&&d>=20&&d<=35;$('lockMix3').disabled=!stable;$('mixStability3').textContent=stable?'STABLE':'ADJUST';$('mixTotal3').parentElement.classList.toggle('stable',stable);
  $('mixHint3').textContent=stable?'Fuel matrix stable. Ready to lock.':total===100?'Total stable. Adjust the three stability indicators.':total>100?'Overpressure — reduce mixture.':'Insufficient load — increase mixture.';
 }
 ['mixO2','mixFuel','mixCool'].forEach(id=>$(id)?.addEventListener('input',updateMix3));
@@ -595,7 +655,7 @@ function resetIgnition3(msg='Awaiting launch order.'){stopLaunchTimer3();ignitio
 $('showIgnition3')?.addEventListener('click',()=>{
  if($('mission3').dataset.phase!=='ignition')return;
  resetIgnition3('Memorize the ignition order…');ignitionOrder3=['NAV','CORE','COMMS'].sort(()=>Math.random()-.5);paintLaunchSlots3('ignitionOrder3',ignitionOrder3,3);$('showIgnition3').disabled=true;
- ignitionRevealTimer3=setTimeout(()=>{ignitionRevealTimer3=null;if($('mission3').dataset.phase!=='ignition')return;paintLaunchSlots3('ignitionOrder3',[],3);$('showIgnition3').disabled=false;document.querySelectorAll('[data-ignite3]').forEach(b=>b.disabled=false);$('ignitionHint3').textContent='GO — arm all systems before time expires!';launchTimer3=setInterval(()=>{if(document.hidden)return;launchTime3-=2;renderLaunchTime3();if(launchTime3<=0){resetIgnition3('Launch window missed. Receive a new order.');tg?.HapticFeedback?.notificationOccurred?.('error');}},100);},1800);
+ ignitionRevealTimer3=missionTimeout(3,()=>{ignitionRevealTimer3=null;if($('mission3').dataset.phase!=='ignition')return;paintLaunchSlots3('ignitionOrder3',[],3);$('showIgnition3').disabled=false;document.querySelectorAll('[data-ignite3]').forEach(b=>b.disabled=false);$('ignitionHint3').textContent='GO — arm all systems before time expires!';launchTimer3=setInterval(()=>{if(document.hidden||window.MKTYExperience?.paused)return;launchTime3-=2;renderLaunchTime3();if(launchTime3<=0){resetIgnition3('Launch window missed. Receive a new order.');tg?.HapticFeedback?.notificationOccurred?.('error');}},100);},1800);
 });
 document.querySelectorAll('[data-ignite3]').forEach(b=>b.onclick=()=>{
  if(!launchTimer3||!ignitionOrder3.length||$('mission3').dataset.phase!=='ignition')return;const v=b.dataset.ignite3;
@@ -612,39 +672,55 @@ function unlockLife4(){
 $('continueLife4Btn').onclick=(ev)=>{ev?.preventDefault?.();if(!unlockLife4())return;startLife4();};
 if($('life4Card'))$('life4Card').onclick=()=>$('continueLife4Btn').click();
 let alt4=2400,vel4=28,fuel4=100,drift4=0,driftVel4=0,descentTimer=null,burnHeld4=false,downHeld4=false,leftHeld4=false,rightHeld4=false,descentActive4=false;
-function renderDescent(){
+function renderDescent(readouts=true){
+ if(readouts){
  $('altitude').textContent=Math.max(0,Math.round(alt4));$('velocity').textContent=vel4.toFixed(1);$('fuel').textContent=Math.max(0,Math.round(fuel4));$('driftRead4').textContent=(drift4>0?'+':'')+Math.round(drift4);
+ }
  const world=$('lander').parentElement, ship=$('lander');
  const startY=12, endY=Math.max(startY,world.clientHeight-ship.offsetHeight-34);
  const landY=startY+(1-Math.max(0,Math.min(2400,alt4))/2400)*(endY-startY);
  ship.style.transform='translateX(calc(-50% + '+drift4+'px))';ship.style.top=landY+'px';ship.style.setProperty('--drift4',drift4+'px');
+ if(readouts){
  $('safeVel4').classList.toggle('safe',vel4<=14);$('safeDrift4').classList.toggle('safe',Math.abs(drift4)<=42);document.querySelector('.landing-zone')?.classList.toggle('safe-zone',vel4<=14&&Math.abs(drift4)<=42);
  $('thrustRead4').textContent=$('thrustDial').value+'%';
+ const flight=alt4>700?'approach':alt4>180?'braking':'final';
+ if($('mission4').dataset.flight!==flight){$('mission4').dataset.flight=flight;if($('landingPhase4'))$('landingPhase4').textContent=alt4>700?'APPROACH':alt4>180?'BRAKING ZONE':'FINAL APPROACH';}
+ if($('landingVector4'))$('landingVector4').style.setProperty('--vector',Math.max(-42,Math.min(42,drift4))+'%');
+ }
 }
 function startLife4(){playLifeCinematic(4,openMission4);}
 function finishDescent4(success){
- descentActive4=false;clearInterval(descentTimer);descentTimer=null;burnHeld4=downHeld4=leftHeld4=rightHeld4=false;$('lander').classList.remove('thrusting');
+ descentActive4=false;cancelAnimationFrame(descentTimer);descentTimer=null;burnHeld4=downHeld4=leftHeld4=rightHeld4=false;$('lander').classList.remove('thrusting');
  if(success){awardLifePoints(4,1000);$('descentStatus').textContent='Touchdown confirmed ✓';$('life4Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');}
  else{localStorage.removeItem('mkty_campaign_checkpoint_4');$('lander').classList.add('crashed');$('descentStatus').textContent='HARD LANDING — velocity or drift outside safe limits. Retrying…';tg?.HapticFeedback?.notificationOccurred?.('error');laterInMission(4,openMission4,1600);}
 }
 function openMission4(){
  clearMissionDelays(4);
- alt4=2400;vel4=18;fuel4=100;drift4=0;driftVel4=(Math.random()-.5)*.35;descentActive4=true;$('life4Complete').hidden=true;$('lander').classList.remove('crashed','thrusting');$('descentStatus').textContent='Manual descent active. Control velocity, drift and fuel.';show('mission4');renderDescent();clearInterval(descentTimer);
- descentTimer=setInterval(()=>{
-  if(!descentActive4||document.hidden||!$('mission4').classList.contains('active'))return;const power=Number($('thrustDial').value)/100;
-  vel4+=.10;
-  if(burnHeld4&&fuel4>0){vel4=Math.max(-16,vel4-(.28+power*.92));fuel4=Math.max(0,fuel4-(.12+power*.18));$('lander').classList.add('thrusting');}else $('lander').classList.remove('thrusting');if(downHeld4)vel4=Math.min(45,vel4+.22);
-  if(leftHeld4&&fuel4>0){driftVel4-=.11;fuel4=Math.max(0,fuel4-.07);}if(rightHeld4&&fuel4>0){driftVel4+=.11;fuel4=Math.max(0,fuel4-.07);}
-  driftVel4*=.94;drift4+=driftVel4;
-  const driftLimit=Math.max(0,Math.min(105,($('lander').parentElement.clientWidth-$('lander').offsetWidth)/2-8));
-  drift4=Math.max(-driftLimit,Math.min(driftLimit,drift4));alt4=Math.min(2400,alt4-vel4*.25);
-  if(fuel4<=0)$('descentStatus').textContent='FUEL DEPLETED — ballistic descent!';
-  if(alt4<=0){alt4=0;renderDescent();finishDescent4(vel4<=14&&Math.abs(drift4)<=42);return;}renderDescent();
- },100);window.MKTYCampaign?.restore(4);
+ alt4=2400;vel4=18;fuel4=100;drift4=0;driftVel4=(Math.random()-.5)*.35;descentActive4=true;$('life4Complete').hidden=true;$('lander').classList.remove('crashed','thrusting');$('descentStatus').textContent='Manual descent active. Control velocity, drift and fuel.';show('mission4');renderDescent();cancelAnimationFrame(descentTimer);
+ let last=performance.now(),hud=0;
+ const frame=now=>{
+  descentTimer=null;const dt=Math.min(.04,Math.max(0,(now-last)/1000));last=now;
+  if(!descentActive4||!$('mission4').classList.contains('active'))return;
+  if(!document.hidden&&!window.MKTYExperience?.paused){
+   const power=Number($('thrustDial').value)/100,step=dt/.1;
+   vel4+=.10*step;
+   if(burnHeld4&&fuel4>0){vel4=Math.max(-16,vel4-(.28+power*.92)*step);fuel4=Math.max(0,fuel4-(.12+power*.18)*step);$('lander').classList.add('thrusting');}else $('lander').classList.remove('thrusting');
+   if(downHeld4)vel4=Math.min(45,vel4+.22*step);
+   if(leftHeld4&&fuel4>0){driftVel4-=.11*step;fuel4=Math.max(0,fuel4-.07*step);}if(rightHeld4&&fuel4>0){driftVel4+=.11*step;fuel4=Math.max(0,fuel4-.07*step);}
+   driftVel4*=Math.pow(.94,step);drift4+=driftVel4*step;
+   const driftLimit=Math.max(0,Math.min(105,($('lander').parentElement.clientWidth-$('lander').offsetWidth)/2-8));
+   drift4=Math.max(-driftLimit,Math.min(driftLimit,drift4));alt4=Math.min(2400,alt4-vel4*.25*step);
+   if(fuel4<=0)$('descentStatus').textContent='FUEL DEPLETED — ballistic descent!';
+   hud+=dt;if(alt4<=0){alt4=0;renderDescent();finishDescent4(vel4<=14&&Math.abs(drift4)<=42);return;}renderDescent(hud>=.1);if(hud>=.1)hud=0;
+  }
+  descentTimer=requestAnimationFrame(frame);
+ };descentTimer=requestAnimationFrame(frame);window.MKTYCampaign?.restore(4);
 }
+
 function holdControl4(el,setter){
  const on=ev=>{ev.preventDefault();setter(true);el.setPointerCapture?.(ev.pointerId);},off=()=>setter(false);
  el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointercancel',off);el.addEventListener('lostpointercapture',off);
+ el.addEventListener('keydown',e=>{if([' ','Enter'].includes(e.key)){e.preventDefault();setter(true);}});el.addEventListener('keyup',e=>{if([' ','Enter'].includes(e.key)){e.preventDefault();setter(false);}});el.addEventListener('blur',off);
 }
 holdControl4($('burnBtn'),v=>burnHeld4=v);holdControl4($('downThruster4'),v=>downHeld4=v);holdControl4($('leftThruster'),v=>leftHeld4=v);holdControl4($('rightThruster'),v=>rightHeld4=v);
 function releaseDescentControls(){burnHeld4=downHeld4=leftHeld4=rightHeld4=false;}

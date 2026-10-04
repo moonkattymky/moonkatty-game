@@ -36,6 +36,7 @@ function createReactor5Effects(root) {
   ctx.globalAlpha=alpha;ctx.drawImage(texture,x-r,y-r,r*2,r*2);
  }
  function signal(kind) {
+  window.MKTYExperience?.signal(kind);
   if(!visible)return;
   pulses.push({kind,born:time});
   if(pulses.length>5)pulses.shift();
@@ -43,7 +44,7 @@ function createReactor5Effects(root) {
  function draw(s,dt=0) {
   if(!visible||!width||!height)return;
   const began=performance.now();
-  const reduced=media.matches;
+  const reduced=media.matches||window.MKTYExperience?.effectsReduced;
   const charging=s.phase==='charge'&&(s.chargeHeld||s.chargeTap>0)&&!(s.coolHeld||s.coolTap>0);
   const cooling=s.phase==='charge'&&(s.coolHeld||s.coolTap>0);
   const total=s.cells.reduce((a,b)=>a+b,0)/300;
@@ -125,6 +126,6 @@ function createReactor5Effects(root) {
   start(){visible=true;time=0;angle=0;energy=0;lastWave=-1;pulses=[];observer.observe(gallery);resize();},
   stop(){visible=false;observer.disconnect();pulses=[];},
   draw,signal,
-  get reduced(){return media.matches;}
+  get reduced(){return media.matches||window.MKTYExperience?.effectsReduced;}
  };
 }

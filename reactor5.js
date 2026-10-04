@@ -199,7 +199,7 @@ const Reactor5 = (() => {
  $('reactorRetry5').onclick=()=>{if(!state||state.paused||state.phase!=='fault')return;state.cells=state.cells.map(v=>v===100?100:0);state.selected=state.cells.findIndex(v=>v<100);state.temp=22;effects.signal('cool');enter('charge','Chamber vented. Completed cells preserved. Continue charging.');};
  $('reactorHelp5').onclick=()=>pause('REACTOR GUIDE');$('reactorResume5').onclick=resume;
  $('reactorExit5').onclick=$('life5ReturnBtn').onclick=()=>show('home');
- $('reactorOverlay5').addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();resume();}else if(e.key==='Tab'){const first=$('reactorResume5'),last=$('reactorExit5');if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
+ $('reactorOverlay5').addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();resume();}else if(e.key==='Tab'){const focusable=[...$('reactorOverlay5').querySelectorAll('button:not(:disabled)')].filter(e=>e.getClientRects().length),first=focusable[0],last=focusable.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
  window.addEventListener('blur',()=>{if(active()&&state?.phase!=='online'&&state?.phase!=='fault')pause();else release();});
  window.addEventListener('pagehide',()=>{if(active())pause();});
  document.addEventListener('visibilitychange',()=>{document.body.classList.toggle('mission-paused',document.hidden);if(document.hidden&&active())pause();});

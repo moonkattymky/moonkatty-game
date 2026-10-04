@@ -11,7 +11,7 @@ window.MKTYCampaign=(()=>{
   if(done(current)){localStorage.removeItem(key(current));return;}
   let v={version:1};
   if(current===1)Object.assign(v,{stage:life1Stage,x:l1PX,y:l1PY,energy:[...document.querySelectorAll('.energy.collected')].map(e=>e.dataset.energy),frequency:targetFrequency});
-  if(current===2)Object.assign(v,{joined:[...document.querySelectorAll('.mate.joined')].map(e=>e.dataset.mate)});
+  if(current===2)Object.assign(v,{joined:[...document.querySelectorAll('.mate.joined')].map(e=>e.dataset.mate),pipes:engineerTiles2});
   if(current===3)Object.assign(v,{phase:$('mission3').dataset.phase,mix:['mixO2','mixFuel','mixCool'].map(id=>Number($(id).value))});
   if(current===4){if(!descentActive4||alt4<=0){localStorage.removeItem(key(4));return;}Object.assign(v,{alt:alt4,velocity:vel4,fuel:fuel4,drift:drift4,driftVelocity:driftVel4,power:Number($('thrustDial').value)});}
   try{localStorage.setItem(key(current),JSON.stringify(v));}catch{/* Continue playing if device storage is full. */}
@@ -20,7 +20,7 @@ window.MKTYCampaign=(()=>{
   if(n===1){life1Stage=3;$('life1Complete').hidden=false;showLife1MemoryCode();}
   if(n===2){crewCount=3;document.querySelectorAll('.mate').forEach(e=>e.classList.add('joined'));$('crewFinal2').hidden=true;$('life2Complete').hidden=false;updateCrewScene2();}
   if(n===3){clearLaunchPlayback3();setLaunchPhase3('complete');}
-  if(n===4){descentActive4=false;clearInterval(descentTimer);releaseDescentControls();alt4=0;vel4=0;renderDescent();$('life4Complete').hidden=false;}
+  if(n===4){descentActive4=false;cancelAnimationFrame(descentTimer);releaseDescentControls();alt4=0;vel4=0;renderDescent();$('life4Complete').hidden=false;}
  }
  function restore(n){
   restoring=true;
@@ -39,6 +39,7 @@ window.MKTYCampaign=(()=>{
     renderLife1Player();updateLife1Nearby();
    }
    if(n===2&&Array.isArray(v.joined)&&v.joined.every(x=>['Navigator','Engineer','Scout'].includes(x))){
+    if(Array.isArray(v.pipes)&&v.pipes.length===9&&v.pipes.every(t=>t&&Array.isArray(t.base)&&t.base.length===2&&t.base[0]!==t.base[1]&&t.base.every(p=>Number.isInteger(p)&&p>=0&&p<4)&&Number.isInteger(t.rotation)&&t.rotation>=0&&t.rotation<4))engineerTiles2=v.pipes;
     const joined=new Set(v.joined);crewCount=joined.size;document.querySelectorAll('.mate').forEach(e=>e.classList.toggle('joined',joined.has(e.dataset.mate)));$('crewFinal2').hidden=crewCount!==3;updateCrewScene2();
    }
    if(n===3&&['access','signal','fuel','ignition'].includes(v.phase)&&Array.isArray(v.mix)&&v.mix.length===3&&v.mix.every(x=>Number.isFinite(x)&&x>=0&&x<=100)){
@@ -69,7 +70,7 @@ window.MKTYCampaign=(()=>{
   $('enterBtn').textContent=n?(n===1&&!done(1)&&!read(1)?'ENTER THE MISSION 🚀':'CONTINUE LIFE #'+n+' 🚀'):'CHOOSE A MISSION';
   $('enterBtn').onclick=()=>n?openChapter(n,!localStorage.getItem('mkty_current_chapter')):show('chapters');
   const list=$('chapterList');list.replaceChildren(...titles.map((title,i)=>{
-   const n=i+1,b=document.createElement('button');b.className='chapter-card';b.dataset.chapter=String(n);b.disabled=!unlocked(n);
+   const n=i+1,b=document.createElement('button');b.className='chapter-card';b.dataset.chapter=String(n);b.style.setProperty('--chapter-art',"url('art/"+['life1-base.webp','life2-bridge-v2.webp','life3-bridge-v2.webp','life4-landing.webp','life5-reactor-v2.webp'][i]+"')");b.disabled=!unlocked(n);
    const number=document.createElement('b');number.textContent=String(n).padStart(2,'0');
    const body=document.createElement('span'),name=document.createElement('strong'),status=document.createElement('small');name.textContent=title;
    status.textContent=done(n)?'COMPLETE • VIEW':unlocked(n)?'CONTINUE':'COMPLETE THE PREVIOUS CHAPTER';body.append(name,status);b.append(number,body);b.onclick=()=>openChapter(n);return b;

@@ -470,6 +470,36 @@ CODE RULES|ПРАВИЛА КОДА
 Remember the code shown after LIFE #1. A wrong code costs one life and locks retries for one hour. After the timer, a code hint costs one more life.|Запомните код после первой главы. Ошибка отнимает одну жизнь и блокирует ввод на час. После отсчёта восстановление кода стоит ещё одну жизнь.
 CODE HINT • 10 SECONDS|КОД • ВИДЕН 10 СЕКУНД
 Enter all 10 digits. No life has been spent.|Введите все 10 цифр. Жизнь не потрачена.
+Pause and mission guide|Пауза и инструкция
+Mission guide|Инструкция к главе
+Return to exploration|Вернуться к исследованию
+MOONKATTY · FLIGHT MANUAL|MOONKATTY · РУКОВОДСТВО
+Game paused. Your checkpoint is preserved.|Игра на паузе. Контрольная точка сохранена.
+CONTROL SOUND: ON|ЗВУКИ КНОПОК: ВКЛ.
+CONTROL SOUND: OFF|ЗВУКИ КНОПОК: ВЫКЛ.
+EFFECTS: LIGHT|ЭФФЕКТЫ: ЛЁГКИЕ
+EFFECTS: AUTO|ЭФФЕКТЫ: АВТО
+Move closer to interact with this station.|Подойдите ближе к станции, чтобы взаимодействовать с ней.
+Explore with the joystick. Use SCAN, then approach each crystal before collecting it.|Двигайтесь джойстиком. Нажмите «СКАН», затем подойдите к каждому кристаллу и соберите его.
+Approach the terminal, watch the A/B/C sequence and repeat it.|Подойдите к терминалу, посмотрите последовательность A/B/C и повторите её.
+Reach the antenna and hold a strong signal. Remember the ten-digit code at the end.|Дойдите до антенны и удержите сильный сигнал. Запомните десятизначный код в конце главы.
+Navigator: hold the arrows to pass all three gates.|Navigator: удерживайте стрелки и пройдите через трое ворот.
+Engineer: rotate the pipes. Join the left inlet to the right outlet, then test the circuit.|Engineer: поворачивайте трубы. Соедините левый вход с правым выходом, затем проверьте цепь.
+Scout: tag the moving star three times. Then repeat the five-letter crew sequence.|Scout: поймайте движущуюся звезду трижды. Затем повторите последовательность из пяти букв экипажа.
+Enter the code from the first chapter. A wrong code costs one life and starts a one-hour wait.|Введите код из первой главы. Ошибка отнимает жизнь и блокирует ввод на час.
+Repeat the four symbols. Adjust the mixture until all indicators are green and total load is 100.|Повторите четыре символа. Настройте смесь: все индикаторы должны стать зелёными, сумма — равной 100.
+Read the NAV/CORE/COMMS order, then activate the systems before the timer runs out.|Запомните порядок NAV/CORE/COMMS и включите системы до окончания отсчёта.
+Hold ▲ to brake or rise, ▼ to descend. Set engine power with the slider.|Удерживайте ▲ для торможения или подъёма, ▼ — для снижения. Мощность двигателя задаётся ползунком.
+Use ◀ and ▶ to centre the ship over the landing pad.|Кнопками ◀ и ▶ выровняйте корабль над посадочной площадкой.
+Touch down at 14 m/s or less with drift inside ±42. Begin braking before final approach.|Для посадки нужны скорость не более 14 м/с и смещение в пределах ±42. Начните торможение заранее.
+Rotate the pipes to carry power from the left CORE inlet to the right COMMS outlet.|Поверните трубы, чтобы питание прошло от левого входа CORE к правому выходу COMMS.
+Rotate the pipes. Connect the left inlet to the right outlet.|Поворачивайте трубы. Соедините левый вход с правым выходом.
+Open circuit. Every connected pipe must meet its neighbour.|Цепь разомкнута. Выход каждой трубы должен совпадать со входом соседней.
+Signal detected|Сигнал обнаружен
+APPROACH|СБЛИЖЕНИЕ
+BRAKING ZONE|ЗОНА ТОРМОЖЕНИЯ
+FINAL APPROACH|ФИНАЛЬНЫЙ ЗАХОД
+Horizontal alignment|Горизонтальное выравнивание
 `;
  const ru = Object.fromEntries(pairs.trim().split('\n').map(line => { const i=line.indexOf('|'); return [line.slice(0,i),line.slice(i+1)]; }));
  const sources=new WeakMap(), rendered=new WeakMap(), attrs=new WeakMap();
@@ -482,6 +512,7 @@ Enter all 10 digits. No life has been spent.|Введите все 10 цифр. 
   'Synchronized ':'Синхронизировано ', 'Return code: ':'Код возвращения: ', 'RESET ':'СБРОС '
  };
  const dynamic=[
+ [/^Junction (\d+) • rotate clockwise$/,(_,n)=>'Узел '+n+' — повернуть по часовой стрелке'],
  [/^CONTINUE LIFE #(\d+) 🚀$/,(_,n)=>'ПРОДОЛЖИТЬ ГЛАВУ '+n+' 🚀'],
  [/^VISIBLE FOR (\d+) SECONDS$/,(_,n)=>'ВИДЕН ЕЩЁ '+n+' СЕК.'],
  [/^LIFE #(\d+)$/,(_,n)=>'ГЛАВА '+n],
