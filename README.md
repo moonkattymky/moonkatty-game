@@ -10,6 +10,26 @@ Telegram Mini App starter for the MOONKATTY universe.
 - Playable LIFE #1–#9 with one-time completion rewards and local checkpoints
 - Moon Points demo UI
 
+## Open-sector expeditions
+
+The home screen and chapter menu now lead directly to **Expeditions**, a separate repeatable flight mode. Players pilot the original MK–01 freely through a generated sector, inspect a navigable map, discover optional containers, evade asteroids and ion clouds, and recover crew or equipment before docking at Ark station.
+
+Three contracts have different objectives: recover two escape pods; power two relays and extract a derelict's black box; or survey three remote relays. Retrieving pods or the black box raises an alarm that extends patrol detection and pursuit speed. Patrol shots have a visible targeting warning and can be dodged. Boost, scan and a defensive pulse share a regenerating battery; the pulse interrupts nearby patrols and clears nearby projectiles. A repair tender offers a one-use choice between hull/battery restoration and taking its parts as cargo.
+
+Successful docking banks cargo and a contract reward. Ship loss forfeits the current cargo. Early docking banks 35% of cargo and delivers any rescued crew, without completing the contract. Parts buy three levels each of hull, maneuvering engines and scanner range. The second sector tier unlocks after one successful flight; the third after three. Higher tiers add patrols and increase damage. These parts are ship resources, entirely separate from Moon Points; existing chapter unlocks, rewards and final balances are preserved.
+
+`expedition-model.js` owns deterministic world generation, bounded-step flight, hazards, interaction, settlement, upgrades and save validation. `expedition.js` owns the canvas presentation, touch joystick and held controls, keyboard fallback, map waypoints, pause/briefing and a single versioned storage envelope (`mkty_expeditions_v1`). Settlement updates the profile and completed run together, preventing duplicate rewards on reload. Gameplay pauses and releases controls on backgrounding, blur, navigation or an open map. Reloaded flights require explicit resume. No offline flight time is simulated. The `snapshot()` diagnostic returns a detached copy only.
+
+The renderer uses the existing original ship, space background and asteroid textures, with code-drawn stations, relays, pods, drones, scanner waves and warning geometry. One animation loop stops outside live flight; pixel density is capped at two. No external assets, network gameplay service or backend persistence were added. Progress is local to the device.
+
+```sh
+node tests/expedition-model.cjs
+node tests/expeditions.cjs
+node tests/expedition-edges.cjs
+```
+
+The model regression checks 240 sectors, geometry, battery/defense rules, patrol warnings, mutually exclusive tender choices, settlement gates, upgrade caps and malformed saves. The browser journey flies all three contracts through actual keyboard and pointer controls, then checks pause, reload, map selection, purchases, Russian/English portrait and landscape layouts, and isolation from the existing campaign balance. The edge regression verifies partial rescue across blur/reload, both tender choices, power locks, ship loss, report navigation and early extraction. Browser tests use Chromium profiles, not physical devices or Telegram clients. Automated pathfinding times do not measure human playtime or retention.
+
 ## Chapters 4–9 — mission depth update
 
 Each chapter now contains three persistent operations with increasing complexity, followed by its existing live mission. These are decision puzzles, with no added countdown or enforced waiting:

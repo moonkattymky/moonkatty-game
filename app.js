@@ -112,6 +112,7 @@ function leaveMission(id){
 function show(id){
  if(activeCinematic&&activeCinematic.id!==id)activeCinematic.cleanup();
  window.MKTYCampaign?.save();
+ window.MKTYExpedition?.onScreen(id);
  document.querySelectorAll('.mission-screen.active').forEach(s=>{if(s.id!==id)leaveMission(s.id);});
  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
  $(id).classList.add('active');window.scrollTo(0,0);window.MKTYCampaign?.onScreen(id);window.MKTYExperience?.onScreen(id);
