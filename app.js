@@ -99,7 +99,7 @@ function laterInMission(n,callback,delay){
 function clearMissionDelays(n){missionDelays.get(n)?.forEach(clearTimeout);missionDelays.delete(n);}
 function leaveMission(id){
  const n=Number(id.replace('mission',''));clearMissionDelays(n);
- if(n===1){cancelAnimationFrame(l1MoveFrame);stopLife1Stick(null);clearInterval(signalHoldTimer);signalHoldTimer=null;clearInterval(memoryCodeTimer);memoryCodeTimer=null;repairShowing=false;}
+ if(n===1){cancelAnimationFrame(l1MoveFrame);stopLife1Stick(null);clearInterval(signalHoldTimer);signalHoldTimer=null;stopLife1MemoryCode();repairShowing=false;}
  if(n===2){stopCrewTask2();crewSyncReady2=false;$('showCrewSync2').disabled=false;}
  if(n===3)clearLaunchPlayback3();
  if(n===4){descentActive4=false;cancelAnimationFrame(descentTimer);descentTimer=null;releaseDescentControls();}
@@ -379,20 +379,29 @@ function ensureLife1MemoryCode(){
  if(!/^\d{10}$/.test(code||'')){code=String(Math.floor(Math.random()*1e10)).padStart(10,'0');localStorage.setItem('mkty_life1_memory_code',code);}
  return code;
 }
-let memoryCodeTimer=null, gateTimer=null;
+let memoryCodeTimer=null, memoryCodeTick=null, gateTimer=null;
+function remainingLife1CodeTime(){
+ if(!localStorage.getItem('mkty_life1_code_presented'))return 10000;
+ const saved=localStorage.getItem('mkty_life1_code_remaining_ms');
+ const remaining=saved===null?Number(localStorage.getItem('mkty_life1_code_visible_until')||0)-Date.now():Number(saved);
+ return Number.isFinite(remaining)?Math.max(0,Math.min(10000,remaining)):0;
+}
+function stopLife1MemoryCode(){memoryCodeTick?.();clearInterval(memoryCodeTimer);memoryCodeTimer=null;memoryCodeTick=null;}
+document.addEventListener('visibilitychange',()=>memoryCodeTick?.(true));
 function showLife1MemoryCode(){
  const box=$('life1MemoryCode');if(!box)return;
- let until=Number(localStorage.getItem('mkty_life1_code_visible_until')||0);
- if(!localStorage.getItem('mkty_life1_code_presented')){
-  until=Date.now()+10000;localStorage.setItem('mkty_life1_code_presented','yes');localStorage.setItem('mkty_life1_code_visible_until',String(until));
- }
- clearInterval(memoryCodeTimer);
- const render=()=>{const left=Math.max(0,Math.ceil((until-Date.now())/1000));box.hidden=!left;$('continueLife2Btn').disabled=left>0;
+ stopLife1MemoryCode();let remaining=remainingLife1CodeTime(),last=performance.now(),saved=-1;
+ localStorage.setItem('mkty_life1_code_presented','yes');
+ const render=(resetClock=false)=>{
+  const now=performance.now();
+  if(!resetClock&&!document.hidden&&!window.MKTYExperience?.paused&&$('mission1').classList.contains('active'))remaining=Math.max(0,remaining-(now-last));
+  last=now;const left=Math.ceil(remaining/1000);box.hidden=!left;$('continueLife2Btn').disabled=left>0;
+  if(saved!==Math.ceil(remaining)){saved=Math.ceil(remaining);localStorage.setItem('mkty_life1_code_remaining_ms',String(saved));localStorage.setItem('mkty_life1_code_visible_until',String(Date.now()+saved));}
   $('life1CodeValue').textContent=left?ensureLife1MemoryCode():'';
   $('life1CodeTimer').textContent='VISIBLE FOR '+left+' SECONDS';
-  if(!left){clearInterval(memoryCodeTimer);memoryCodeTimer=null;}
+  if(!left){clearInterval(memoryCodeTimer);memoryCodeTimer=null;memoryCodeTick=null;}
  };
- render();if(until>Date.now())memoryCodeTimer=setInterval(render,200);
+ memoryCodeTick=render;render(true);if(remaining>0)memoryCodeTimer=setInterval(render,200);
 }
 function renderLife3Gate(){
  const lives=getLifeBank(), lock=Number(localStorage.getItem('mkty_life3_code_lock_until')||0), now=Date.now();
@@ -445,6 +454,7 @@ function openMission2(){
  stopCrewTask2();activeMate=null;document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);
  const video=$('life2Video'); if(video)video.pause();
  $('crewBadge2').textContent=crewCode; show('mission2');window.MKTYCampaign?.restore(2);updateCrewScene2();
+ $('crewChallengeTitle').textContent=localStorage.getItem('mkty_life2')==='complete'?'CREW ASSEMBLED':crewCount===3?'FINAL CREW PROTOCOL':'SELECT A CREW MEMBER TO BEGIN';
 }
 $('continueLife2Btn').onclick=(ev)=>{
  ev?.preventDefault?.();
@@ -476,6 +486,7 @@ $('continueLife2Btn').addEventListener('touchend',launchLife2FromCompletedMissio
 let crewCount=0,activeMate=null,nav2X=8,nav2Y=78,nav2Gate=0,nav2Timer=null,nav2RetryTimer=null,nav2Control=0,wire2=[0,0,0,0],scout2Hits=0,scout2Timer=null,crewSync2=[],crewSyncInput2=[],crewSyncReady2=false,engineerChecking2=false;
 function updateCrewScene2(){
  $('crewCount2').textContent=crewCount+' / 3';
+ $('crewStatus').textContent=localStorage.getItem('mkty_life2')==='complete'?'Crew synchronized. Mission ready ✓':'Crew assembled: '+crewCount+' / 3'+(crewCount===3?' • Final sync ready':' • Final sync locked');
  document.querySelectorAll('.mate').forEach(btn=>{btn.classList.toggle('selected',btn===activeMate);btn.setAttribute('aria-disabled',String(btn.classList.contains('joined')));});
 }
 function stopCrewTask2(){cancelAnimationFrame(nav2Timer);clearTimeout(nav2RetryTimer);clearMissionDelays(2);nav2Timer=null;nav2RetryTimer=null;nav2Control=0;stopScout2();engineerChecking2=false;$('testCircuit2').disabled=false;document.querySelectorAll('[data-wire2]').forEach(b=>b.disabled=false);}
@@ -558,7 +569,7 @@ $('testCircuit2').onclick=()=>{
 };
 function stopScout2(){clearInterval(scout2Timer);scout2Timer=null;}
 function buildAnomaly(){
- stopScout2();scout2Hits=0;const grid=$('anomalyGrid');grid.innerHTML='';for(let i=0;i<9;i++){const b=document.createElement('button');b.textContent='·';grid.appendChild(b);}
+ stopScout2();scout2Hits=0;$('scoutHint2').textContent='Anomalies tagged: 0 / 3';const grid=$('anomalyGrid');grid.innerHTML='';for(let i=0;i<9;i++){const b=document.createElement('button');b.textContent='·';grid.appendChild(b);}
  const relocate=()=>{grid.querySelectorAll('button').forEach(b=>{b.classList.remove('target');b.textContent='·';b.setAttribute('aria-label','No signal');b.onclick=null;});const cells=[...grid.querySelectorAll('button')],b=cells[Math.floor(Math.random()*cells.length)];b.classList.add('target');b.textContent='✦';b.setAttribute('aria-label','Signal detected');b.onclick=()=>{if(!b.classList.contains('target')||window.MKTYExperience?.paused)return;window.MKTYExperience?.signal('collect',b);scout2Hits++;$('scoutHint2').textContent='Anomalies tagged: '+scout2Hits+' / 3';tg?.HapticFeedback?.impactOccurred?.('medium');if(scout2Hits>=3){stopScout2();completeMate(activeMate);}else relocate();};};
  relocate();scout2Timer=setInterval(()=>{if(!document.hidden&&!window.MKTYExperience?.paused)relocate();},1100);
 }
@@ -712,7 +723,7 @@ function renderDescent(readouts=true){
 function startLife4(){playLifeCinematic(4,openMission4);}
 function finishDescent4(success){
  descentActive4=false;cancelAnimationFrame(descentTimer);descentTimer=null;burnHeld4=downHeld4=leftHeld4=rightHeld4=false;$('lander').classList.remove('thrusting');
- if(success){awardLifePoints(4,1000);$('descentStatus').textContent='Touchdown confirmed ✓';$('life4Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');}
+ if(success){awardLifePoints(4,1000);$('descentStatus').textContent='Touchdown confirmed ✓';$('mission4').dataset.brake='false';$('landingPhase4').textContent='TOUCHDOWN';$('life4Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');}
  else{localStorage.removeItem('mkty_campaign_checkpoint_4');$('lander').classList.add('crashed');$('descentStatus').textContent='Landing aborted. Review the flight and try again.';tg?.HapticFeedback?.notificationOccurred?.('error');window.MKTYExperience?.flightFailed(4,{velocity:vel4,drift:drift4,fuel:fuel4},openMission4);}
 }
 function openMission4(){

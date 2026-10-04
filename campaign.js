@@ -17,10 +17,17 @@ window.MKTYCampaign=(()=>{
   try{localStorage.setItem(key(current),JSON.stringify(v));}catch{/* Continue playing if device storage is full. */}
  }
  function review(n){
-  if(n===1){life1Stage=3;$('life1Complete').hidden=false;showLife1MemoryCode();}
+  if(n===1){
+   life1Stage=3;energyCollected=3;repairCells=4;
+   document.querySelectorAll('.l1-hotspot').forEach(e=>{e.disabled=true;if(e.classList.contains('energy'))e.classList.add('collected');});
+   $('energyCount').textContent='3/3';$('repairCount').textContent=$('antennaCount').textContent='1/1';
+   ['qEnergy','qRepair','qAntenna'].forEach(id=>$(id).className='done');
+   $('missionStatus').textContent='Signal synchronized. Moon Base Alpha is online!';updateLife1Nearby();
+   $('life1Complete').hidden=false;showLife1MemoryCode();
+  }
   if(n===2){crewCount=3;document.querySelectorAll('.mate').forEach(e=>e.classList.add('joined'));$('crewFinal2').hidden=true;$('life2Complete').hidden=false;updateCrewScene2();}
   if(n===3){clearLaunchPlayback3();setLaunchPhase3('complete');}
-  if(n===4){descentActive4=false;cancelAnimationFrame(descentTimer);releaseDescentControls();alt4=0;vel4=0;renderDescent();$('life4Complete').hidden=false;}
+  if(n===4){descentActive4=false;cancelAnimationFrame(descentTimer);releaseDescentControls();alt4=0;vel4=0;renderDescent();$('mission4').dataset.brake='false';$('landingPhase4').textContent='TOUCHDOWN';$('descentStatus').textContent='Touchdown confirmed ✓';$('life4Complete').hidden=false;}
  }
  function restore(n){
   restoring=true;
@@ -53,7 +60,7 @@ window.MKTYCampaign=(()=>{
    }
   }finally{restoring=false;}
  }
- function needsCode(){return done(1)&&!localStorage.getItem('mkty_life1_code_presented')&&localStorage.getItem('mkty_life3_memory_verified')!=='yes';}
+ function needsCode(){return done(1)&&remainingLife1CodeTime()>0&&localStorage.getItem('mkty_life3_memory_verified')!=='yes';}
  function destination(){
   if(needsCode())return 1;
   const last=Number(localStorage.getItem('mkty_current_chapter'));
