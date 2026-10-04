@@ -380,6 +380,73 @@ VERIFYING…|ПРОВЕРКА…
 10-DIGIT KEY RECOVERED|КОД ИЗ 10 ЦИФР НАЙДЕН
 IDENTITY CONFIRMED|ЛИЧНОСТЬ ПОДТВЕРЖДЕНА
 TRUTH UNLOCKED|ИСТИНА ОТКРЫТА
+Reactor guide|Инструкция к реактору
+Reactor chamber with animated energy rings|Реакторный отсек с вращающимися энергетическими кольцами
+Reactor startup progress|Этапы запуска реактора
+POWER ROUTING|ПОДАЧА ПИТАНИЯ
+CHARGE|ЗАРЯДИТЬ
+STABILIZE|НАСТРОИТЬ
+IGNITE|ЗАПУСТИТЬ
+BRING THREE CELLS ONLINE|ЗАРЯДИТЕ ТРИ ЯЧЕЙКИ
+Select a cell and hold CHARGE. Release to stop; use COOL before 96°C.|Выберите ячейку и удерживайте «ЗАРЯДИТЬ». Охлаждайте ядро до достижения 96°C.
+Energy cells|Энергетические ячейки
+Select cell A|Выбрать ячейку A
+Select cell B|Выбрать ячейку B
+Select cell C|Выбрать ячейку C
+CORE TEMPERATURE|ТЕМПЕРАТУРА ЯДРА
+Core temperature|Температура ядра
+NOMINAL|НОРМА
+COOL|ОХЛАДИТЬ
+COOL NOW|ОХЛАДИТЕ
+COOLING|ОХЛАЖДЕНИЕ
+CORE CALIBRATION|КАЛИБРОВКА ЯДРА
+HOLD THE SAFE WINDOW|УДЕРЖИВАЙТЕ БАЛАНС
+Adjust coolant and magnetic field. Keep both readings in green for 3 seconds.|Настройте охлаждение и магнитное поле. Удерживайте оба показателя в зелёной зоне 3 секунды.
+MAGNETIC FIELD|МАГНИТНОЕ ПОЛЕ
+Coolant flow|Поток охлаждения
+Magnetic field trim|Настройка магнитного поля
+STABLE HOLD|БАЛАНС
+LOCK CORE|ЗАФИКСИРОВАТЬ ЯДРО
+CONTROLLED IGNITION|УПРАВЛЯЕМЫЙ ЗАПУСК
+DELIVER THREE PULSES|ПОДАЙТЕ ТРИ ИМПУЛЬСА
+Fire each pulse when the marker reaches the green window.|Подавайте импульс, когда указатель окажется в зелёной зоне.
+Ignition pulses|Импульсы запуска
+PULSE ALIGNMENT|МОМЕНТ ИМПУЛЬСА
+Ignition pulse position|Положение указателя запуска
+START IGNITION|НАЧАТЬ ЗАПУСК
+FIRE PULSE|ПОДАТЬ ИМПУЛЬС
+RETRY PULSE|ПОВТОРИТЬ ИМПУЛЬС
+IGNITION IN PROGRESS|РЕАКТОР ЗАПУСКАЕТСЯ
+THERMAL PROTECTION|ЗАЩИТА ОТ ПЕРЕГРЕВА
+CORE SAFELY SHUT DOWN|ЯДРО ОСТАНОВЛЕНО
+Charged cells are preserved. Vent the chamber and finish the remaining cells.|Заряженные ячейки сохранены. Охладите отсек и завершите зарядку остальных.
+VENT & RETRY|ОХЛАДИТЬ И ПРОДОЛЖИТЬ
+Select a cell. Hold CHARGE to route power.|Выберите ячейку. Удерживайте «ЗАРЯДИТЬ» для подачи питания.
+ENGINEERING COMPLETE|ПОДГОТОВКА ЗАВЕРШЕНА
+Three cells connected. Core stable. Full power for liftoff.|Три ячейки подключены. Ядро стабильно. Полная мощность для взлёта.
+CONTINUE TO LIFTOFF|ПЕРЕЙТИ К ВЗЛЁТУ
+ENGINEERING / 05|РЕАКТОРНЫЙ ОТСЕК / 05
+REACTOR GUIDE|ИНСТРУКЦИЯ
+REACTOR PAUSED|РЕАКТОР НА ПАУЗЕ
+Simulation paused. Your current progress is preserved.|Симуляция на паузе. Текущий прогресс сохранён.
+Select A, B or C. Hold CHARGE to fill it; hold COOL when temperature rises.|Выберите A, B или C. Удерживайте «ЗАРЯДИТЬ», а при росте температуры — «ОХЛАДИТЬ».
+More coolant lowers temperature. Move the magnetic field slider until stability reaches 45–55%.|Увеличение потока охлаждает ядро. Настройте магнитное поле на 45–55%.
+Start the sweep. Fire inside the green window three times. A missed pulse can be retried.|Запустите указатель. Попадите в зелёную зону трижды. Неудачный импульс можно повторить.
+RESUME REACTOR|ПРОДОЛЖИТЬ
+Thermal protection active. Completed cells are saved.|Сработала защита от перегрева. Заряженные ячейки сохранены.
+All cells online. Calibrate coolant and magnetic field.|Все ячейки заряжены. Настройте охлаждение и магнитное поле.
+Cell connected. Select the next cell or hold CHARGE.|Ячейка подключена. Удерживайте «ЗАРЯДИТЬ» для следующей.
+Stable window confirmed. Lock the core.|Баланс удержан. Зафиксируйте ядро.
+Both readings are green. Hold steady.|Оба показателя в зелёной зоне. Удерживайте баланс.
+Temperature rising. Release CHARGE and hold COOL.|Температура растёт. Отпустите зарядку и удерживайте «ОХЛАДИТЬ».
+Wait for the green window, then FIRE PULSE.|Дождитесь зелёной зоны и нажмите «ПОДАТЬ ИМПУЛЬС».
+Pulse missed. Previous pulses are saved. Retry this pulse.|Промах. Успешные импульсы сохранены. Повторите текущий.
+Three pulses accepted. Reactor coming online…|Три импульса приняты. Реактор запускается…
+Pulse accepted. Prepare for the next green window.|Импульс принят. Приготовьтесь к следующей зелёной зоне.
+Reactor online. Full power available for liftoff.|Реактор работает. Полная мощность для взлёта.
+Cell selected. Hold CHARGE and monitor temperature.|Ячейка выбрана. Удерживайте «ЗАРЯДИТЬ» и следите за температурой.
+Core locked. Start the ignition sweep.|Ядро зафиксировано. Начните запуск.
+Chamber vented. Completed cells preserved. Continue charging.|Отсек охлаждён. Заряженные ячейки сохранены. Продолжайте зарядку.
 `;
  const ru = Object.fromEntries(pairs.trim().split('\n').map(line => { const i=line.indexOf('|'); return [line.slice(0,i),line.slice(i+1)]; }));
  const sources=new WeakMap(), rendered=new WeakMap(), attrs=new WeakMap();

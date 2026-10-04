@@ -51,3 +51,8 @@ Three further production assets were made with the built-in ImageGen tool and co
 - `orbit-v2.webp`: open sapphire orbital playfield, detailed silver moon in the upper-right corner, sparse stars and pale blue/gold nebular edges. Central 70% kept clear of ships, debris and gates; interactive objects are separate sprites.
 
 The new backgrounds use `cover` without nonuniform scaling. The original ship and antenna use `contain`; each rock/crate sprite-atlas cell has a square element. Chapter 1 collision bounds follow the rendered props. Chapter 7 asteroids use the same square atlas cells and their own motion/collision layer.
+
+
+### LIFE #5 reactor integration
+
+`life5-reactor-v2.webp` is reused at its original 1448 × 1086 proportions in an SVG with `preserveAspectRatio="xMidYMid meet"`. Core lighting, rotating rings and the charge arc share the source image coordinate system. No nonuniform transform is applied to the scene. A separate blurred background fills unused margins. The control panel is outside the artwork and changes with the three gameplay stages.

@@ -92,7 +92,7 @@ function leaveMission(id){
  if(n===2){stopCrewTask2();crewSyncReady2=false;$('showCrewSync2').disabled=false;}
  if(n===3)clearLaunchPlayback3();
  if(n===4){descentActive4=false;clearInterval(descentTimer);descentTimer=null;releaseDescentControls();}
- if(n===5){reactorActive5=false;clearInterval(reactorTimer5);reactorTimer5=null;chargeHeld5=coolHeld5=false;}
+ if(n===5)stopReactor5();
  if(n===6){launchActive6=false;clearInterval(launchTimer);launchTimer=null;}
  if(n===7){stopVoid7();$('asteroidField').replaceChildren();asteroids7=[];}
  if(n===8){clearInterval(phaseTimer8);phaseTimer8=null;pulseReady8=false;}
@@ -646,34 +646,6 @@ function unlockLife5(){
  if(localStorage.getItem('mkty_life4')!=='complete')return false;const a=$('life4Card'),b=$('life5Card'),i=$('life5Icon'),p=$('storyProgress');a?.classList.add('complete');if(b){b.disabled=false;b.classList.remove('locked');b.classList.add('unlocked');}if(i)i.textContent='5';if(p)p.style.width='55%';return true;
 }
 $('continueLife5Btn').onclick=(ev)=>{ev?.preventDefault?.();if(!unlockLife5())return;startLife5();};if($('life5Card'))$('life5Card').onclick=()=>$('continueLife5Btn').click();
-let cells5=[0,0,0],stability5=15,temp5=22,stable5=false,reactorTimer5=null,chargeHeld5=false,coolHeld5=false,reactorActive5=false;
-function startLife5(){playLifeCinematic(5,openMission5);}
-function renderReactor5(){
- $('temp5').textContent=Math.round(temp5);$('stabilityRead5').textContent=Math.round(stability5);$('tempFill5').style.width=Math.min(100,temp5)+'%';$('stabilityNeedle').style.left=Math.max(0,Math.min(100,stability5))+'%';
- $('reactorCore').classList.toggle('warning',temp5>=78);$('reactorCore').classList.toggle('stable',temp5>=45&&temp5<=68&&stability5>=45&&stability5<=55);
- document.querySelectorAll('.energy-cells button[data-cell]').forEach((b,i)=>{b.querySelector('i').style.height=cells5[i]+'%';b.querySelector('output').textContent=Math.round(cells5[i])+'%';b.classList.toggle('charged',cells5[i]>=100);});
- $('reactorState5').textContent=stable5?'REACTOR // STABLE':temp5>=78?'REACTOR // HOT':'REACTOR // CHARGING';
- const ready=cells5.every(v=>v>=100)&&temp5>=45&&temp5<=68&&stability5>=45&&stability5<=55;$('stabilizeBtn').disabled=!ready;
-}
-function openMission5(){
- clearMissionDelays(5);
- cells5=[0,0,0];stability5=15;temp5=22;stable5=false;reactorActive5=true;chargeHeld5=coolHeld5=false;clearInterval(reactorTimer5);
- document.querySelectorAll('.energy-cells [data-cell], .energy-cells button[data-cell]').forEach(b=>{b.classList.remove('charged');const bar=b.querySelector('i');if(bar)bar.style.height='0%';});
- $('stabilizeBtn').disabled=true;$('igniteBtn').disabled=true;$('life5Complete').hidden=true;$('ignitionStatus').textContent='Bring all cells online while controlling reactor temperature.';$('reactorCore').classList.remove('online','warning','stable');show('mission5');renderReactor5();
- reactorTimer5=setInterval(()=>{if(!reactorActive5||document.hidden)return;if(chargeHeld5){temp5+=1.15;stability5+=.7;cells5=cells5.map(v=>Math.min(100,v+.85));}else{temp5+=.12;stability5-=.12;}if(coolHeld5){temp5-=1.55;stability5-=.42;}temp5=Math.max(15,Math.min(100,temp5));stability5=Math.max(0,Math.min(100,stability5));
- document.querySelectorAll('.energy-cells button[data-cell]').forEach((b,i)=>{const bar=b.querySelector('i');if(bar)bar.style.height=cells5[i]+'%';b.classList.toggle('charged',cells5[i]>=100);});
- if(temp5>=96){reactorActive5=false;clearInterval(reactorTimer5);$('ignitionStatus').textContent='CORE SCRAM — thermal overload. Restarting reactor…';tg?.HapticFeedback?.notificationOccurred?.('error');laterInMission(5,openMission5,1600);return;}renderReactor5();},100);
-}
-function releaseReactorControls5(){chargeHeld5=coolHeld5=false;}
-window.addEventListener('blur',releaseReactorControls5);
-document.addEventListener('visibilitychange',()=>{document.body.classList.toggle('mission-paused',document.hidden);if(document.hidden)releaseReactorControls5();});
-function hold5(el,setter){const on=ev=>{ev.preventDefault();setter(true);el.setPointerCapture?.(ev.pointerId);},off=()=>setter(false);el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointercancel',off);el.addEventListener('pointerleave',off);el.addEventListener('lostpointercapture',off);}
-hold5($('chargeCore5'),v=>chargeHeld5=v);hold5($('coolCore5'),v=>coolHeld5=v);
-document.querySelectorAll('.energy-cells button[data-cell]').forEach(btn=>btn.onclick=()=>{if(!reactorActive5)return;const i=Number(btn.dataset.cell);cells5[i]=Math.min(100,cells5[i]+5);temp5=Math.min(100,temp5+2.5);stability5=Math.min(100,stability5+1.5);renderReactor5();});
-$('stabilizeBtn').onclick=()=>{if($('stabilizeBtn').disabled)return;stable5=true;$('reactorState5').textContent='REACTOR // STABLE';reactorActive5=false;clearInterval(reactorTimer5);$('stabilizeBtn').disabled=true;$('igniteBtn').disabled=false;$('ignitionStatus').textContent='Core locked in stable window. IGNITION authorized.';tg?.HapticFeedback?.notificationOccurred?.('success');};
-$('igniteBtn').onclick=()=>{if(!stable5)return;$('reactorCore').classList.add('online');$('reactorState5').textContent='REACTOR // ONLINE';$('igniteBtn').disabled=true;awardLifePoints(5,1250);$('ignitionStatus').textContent='Reactor online. Ignition successful ✓';$('life5Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');};
-$('life5ReturnBtn').onclick=()=>show('home');
-
 function unlockLife6(){
  if(localStorage.getItem('mkty_life5')!=='complete')return false;const a=$('life5Card'),b=$('life6Card'),i=$('life6Icon'),p=$('storyProgress');a?.classList.add('complete');if(b){b.disabled=false;b.classList.remove('locked');b.classList.add('unlocked');}if(i)i.textContent='6';if(p)p.style.width='66%';return true;
 }
