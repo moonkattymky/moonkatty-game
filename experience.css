@@ -9,9 +9,9 @@
 .experience-canvas {position:absolute;inset:0;display:block;width:100%;height:100%;pointer-events:none;z-index:10;border-radius:inherit}
 #mission2 .crew-world-v2>.experience-canvas {z-index:0}
 #mission3 .command-scene3>.experience-canvas {z-index:1}
-.experience-paused :is(#mission1,#mission2,#mission3,#mission4) *,
-.experience-paused :is(#mission1,#mission2,#mission3,#mission4) *::before,
-.experience-paused :is(#mission1,#mission2,#mission3,#mission4) *::after {animation-play-state:paused!important}
+.experience-paused :is(#mission1,#mission2,#mission3,#mission4,#mission7,#mission8,#mission9) *,
+.experience-paused :is(#mission1,#mission2,#mission3,#mission4,#mission7,#mission8,#mission9) *::before,
+.experience-paused :is(#mission1,#mission2,#mission3,#mission4,#mission7,#mission8,#mission9) *::after {animation-play-state:paused!important}
 html[data-light-fx="true"] :is(#mission1,#mission2,#mission3,#mission4,#mission5) *,
 html[data-light-fx="true"] :is(#mission1,#mission2,#mission3,#mission4,#mission5) *::before,
 html[data-light-fx="true"] :is(#mission1,#mission2,#mission3,#mission4,#mission5) *::after {animation:none!important;scroll-behavior:auto!important}
@@ -201,3 +201,11 @@ html[data-light-fx="true"] :is(#mission1,#mission2,#mission3,#mission4,#mission5
  #mission3.launch-bridge3 #launchStage2 .mix-fine3 button:first-child {grid-column:1;grid-row:2}
  #mission3.launch-bridge3 #launchStage2 .mix-fine3 button:last-child {grid-column:3;grid-row:2}
 }
+
+:is(#mission7,#mission8,#mission9) .chapter-menu{flex:none;min-width:44px;height:44px;border:1px solid #c2e9ec75;border-radius:11px;background:linear-gradient(145deg,#3a6575,#1d3d51);color:#fff0c3;font-size:19px;touch-action:manipulation}
+:is(#mission7,#mission8,#mission9)>header>div:first-child{flex:1;min-width:0}
+:is(#mission7,#mission8,#mission9)>header .crew-badge{max-width:29%;font-size:8px;padding:5px}
+
+/* Reduced effects preserve asteroid motion because it is part of the challenge. */
+html[data-light-fx="true"] :is(#mission8 .signal-orbit,#mission8 .signal-pulse,#mission9 .final-gate::after){animation:none!important}
+html[data-light-fx="true"] #mission9 #finalShip{transition:none!important}

@@ -647,6 +647,15 @@ CORRECT RIGHT|ВЫРОВНЯЙТЕ КУРС ВПРАВО
 54–70% SAFE · HOLD ± TO ADJUST|54–70% — НОРМА · УДЕРЖИВАЙТЕ ± ДЛЯ НАСТРОЙКИ
 FLIGHT TIME|ВРЕМЯ ПОЛЁТА
 FUEL LEFT|ОСТАТОК ТОПЛИВА
+Use ◀ and ▶ to change lanes and avoid the asteroids.|Кнопками ◀ и ▶ меняйте полосу и уклоняйтесь от астероидов.
+A shield absorbs one impact. You have three charges.|Щит поглощает один удар. У вас три заряда.
+Reach 100 distance with the hull intact. Pause to save your current flight.|Дойдите до отметки 100, сохранив корпус. Пауза сохраняет текущий полёт.
+Sweep the frequency until the signal is strongest, then lock it.|Найдите частоту с самым сильным сигналом и зафиксируйте её.
+Align the phase marker and hold a stable signal.|Совместите маркер фазы с целью и удерживайте стабильный сигнал.
+Repeat three pulse sequences. The decoded coordinates are saved for the finale.|Повторите три последовательности импульсов. Координаты сохранятся для финала.
+Enter the saved coordinates, then align the return corridor.|Введите сохранённые координаты и выровняйте коридор возвращения.
+Repeat three core sequences. Wrong inputs reduce core integrity.|Повторите три последовательности ядра. Ошибки снижают его прочность.
+Transmit the six-symbol return code before power runs out.|Передайте код возвращения из шести символов до исчерпания энергии.
 ALTITUDE|ВЫСОТА
 REACTOR|РЕАКТОР
 SET THRUST|ВЫСТАВИТЬ ТЯГУ

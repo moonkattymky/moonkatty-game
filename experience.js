@@ -14,7 +14,11 @@ window.MKTYExperience=(()=>{
   ['Enter the code from the first chapter. A wrong code costs one life and starts a one-hour wait.','Repeat the four symbols. Adjust the mixture until all indicators are green and total load is 100.','Read the NAV/CORE/COMMS order, then activate the systems before the timer runs out.'],
   ['Hold ▲ to brake or rise, ▼ to descend. Set engine power with the slider.','Use ◀ and ▶ to centre the ship over the landing pad.','Touch down at 14 m/s or less with drift inside ±42. Begin braking before final approach.']
  ];
- const titles=['','THE AWAKENING','THE CREW','THE LAUNCH CODE','THE DESCENT'];
+ guides[7]=['Use ◀ and ▶ to change lanes and avoid the asteroids.','A shield absorbs one impact. You have three charges.','Reach 100 distance with the hull intact. Pause to save your current flight.'];
+ guides[8]=['Sweep the frequency until the signal is strongest, then lock it.','Align the phase marker and hold a stable signal.','Repeat three pulse sequences. The decoded coordinates are saved for the finale.'];
+ guides[9]=['Enter the saved coordinates, then align the return corridor.','Repeat three core sequences. Wrong inputs reduce core integrity.','Transmit the six-symbol return code before power runs out.'];
+ const titles=['','THE AWAKENING','THE CREW','THE LAUNCH CODE','THE DESCENT','','','THE VOID','THE SIGNAL','THE RETURN'];
+ const guided=n=>[1,2,3,4,7,8,9].includes(n);
  function updateOptions(){
   document.documentElement.dataset.lightFx=String(light||media.matches);
   document.querySelectorAll('[data-control-sound]').forEach(b=>{b.textContent=sound?'CONTROL SOUND: ON':'CONTROL SOUND: OFF';b.setAttribute('aria-pressed',String(sound));});
@@ -56,7 +60,7 @@ window.MKTYExperience=(()=>{
   notes.forEach((frequency,i)=>{const o=audio.createOscillator(),g=audio.createGain(),t=audio.currentTime+i*.07;o.type='sine';o.frequency.setValueAtTime(frequency,t);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.035,t+.012);g.gain.exponentialRampToValueAtTime(.001,t+.17);o.connect(g);g.connect(audio.destination);o.start(t);o.stop(t+.2);o.onended=()=>{o.disconnect();g.disconnect();};});
  }
  function openGuide(){
-  if(current<1||current>4||guide.open||flightReview.open)return;
+  if(!guided(current)||guide.open||flightReview.open)return;
   if(current===1)memoryCodeTick?.();
   if(current===3)paidCodeHintTick3?.();
   paused=true;MKTYCampaign.save();stopLife1Stick(null);nav2Control=0;releaseDescentControls();document.body.classList.add('experience-paused');focusBefore=document.activeElement;
@@ -65,7 +69,7 @@ window.MKTYExperience=(()=>{
  }
  function resume(){if(guide.open)guide.close();if(current===1)memoryCodeTick?.(true);if(current===3)paidCodeHintTick3?.(true);paused=false;document.body.classList.remove('experience-paused');last=performance.now();if(focusBefore?.isConnected)focusBefore.focus({preventScroll:true});}
  $('guideResume').onclick=resume;$('guideMissions').onclick=()=>{resume();show('chapters');};guide.addEventListener('cancel',e=>{e.preventDefault();resume();});
- for(let n=1;n<=4;n++){
+ for(const n of [1,2,3,4,7,8,9]){
   const button=$('mission'+n).querySelector('.chapter-menu');button.textContent='Ⅱ';button.setAttribute('aria-label','Pause and mission guide');button.onclick=openGuide;
  }
  for(const id of ['repairPanel','antennaPanel']){
@@ -132,12 +136,13 @@ window.MKTYExperience=(()=>{
   frameId=requestAnimationFrame(frame);
  }
  function onScreen(id){
-  if(guide.open)resume();if(flightReview.open)closeFlightReview();current=Number(id.match(/^mission([1-5])$/)?.[1]||0);cancelAnimationFrame(frameId);frameId=0;bursts.length=0;last=performance.now();syncVideos();
+  if(guide.open)resume();if(flightReview.open)closeFlightReview();current=Number(id.match(/^mission([1-9])$/)?.[1]||0);cancelAnimationFrame(frameId);frameId=0;bursts.length=0;last=performance.now();syncVideos();
   if(current&&current<5&&!document.hidden)frameId=requestAnimationFrame(frame);
  }
  function syncVideos(){const active=document.querySelector('.screen.active');document.querySelectorAll('video').forEach(video=>{if(document.hidden||!active?.contains(video)||video.classList.contains('mk-home-bg')&&(light||media.matches))video.pause();else if(video.classList.contains('mk-home-bg'))video.play().catch(()=>{});});}
- document.addEventListener('visibilitychange',()=>{syncVideos();if(document.hidden){if(current&&current<5&&!flightReview.open)openGuide();cancelAnimationFrame(frameId);frameId=0;}else{last=performance.now();if(current&&current<5&&!frameId)frameId=requestAnimationFrame(frame);}});
+ document.addEventListener('visibilitychange',()=>{syncVideos();if(document.hidden){if(guided(current)&&!flightReview.open)openGuide();cancelAnimationFrame(frameId);frameId=0;}else{last=performance.now();if(current&&current<5&&!frameId)frameId=requestAnimationFrame(frame);}});
+ window.addEventListener('blur',()=>{if(current>=7&&guided(current)&&!flightReview.open)openGuide();});
  document.querySelectorAll('#mission1 .mission-status,#crewStatus,#life3GateStatus,#descentStatus').forEach(e=>e.setAttribute('role','status'));
  onScreen(document.querySelector('.screen.active')?.id||'home');
- return {onScreen,signal,flightFailed,get paused(){return paused;},get effectsReduced(){return light||media.matches;}};
+ return {onScreen,signal,flightFailed,pause:openGuide,get paused(){return paused;},get effectsReduced(){return light||media.matches;}};
 })();

@@ -1,15 +1,16 @@
-/* Campaign navigation and local checkpoints for the six reviewed chapters. */
+/* Campaign navigation and local checkpoints for all playable chapters. */
 window.MKTYCampaign=(()=>{
- const titles=['THE AWAKENING','THE CREW','THE LAUNCH CODE','THE DESCENT','IGNITION','LIFTOFF'];
+ const titles=['THE AWAKENING','THE CREW','THE LAUNCH CODE','THE DESCENT','IGNITION','LIFTOFF','THE VOID','THE SIGNAL','THE RETURN'];
  const key=n=>'mkty_campaign_checkpoint_'+n;
  const done=n=>localStorage.getItem('mkty_life'+n)==='complete';
  const unlocked=n=>n===1||done(n-1);
  let current=0,restoring=false;
  function read(n){try{const v=JSON.parse(localStorage.getItem(key(n))||'null');return v?.version===1?v:null;}catch{return null;}}
  function save(){
-  if(restoring||!current||current>4)return;
+  if(restoring||!current||current===5||current===6)return;
   if(done(current)){localStorage.removeItem(key(current));return;}
   let v={version:1};
+  if(current>=7){v=window.MKTYContinuation?.save(current);if(!v){localStorage.removeItem(key(current));return;}}
   if(current===1)Object.assign(v,{stage:life1Stage,x:l1PX,y:l1PY,energy:[...document.querySelectorAll('.energy.collected')].map(e=>e.dataset.energy),frequency:targetFrequency,dial:Number($('frequencyDial').value)});
   if(current===2)Object.assign(v,{joined:[...document.querySelectorAll('.mate.joined')].map(e=>e.dataset.mate),pipes:engineerTiles2});
   if(current===3)Object.assign(v,{phase:$('mission3').dataset.phase,mix:['mixO2','mixFuel','mixCool'].map(id=>Number($(id).value))});
@@ -17,6 +18,7 @@ window.MKTYCampaign=(()=>{
   try{localStorage.setItem(key(current),JSON.stringify(v));}catch{/* Continue playing if device storage is full. */}
  }
  function review(n){
+  if(n>=7){window.MKTYContinuation?.review(n);return;}
   if(n===1){
    life1Stage=3;energyCollected=3;repairCells=4;
    document.querySelectorAll('.l1-hotspot').forEach(e=>{e.disabled=true;if(e.classList.contains('energy'))e.classList.add('collected');});
@@ -35,6 +37,7 @@ window.MKTYCampaign=(()=>{
    if(done(n)){review(n);return;}
    if(n===3&&localStorage.getItem('mkty_life3_memory_verified')==='yes')setLaunchPhase3('signal');
    const v=read(n);if(!v)return;
+   if(n>=7){if(window.MKTYContinuation?.restore(n,v))window.MKTYExperience?.pause();return;}
    if(n===1&&[0,1,2].includes(v.stage)&&Array.isArray(v.energy)&&v.energy.every(x=>['1','2','3'].includes(x))&&Number.isFinite(v.x)&&Number.isFinite(v.y)){
     const collected=new Set(v.energy);if(v.stage>0&&collected.size!==3)return;
     life1Stage=v.stage;energyCollected=collected.size;l1PX=Math.max(7,Math.min(90,v.x));l1PY=Math.max(18,Math.min(88,v.y));
@@ -64,14 +67,14 @@ window.MKTYCampaign=(()=>{
  function destination(){
   if(needsCode())return 1;
   const last=Number(localStorage.getItem('mkty_current_chapter'));
-  if(last>=1&&last<=6&&unlocked(last)&&!done(last))return last;
-  return [1,2,3,4,5,6].find(n=>!done(n)&&unlocked(n))||0;
+  if(last>=1&&last<=9&&unlocked(last)&&!done(last))return last;
+  return [1,2,3,4,5,6,7,8,9].find(n=>!done(n)&&unlocked(n))||0;
  }
  function openChapter(n,cinematic=false){
-  if(!Number.isInteger(n)||n<1||n>6||!unlocked(n))return;
+  if(!Number.isInteger(n)||n<1||n>9||!unlocked(n))return;
   if(n>1&&needsCode())n=1;
-  const open=[null,openMission,openMission2,openLife3MemoryGate,openMission4,openMission5,openMission6];
-  const intro=[null,startLife1,startLife2,startLife3,startLife4,startLife5,startLife6];
+  const open=[null,openMission,openMission2,openLife3MemoryGate,openMission4,openMission5,openMission6,openMission7,openMission8,openMission9];
+  const intro=[null,startLife1,startLife2,startLife3,startLife4,startLife5,startLife6,startLife7,startLife8,startLife9];
   if(cinematic&&!done(n))intro[n]();else open[n]();
  }
  function render(){
@@ -79,20 +82,20 @@ window.MKTYCampaign=(()=>{
   $('enterBtn').textContent=n?(n===1&&!done(1)&&!read(1)?'ENTER THE MISSION 🚀':'CONTINUE LIFE #'+n+' 🚀'):'CHOOSE A MISSION';
   $('enterBtn').onclick=()=>n?openChapter(n,!localStorage.getItem('mkty_current_chapter')):show('chapters');
   const list=$('chapterList');list.replaceChildren(...titles.map((title,i)=>{
-   const n=i+1,b=document.createElement('button');b.className='chapter-card';b.dataset.chapter=String(n);b.style.setProperty('--chapter-art',"url('art/"+['life1-base.webp','life2-bridge-v2.webp','life3-bridge-v2.webp','life4-landing.webp','life5-reactor-v2.webp','life6-launchpad.webp'][i]+"')");b.disabled=!unlocked(n);
+   const n=i+1;if(n>6&&!unlocked(n)&&!done(n))return null;const b=document.createElement('button');b.className='chapter-card';b.dataset.chapter=String(n);b.style.setProperty('--chapter-art',"url('art/"+['life1-base.webp','life2-bridge-v2.webp','life3-bridge-v2.webp','life4-landing.webp','life5-reactor-v2.webp','life6-launchpad.webp','orbit-v2.webp','life1-base.webp','orbit-v2.webp'][i]+"')");b.disabled=!unlocked(n);
    const number=document.createElement('b');number.textContent=String(n).padStart(2,'0');
    const body=document.createElement('span'),name=document.createElement('strong'),status=document.createElement('small');name.textContent=title;
    status.textContent=done(n)?'COMPLETE • VIEW':unlocked(n)?'CONTINUE':'COMPLETE THE PREVIOUS CHAPTER';body.append(name,status);b.append(number,body);b.onclick=()=>openChapter(n);return b;
-  }));
+  }).filter(Boolean));
  }
  function onScreen(id){
   const n=Number(id.match(/^(?:mission|life)([1-9])$/)?.[1]||0);
   current=id.startsWith('mission')?n:0;
-  if(n>=1&&n<=6)localStorage.setItem('mkty_current_chapter',String(n));
+  if(n>=1&&n<=9)localStorage.setItem('mkty_current_chapter',String(n));
   if(id==='home'||id==='chapters')render();
  }
  $('missionsBtn').onclick=()=>show('chapters');$('chaptersBack').onclick=()=>show('home');
- for(let n=1;n<=4;n++){
+ for(const n of [1,2,3,4,7,8,9]){
   const b=document.createElement('button');b.type='button';b.className='chapter-menu';b.textContent='☰';b.setAttribute('aria-label','Missions');b.onclick=()=>show('chapters');$('mission'+n).querySelector('header').append(b);
  }
  document.querySelector('.mk-life-teaser').onclick=()=>show('chapters');

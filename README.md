@@ -4,10 +4,10 @@ Telegram Mini App starter for the MOONKATTY universe.
 
 ## Current build
 - Telegram WebApp SDK integration
-- 10-language selector with saved preference
+- 12-language selector with saved preference
 - RTL support for Hebrew
 - Mission Control home screen
-- LIFE #1 starter mission
+- Playable LIFE #1–#9 with one-time completion rewards and local checkpoints
 - Moon Points demo UI
 
 ## LIFE #5 — Reactor engineering
@@ -20,3 +20,22 @@ The reactor chapter uses three sequential stages: charge three cells while contr
 Moon Points are in-game/reputation points only. They have no monetary value and do not guarantee a future token allocation.
 
 Production rewards, social verification, persistence, wallet ownership verification and claim logic require a secure backend and must not rely on client-side state.
+
+
+## Campaign recovery audit — 4 October 2026
+
+Chapters 7–9 were reachable through the sixth chapter but missing from mission selection and resume navigation. They now appear as each continuation unlocks. Unfinished continuations retain the current stage, puzzle input, core power, ship hull, shields and asteroid positions. Returning to a saved session pauses before play resumes. Completed chapters reopen in review mode without replaying their challenges or awarding more points.
+
+The shared guide and background pause now cover chapters 7–9. Final coordinates accept either a decimal point or comma. The final balance and mission archive refresh immediately after the last reward. Existing chapter 1–6 save formats are unchanged.
+
+Verification: browser playthrough of chapters 1–6 from a fresh profile (5,500 points), then all existing continuation chapters through actual controls (12,250 cumulative points from seeded prerequisites). Targeted checks cover reload during flight and partially entered sequences, pause, failed attempts and retry, chapter locks, paid code hints, restored completions and duplicate rewards. Tests run in Chromium with mobile viewport sizes, not on physical iOS/Android devices. Telegram authentication is stubbed in isolated test profiles.
+
+Run the saved continuation regression test after installing Playwright and its Chromium browser:
+
+```sh
+npm install --no-save playwright
+npx playwright install chromium
+node tests/continuation.cjs
+```
+
+An existing compatible Chromium executable can be supplied via `CHROMIUM_PATH`; `MKTY_TEST_OUTPUT` selects the report directory. The test serves this checkout locally on a random port and never touches a real player's data. Full scene animation and asteroid avoidance are additionally checked with a real-time browser playthrough; the saved regression uses a virtual clock to exercise pause/reload boundaries deterministically.
