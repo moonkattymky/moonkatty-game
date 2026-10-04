@@ -12,9 +12,9 @@ Telegram Mini App starter for the MOONKATTY universe.
 
 ## Expanded nine-chapter campaign — pacing target: 2–3 hours
 
-Every chapter now has an eight-stage plan before its established finale. There are **54 new engineering operations and 18 required practical sorties**, in addition to the existing chapter 1–9 missions and the 18 chapter 4–9 instrument operations. The campaign entry is prominent on the home screen; free expeditions remain available separately.
+New routes use **36 spatial assignments, 27 engineering boards and 9 required sorties**, followed by the original finales 1–7 and new spatial finales 8–9. Every chapter has a dedicated discipline: rover exploration, crew scheduling, orbital maneuvers, geological landing surveys, coupled thermal control, inertial docking, stealth, triangulation and convoy routing. Assignments preserve deterministic seeds and depend on earlier objectives. The three flight contracts now vary across the chapters. Original chapter 4–9 instrument operations remain before their finale.
 
-Each plan combines route planning, power circuits, a reconnaissance sortie, signal deduction, cargo balance, shielding, a rescue or black-box sortie, and resource sequencing. Dependencies join these into a chapter objective. The first route and power tasks can be completed in either order; decoding and cargo form another parallel pair. Later chapters use larger instruments and more dangerous patrol sectors. Chapters 2–3 label their flights as simulations; the other plans describe remote operations connected to their story objective. This expansion uses the existing six puzzle families and three flight contracts with new boards and chapter context; it is not nine entirely new game genres.
+The graphical redesign adds detailed surface/orbital environments, a transparent rover, mature crew/launch art, connected chapter maps, restrained materials and larger touch controls. Interactive geometry is independent from the raster background. New motions respect reduced motion, pause and background state; docking uses frame-time physics. Zoom remains available.
 
 | Chapter | First-play pacing target, minutes |
 | --- | --- |
@@ -41,7 +41,20 @@ node tests/first-three.cjs
 node tests/operations.cjs
 ```
 
-The plan regression solves 1,080 generated boards and checks all dependencies and target totals. The browser campaign solves all 54 new boards and flies all 18 required sorties through controls, verifying all nine finale handoffs, reloads, pause and isolated rewards. Those new-stage journeys use previously completed finale flags to isolate the expansion; separate tests actually play finales 1–3 and the operations plus finales 4–9. Edge tests cover fresh locks, partial work, code verification before the chapter 3 plan, failed-flight retries and malformed checkpoint recovery. Legacy controller tests seed completed story prerequisites using `tests/story-finale-fixture.cjs`; production has no test bypass. All browser checks use isolated Chromium profiles, not physical phones or Telegram clients. Scripted solution times do not establish a human 2–3 hour playtime.
+Edition 2 is used for new plans. Existing edition-1 saves retain their original 54 boards and 18 sorties until the player chooses **New chapter route**. Replay archives the previous plan, clears only that chapter’s run checkpoints and preserves achievements, code rules, coordinates and once-only rewards. Partial spatial finales and legacy instrument sessions contribute to the displayed active time. Expanded content is Russian/English; the language screen states this explicitly. Specialist role cards in chapter 2 remain English.
+
+```sh
+node tests/field-rules.cjs
+node tests/field-ui.cjs
+node tests/worlds.cjs
+node tests/worlds-edges.cjs
+MKTY_TEST_EDITION=2 node tests/first-three.cjs
+node tests/operations-edges.cjs
+```
+
+`field-model.js` owns deterministic rules and checkpoint validation; `field-art.js` renders corresponding SVG geometry over detailed environments; `field-missions.js` owns input and lifecycle. `chapter-space.js` sequences the two phases of finale 8 and three phases of finale 9. `tests/worlds.cjs` plays all 72 edition-2 stages and the five new finale phases via visible controls. The field model regression solves 1,800 missions; the other models cover 2,520 generated boards and 240 sectors. Browser edge checks exercise malformed state recovery, migration, replay, partial finale time, pause/reload and first-time/duplicate reward settlement.
+
+Tests isolate campaign layers with seeded prerequisite records. Separate tests play the actual 1–3 finales and operations/finales 4–9. This is not a single uninterrupted human playthrough, a phone benchmark or Telegram certification. Virtual-clock solver times do not establish a human 2–3 hour duration. The remaining pacing target requires new-player observation.
 
 ## Open-sector expeditions
 

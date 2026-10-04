@@ -112,7 +112,7 @@ function leaveMission(id){
 function show(id){
  if(activeCinematic&&activeCinematic.id!==id)activeCinematic.cleanup();
  window.MKTYCampaign?.save();
- window.MKTYExpedition?.onScreen(id);
+ window.MKTYExpedition?.onScreen(id);window.MKTYField?.onScreen(id);
  document.querySelectorAll('.mission-screen.active').forEach(s=>{if(s.id!==id)leaveMission(s.id);});
  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
  $(id).classList.add('active');window.scrollTo(0,0);window.MKTYCampaign?.onScreen(id);window.MKTYExperience?.onScreen(id);
@@ -486,10 +486,10 @@ function startLife2(){
  playLifeCinematic(2,openMission2);
 }
 function openMission2(){
- stopCrewTask2();activeMate=null;document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);
+ stopCrewTask2();activeMate=null;document.querySelectorAll('.crew-task').forEach(x=>x.hidden=true);if(window.MKTYStory?.isRun(2)&&!localStorage.getItem('mkty_campaign_checkpoint_2')){crewCount=0;engineerTiles2=null;crewSync2=[];crewSyncInput2=[];crewSyncReady2=false;document.querySelectorAll('.mate').forEach(e=>e.classList.remove('joined'));$('life2Complete').hidden=true;$('crewFinal2').hidden=true;}
  const video=$('life2Video'); if(video)video.pause();
  $('crewBadge2').textContent=crewCode; show('mission2');window.MKTYCampaign?.restore(2);updateCrewScene2();
- $('crewChallengeTitle').textContent=localStorage.getItem('mkty_life2')==='complete'?'CREW ASSEMBLED':crewCount===3?'FINAL CREW PROTOCOL':'SELECT A CREW MEMBER TO BEGIN';
+ $('crewChallengeTitle').textContent=localStorage.getItem('mkty_life2')==='complete'&&!window.MKTYStory?.isRun(2)?'CREW ASSEMBLED':crewCount===3?'FINAL CREW PROTOCOL':'SELECT A CREW MEMBER TO BEGIN';
 }
 $('continueLife2Btn').onclick=(ev)=>{
  ev?.preventDefault?.();
@@ -521,7 +521,7 @@ $('continueLife2Btn').addEventListener('touchend',launchLife2FromCompletedMissio
 let crewCount=0,activeMate=null,nav2X=8,nav2Y=78,nav2Gate=0,nav2Timer=null,nav2RetryTimer=null,nav2Control=0,wire2=[0,0,0,0],scout2Hits=0,scout2Timer=null,crewSync2=[],crewSyncInput2=[],crewSyncReady2=false,engineerChecking2=false;
 function updateCrewScene2(){
  $('crewCount2').textContent=crewCount+' / 3';
- $('crewStatus').textContent=localStorage.getItem('mkty_life2')==='complete'?'Crew synchronized. Mission ready ✓':'Crew assembled: '+crewCount+' / 3'+(crewCount===3?' • Final sync ready':' • Final sync locked');
+ $('crewStatus').textContent=localStorage.getItem('mkty_life2')==='complete'&&!window.MKTYStory?.isRun(2)?'Crew synchronized. Mission ready ✓':'Crew assembled: '+crewCount+' / 3'+(crewCount===3?' • Final sync ready':' • Final sync locked');
  document.querySelectorAll('.mate').forEach(btn=>{btn.classList.toggle('selected',btn===activeMate);btn.setAttribute('aria-disabled',String(btn.classList.contains('joined')));});
 }
 function stopCrewTask2(){cancelAnimationFrame(nav2Timer);clearTimeout(nav2RetryTimer);clearMissionDelays(2);nav2Timer=null;nav2RetryTimer=null;nav2Control=0;stopScout2();engineerChecking2=false;$('testCircuit2').disabled=false;document.querySelectorAll('[data-wire2]').forEach(b=>b.disabled=false);}
