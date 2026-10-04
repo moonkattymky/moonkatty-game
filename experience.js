@@ -58,11 +58,12 @@ window.MKTYExperience=(()=>{
  function openGuide(){
   if(current<1||current>4||guide.open||flightReview.open)return;
   if(current===1)memoryCodeTick?.();
+  if(current===3)paidCodeHintTick3?.();
   paused=true;MKTYCampaign.save();stopLife1Stick(null);nav2Control=0;releaseDescentControls();document.body.classList.add('experience-paused');focusBefore=document.activeElement;
   $('guideTitle').textContent=titles[current];$('guideSteps').replaceChildren(...guides[current].map((text,i)=>{const li=document.createElement('li'),b=document.createElement('b'),p=document.createElement('p');b.textContent=String(i+1).padStart(2,'0');p.textContent=text;li.append(b,p);return li;}));
   guide.querySelector('.guide-copy').scrollTop=0;guide.showModal();$('guideResume').focus({preventScroll:true});
  }
- function resume(){if(guide.open)guide.close();if(current===1)memoryCodeTick?.(true);paused=false;document.body.classList.remove('experience-paused');last=performance.now();if(focusBefore?.isConnected)focusBefore.focus({preventScroll:true});}
+ function resume(){if(guide.open)guide.close();if(current===1)memoryCodeTick?.(true);if(current===3)paidCodeHintTick3?.(true);paused=false;document.body.classList.remove('experience-paused');last=performance.now();if(focusBefore?.isConnected)focusBefore.focus({preventScroll:true});}
  $('guideResume').onclick=resume;$('guideMissions').onclick=()=>{resume();show('chapters');};guide.addEventListener('cancel',e=>{e.preventDefault();resume();});
  for(let n=1;n<=4;n++){
   const button=$('mission'+n).querySelector('.chapter-menu');button.textContent='Ⅱ';button.setAttribute('aria-label','Pause and mission guide');button.onclick=openGuide;

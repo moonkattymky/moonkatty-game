@@ -45,7 +45,7 @@ window.MKTYCampaign=(()=>{
     ['qEnergy','qRepair','qAntenna'].forEach((id,i)=>$(id).className=i<v.stage?'done':i===v.stage?'active':'');
     $('repairTerminal').disabled=v.stage!==1;$('antennaHotspot').disabled=v.stage!==2;
     $('missionStatus').textContent=v.stage===1?'Energy restored. Repair the terminal 🔧':v.stage===2?'Terminal online. Reach COMMS and calibrate the antenna 📡':'Explore Moon Base Alpha. Use SCAN to reveal nearby energy signatures.';
-    renderLife1Player();updateLife1Nearby();
+    ensureLife1WalkablePosition();renderLife1Player();updateLife1Nearby();
    }
    if(n===2&&Array.isArray(v.joined)&&v.joined.every(x=>['Navigator','Engineer','Scout'].includes(x))){
     if(Array.isArray(v.pipes)&&v.pipes.length===9&&v.pipes.every(t=>t&&Array.isArray(t.base)&&t.base.length===2&&t.base[0]!==t.base[1]&&t.base.every(p=>Number.isInteger(p)&&p>=0&&p<4)&&Number.isInteger(t.rotation)&&t.rotation>=0&&t.rotation<4))engineerTiles2=v.pipes;

@@ -101,7 +101,7 @@ function leaveMission(id){
  const n=Number(id.replace('mission',''));clearMissionDelays(n);
  if(n===1){cancelAnimationFrame(l1MoveFrame);stopLife1Stick(null);clearInterval(signalHoldTimer);signalHoldTimer=null;stopLife1MemoryCode();repairShowing=false;}
  if(n===2){stopCrewTask2();crewSyncReady2=false;$('showCrewSync2').disabled=false;}
- if(n===3)clearLaunchPlayback3();
+ if(n===3){stopPaidCodeHint3();clearLaunchPlayback3();}
  if(n===4){descentActive4=false;cancelAnimationFrame(descentTimer);descentTimer=null;releaseDescentControls();}
  if(n===5)stopReactor5();
  if(n===6)stopLiftoff6();
@@ -143,6 +143,7 @@ function refreshLife1Geometry(){
   return {left:(r.left+3-world.left)/world.width*100,right:(r.right-3-world.left)/world.width*100,top:(r.top+r.height*.36-world.top)/world.height*100,bottom:(r.bottom-2-world.top)/world.height*100};
  })};
  document.querySelectorAll('#life1World .l1-hotspot').forEach(el=>{const r=el.getBoundingClientRect();el.style.zIndex=String(Math.round((r.bottom-world.top)/world.height*100));});
+ ensureLife1WalkablePosition();
 }
 new ResizeObserver(refreshLife1Geometry).observe($('life1World'));
 function renderLife1Player(){
@@ -176,6 +177,19 @@ function updateLife1Nearby(){
 function life1Blocked(px,py){
  // Geometry is measured on resize, never once per obstacle on every frame.
  return l1Geometry.obstacles.some(r=>px>r.left&&px<r.right&&py>r.top&&py<r.bottom);
+}
+function ensureLife1WalkablePosition(){
+ // Fixed-size scenery covers different map coordinates after a viewport resize.
+ if(!life1Blocked(l1PX,l1PY))return;
+ const xs=[l1PX,7,90],ys=[l1PY,18,88];
+ for(const r of l1Geometry.obstacles){xs.push(r.left-.5,r.right+.5);ys.push(r.top-.5,r.bottom+.5);}
+ let nearest=null,distance=Infinity;
+ for(const x of xs)for(const y of ys){
+  if(x<7||x>90||y<18||y>88||life1Blocked(x,y))continue;
+  const d=Math.hypot((x-l1PX)*l1Geometry.width,(y-l1PY)*l1Geometry.height);
+  if(d<distance){distance=d;nearest={x,y};}
+ }
+ if(nearest){l1PX=nearest.x;l1PY=nearest.y;stopLife1Stick(null);renderLife1Player();updateLife1Nearby();}
 }
 function life1MoveLoop(now){
  const dt=l1LastFrame?Math.min((now-l1LastFrame)/1000,.04):0;
@@ -420,8 +434,26 @@ function renderLife3Gate(){
  }
 }
 function openLife3MemoryGate(){
- show('mission3');resetLaunchConsole3();window.MKTYCampaign?.restore(3);$('paidCodeHint3').hidden=true;$('paidCodeValue3').textContent='';if($('journalCode3'))$('journalCode3').hidden=true;renderLife3Gate();
+ show('mission3');resetLaunchConsole3();window.MKTYCampaign?.restore(3);showPaidCodeHint3();if($('journalCode3'))$('journalCode3').hidden=true;renderLife3Gate();
  clearInterval(gateTimer);gateTimer=setInterval(renderLife3Gate,1000);
+}
+let paidCodeHintTimer3=null,paidCodeHintTick3=null;
+function stopPaidCodeHint3(){paidCodeHintTick3?.();clearInterval(paidCodeHintTimer3);paidCodeHintTimer3=null;paidCodeHintTick3=null;}
+document.addEventListener('visibilitychange',()=>paidCodeHintTick3?.(true));
+function showPaidCodeHint3(){
+ stopPaidCodeHint3();
+ const key='mkty_life3_hint_remaining_ms',saved=Number(localStorage.getItem(key)||0);
+ let remaining=Number.isFinite(saved)?Math.max(0,Math.min(10000,saved)):0,last=performance.now();
+ if(localStorage.getItem('mkty_life3_memory_verified')==='yes')remaining=0;
+ const render=(resetClock=false)=>{
+  const now=performance.now();
+  if(!resetClock&&!document.hidden&&!window.MKTYExperience?.paused&&$('mission3').classList.contains('active')&&$('mission3').dataset.phase==='access')remaining=Math.max(0,remaining-(now-last));
+  last=now;localStorage.setItem(key,String(Math.ceil(remaining)));
+  $('paidCodeHint3').hidden=remaining<=0;$('paidCodeValue3').textContent=remaining>0?ensureLife1MemoryCode():'';
+  if(remaining<=0){clearInterval(paidCodeHintTimer3);paidCodeHintTimer3=null;paidCodeHintTick3=null;}
+ };
+ paidCodeHintTick3=render;render(true);
+ if(remaining>0){$('paidCodeHint3').scrollIntoView({block:'center'});paidCodeHintTimer3=setInterval(render,200);}
 }
 $('journalCodeBtn')?.addEventListener('click',()=>{
  $('journalCode3').hidden=!$('journalCode3').hidden;
@@ -604,16 +636,14 @@ function playLifeCinematic(n,onDone){
 function startLife3(){playLifeCinematic(3,openLife3MemoryGate);}
 $('continueLife3Btn').onclick=(ev)=>{ev?.preventDefault?.();if(!unlockLife3())return;if($('lifeTitle'))$('lifeTitle').textContent='LIFE #3 — THE LAUNCH CODE';if($('lifeText'))$('lifeText').textContent='Decrypt the ship launch authorization sequence.';startLife3();};
 if($('life3Card'))$('life3Card').onclick=()=>$('continueLife3Btn').click();
-$('verifyLife1CodeBtn').onclick=()=>{const lock=Number(localStorage.getItem('mkty_life3_code_lock_until')||0);if(lock>Date.now())return;const entered=$('life3MemoryInput').value.trim();if(!/^\d{10}$/.test(entered)){$('life3GateStatus').textContent='Enter all 10 digits. No life has been spent.';return;}if(entered===ensureLife1MemoryCode()){clearInterval(gateTimer);$('life3GateStatus').textContent='CODE VERIFIED ✓';localStorage.setItem('mkty_life3_memory_verified','yes');renderMissionArchive();
+$('verifyLife1CodeBtn').onclick=()=>{const lock=Number(localStorage.getItem('mkty_life3_code_lock_until')||0);if(lock>Date.now())return;const entered=$('life3MemoryInput').value.trim();if(!/^\d{10}$/.test(entered)){$('life3GateStatus').textContent='Enter all 10 digits. No life has been spent.';return;}if(entered===ensureLife1MemoryCode()){clearInterval(gateTimer);$('life3GateStatus').textContent='CODE VERIFIED ✓';localStorage.setItem('mkty_life3_memory_verified','yes');showPaidCodeHint3();renderMissionArchive();
 renderDailyMissions();
 renderCrewNetwork();$('life3MemoryInput').blur();setLaunchPhase3('signal');newLaunchCode();$('codeStatus').textContent='Attempts remaining: '+codeAttempts;window.MKTYCampaign?.save();tg?.HapticFeedback?.notificationOccurred?.('success');return;}if(!spendGlobalLife()){$('life3GateStatus').textContent='No lives available. A life restores every 12 hours.';return;}localStorage.setItem('mkty_life3_hint_available','yes');localStorage.setItem('mkty_life3_code_lock_until',String(Date.now()+MKTY_CODE_LOCK_MS));$('life3MemoryInput').value='';tg?.HapticFeedback?.notificationOccurred?.('error');renderLife3Gate();};
 $('life3MemoryInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&$('mission3').classList.contains('active')&&$('mission3').dataset.phase==='access'&&!$('verifyLife1CodeBtn').disabled&&!window.MKTYExperience?.paused){e.preventDefault();$('verifyLife1CodeBtn').click();}});
 $('buyCodeHintBtn').onclick=()=>{
  if(Number(localStorage.getItem('mkty_life3_code_lock_until')||0)>Date.now()||localStorage.getItem('mkty_life3_hint_available')!=='yes')return;
  if(!spendGlobalLife()){$('life3GateStatus').textContent='No lives available. A life restores every 12 hours.';return;}
- localStorage.removeItem('mkty_life3_hint_available');renderLife3Gate();
- $('paidCodeHint3').hidden=false;$('paidCodeValue3').textContent=ensureLife1MemoryCode();
- laterInMission(3,()=>{$('paidCodeHint3').hidden=true;$('paidCodeValue3').textContent='';},10000);
+ localStorage.setItem('mkty_life3_hint_remaining_ms','10000');localStorage.removeItem('mkty_life3_hint_available');renderLife3Gate();showPaidCodeHint3();
 };
 let launchCode=[],codeInput=[],codeAttempts=3,codeReady=false,codeRevealTimer3=null;
 const codeSymbols=['▲','●','◆','■'];
