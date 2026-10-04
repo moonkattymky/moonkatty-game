@@ -73,3 +73,14 @@ Prompt: Production background for MOONKATTY chapter 6 LIFTOFF, portrait 3:4. Pre
 `liftoff6-fx.js` keeps the existing launch-pad, orbit and ship artwork. Ship position and bank update with each animation frame using a compositor transform; bounded engine plumes, maneuvering jets, route chevrons, exact-width beacon gates and the lunar horizon render separately at up to 30 Hz. The lunar surface and glow textures are cached. Particle detail adapts to render cost; reduced effects suppress decorative particles and banking. Pausing freezes both the simulation and scene. The flight renderer stops after completion.
 
 The visible route follows the same ±14% corridor as flight validation. Three milestone markers show confirmed checkpoints. Thrust buttons support a single tap and held adjustment, with release on pause or lost pointer capture. Flight summaries preserve time, hull and fuel for completed-session review. Existing version-1 checkpoints remain supported; older in-flight saves without time tracking display an unavailable duration rather than an invented total.
+
+
+### LIFE 6 ceramic cockpit and orbital panorama — 4 October 2026
+
+`life6-orbit-v2.webp` was created with the built-in ImageGen tool, then converted to WebP (quality 87). Source: `exec-9a4e9a1a-b625-4528-aa38-eb44c96360fc.png`, recomposed from `exec-71e2480d-bd9f-4185-82aa-38f05b0905b2.png`. The ship remains the existing branded sprite. The generated horizon replaces the previous cached procedural moon in chapter 6; other chapters retain their shared orbital artwork.
+
+Prompt: Premium mobile space-exploration environment, stylized-concept, cinematic realistic science fiction, square 1:1. Curved lunar horizon in the lower quarter, richly detailed silver craters, fine shadows and warm copper sunrise. White-gold sunlight from upper left, small detailed blue Earth in upper right, deep indigo/cobalt space and restrained teal nebula. Central 60% is dark, clear open space for the separately rendered spacecraft, flight gates and UI. Crisp tactile details and restrained bloom. Background only: no spacecraft, people, interface, text, logos or watermarks.
+
+The ceramic control deck uses original inline vector icons. Preflight diagnostic nodes connect to the spacecraft and reflect the actual armed, next and fault states. Compact scenes hide decorative nodes while preserving the same labeled controls. Ignition steps reflect the live safe-thrust range and completed hold. Presentation changes retain version-1 saves, physics, retry checkpoints and rewards.
+
+Composition refinement: recompose the first portrait into a square without stretching planets or craters. Keep both Earth and lunar horizon visible in the near-square game scene, put Earth in the upper-right quadrant, leave the central play area and top instrument strip clear. Preserve the reference color grade, lighting and fine texture.

@@ -127,13 +127,23 @@ const Liftoff6=(()=>{
   $('lfIgnite6').disabled=s.paused||s.phase!=='ignition';$('lfIgnite6').classList.toggle('held',ignitionHeld);
   text('lfState6',{briefing:'PAD ALPHA',preflight:'FLIGHT CHECK',ignition:'ENGINE START',countdown:'LIFTOFF',flight:'ASCENT',abort:'FLIGHT REVIEW',orbit:'ORBITAL INSERTION',complete:'ORBIT SECURED'}[s.phase]);
   text('lfSceneTag6',s.paused?'PAUSED':s.phase==='complete'?'CREW SAFE / FLIGHT COMPLETE':s.phase==='flight'?'ASCENT CORRIDOR':s.phase==='abort'?'FLIGHT HOLD':s.armed===4?'ALL SYSTEMS READY':'ALL SYSTEMS STANDBY');
+  if(s.phase==='preflight'&&!s.paused)text('lfSceneTag6',s.faultActive?'FAULT LOCATION':'SYSTEM DIAGNOSTICS');
   text('lfAltitude6',String(Math.floor(s.alt)).padStart(4,'0'));text('lfSpeed6',Math.round(s.speed));text('lfFuel6',Math.ceil(s.fuel));text('lfClock6',s.clock.toFixed(1));
   const order=$('lfOrder6');if(order.dataset.order!==s.order.join(',')){order.dataset.order=s.order.join(',');order.replaceChildren(...s.order.map(name=>{const e=document.createElement('span');e.textContent=name;return e;}));}
   [...order.children].forEach((e,i)=>{e.classList.toggle('current',i===s.armed);e.classList.toggle('done',i<s.armed);});
-  root.querySelectorAll('[data-lf-system]').forEach(b=>{const armed=s.order.slice(0,s.armed).includes(b.dataset.lfSystem);b.classList.toggle('armed',armed);b.disabled=s.paused||s.phase!=='preflight'||armed||s.faultActive;});
+  root.querySelectorAll('[data-lf-system]').forEach(b=>{const armed=s.order.slice(0,s.armed).includes(b.dataset.lfSystem);b.classList.toggle('armed',armed);b.classList.toggle('next',s.phase==='preflight'&&!s.faultActive&&b.dataset.lfSystem===s.order[s.armed]);b.disabled=s.paused||s.phase!=='preflight'||armed||s.faultActive;});
+  $('lfSystemMap6').hidden=s.phase!=='preflight';
+  root.querySelectorAll('[data-lf-node]').forEach(e=>{
+   const name=e.dataset.lfNode,fault=s.faultActive&&name===['FUEL','NAV','CORE'][s.fault],armed=s.order.slice(0,s.armed).includes(name),next=!s.faultActive&&name===s.order[s.armed];
+   e.dataset.state=fault?'fault':armed?'ready':next?'next':'standby';
+   text('lfNode'+name[0]+name.slice(1).toLowerCase()+'6',fault?'FAULT':armed?'READY':next?'NEXT SYSTEM':'STANDBY');
+  });
   $('lfSystems6').hidden=s.faultActive;$('lfFault6').hidden=!s.faultActive;
   text('lfFaultTitle6',faults[s.fault].title);text('lfFaultHint6',faults[s.fault].hint);
   text('lfThrust6',s.throttle+'%');text('lfHold6',s.hold.toFixed(1)+' / 3.0 s');$('lfHoldFill6').style.transform='scaleX('+(s.hold/3)+')';
+  const readyThrust=s.throttle>=54&&s.throttle<=70;
+  $('lfThrustStep6').classList.toggle('ready',readyThrust);$('lfHoldStep6').classList.toggle('current',readyThrust&&s.phase==='ignition');$('lfHoldStep6').classList.toggle('ready',s.phase==='countdown');
+  $('lfHullMetric6').dataset.caution=String(s.hull<40);$('lfHeatMetric6').dataset.caution=String(s.temp>86);
   text('lfBeacons6',s.gates+' / 3');text('lfHull6',Math.ceil(s.hull)+'%');text('lfHeat6',Math.round(s.temp)+'°');text('lfGateDistance6',Math.max(0,Math.ceil((s.gates+1)*1000-s.alt))+' m');
   const offset=s.x-target(s.alt);text('lfCourse6',Math.abs(offset)>12?(offset>0?'CORRECT LEFT':'CORRECT RIGHT'):'ON COURSE');
   root.dataset.course=Math.abs(offset)>14?'outside':'aligned';

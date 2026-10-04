@@ -1,28 +1,19 @@
 /* Flight presentation: compositor-driven ship at display refresh rate,
-   bounded canvas effects at 30 Hz, and cached lunar surface lighting. */
+   bounded canvas effects at 30 Hz, and a live preflight systems diagram. */
 window.Liftoff6FX=(()=>{
  function create({scene,canvas,ship,environment,target}){
   const ctx=canvas.getContext('2d'),stars=Array.from({length:48},(_,i)=>({x:(i*.61803398875)%1,y:(i*.38196601125)%1,size:i%5===0?1.3:.65}));
-  let width=1,height=1,dpr=1,size=110,hud=45,bank=0,x=0,y=0,phase='',orbital=0;
+  let width=1,height=1,dpr=1,size=110,hud=45,bank=0,x=0,y=0,phase='',orbital=0,systemHigh=80,systemLow=160;
   const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
   const glowTexture=document.createElement('canvas');glowTexture.width=glowTexture.height=64;
   const g=glowTexture.getContext('2d');if(g){const light=g.createRadialGradient(32,32,0,32,32,32);light.addColorStop(0,'#f4ffff');light.addColorStop(.14,'#b8f5ffe0');light.addColorStop(.42,'#61ccff50');light.addColorStop(1,'#50baff00');g.fillStyle=light;g.fillRect(0,0,64,64);}
-  const moon=document.createElement('canvas');moon.width=1024;moon.height=384;
-  const m=moon.getContext('2d');if(m){
-   m.save();m.beginPath();m.ellipse(512,410,680,370,0,0,Math.PI*2);m.clip();
-   const rock=m.createLinearGradient(0,40,0,384);rock.addColorStop(0,'#dce8ef');rock.addColorStop(.10,'#b7c9d4');rock.addColorStop(.45,'#6d8da1');rock.addColorStop(1,'#1a3e58');m.fillStyle=rock;m.fillRect(0,0,1024,384);
-   for(let i=0;i<90;i++){
-    const cx=(i*197.13)%1024,cy=62+(i*97.71)%340,r=4+(i*13.31)%42;
-    m.fillStyle='#102b4624';m.beginPath();m.ellipse(cx,cy,r,r*.32,0,0,Math.PI*2);m.fill();
-    m.strokeStyle='#edf8ff28';m.lineWidth=1.5;m.beginPath();m.ellipse(cx,cy-2,r,r*.32,0,Math.PI,Math.PI*2);m.stroke();
-   }
-   m.restore();m.strokeStyle='#e9faffb0';m.lineWidth=2;m.beginPath();m.ellipse(512,410,680,370,0,Math.PI,Math.PI*2);m.stroke();
-  }
   function resize(){
    width=scene.clientWidth;height=scene.clientHeight;if(!width||!height)return;
    dpr=Math.min(devicePixelRatio||1,1.5);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
    size=Math.max(56,Math.min(142,width*.32,(height-65)*1.45));hud=scene.querySelector('.lf-telemetry').offsetHeight;
    ship.style.width=size+'px';ship.style.left=ship.style.top='0';
+   systemLow=Math.min(height*.59,height-hud-48);systemHigh=Math.min(height*.32,systemLow-70);
+   scene.dataset.compact=String(height<220);scene.style.setProperty('--system-high',systemHigh+'px');scene.style.setProperty('--system-low',systemLow+'px');
   }
   function pose(s,dt,reduced){
    const flight=['flight','orbit','complete'].includes(s.phase)||s.phase==='abort'&&s.failedStage==='flight';
@@ -32,8 +23,8 @@ window.Liftoff6FX=(()=>{
    const settle=reduced?0:Math.sin(s.elapsed*2.1)*.6*(s.phase==='flight'?1:0);
    ship.style.transform='translate3d('+(x-size/2)+'px,'+(y-size*.3298+settle)+'px,0) rotate('+bank+'deg) scale('+(1-orbital*.22)+')';
    scene.style.setProperty('--engine',String(flight?s.throttle/80:s.phase==='ignition'?.2+s.hold/4:s.phase==='countdown'?.9:.12));
-   scene.style.setProperty('--orbit',String(clamp((s.alt-220)/1800,0,.94)));
-   environment.style.transform='translate3d(0,'+(rise*height*.06)+'px,0) scale('+(1.04+rise*.12)+')';environment.style.opacity=String(1-clamp((s.alt-500)/1500,0,1));
+   const transition=clamp((s.alt-400)/650,0,1);scene.style.setProperty('--orbit',String(transition));
+   environment.style.transform='translate3d(0,'+(rise*height*.06)+'px,0) scale('+(1.04+rise*.12)+')';environment.style.opacity=String(1-transition);
    if(phase!==s.phase){phase=s.phase;scene.dataset.flight=String(flight);}
   }
   function glow(px,py,r,alpha){ctx.globalAlpha=alpha;ctx.drawImage(glowTexture,px-r,py-r,r*2,r*2);}
@@ -42,12 +33,19 @@ window.Liftoff6FX=(()=>{
    const flight=['flight','orbit','complete'].includes(s.phase)||s.phase==='abort'&&s.failedStage==='flight';
    const time=reduced?0:s.elapsed,power=s.phase==='flight'?s.throttle/100:s.phase==='orbit'?(1-orbital)*.35:s.phase==='ignition'?s.hold/4:s.phase==='countdown'?.7:0;
    ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,width,height);
-   // The pad recedes into a curved lunar horizon without stretching either artwork.
-   const horizon=clamp((s.alt-1600)/1400,0,1);
-   if(horizon>0){ctx.globalAlpha=horizon*.88;ctx.drawImage(moon,-width*.12,height*(.70+orbital*.08),width*1.24,height*.55);ctx.globalAlpha=1;}
    if(flight){
     for(const star of stars){ctx.fillStyle='#d4f0ff';ctx.globalAlpha=(.17+star.size*.11)*clamp(s.alt/850,0,1);ctx.fillRect(star.x*width,(star.y*height+time*(star.size*.45))%height,star.size,star.size);}
     ctx.globalAlpha=1;
+   }
+   if(s.phase==='preflight'&&height>=220){
+    const fault=s.faultActive?['FUEL','NAV','CORE'][s.fault]:null;
+    for(const [name,side,top] of [['NAV',-1,true],['FUEL',-1,false],['CREW',1,true],['CORE',1,false]]){
+     const armed=s.order.slice(0,s.armed).includes(name),next=!s.faultActive&&s.order[s.armed]===name;
+     const nx=width*(side<0?.14:.86),ny=top?systemHigh:systemLow,anchorX=x+side*size*.22,anchorY=y+(top?-size*.16:size*.08),elbowX=x+side*size*.62;
+     ctx.strokeStyle=fault===name?'#ffbd91d9':armed?'#aaf2d5c9':next?'#ffe2a6d9':'#badbe659';ctx.lineWidth=armed||next||fault===name?1.6:1;
+     ctx.beginPath();ctx.moveTo(nx,ny);ctx.lineTo(elbowX,ny);ctx.lineTo(elbowX,anchorY);ctx.lineTo(anchorX,anchorY);ctx.stroke();
+     ctx.fillStyle=ctx.strokeStyle;ctx.beginPath();ctx.arc(anchorX,anchorY,2.5,0,Math.PI*2);ctx.fill();
+    }
    }
    if(s.phase==='flight'||s.phase==='abort'&&s.failedStage==='flight'){
     const ahead=700,py=alt=>y-(alt-s.alt)/ahead*height;

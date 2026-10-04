@@ -647,6 +647,17 @@ CORRECT RIGHT|ВЫРОВНЯЙТЕ КУРС ВПРАВО
 54–70% SAFE · HOLD ± TO ADJUST|54–70% — НОРМА · УДЕРЖИВАЙТЕ ± ДЛЯ НАСТРОЙКИ
 FLIGHT TIME|ВРЕМЯ ПОЛЁТА
 FUEL LEFT|ОСТАТОК ТОПЛИВА
+ALTITUDE|ВЫСОТА
+REACTOR|РЕАКТОР
+SET THRUST|ВЫСТАВИТЬ ТЯГУ
+HOLD TO IGNITE|УДЕРЖИВАТЬ ЗАПУСК
+STEERING|КУРС
+NEXT BEACON|ДО МАЯКА
+SYSTEM DIAGNOSTICS|СХЕМА СИСТЕМ
+FAULT LOCATION|ОБНАРУЖЕН СБОЙ
+NEXT SYSTEM|СЛЕДУЮЩАЯ
+STANDBY|ОЖИДАНИЕ
+FAULT|СБОЙ
 Ascent checkpoints|Контрольные точки взлёта
 Flight summary|Итоги полёта
 MOONKATTY spacecraft above the lunar launch pad|Корабль MOONKATTY над лунной стартовой площадкой
