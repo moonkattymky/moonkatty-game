@@ -1,7 +1,7 @@
 /* Chapters 4–9: three distinct, persistent engineering operations before the live mission. */
 window.MKTYOps=(()=>{
  'use strict';
- const R=MissionRules,cache=new Map(),originals={},glyphs=['▲','●','◆','■','✚','⬡'];
+ const R=MissionRules,Art=OperationsArt,cache=new Map(),originals={},glyphs=['▲','●','◆','■','✚','⬡'];
  const assets={4:'life4-landing.webp',5:'life5-reactor-v2.webp',6:'life6-launchpad.webp',7:'life7-void.webp',8:'life1-base.webp',9:'orbit-v2.webp'};
  const names={4:['КАРТА СПУСКА','DESCENT SURVEY'],5:['ЭНЕРГОСЕТЬ','POWER GRID'],6:['БАЛАНС КОРАБЛЯ','SHIP BALANCE'],7:['ЗАЩИТНЫЙ КОНТУР','SHIELD ARRAY'],8:['НЕИЗВЕСТНЫЙ СИГНАЛ','UNKNOWN SIGNAL'],9:['ВОЗВРАЩЕНИЕ ЭКИПАЖА','CREW RECOVERY']};
  const stages={4:[['Разведка плато','Plateau survey'],['Поле разломов','Fracture field'],['Посадочный коридор','Landing corridor']],5:[['Питание насосов','Pump supply'],['Контур охлаждения','Cooling circuit'],['Магистраль реактора','Reactor mainline']],6:[['Грузовой отсек','Cargo bay'],['Топливные баки','Fuel tanks'],['Орбитальный модуль','Orbital module']],7:[['Помехи радара','Radar interference'],['Резервный экран','Reserve screen'],['Защита экипажа','Crew protection']],8:[['Позывной','Call sign'],['Ключ ретранслятора','Relay key'],['Адрес источника','Source address']],9:[['Аварийное питание','Emergency power'],['Жизнеобеспечение','Life support'],['Подготовка шлюза','Gate preparation']]};
@@ -10,11 +10,11 @@ window.MKTYOps=(()=>{
  let s=null,b=null,highlight=[],message='',paused=false;
  const root=document.createElement('section');root.id='operationsDeck';root.className='screen ops-screen';root.setAttribute('translate','no');root.innerHTML=`
   <header class="ops-header"><div><small id="opsEyebrow"></small><h2 id="opsTitle"></h2></div><button id="opsMenu" type="button">☰</button></header>
-  <div class="ops-hero"><div><span id="opsStage"></span><strong id="opsStageTitle"></strong><small id="opsJourney"></small></div><b id="opsNumber" aria-hidden="true"></b></div>
+  <div class="ops-hero"><div><span id="opsStage"></span><strong id="opsStageTitle"></strong><small id="opsJourney"></small></div><b id="opsNumber" aria-hidden="true"></b><div id="opsProgress" class="ops-progress" aria-hidden="true"><i></i><i></i><i></i></div></div>
   <div class="ops-content"><div class="ops-brief"><p id="opsInstructions"></p><div id="opsMetrics" class="ops-metrics"></div></div>
-  <div id="opsBoard" class="ops-board" dir="ltr"></div><div id="opsExtras"></div>
-  <p id="opsStatus" role="status" aria-live="polite"></p></div>
-  <footer class="ops-footer"><div><button id="opsUndo" type="button"></button><button id="opsReset" type="button"></button><button id="opsHint" type="button"></button></div><button id="opsSubmit" class="primary" type="button"></button></footer>
+  <div class="ops-instrument"><div class="ops-instrument-head"><span id="opsInstrumentLabel"></span><span id="opsInstrumentState"></span></div><div id="opsScope" hidden></div><div id="opsBoard" class="ops-board" dir="ltr"></div><div class="ops-instrument-foot" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div><div id="opsExtras"></div>
+  </div>
+  <footer class="ops-footer"><p id="opsStatus" role="status" aria-live="polite"></p><div><button id="opsUndo" type="button"></button><button id="opsReset" type="button"></button><button id="opsHint" type="button"></button></div><button id="opsSubmit" class="primary" type="button"></button></footer>
   <dialog id="opsPause"><h3 id="opsPauseTitle"></h3><p id="opsPauseText"></p><button id="opsResume" class="primary" type="button"></button><button id="opsExit" class="ghost" type="button"></button></dialog>`;
  $('app').append(root);
  const active=()=>root.classList.contains('active');
@@ -48,43 +48,45 @@ window.MKTYOps=(()=>{
  function complete(n){const run=read(n);if(run?.phase!=='core')return;run.phase='complete';cache.set(n,run);try{localStorage.setItem(key(n),JSON.stringify(run));}catch{}renderReplay(n);}
  function renderReplay(n){const card=$('life'+n+'Complete');if(!card)return;let button=card.querySelector('.ops-replay');if(!button){button=document.createElement('button');button.type='button';const back=$('life'+n+'ReturnBtn'),actions=document.createElement('div');actions.className='ops-result-actions';button.className=(back?.className||'ghost')+' ops-replay';button.setAttribute('translate','no');button.onclick=()=>restart(n);if(back)actions.append(back);actions.append(button);card.append(actions);}button.textContent=tr('ЕЩЁ РАЗ','REPLAY');button.title=tr('Новый набор задач. Заработанные очки сохраняются.','New challenges. Earned points are preserved.');}
  function button(index,label,cls=''){const el=document.createElement('button');el.type='button';el.className='ops-tile '+cls;el.dataset.opCell=index;el.innerHTML=label;el.disabled=s.confirmed;el.classList.toggle('hinted',highlight.includes(index));el.onclick=()=>act(index);return el;}
- function metric(label,value,good=false){const e=document.createElement('span');e.className=good?'ok':'';e.textContent=label+' '+value;return e;}
+ function metric(label,value,good=false){const e=document.createElement('span');e.className=good?'ok':'';e.innerHTML='<small>'+label+'</small><b>'+value+'</b>';return e;}
  function render(){
   if(!s||!b||!active())return;const p=s.input,board=$('opsBoard'),metrics=$('opsMetrics'),extras=$('opsExtras'),focused=document.activeElement?.dataset?.opCell;
   root.dataset.kind=b.type;root.dataset.solved=String(s.confirmed);
   $('opsEyebrow').textContent=tr('ГЛАВА ','CHAPTER ')+s.n+' / 09';$('opsTitle').textContent=pair(names[s.n]);$('opsMenu').setAttribute('aria-label',tr('Пауза и меню','Pause and menu'));
   $('opsStage').textContent=tr('ОПЕРАЦИЯ ','OPERATION ')+(s.round+1)+' / 3';$('opsStageTitle').textContent=pair(stages[s.n][s.round]);$('opsNumber').textContent=String(s.round+1).padStart(2,'0');
-  $('opsJourney').textContent=tr('3 операции → игровая миссия → результат','3 operations → live mission → result');$('opsInstructions').textContent=pair(copy[b.type]);
+  $('opsJourney').textContent=tr('БОРТОВОЙ КОМПЛЕКС / MKTY','ONBOARD SYSTEMS / MKTY');$('opsProgress').querySelectorAll('i').forEach((e,i)=>{e.className=i<s.round?'done':i===s.round?'current':'';});$('opsInstructions').textContent=pair(copy[b.type]);
+  $('opsInstrumentLabel').textContent=({route:'TERRAIN / NAV',pipes:'POWER / BUS',cargo:'PAYLOAD / TRIM',shield:'DEFENCE / ARRAY',cipher:'COMMS / DECODE',systems:'RECOVERY / CONTROL'})[b.type];$('opsInstrumentState').textContent=s.confirmed?tr('ПОДТВЕРЖДЕНО','CONFIRMED'):tr('РУЧНОЙ РЕЖИМ','MANUAL CONTROL');$('opsScope').hidden=b.type!=='cipher';$('opsScope').innerHTML=b.type==='cipher'?Art.oscilloscope(p.history.length):'';
   board.replaceChildren();metrics.replaceChildren();extras.replaceChildren();board.style.setProperty('--cols',b.n||b.cols||b.size);board.className='ops-board ops-'+b.type;
   if(b.type==='route'){
    const used=R.routeCost(b,p);metrics.append(metric(tr('ТОПЛИВО','FUEL'),(b.budget-used)+' / '+b.budget),metric(tr('МАЯКИ','BEACONS'),b.beacons.filter(i=>p.path.includes(i)).length+' / 3'));
    for(let i=0;i<b.n*b.n;i++){const rock=b.rocks.includes(i),beacon=b.beacons.indexOf(i),at=p.path.at(-1)===i,visited=p.path.includes(i),label=i===0?'S':i===b.n*b.n-1?'E':rock?'▰':beacon>=0?'◈'+(beacon+1):b.cost[i]===3?'3':'·';
-    const e=button(i,`<span>${label}</span>${at?'<i class="ops-position">◆</i>':''}`,`${rock?'rock ':''}${b.cost[i]===3?'rough ':''}${visited?'visited ':''}${beacon>=0?'ops-beacon ':''}${at?'current':''}`);e.disabled=s.confirmed||rock;e.setAttribute('aria-label',tr('Клетка ','Cell ')+(i+1)+', '+(rock?tr('скала','rock'):label+', '+tr('расход ','cost ')+b.cost[i]));board.append(e);}
+    const e=button(i,Art.routeCell({i,n:b.n,rock,beacon,cost:b.cost[i],current:at}),`${rock?'rock ':''}${b.cost[i]===3?'rough ':''}${visited?'visited ':''}${beacon>=0?'ops-beacon ':''}${at?'current':''}`);e.disabled=s.confirmed||rock;e.setAttribute('aria-label',tr('Клетка ','Cell ')+(i+1)+', '+(rock?tr('скала','rock'):label+', '+tr('расход ','cost ')+b.cost[i]));board.append(e);}
   }else if(b.type==='pipes'){
    const trace=R.pipeTrace(b,p);metrics.append(metric(tr('УЗЛЫ','NODES'),b.beacons.filter(i=>trace.path.includes(i)).length+' / 3'),metric(tr('ВЫХОД','OUTPUT'),trace.success?'ONLINE':'—',trace.success));
-   b.ports.forEach((ports,i)=>{const ends=ports.map(d=>(d+p.turns[i])%4),coords=[[50,0],[100,50],[50,100],[0,50]],path=ends.map(d=>`M50 50 L${coords[d].join(' ')}`).join(' '),beacon=b.beacons.indexOf(i),e=button(i,`<svg viewBox="0 0 100 100" aria-hidden="true"><path d="${path}"/><circle cx="50" cy="50" r="${beacon>=0?15:6}"/></svg><small>${i===0?'IN':i===b.n*b.n-1?'OUT':beacon>=0?'◈'+(beacon+1):''}</small>`,trace.path.includes(i)?'powered':'');e.dataset.ports=ends.join(',');e.setAttribute('aria-label',tr('Сегмент ','Segment ')+(i+1)+', '+ends.join('/'));board.append(e);});
+   b.ports.forEach((ports,i)=>{const ends=ports.map(d=>(d+p.turns[i])%4),beacon=b.beacons.indexOf(i),e=button(i,Art.pipeCell(ends,i,beacon,b.n*b.n-1),trace.path.includes(i)?'powered':'');e.dataset.ports=ends.join(',');e.setAttribute('aria-label',tr('Сегмент ','Segment ')+(i+1)+', '+ends.join('/'));board.append(e);});
   }else if(b.type==='cargo'){
    board.style.setProperty('--cols',b.cols+1);let matches=0;
-   for(let r=0;r<b.rows;r++){for(let c=0;c<b.cols;c++){const i=r*b.cols+c,e=button(i,`<small>${String.fromCharCode(65+r)}${c+1}</small><b>${p.tiles[i]}</b>`,p.selected===i?'selected':'');e.setAttribute('aria-label',`${String.fromCharCode(65+r)}${c+1}: ${p.tiles[i]}`);board.append(e);}
+   for(let r=0;r<b.rows;r++){for(let c=0;c<b.cols;c++){const i=r*b.cols+c,e=button(i,Art.cargoCell(String.fromCharCode(65+r)+(c+1),p.tiles[i]),p.selected===i?'selected':'');e.setAttribute('aria-label',`${String.fromCharCode(65+r)}${c+1}: ${p.tiles[i]}`);board.append(e);}
     const sum=p.tiles.slice(r*b.cols,r*b.cols+b.cols).reduce((a,b)=>a+b,0),e=document.createElement('div');e.className='ops-sum '+(sum===b.row[r]?'ok':'');e.textContent=sum+' / '+b.row[r];board.append(e);matches+=Number(sum===b.row[r]);}
    for(let c=0;c<b.cols;c++){const sum=p.tiles.filter((_,i)=>i%b.cols===c).reduce((a,b)=>a+b,0),e=document.createElement('div');e.className='ops-sum '+(sum===b.col[c]?'ok':'');e.textContent=sum+' / '+b.col[c];board.append(e);matches+=Number(sum===b.col[c]);}metrics.append(metric(tr('СОВПАДЕНИЯ','MATCHES'),matches+' / '+(b.rows+b.cols)));
   }else if(b.type==='shield'){
    metrics.append(metric(tr('УЗЛЫ ОНЛАЙН','NODES ONLINE'),p.lamps.filter(v=>!v).length+' / '+p.lamps.length),metric(tr('ХОДЫ','MOVES'),p.history.length));
-   p.lamps.forEach((v,i)=>{const e=button(i,`<span>${v?'×':'◉'}</span><small>${i+1}</small>`,v?'jammed':'powered');e.setAttribute('aria-label',tr('Узел ','Node ')+(i+1)+': '+(v?tr('помехи','jammed'):tr('включён','online')));board.append(e);});
+   p.lamps.forEach((v,i)=>{const e=button(i,Art.shieldCell(i,v),v?'jammed':'powered');e.setAttribute('aria-label',tr('Узел ','Node ')+(i+1)+': '+(v?tr('помехи','jammed'):tr('включён','online')));board.append(e);});
   }else if(b.type==='cipher'){
    metrics.append(metric(tr('ПОПЫТКИ','ATTEMPTS'),p.history.length+' / '+b.limit));
-   p.guess.forEach((v,i)=>{const e=button(i,`<small>${i+1}</small><b>${v===null?'?':glyphs[v]}</b>`,p.slot===i?'selected':'');e.setAttribute('aria-label',tr('Позиция ','Slot ')+(i+1));board.append(e);});
-   const keys=document.createElement('div');keys.className='ops-keys';glyphs.forEach((g,i)=>{const e=document.createElement('button');e.type='button';e.textContent=g;e.dataset.opGlyph=i;e.disabled=s.confirmed||p.history.length>=b.limit;e.onclick=()=>{p.guess[p.slot]=i;p.slot=(p.slot+1)%b.size;changed();};keys.append(e);});extras.append(keys);
+   p.guess.forEach((v,i)=>{const e=button(i,`<small class="oa-channel">CH / 0${i+1}</small>${Art.symbol(v===null?-1:v)}`,p.slot===i?'selected':'');e.setAttribute('aria-label',tr('Позиция ','Slot ')+(i+1));board.append(e);});
+   const keys=document.createElement('div');keys.className='ops-keys';glyphs.forEach((g,i)=>{const e=document.createElement('button');e.type='button';e.innerHTML=Art.symbol(i)+'<small>0'+(i+1)+'</small>';e.setAttribute('aria-label',g);e.dataset.opGlyph=i;e.disabled=s.confirmed||p.history.length>=b.limit;e.onclick=()=>{p.guess[p.slot]=i;p.slot=(p.slot+1)%b.size;changed();};keys.append(e);});extras.append(keys);
    if(p.revealed.length){const note=document.createElement('p');note.className='ops-keyhint';note.textContent=tr('Подсказка: ','Hint: ')+p.revealed.map(i=>(i+1)+' = '+glyphs[b.secret[i]]).join(' · ');extras.append(note);}
    const history=document.createElement('ol');history.className='ops-history';p.history.forEach((g,i)=>{const f=R.feedback(g,b.secret),row=document.createElement('li');row.dataset.exact=f.exact;row.dataset.near=f.near;row.innerHTML=`<small>${i+1}</small><span>${g.map(v=>glyphs[v]).join(' ')}</span><b>● ${f.exact}　◇ ${f.near}</b>`;history.append(row);});extras.append(history);
    if(p.history.length>=b.limit&&!R.solved(b,p))message=tr('Лимит исчерпан. Начни новый ключ: остальные операции сохранятся.','Attempts used. Start a new key; earlier operations are preserved.');
   }else{
    const stock=R.stock(b,p),resourceNames=tr('ЭНЕРГИЯ,ХЛАДАГЕНТ,ПЛАЗМА','ENERGY,COOLANT,PLASMA').split(',');stock.forEach((v,i)=>metrics.append(metric(resourceNames[i],v+' / 8')));
    const taskNames=tr('НАСОС,ФИЛЬТР,ТУРБИНА,НАВИГАЦИЯ,ГЕРМЕТИЗАЦИЯ,ШЛЮЗ,РЕЗЕРВ,ОБМЕННИК','PUMP,FILTER,TURBINE,NAVIGATION,SEAL,GATE,RESERVE,EXCHANGER').split(',');
-   b.tasks.forEach(t=>{const done=p.order.includes(t.id),can=R.canTask(b,p,t),e=button(t.id,`<strong>${done?'✓ ':''}${taskNames[t.id]}</strong><span>${tr('РАСХОД','COST')} <b>${t.cost.join(' · ')}</b></span><span>${tr('ВОЗВРАТ','RETURN')} <b>${t.gain.join(' · ')}</b></span>`,done?'powered':can?'available':'unavailable');e.disabled=s.confirmed||done;e.setAttribute('aria-label',taskNames[t.id]+', '+(done?tr('готово','done'):can?tr('доступно','available'):tr('недостаточно ресурсов','insufficient resources')));board.append(e);});
+   b.tasks.forEach(t=>{const done=p.order.includes(t.id),can=R.canTask(b,p,t),e=button(t.id,`<div class="oa-system-heading">${Art.systemIcon(t.id)}<strong>${taskNames[t.id]}</strong><i class="oa-system-led"></i></div><span>${tr('РАСХОД','COST')} <b>${t.cost.join(' · ')}</b></span><span>${tr('ВОЗВРАТ','RETURN')} <b>${t.gain.join(' · ')}</b></span>`,done?'powered':can?'available':'unavailable');e.disabled=s.confirmed||done;e.setAttribute('aria-label',taskNames[t.id]+', '+(done?tr('готово','done'):can?tr('доступно','available'):tr('недостаточно ресурсов','insufficient resources')));board.append(e);});
    const legend=document.createElement('p');legend.className='ops-keyhint';legend.textContent=resourceNames.join(' · ')+' — '+tr('порядок чисел на карточках','number order on cards');extras.append(legend);
    if(!R.solved(b,p)&&!b.tasks.some(t=>R.canTask(b,p,t)))message=tr('Ресурсов не хватает для продолжения. Отмени последний запуск и выбери другой порядок.','No system can start. Undo the last launch and try a different order.');
   }
+  Art.decorate(board,b,p);
   $('opsStatus').textContent=s.confirmed?tr('Операция выполнена. Контрольная точка сохранена.','Operation complete. Checkpoint saved.'):message||tr('Реши задачу и подтверди результат.','Solve the operation, then confirm the result.');
   $('opsUndo').textContent=tr('↶ Отмена','↶ Undo');$('opsReset').textContent=tr('Сброс','Reset');$('opsHint').textContent=tr('Подсказка','Hint');
   $('opsUndo').hidden=!['route','shield','systems'].includes(b.type);$('opsUndo').disabled=s.confirmed;$('opsReset').disabled=s.confirmed;$('opsHint').disabled=s.confirmed;

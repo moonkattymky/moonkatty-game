@@ -34,6 +34,12 @@ node tests/operations.cjs
 
 The rules regression checks 1,440 generated boards for valid, non-complete starting positions and reachable solutions. The browser journey solves all 18 operations through controls and then completes all six live missions; it also checks reload, pause, false confirmations, resource dead ends, replay, rewards and short-screen controls. Chapter-specific legacy regressions seed completed operations to isolate the live controllers. All browser verification uses isolated Chromium profiles, not physical phones or Telegram clients. Automated solution times are not human playtime estimates.
 
+### Instrument artwork
+
+The operation deck now uses six distinct SVG instruments: a continuous terrain survey and plotted route, metal conduits with sleeves and powered conductors, cargo tanks in numbered racks, wired shield emitters, a receiver with engraved symbol keys, and subsystem circuit diagrams. `operations-art.js` derives routes, connections, values and status lights from the existing board state. Hovering or focusing a shield emitter previews its actual affected neighbors. The fixed action dock also carries status/error messages so a tall diagram cannot hide feedback. Graphite, steel and muted brass replace rounded colored tiles; artwork remains sharp at any pixel density and introduces no continuous rendering loop.
+
+The observatory and return scenes share this finish through `mission-instruments.css`, with a detailed satellite and mechanical return gate while retaining the original ship and antenna sprites. Puzzle rules, completion rewards and save formats are unchanged. The existing operation journey, 96 English/Russian operation layout cases and continuation regression verify the new rendering and controls.
+
 ## LIFE #5 — Reactor engineering
 
 The reactor chapter uses three sequential stages: charge three cells while controlling heat, keep temperature at 45–68°C and magnetic field at 45–55% for three seconds, then time three ignition pulses. Fully charged cells survive thermal shutdown; accepted pulses survive a miss. The guide, window blur and app backgrounding pause the simulation and release held controls. Charging routes automatically to the next unfinished cell. A versioned local checkpoint restores unfinished cells, calibration and accepted pulses after closing the app, behind an explicit resume button.

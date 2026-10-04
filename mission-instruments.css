@@ -1,0 +1,33 @@
+/* Observatory and return deck share the machined instrument language. */
+:is(#mission8,#mission9).mission-polished{background:radial-gradient(ellipse at 90% 0,#3e5e6a55,transparent 65%),linear-gradient(145deg,#203541,#142733 65%,#10202d)!important;color:#e4edf0!important}
+:is(#mission8,#mission9).mission-polished>header h2{font-size:clamp(20px,5.4vw,26px)!important;font-weight:500;letter-spacing:.035em!important}
+:is(#mission8,#mission9).mission-polished>header .eyebrow{font-family:monospace;font-size:8px;color:#cfba91;letter-spacing:.15em}
+:is(#mission8,#mission9) :is(.crew-badge,.chapter-menu){border-radius:3px!important;background:linear-gradient(#314b5b,#203747)!important;border-color:#829da86b!important;color:#c7d9df!important}
+:is(#mission8,#mission9).mission-polished :is(.signal-world,.final-world){border-radius:5px!important;border-color:#91a6b77c!important;box-shadow:inset 0 0 0 4px #213c4855,0 4px 12px #0003!important}
+:is(#mission8,#mission9).mission-polished :is(.signal-world,.final-world)::before{border-radius:2px!important;font-weight:400;background:#102736b8;border-color:#a2b5bd3d;color:#c6d9df!important}
+#mission8 .signal-source{font-size:0!important;width:43px;height:43px;right:12%;top:15%;padding:5px;border:1px solid #c2d5dd60;border-radius:2px;background:#17334475;text-shadow:none!important;color:#d4e3e9;opacity:.85}
+#mission8 .signal-source svg{width:100%;height:100%;fill:none;stroke:#cbdce1;stroke-width:1.2;filter:none}#mission8 .signal-source svg path{fill:none;stroke-width:.9}
+#mission8 .signal-orbit{border-color:#c6dadd55;box-shadow:none;opacity:.55}
+#mission8 .signal-pulse{border-width:1px;border-color:#bfdbd866!important;box-shadow:none}
+#mission8 .signal-world::after{content:'';position:absolute;inset:18%;border:1px solid #d5e4e724;clip-path:polygon(0 0,15% 0,15% 1px,1px 1px,1px 15%,0 15%,0 0,100% 0,100% 100%,85% 100%,85% calc(100% - 1px),calc(100% - 1px) calc(100% - 1px),calc(100% - 1px) 85%,100% 85%,100% 0);pointer-events:none;z-index:5}
+#mission9 .final-gate{border:0!important;outline:none!important;box-shadow:none!important;background:none!important;border-radius:0!important;width:154px;height:154px;color:transparent!important;filter:drop-shadow(0 6px 9px #030e1b88)}
+#mission9 .final-gate::after{display:none}#mission9 .final-gate svg{display:block;width:100%;height:100%;overflow:visible}
+#mission9 .gate-live{stroke:#9ac6d1;fill:none;transition:stroke .8s}#mission9 .gate-light{fill:#b0dbe0;transition:fill .8s}#mission9 .final-gate.open{box-shadow:none!important}#mission9 .final-gate.open .gate-live{stroke:#f6dfad}#mission9 .final-gate.open .gate-light{fill:#fff0c7}
+:is(#mission8,#mission9).mission-polished :is(.signal-stage,.pulse-panel,.final-challenge){border-radius:5px!important;border-color:#8ea5b270!important;background:linear-gradient(135deg,#314b5b,#213a4b)!important;box-shadow:inset 0 1px #d7e3ec24,0 3px 7px #04152533!important}
+:is(#mission8,#mission9).mission-polished :is(.primary,.ghost){border-radius:3px;font-weight:550;letter-spacing:.04em;font-size:11px;font-family:system-ui,sans-serif}
+:is(#mission8,#mission9).mission-polished .primary{background:linear-gradient(#ddcda7,#bbab84)!important;color:#21313b!important;border-color:#edddba!important;box-shadow:inset 0 1px #fff4d666,0 3px 6px #07182755!important}
+:is(#mission8,#mission9).mission-polished .ghost{background:linear-gradient(#3c5666,#294454);border:1px solid #8fa7b773;color:#d2e0e6;box-shadow:inset 0 1px #dce5ef20}
+:is(#mission8,#mission9).mission-polished>.mission-status{border-radius:3px;background:#8ea6b00a!important;border-color:#8ea6b02f!important;color:#bbced9!important}
+#mission8 .signal-stage>span,#mission9 #corridor9>span{font-family:monospace;font-weight:400;font-size:9px;letter-spacing:.13em;color:#bad0dd}
+#mission8 :is(.signal-strength8,.phase-scope8),#mission9 :is(.corridor-meter9,.core-health9,.final-power9){border-radius:2px;box-shadow:inset 0 2px 5px #08192755}
+#mission8 .pulse-keys button,#mission9 :is(.sync-nodes,.final-keys) button{border-radius:3px!important;border:1px solid #9aaeb977!important;border-bottom:3px solid #142b3b!important;background:linear-gradient(#4a6573,#2c495b)!important;color:#d6e2e5!important;box-shadow:inset 0 1px #deedf02e;line-height:1;font-family:monospace;font-weight:400}
+#mission8 .pulse-display span,#mission9 :is(.sync-sequence9,.final-code) span{border-radius:2px;background:linear-gradient(#102838,#203b4c);border-color:#9ab2be58;box-shadow:inset 0 2px 5px #07182688;font-weight:400}
+#mission8 .pulse-display .filled,#mission9 :is(.sync-sequence9,.final-code) .filled{background:linear-gradient(#273e45,#354d55);color:#e0ccaa;border-color:#c0b18f66}
+#mission9 .final-phases span{border-radius:2px!important;font-family:monospace;font-weight:400;background:#29404f!important;border-color:#8ca0ad4f!important}
+#mission9 .final-phases .active{background:#414c4b!important;border-color:#c4b59199!important;color:#ddd0af!important}#mission9 .final-phases .done{background:#294447!important;border-color:#8fb3ac80!important;color:#bdd7cb!important}
+#mission9 .coordinate-record9,#mission8 .coordinates8{border-radius:3px;background:#193342;border-color:#93b1b66b;box-shadow:inset 0 3px 8px #04172466}#mission9 .coordinate-record9 strong{color:#e1d0ab;font-weight:400;letter-spacing:.045em}
+#mission9 .coords-entry9 input{border-radius:3px;background:#152f40!important;border-color:#a3b8c466!important;font-family:monospace;font-weight:400;color:#e3d5b8!important;box-shadow:inset 0 2px 5px #05172666}
+:is(#mission8,#mission9).mission-polished .complete-card:not([hidden]){border-radius:6px;border-color:#a9b8b49c!important;background:radial-gradient(ellipse at 80% 0,#46697166,transparent 65%),linear-gradient(140deg,#294652f9,#163442fb)!important}
+:is(#mission8,#mission9).mission-polished .complete-card h3{font-weight:500;color:#e1d6bb;font-size:23px;letter-spacing:.025em}:is(#mission8,#mission9).mission-polished .complete-card .complete-icon{border-radius:4px;width:44px;height:44px;border:1px solid #b9c5bb66;background:#c4cfbe17;color:#c5dccb;box-shadow:none;font:400 23px/44px monospace}
+@media(max-height:700px){#mission9 .final-gate{width:100px;height:100px}#mission8 .signal-source{width:35px;height:35px;padding:4px}}
+@media(prefers-reduced-motion:reduce){#mission9 :is(.gate-live,.gate-light){transition:none}}
