@@ -11,7 +11,7 @@ let browser;const report={errors:[],bad:[]};
  const p=await browser.newPage({viewport:{width:390,height:844},hasTouch:true});p.setDefaultTimeout(6000);
  p.on('pageerror',e=>report.errors.push(e.message));p.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)report.bad.push(r.url());});
  await p.route('https://telegram.org/**',r=>r.fulfill({body:''}));await p.clock.install({time:new Date('2026-10-04T12:00Z')});await p.clock.pauseAt(new Date('2026-10-04T12:00Z'));
- await p.goto('http://127.0.0.1:'+server.address().port,{waitUntil:'domcontentloaded'});
+ await p.addInitScript(require('./story-finale-fixture.cjs'));await p.goto('http://127.0.0.1:'+server.address().port,{waitUntil:'domcontentloaded'});
  const click=s=>p.locator(s).click(),run=ms=>p.clock.runFor(ms),cp=()=>p.evaluate(()=>JSON.parse(localStorage.getItem('mkty_campaign_checkpoint_7')));
  await p.evaluate(()=>{setLang('en');for(let n=7;n<=9;n++)localStorage.setItem('mkty_operations_'+n+'_v1',JSON.stringify({version:1,n,seed:1,round:3,phase:'core',input:null,confirmed:false,actions:50,hints:0,errors:0,seconds:120}));for(let n=1;n<=6;n++){localStorage.setItem('mkty_life'+n,'complete');localStorage.setItem('mkty_life'+n+'_awarded','yes');}localStorage.setItem('mkty_points','5500');localStorage.setItem('mkty_current_chapter','6');localStorage.setItem('mkty_life1_code_presented','yes');localStorage.setItem('mkty_life3_memory_verified','yes');show('home');});
  await click('#enterBtn');assert.equal(await p.locator('#mission7').getAttribute('data-phase'),'briefing');await run(10000);assert.equal(await p.locator('#distance7').textContent(),'0');await click('#v7Begin');

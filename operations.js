@@ -7,7 +7,7 @@ window.MKTYOps=(()=>{
  const stages={4:[['Разведка плато','Plateau survey'],['Поле разломов','Fracture field'],['Посадочный коридор','Landing corridor']],5:[['Питание насосов','Pump supply'],['Контур охлаждения','Cooling circuit'],['Магистраль реактора','Reactor mainline']],6:[['Грузовой отсек','Cargo bay'],['Топливные баки','Fuel tanks'],['Орбитальный модуль','Orbital module']],7:[['Помехи радара','Radar interference'],['Резервный экран','Reserve screen'],['Защита экипажа','Crew protection']],8:[['Позывной','Call sign'],['Ключ ретранслятора','Relay key'],['Адрес источника','Source address']],9:[['Аварийное питание','Emergency power'],['Жизнеобеспечение','Life support'],['Подготовка шлюза','Gate preparation']]};
  const copy={route:['Проложи путь от S до E через все три маяка. Нажимай соседние клетки: обычная стоит 1 топливо, оранжевая — 3. Скалы непроходимы. Предыдущая клетка отменяет ход.','Plot a route from S to E through all three beacons. Tap adjacent cells: normal terrain costs 1 fuel, amber costs 3. Rocks block passage. Tap the previous cell to undo.'],pipes:['Поворачивай сегменты. Соедини вход IN с выходом OUT через все три узла. Голубая линия показывает, куда уже доходит питание.','Rotate segments. Connect IN to OUT through all three nodes. The cyan line shows where power currently reaches.'],cargo:['Поменяй местами два модуля нажатием. Суммы масс во ВСЕХ рядах и столбцах должны совпасть с целями по краям. Подходит любое верное распределение.','Tap two modules to swap them. Mass totals in ALL rows and columns must match the edge targets. Any valid arrangement works.'],shield:['Восстанови все узлы: они должны стать голубыми. Нажатие переключает выбранный узел и его соседей по вертикали и горизонтали.','Restore every node to cyan. A tap toggles that node and its vertical and horizontal neighbors.'],cipher:['Выведи ключ по ответам станции. Символы не повторяются. ● — верный символ на своём месте; ◇ — верный символ на другом месте. Эти числа не указывают конкретные позиции.','Deduce the key from station feedback. Symbols never repeat. ● counts correct positions; ◇ counts correct symbols in other positions. These counts do not identify particular slots.'],systems:['Запусти все системы в подходящем порядке. Карточки расходуют ресурсы и возвращают указанный результат. Запас каждого ресурса ограничен 8. Неудачный порядок можно отменить.','Start every system in a viable order. Cards spend resources and return the shown output. Each resource is capped at 8. Undo a choice if the sequence gets stuck.']};
  const tr=(ru,en)=>localStorage.getItem('mkty_lang')==='ru'?ru:en,pair=a=>tr(...a),key=n=>'mkty_operations_'+n+'_v1';
- let s=null,b=null,highlight=[],message='',paused=false;
+ let s=null,b=null,highlight=[],message='',paused=false,assignment=null;
  const root=document.createElement('section');root.id='operationsDeck';root.className='screen ops-screen';root.setAttribute('translate','no');root.innerHTML=`
   <header class="ops-header"><div><small id="opsEyebrow"></small><h2 id="opsTitle"></h2></div><button id="opsMenu" type="button">☰</button></header>
   <div class="ops-hero"><div><span id="opsStage"></span><strong id="opsStageTitle"></strong><small id="opsJourney"></small></div><b id="opsNumber" aria-hidden="true"></b><div id="opsProgress" class="ops-progress" aria-hidden="true"><i></i><i></i><i></i></div></div>
@@ -28,16 +28,23 @@ window.MKTYOps=(()=>{
    cache.set(n,v);return v;
   }catch{return null;}
  }
- function save(){if(!s)return;cache.set(s.n,s);try{localStorage.setItem(key(s.n),JSON.stringify(s));}catch{}}
+ function save(){if(!s)return;if(assignment){assignment.save(structuredClone(s));return;}cache.set(s.n,s);try{localStorage.setItem(key(s.n),JSON.stringify(s));}catch{}}
  function isRun(n){return read(n)?.phase==='core';}
  function pending(n){const v=read(n);return !!v&&v.phase!=='complete';}
  function initBoard(){b=R.board(s.n,s.round,s.seed);s.input=R.initial(b);s.confirmed=false;highlight=[];message='';save();}
  function open(n){
+  root.removeAttribute('data-story-task');if(assignment)closeTask();
   if(localStorage.getItem('mkty_life'+(n-1))!=='complete'){show('chapters');return;}
   s=read(n)||fresh(n);cache.set(n,s);renderReplay(n);
   if(s.phase==='core'||s.phase==='complete'){originals[n]();return;}
   b=R.board(n,s.round,s.seed);if(!s.input)initBoard();highlight=[];message='';paused=false;
   localStorage.setItem('mkty_current_chapter',String(n));show('operationsDeck');root.style.setProperty('--ops-art',`url('art/${assets[n]}')`);root.dataset.operationChapter=n;render();save();
+ }
+ function closeTask(){save();if($('opsPause').open)$('opsPause').close();assignment=null;s=null;b=null;paused=false;}
+ function openTask(task,saved){
+  if(assignment)closeTask();root.dataset.storyTask=String(task.id);assignment=task;s={...fresh(task.board),seed:task.seed,round:task.round};
+  if(saved&&saved.phase==='planning'&&saved.n===task.board&&saved.round===task.round&&Number.isInteger(saved.seed)&&saved.seed>=0&&saved.seed<=0xffffffff&&['actions','hints','errors','seconds'].every(k=>Number.isFinite(saved[k])&&saved[k]>=0)&&typeof saved.confirmed==='boolean'){const candidate=R.board(task.board,task.round,saved.seed);if(R.validate(candidate,saved.input)&&(!saved.confirmed||R.solved(candidate,saved.input)))s=structuredClone(saved);}
+  b=R.board(s.n,s.round,s.seed);if(!s.input)s.input=R.initial(b);paused=false;highlight=[];message='';localStorage.setItem('mkty_current_chapter',String(task.chapter));show('operationsDeck');root.style.setProperty('--ops-art',`url('art/${task.art}')`);root.dataset.operationChapter=task.chapter;render();save();
  }
  function restart(n){
   // Leave and save the live simulation BEFORE removing only this chapter's replay checkpoint.
@@ -91,6 +98,7 @@ window.MKTYOps=(()=>{
   $('opsUndo').textContent=tr('↶ Отмена','↶ Undo');$('opsReset').textContent=tr('Сброс','Reset');$('opsHint').textContent=tr('Подсказка','Hint');
   $('opsUndo').hidden=!['route','shield','systems'].includes(b.type);$('opsUndo').disabled=s.confirmed;$('opsReset').disabled=s.confirmed;$('opsHint').disabled=s.confirmed;
   $('opsSubmit').textContent=s.confirmed?(s.round===2?tr('ПЕРЕЙТИ К МИССИИ →','START LIVE MISSION →'):tr('СЛЕДУЮЩАЯ ОПЕРАЦИЯ →','NEXT OPERATION →')):b.type==='cipher'?tr('ПРОВЕРИТЬ КЛЮЧ','CHECK KEY'):tr('ПОДТВЕРДИТЬ РЕШЕНИЕ','CONFIRM SOLUTION');
+  if(assignment){$('opsEyebrow').textContent=tr('ГЛАВА ','CHAPTER ')+assignment.chapter+' / 09';$('opsTitle').textContent=pair(assignment.title);$('opsStage').textContent=tr('ЭТАП ','STAGE ')+(assignment.id+1)+' / 8';$('opsStageTitle').textContent=tr('БОРТОВАЯ ОПЕРАЦИЯ','ONBOARD OPERATION');$('opsJourney').textContent=tr('ПРОГРЕСС СОХРАНЯЕТСЯ ПОСЛЕ КАЖДОГО ХОДА','EVERY MOVE IS SAVED');$('opsNumber').textContent=String(assignment.id+1).padStart(2,'0');if(s.confirmed)$('opsSubmit').textContent=tr('ЗАВЕРШИТЬ ЭТАП →','COMPLETE STAGE →');}
   if(focused!==undefined)board.querySelector(`[data-op-cell="${focused}"]`)?.focus({preventScroll:true});
  }
  function changed(count=true){if(count)s.actions++;highlight=[];message='';save();render();}
@@ -107,6 +115,7 @@ window.MKTYOps=(()=>{
  }
  function submit(){
   if(!active()||paused)return;
+  if(s.confirmed&&assignment){const task=assignment,record=structuredClone(s);closeTask();task.complete(record);return;}
   if(s.confirmed){s.round++;s.confirmed=false;if(s.round===3){s.phase='core';s.input=null;save();originals[s.n]();return;}initBoard();render();$('opsSubmit').focus({preventScroll:true});return;}
   if(b.type==='cipher'){
    const p=s.input;if(p.history.length>=b.limit)return;
@@ -130,12 +139,12 @@ window.MKTYOps=(()=>{
   if(b.type==='systems'){const path=R.solveSystems(b,p);if(path)highlight=path.slice(0,1);else message=tr('Этот порядок зашёл в тупик. Отмени последний запуск.','This order leads to a dead end. Undo the last launch.');}
   if(highlight.length)message=b.type==='cargo'?tr('Поменяй местами два выделенных модуля.','Swap the two highlighted modules.'):b.type==='pipes'?tr('Поверни выделенный сегмент, чтобы продолжить магистраль.','Rotate the highlighted segment to extend the mainline.'):tr('Следующий полезный ход выделен золотым.','A useful next move is highlighted in gold.');save();render();
  }
- function pause(){if(!active()||paused)return;paused=true;save();$('opsPauseTitle').textContent=tr('ОПЕРАЦИЯ ПРИОСТАНОВЛЕНА','OPERATION PAUSED');$('opsPauseText').textContent=tr('Каждый ход сохранён. Можно продолжить с этого места.','Every move is saved. Resume from this exact position.');$('opsResume').textContent=tr('ПРОДОЛЖИТЬ','RESUME');$('opsExit').textContent=tr('К ВЫБОРУ ГЛАВ','CHAPTERS');$('opsPause').showModal();$('opsResume').focus();}
+ function pause(){if(!active()||paused)return;paused=true;save();$('opsPauseTitle').textContent=tr('ОПЕРАЦИЯ ПРИОСТАНОВЛЕНА','OPERATION PAUSED');$('opsPauseText').textContent=tr('Каждый ход сохранён. Можно продолжить с этого места.','Every move is saved. Resume from this exact position.');$('opsResume').textContent=tr('ПРОДОЛЖИТЬ','RESUME');$('opsExit').textContent=assignment?tr('К ПЛАНУ ГЛАВЫ','CHAPTER PLAN'):tr('К ВЫБОРУ ГЛАВ','CHAPTERS');$('opsPause').showModal();$('opsResume').focus();}
  function resume(){if($('opsPause').open)$('opsPause').close();paused=false;}
- $('opsSubmit').onclick=submit;$('opsUndo').onclick=undo;$('opsReset').onclick=reset;$('opsHint').onclick=hint;$('opsMenu').onclick=pause;$('opsResume').onclick=resume;$('opsExit').onclick=()=>{resume();save();show('chapters');};$('opsPause').addEventListener('cancel',e=>{e.preventDefault();resume();});
+ $('opsSubmit').onclick=submit;$('opsUndo').onclick=undo;$('opsReset').onclick=reset;$('opsHint').onclick=hint;$('opsMenu').onclick=pause;$('opsResume').onclick=resume;$('opsExit').onclick=()=>{if(assignment){const task=assignment;closeTask();task.exit();return;}resume();save();show('chapters');};$('opsPause').addEventListener('cancel',e=>{e.preventDefault();resume();});
  window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden&&active())pause();});window.addEventListener('blur',()=>{if(active())pause();});
  setInterval(()=>{if(active()&&!paused&&!document.hidden&&s?.phase==='planning'){s.seconds++;save();}},1000);
  for(let n=4;n<=9;n++){originals[n]=window['openMission'+n];window['openMission'+n]=()=>open(n);renderReplay(n);}
  queueMicrotask(()=>window.MKTYCampaign?.render());
- return {open,isRun,pending,complete,restart};
+ return {open,isRun,pending,complete,restart,openTask};
 })();

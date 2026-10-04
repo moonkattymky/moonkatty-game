@@ -462,6 +462,7 @@ $('journalCodeBtn')?.addEventListener('click',()=>{
 
 function awardLifePoints(n,amount){
  window.MKTYOps?.complete(n);
+ window.MKTYStory?.complete(n);
  const key='mkty_life'+n,awardKey=key+'_awarded';
  let pts=Number(localStorage.getItem('mkty_points')||0);
  if(localStorage.getItem(awardKey)!=='yes'){pts+=amount;localStorage.setItem('mkty_points',String(pts));localStorage.setItem(awardKey,'yes');}
@@ -640,7 +641,7 @@ $('continueLife3Btn').onclick=(ev)=>{ev?.preventDefault?.();if(!unlockLife3())re
 if($('life3Card'))$('life3Card').onclick=()=>$('continueLife3Btn').click();
 $('verifyLife1CodeBtn').onclick=()=>{const lock=Number(localStorage.getItem('mkty_life3_code_lock_until')||0);if(lock>Date.now())return;const entered=$('life3MemoryInput').value.trim();if(!/^\d{10}$/.test(entered)){$('life3GateStatus').textContent='Enter all 10 digits. No life has been spent.';return;}if(entered===ensureLife1MemoryCode()){clearInterval(gateTimer);$('life3GateStatus').textContent='CODE VERIFIED ✓';localStorage.setItem('mkty_life3_memory_verified','yes');showPaidCodeHint3();renderMissionArchive();
 renderDailyMissions();
-renderCrewNetwork();$('life3MemoryInput').blur();setLaunchPhase3('signal');newLaunchCode();$('codeStatus').textContent='Attempts remaining: '+codeAttempts;window.MKTYCampaign?.save();tg?.HapticFeedback?.notificationOccurred?.('success');return;}if(!spendGlobalLife()){$('life3GateStatus').textContent='No lives available. A life restores every 12 hours.';return;}localStorage.setItem('mkty_life3_hint_available','yes');localStorage.setItem('mkty_life3_code_lock_until',String(Date.now()+MKTY_CODE_LOCK_MS));$('life3MemoryInput').value='';tg?.HapticFeedback?.notificationOccurred?.('error');renderLife3Gate();};
+renderCrewNetwork();$('life3MemoryInput').blur();setLaunchPhase3('signal');newLaunchCode();$('codeStatus').textContent='Attempts remaining: '+codeAttempts;window.MKTYCampaign?.save();tg?.HapticFeedback?.notificationOccurred?.('success');window.MKTYStory?.afterCode();return;}if(!spendGlobalLife()){$('life3GateStatus').textContent='No lives available. A life restores every 12 hours.';return;}localStorage.setItem('mkty_life3_hint_available','yes');localStorage.setItem('mkty_life3_code_lock_until',String(Date.now()+MKTY_CODE_LOCK_MS));$('life3MemoryInput').value='';tg?.HapticFeedback?.notificationOccurred?.('error');renderLife3Gate();};
 $('life3MemoryInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&$('mission3').classList.contains('active')&&$('mission3').dataset.phase==='access'&&!$('verifyLife1CodeBtn').disabled&&!window.MKTYExperience?.paused){e.preventDefault();$('verifyLife1CodeBtn').click();}});
 $('buyCodeHintBtn').onclick=()=>{
  if(Number(localStorage.getItem('mkty_life3_code_lock_until')||0)>Date.now()||localStorage.getItem('mkty_life3_hint_available')!=='yes')return;

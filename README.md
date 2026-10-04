@@ -10,6 +10,39 @@ Telegram Mini App starter for the MOONKATTY universe.
 - Playable LIFE #1–#9 with one-time completion rewards and local checkpoints
 - Moon Points demo UI
 
+## Expanded nine-chapter campaign — pacing target: 2–3 hours
+
+Every chapter now has an eight-stage plan before its established finale. There are **54 new engineering operations and 18 required practical sorties**, in addition to the existing chapter 1–9 missions and the 18 chapter 4–9 instrument operations. The campaign entry is prominent on the home screen; free expeditions remain available separately.
+
+Each plan combines route planning, power circuits, a reconnaissance sortie, signal deduction, cargo balance, shielding, a rescue or black-box sortie, and resource sequencing. Dependencies join these into a chapter objective. The first route and power tasks can be completed in either order; decoding and cargo form another parallel pair. Later chapters use larger instruments and more dangerous patrol sectors. Chapters 2–3 label their flights as simulations; the other plans describe remote operations connected to their story objective. This expansion uses the existing six puzzle families and three flight contracts with new boards and chapter context; it is not nine entirely new game genres.
+
+| Chapter | First-play pacing target, minutes |
+| --- | --- |
+| 1 — The awakening | 12–16 |
+| 2 — The crew | 13–17 |
+| 3 — The launch code | 14–18 |
+| 4 — The descent | 16–20 |
+| 5 — Ignition | 17–21 |
+| 6 — Liftoff | 16–20 |
+| 7 — The void | 17–21 |
+| 8 — The signal | 16–20 |
+| 9 — The return | 18–24 |
+| **Campaign target** | **139–177** |
+
+These are design targets, **not measured player completion times**. Skilled players and players using hints can finish faster. No minimum playtime, idle wait or new cooldown gate was added. Local active-time records cover operations, flights and final missions to support later pacing review. The existing chapter 3 code penalties retain their established rules and are not counted as content duration. The ten-digit code is still required at the start of chapter 3, before its new plan; successful verification returns to that plan.
+
+`story-plan.js` defines the nine plans, dependency graph, stable seeds and checkpoint validation. `story.js` owns the plan screen, chapter entry gates, local per-stage saves (`mkty_story_plan_N_v1`) and final-controller handoffs. The existing operations and expedition controllers expose scoped assignment sessions. These sessions save into the owning chapter without overwriting standalone operation replays or free expedition progress. Failed sorties retry only their current stage; completed prerequisites persist. Old completion flags, once-only Moon Points, final balances and finale checkpoints remain intact. Existing finished players can play the new chapter plans without deleting achievements.
+
+```sh
+node tests/story-plan.cjs
+node tests/story.cjs
+node tests/story-edges.cjs
+node tests/first-three.cjs
+node tests/operations.cjs
+```
+
+The plan regression solves 1,080 generated boards and checks all dependencies and target totals. The browser campaign solves all 54 new boards and flies all 18 required sorties through controls, verifying all nine finale handoffs, reloads, pause and isolated rewards. Those new-stage journeys use previously completed finale flags to isolate the expansion; separate tests actually play finales 1–3 and the operations plus finales 4–9. Edge tests cover fresh locks, partial work, code verification before the chapter 3 plan, failed-flight retries and malformed checkpoint recovery. Legacy controller tests seed completed story prerequisites using `tests/story-finale-fixture.cjs`; production has no test bypass. All browser checks use isolated Chromium profiles, not physical phones or Telegram clients. Scripted solution times do not establish a human 2–3 hour playtime.
+
 ## Open-sector expeditions
 
 The home screen and chapter menu now lead directly to **Expeditions**, a separate repeatable flight mode. Players pilot the original MK–01 freely through a generated sector, inspect a navigable map, discover optional containers, evade asteroids and ion clouds, and recover crew or equipment before docking at Ark station.
