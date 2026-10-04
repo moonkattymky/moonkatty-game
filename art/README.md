@@ -56,3 +56,7 @@ The new backgrounds use `cover` without nonuniform scaling. The original ship an
 ### LIFE #5 reactor integration
 
 `life5-reactor-v2.webp` is reused at its original 1448 × 1086 proportions in an SVG with `preserveAspectRatio="xMidYMid meet"`. Core lighting, rotating rings and the charge arc share the source image coordinate system. No nonuniform transform is applied to the scene. A separate blurred background fills unused margins. The control panel is outside the artwork and changes with the three gameplay stages.
+
+### LIFE 5 cinematic effects — 4 October 2026
+
+The original reactor artwork is retained. `reactor5-fx.js` overlays a transparent canvas using the SVG camera coordinates (144, 0, 1160, 1086), with a tighter vertical crop (144, 130, 1160, 780) for short, wide galleries. The image and procedural effects always use the same uniform scale. Cached glow textures, capped pixel density (1.75), bounded particles and adaptive detail keep the light rig lightweight. All particle motion shares the gameplay animation loop and freezes on pause; reduced-motion preferences suppress decorative motion.

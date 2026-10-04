@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="crew-scene.css?v=20261003-deck-1" />
   <link rel="stylesheet" href="launch-console.css?v=20261003-polish-1" />
   <link rel="stylesheet" href="mission-polish.css?v=20261003-polish-1" />
-  <link rel="stylesheet" href="reactor5.css?v=20261003-reactor-1" />
+  <link rel="stylesheet" href="reactor5.css?v=20261004-cinematic-2" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -216,7 +216,7 @@
         <div class="reactor-header-actions5"><span class="reactor-stage-count5" id="reactorStageCount5" translate="no">01 / 03</span><button id="reactorHelp5" class="reactor-help5" aria-label="Reactor guide">?</button></div>
       </header>
       <div id="reactorWorkspace5" class="reactor-workspace5">
-        <div class="reactor-gallery5" role="img" aria-label="Reactor chamber with animated energy rings">
+        <div class="reactor-gallery5" id="reactorGallery5" role="img" aria-label="Reactor chamber with animated energy rings">
           <svg class="reactor-art5" viewBox="144 0 1160 1086" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
             <defs>
               <radialGradient id="coreShade5"><stop offset="0" stop-color="#0b334c"/><stop offset=".8" stop-color="#0c4160"/><stop offset="1" stop-color="#a1f5ff" stop-opacity="0"/></radialGradient>
@@ -228,12 +228,23 @@
             <g transform="translate(724 480)">
               <g class="reactor-orbit5"><circle r="177" fill="none" stroke="#d4fdff" stroke-width="3" stroke-dasharray="55 195 20 90" opacity=".7"/></g>
               <g class="reactor-orbit5 reverse5"><circle r="203" fill="none" stroke="#ffe5aa" stroke-width="4" stroke-dasharray="12 106" opacity=".8"/></g>
+              <circle class="reactor-machining5" r="242" fill="none" stroke="#f6dca4" stroke-width="7" stroke-dasharray="1 24.34" opacity=".65"/>
+              <circle r="259" fill="none" stroke="#dafaff" stroke-width="1" stroke-dasharray="62 14" opacity=".3"/>
+              <g class="reactor-feed-rings5" transform="rotate(-90)" fill="none" stroke-width="6" stroke-linecap="round">
+                <circle r="250" pathLength="300" stroke="#17364e" stroke-dasharray="89 11"/>
+                <circle id="reactorCellArcA5" r="250" pathLength="300" stroke="#b9f4d7" stroke-dasharray="0 300"/>
+                <circle id="reactorCellArcB5" r="250" pathLength="300" stroke="#b9f4d7" stroke-dasharray="0 300" transform="rotate(120)"/>
+                <circle id="reactorCellArcC5" r="250" pathLength="300" stroke="#b9f4d7" stroke-dasharray="0 300" transform="rotate(240)"/>
+              </g>
               <circle class="reactor-charge-track5" r="217" fill="none" stroke="#102b45" stroke-width="8" opacity=".6"/>
               <circle id="reactorChargeArc5" r="217" pathLength="100" transform="rotate(-90)" fill="none" stroke="#c1ffdf" stroke-width="8" stroke-linecap="round" stroke-dasharray="0 100"/>
             </g>
           </svg>
-          <div class="reactor-bay5" translate="no" lang="en"><i></i>ENGINE ROOM <span>05</span></div>
-          <div class="reactor-scene-status5"><span id="reactorState5">POWER ROUTING</span><strong id="reactorCoreOutput5" translate="no">000<span>%</span></strong></div>
+          <canvas id="reactorEffects5" class="reactor-effects5" aria-hidden="true"></canvas>
+          <div class="reactor-lens5" aria-hidden="true"></div>
+          <div class="reactor-bay5"><i></i><span class="reactor-bay-label5">ENGINE ROOM</span><span translate="no">05</span></div>
+          <div class="reactor-live5"><i aria-hidden="true"></i><span id="reactorLiveLabel5">STANDBY</span></div>
+          <div class="reactor-scene-status5"><div class="reactor-scene-caption5"><span id="reactorState5">POWER ROUTING</span><svg class="reactor-wave5" viewBox="0 0 160 18" aria-hidden="true"><path d="M0 9H160" class="wave-grid5"/><path id="reactorWavePath5" d="M0 9H160"/></svg></div><strong id="reactorCoreOutput5" translate="no">000</strong></div>
           <div class="reactor-edge5" aria-hidden="true"></div>
         </div>
         <ol class="reactor-steps5" aria-label="Reactor startup progress"><li data-reactor-step="charge" class="current" aria-current="step"><b>01</b><span>CHARGE</span></li><li data-reactor-step="balance"><b>02</b><span>STABILIZE</span></li><li data-reactor-step="ignite"><b>03</b><span>IGNITE</span></li></ol>
@@ -241,9 +252,9 @@
           <div id="reactorChargePanel5" class="reactor-phase5">
             <div class="reactor-console-heading5"><span class="eyebrow">POWER ROUTING</span><h3>BRING THREE CELLS ONLINE</h3><p>Select a cell and hold CHARGE. Release to stop; use COOL before 96°C.</p></div>
             <div class="reactor-cells5" aria-label="Energy cells">
-              <button data-reactor-cell="0" class="selected" aria-label="Select cell A" aria-pressed="true"><span class="cell-name5" translate="no">CELL <b>A</b></span><span class="cell-vessel5" aria-hidden="true"><i></i></span><output translate="no">0%</output><span class="cell-indicator5" aria-hidden="true"></span></button>
-              <button data-reactor-cell="1" aria-label="Select cell B" aria-pressed="false"><span class="cell-name5" translate="no">CELL <b>B</b></span><span class="cell-vessel5" aria-hidden="true"><i></i></span><output translate="no">0%</output><span class="cell-indicator5" aria-hidden="true"></span></button>
-              <button data-reactor-cell="2" aria-label="Select cell C" aria-pressed="false"><span class="cell-name5" translate="no">CELL <b>C</b></span><span class="cell-vessel5" aria-hidden="true"><i></i></span><output translate="no">0%</output><span class="cell-indicator5" aria-hidden="true"></span></button>
+              <button data-reactor-cell="0" class="selected" aria-label="Select cell A" aria-pressed="true"><span class="cell-name5"><span>CELL</span> <b translate="no">A</b></span><span class="cell-vessel5" aria-hidden="true"><i></i></span><output translate="no">0%</output><span class="cell-indicator5" aria-hidden="true"></span></button>
+              <button data-reactor-cell="1" aria-label="Select cell B" aria-pressed="false"><span class="cell-name5"><span>CELL</span> <b translate="no">B</b></span><span class="cell-vessel5" aria-hidden="true"><i></i></span><output translate="no">0%</output><span class="cell-indicator5" aria-hidden="true"></span></button>
+              <button data-reactor-cell="2" aria-label="Select cell C" aria-pressed="false"><span class="cell-name5"><span>CELL</span> <b translate="no">C</b></span><span class="cell-vessel5" aria-hidden="true"><i></i></span><output translate="no">0%</output><span class="cell-indicator5" aria-hidden="true"></span></button>
             </div>
             <div class="reactor-thermal5"><div><span>CORE TEMPERATURE</span><strong><b id="reactorChargeTemp5" translate="no">22</b><small translate="no">°C</small></strong><span id="reactorThermalState5">NOMINAL</span></div><div class="reactor-thermal-track5" role="meter" aria-label="Core temperature" aria-valuemin="15" aria-valuemax="96" aria-valuenow="22"><i id="reactorHeatFill5"></i><b></b></div></div>
             <div class="reactor-hold-controls5"><button id="chargeCore5"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2 5 14h7l-2 8 9-13h-7z"/></svg><span>CHARGE</span><b id="reactorSelectedCell5" translate="no">A</b></button><button id="coolCore5"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M3.34 7l17.32 10M3.34 17 20.66 7M8 4l4 4 4-4M8 20l4-4 4 4M3 11l5-1-1-5M17 19l-1-5 5-1M3 13l5 1-1 5M17 5l-1 5 5 1"/></svg><span>COOL</span></button></div>
@@ -314,7 +325,8 @@
       <div id="life9Complete" class="complete-card final-complete" hidden><span class="complete-icon">🌙</span><p class="eyebrow">9 LIVES COMPLETE</p><h3>MOONKATTY HAS RETURNED</h3><strong>+3000 MOON POINTS ⭐ • 9 LIVES COMPLETE</strong><p class="final-message">THE SIGNAL WAS NEVER CALLING US TO THE MOON.<br>IT WAS CALLING MOONKATTY HOME.</p><button id="life9ReturnBtn" class="primary">RETURN TO MISSION CONTROL</button></div>
     </section>
   </main>
-  <script src="i18n.js?v=20261003-reactor-1"></script>
-  <script src="app.js?v=20261003-reactor-1"></script>
-  <script src="reactor5.js?v=20261003-reactor-1"></script>
+  <script src="i18n.js?v=20261004-cinematic-2"></script>
+  <script src="app.js?v=20261004-cinematic-2"></script>
+  <script src="reactor5-fx.js?v=20261004-cinematic-2"></script>
+  <script src="reactor5.js?v=20261004-cinematic-2"></script>
 </body></html>

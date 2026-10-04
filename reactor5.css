@@ -231,3 +231,96 @@
  #mission5.engineering5 #reactorFaultPanel5 .reactor-console-heading5 p{display:block;font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){#mission5.engineering5 :is(.reactor-orbit5,.reactor-plasma5){animation:none}#mission5.engineering5 :is(#reactorChargeArc5,#reactorCoreShade5,.cell-vessel5 i,.reactor-pulse-track5 i){transition:none}}
+
+/* Cinematic light rig and brushed, inset instruments. */
+#mission5.engineering5{background:radial-gradient(ellipse at 8% 0,#426a78,transparent 58%),radial-gradient(ellipse at 100% 85%,#284355,transparent 65%),#102738!important}
+#mission5.engineering5 .reactor-header5{border-bottom-color:#efd6a345}
+#mission5.engineering5 .reactor-brand5{text-shadow:0 1px 0 #ffffcf35,0 4px 18px #0004}
+#mission5.engineering5 .reactor-heading5{color:#dcd0b0}
+#mission5.engineering5 .reactor-gallery5{border:1px solid #d8d9ba9c;border-radius:8px 24px 8px 24px;box-shadow:inset 0 0 0 4px #122e43,0 9px 28px #020e194a;contain:paint;background:radial-gradient(ellipse,#386274,#163346 80%)}
+#mission5.engineering5 .reactor-gallery5::before{opacity:.36;filter:blur(10px)}
+#mission5.engineering5 .reactor-art5{filter:contrast(1.045) saturate(1.06)}
+#mission5.engineering5 .reactor-effects5{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#mission5.engineering5 .reactor-lens5{position:absolute;inset:0;pointer-events:none;background:linear-gradient(128deg,#e4fbfc15,transparent 32%,transparent 67%,#fff0c608 68%,transparent 80%),radial-gradient(ellipse at 50% 48%,transparent 52%,#08192f30);box-shadow:inset 0 1px 0 #f7f7d67d,inset 0 -10px 26px #07152536}
+#mission5.engineering5 .reactor-edge5{inset:5px;border-color:#e7ecc722;background:linear-gradient(#eee0b5,#eee0b5) 8px 8px/22px 1px no-repeat,linear-gradient(#eee0b5,#eee0b5) 8px 8px/1px 22px no-repeat,linear-gradient(#eee0b5,#eee0b5) calc(100% - 8px) calc(100% - 8px)/22px 1px no-repeat,linear-gradient(#eee0b5,#eee0b5) calc(100% - 8px) calc(100% - 8px)/1px 22px no-repeat}
+#mission5.engineering5 .reactor-orbit5{animation:none!important;opacity:.7;will-change:transform}
+#mission5.engineering5 .reactor-plasma5{animation:none}
+#mission5.engineering5 #reactorChargeArc5{transition:none;filter:drop-shadow(0 0 4px #9bffe092)}
+#mission5.engineering5 .reactor-feed-rings5{filter:drop-shadow(0 0 4px #beefd94a)}
+#mission5.engineering5 .reactor-bay5{border-color:#d1e2db75;background:#112e3ed9;box-shadow:0 2px 8px #061a2936}
+#mission5.engineering5 .reactor-bay5 .reactor-bay-label5{padding:0;border:0;color:#d8edf6}
+#mission5.engineering5 .reactor-live5{position:absolute;top:12px;right:12px;display:flex;align-items:center;gap:5px;padding:6px 7px;border:1px solid #abcfc357;border-radius:5px;background:#102e3ecc;color:#c4e6d5;font:600 7px/1.2 monospace;letter-spacing:.5px;max-width:44%}
+#mission5.engineering5 .reactor-live5 i{flex:none;width:4px;height:4px;border-radius:50%;background:#b8d5d2;box-shadow:0 0 6px #c4e7df66}
+#mission5.engineering5[data-charging=true] .reactor-live5 i{background:#ffe4a5;box-shadow:0 0 8px #ffdc8b}
+#mission5.engineering5[data-cooling=true] .reactor-live5{color:#bdedfc}
+#mission5.engineering5[data-warning=true] .reactor-live5,#mission5.engineering5[data-reactor-phase=fault] .reactor-live5{color:#ffccab;border-color:#ffc79180}
+#mission5.engineering5[data-reactor-phase=online] .reactor-live5 i{background:#b3ffd0;box-shadow:0 0 8px #99ffc2}
+#mission5.engineering5 .reactor-scene-status5{padding:8px 11px;background:linear-gradient(100deg,#112f42ed,#234e5dda);border-color:#d8e1c36e;box-shadow:inset 0 1px 0 #f7eacd21,0 3px 12px #0515263d}
+#mission5.engineering5 .reactor-scene-caption5{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+#mission5.engineering5 #reactorState5{font-size:8px;line-height:1.25;letter-spacing:1px;color:#d6e9e3}
+#mission5.engineering5 .reactor-wave5{display:block;width:100%;max-width:154px;height:12px;overflow:hidden;fill:none;stroke:#9ae9dd;stroke-width:1.2;stroke-linecap:round;opacity:.85}
+#mission5.engineering5 .reactor-wave5 .wave-grid5{stroke:#b4ded329;stroke-width:.5}
+#mission5.engineering5 .reactor-scene-status5 strong{flex:none;font-variant-numeric:tabular-nums;font-size:27px;color:#fce4b4;text-shadow:0 0 12px #f6d39433}
+#mission5.engineering5 .reactor-steps5{background:linear-gradient(110deg,#213f50,#102c40);border-color:#dec99766;box-shadow:inset 0 1px 0 #dde6c21a}
+#mission5.engineering5 .reactor-steps5 li{transition:color .24s}
+#mission5.engineering5 .reactor-steps5 .current b{box-shadow:0 0 13px #e9cc9540}
+#mission5.engineering5 .reactor-console5{display:grid;position:relative;overflow:hidden;border:1px solid #d6c59f9e;background:linear-gradient(145deg,#345669,#1a3b50 55%,#163147);box-shadow:inset 0 1px 0 #ffefca47,inset 0 0 0 4px #cbe7dd06,0 8px 24px #0717264a}
+/* Preserve the console's measured height when phases change, so the camera never jumps. */
+#mission5.engineering5 .reactor-phase5{grid-area:1/1;min-width:0;align-self:center}
+#mission5.engineering5 .reactor-phase5[hidden]{display:block!important;visibility:hidden;pointer-events:none}
+#mission5.engineering5 .reactor-console-heading5 h3{text-shadow:0 2px 6px #08233880;font-weight:800}
+#mission5.engineering5 .reactor-console-heading5 p{color:#d0e1e6}
+#mission5.engineering5 .reactor-cells5 button{border:1px solid #a8c6c67a;border-bottom:3px solid #071e30;background:linear-gradient(125deg,#415e6b,#244353 47%,#1c394e);box-shadow:inset 0 1px 0 #e7f4df42,0 3px 7px #061b2b55;transition:background .25s,border-color .25s,box-shadow .25s}
+#mission5.engineering5 .reactor-cells5 button.selected{background:linear-gradient(130deg,#596963,#314d56 50%,#243f51);box-shadow:inset 0 1px 0 #fff1c254,inset 0 0 18px #e9d09615,0 0 0 1px #e9ca9150}
+#mission5.engineering5 .reactor-cells5 button.charged{background:linear-gradient(130deg,#3c7062,#244b4b);box-shadow:inset 0 1px 0 #bdffdc45,0 0 12px #a9edc916}
+#mission5.engineering5 .cell-vessel5{background:repeating-linear-gradient(0deg,transparent 0 8px,#daffff2b 9px 10px),linear-gradient(90deg,#092332,#133d4b 50%,#0a2535);box-shadow:inset 3px 0 6px #0016278c,0 1px 0 #e0f3db45}
+#mission5.engineering5 .cell-vessel5::after{content:'';position:absolute;inset:2px 3px;pointer-events:none;background:linear-gradient(90deg,#edfffa27,transparent 35%,transparent 70%,#d9fffa21);border-radius:2px}
+#mission5.engineering5 .cell-vessel5 i{height:100%;transform:scaleY(0);transform-origin:bottom;transition:none;background:linear-gradient(90deg,#5cd6c78c,#c4ffe4d9 50%,#75d9c4bb);box-shadow:0 -2px 7px #bbffe5aa}
+#mission5.engineering5 .reactor-cells5 output{font-variant-numeric:tabular-nums}
+#mission5.engineering5 .reactor-thermal-track5{height:8px;background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),#ecedb629 calc(10% - 1px) 10%),#0a2534;box-shadow:inset 0 2px 4px #031623}
+#mission5.engineering5 .reactor-thermal-track5 i{width:100%;transform:scaleX(0);transform-origin:left;transition:none;background:linear-gradient(90deg,#89d8dd,#bce9c7 45%,#e2d696 73%,#f4a785)}
+#mission5.engineering5 .reactor-hold-controls5 button{background:linear-gradient(175deg,#fff1c8,#e7ce93 45%,#d0b477 46%,#ddc087);border-bottom-width:3px;box-shadow:inset 0 1px 0 #fff7e7b8,0 4px 0 #08213277,0 6px 12px #04132245;transition:box-shadow .12s,filter .12s,translate .12s}
+#mission5.engineering5 #coolCore5{background:linear-gradient(175deg,#80a5b5,#4e7a90 44%,#416c82 45%,#3e657b);box-shadow:inset 0 1px 0 #e5ffff73,0 4px 0 #071e3077,0 6px 12px #04132245}
+#mission5.engineering5 .reactor-hold-controls5 button.held{border-bottom-width:3px;translate:0 2px;box-shadow:inset 0 2px 8px #09273755,0 0 20px #d7eece35;filter:brightness(1.05)}
+#mission5.engineering5 .reactor-dial5{background:linear-gradient(150deg,#2b4d5e,#17384c);box-shadow:inset 0 1px 0 #e1edd122,inset 0 -1px 0 #0004;transition:background .4s,border-color .4s}
+#mission5.engineering5 .reactor-dial5.safe{background:linear-gradient(150deg,#3a6158,#204944);box-shadow:inset 0 1px 0 #d1ffdb3b,0 0 14px #9eedca10}
+#mission5.engineering5 .reactor-dial5 input{-webkit-appearance:none;appearance:none;outline:none;background:transparent;touch-action:none}
+#mission5.engineering5 .reactor-dial5 input::-webkit-slider-runnable-track{height:5px;border:1px solid #aac5c55c;border-radius:5px;background:linear-gradient(90deg,#112d3e,#62868a);box-shadow:inset 0 1px 2px #0005}
+#mission5.engineering5 .reactor-dial5 input::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border:1px solid #fff0c2;border-radius:50%;margin-top:-8px;background:radial-gradient(circle at 37% 27%,#ffefbd,#cfb77e 65%,#a48c5b);box-shadow:0 2px 5px #001423a6,inset 0 0 0 4px #ffffff16}
+#mission5.engineering5 .reactor-dial5 input::-moz-range-track{height:4px;border:1px solid #aac5c55c;border-radius:5px;background:#385666}
+#mission5.engineering5 .reactor-dial5 input::-moz-range-thumb{width:18px;height:18px;border:1px solid #fff0c2;border-radius:50%;background:radial-gradient(circle at 37% 27%,#ffefbd,#cfb77e 65%,#a48c5b);box-shadow:0 2px 5px #001423a6}
+#mission5.engineering5 .reactor-lock5 i{width:100%;transform:scaleX(0);transform-origin:left;box-shadow:0 0 10px #a2eac775}
+#mission5.engineering5 .reactor-primary5{background:linear-gradient(175deg,#fff0c5,#e3c98f 55%,#d1b176);box-shadow:inset 0 1px 0 #fff9e3ad,0 4px 10px #05162555;transition:filter .16s,opacity .16s}
+#mission5.engineering5 #igniteBtn{position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(175deg,#fff0c5,#e3c98f 55%,#d1b176)!important}
+#mission5.engineering5[data-pulse-ready=true] #igniteBtn{box-shadow:inset 0 1px 0 #fff9e3ad,0 0 22px #bcf6d36b;border-color:#bcffd6!important;filter:brightness(1.07)}
+#mission5.engineering5 #igniteBtn::before{content:'';position:absolute;inset:0;z-index:-1;background:#a1edce77;transform:scaleX(var(--startup-progress,0));transform-origin:left}
+#mission5.engineering5[data-reactor-phase=startup] #igniteBtn{opacity:1;color:#174536}
+#mission5.engineering5 .reactor-pulses5>span{background:linear-gradient(#294b5c,#163749);box-shadow:inset 0 1px 0 #d9e6c321;transition:border-color .2s,background .2s,color .2s}
+#mission5.engineering5 .reactor-pulses5 .done{background:linear-gradient(#396d5c,#244e48);box-shadow:inset 0 1px 0 #d8ffe14a,0 0 12px #b3f1cf17}
+#mission5.engineering5 .reactor-pulse-track5{background:repeating-linear-gradient(90deg,transparent 0 calc(5% - 1px),#bddde214 calc(5% - 1px) 5%),repeating-linear-gradient(90deg,transparent 0 calc(25% - 1px),#b4dbe740 calc(25% - 1px) 25%),#0b2537;box-shadow:inset 0 3px 8px #071725b3}
+#mission5.engineering5 .reactor-pulse-track5 i{transition:none}
+#mission5.engineering5 .reactor-status5{border-color:#aac6cb33;background:#071f3140;color:#d0e4e8;box-shadow:inset 0 1px 5px #0b1e2b33}
+#mission5.engineering5 .reactor-complete5{border-color:#cbe6bc;background:radial-gradient(ellipse at 50% 0,#54755b77,transparent 65%),linear-gradient(140deg,#2d5956,#173b48);box-shadow:inset 0 1px 0 #e2f6d34d,0 0 35px #a2e9c516}
+#mission5.engineering5 .reactor-complete-check5{background:radial-gradient(circle,#cbffc737,#abf4d908);box-shadow:0 0 18px #c0f4cc24}
+#mission5.engineering5 .reactor-secondary5{background:linear-gradient(145deg,#315469,#1b3c51);box-shadow:inset 0 1px 0 #cfe6e324}
+@media(max-height:700px){
+ #mission5.engineering5{padding-top:max(8px,env(safe-area-inset-top))}
+ #mission5.engineering5 .reactor-live5{top:8px;right:8px;font-size:6px;padding:5px}
+ #mission5.engineering5 #reactorState5{font-size:7px;letter-spacing:.5px}
+ #mission5.engineering5 .reactor-scene-status5{padding:5px 7px}
+ #mission5.engineering5 .reactor-scene-status5 strong{font-size:21px}
+ #mission5.engineering5 .reactor-wave5{height:8px;max-width:100px}
+}
+@media(orientation:landscape) and (max-height:550px) and (min-width:500px){
+ #mission5.engineering5{padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
+ #mission5.engineering5 .reactor-live5{top:34px;left:8px;right:auto;max-width:80%}
+ #mission5.engineering5 .reactor-wave5{height:7px}
+ #mission5.engineering5 #reactorState5{font-size:6px;letter-spacing:.4px}
+}
+@media(prefers-reduced-motion:reduce){
+ #mission5.engineering5 *,#mission5.engineering5 *::before,#mission5.engineering5 *::after{animation:none!important;transition:none!important}
+ #mission5.engineering5 .reactor-hold-controls5 button.held{translate:none}
+}
+
+#mission5.engineering5 .reactor-gallery5[data-compact=true] .reactor-wave5{display:none}
+#mission5.engineering5 .reactor-gallery5[data-compact=true] .reactor-scene-status5{padding-block:4px}

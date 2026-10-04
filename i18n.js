@@ -380,6 +380,16 @@ VERIFYING…|ПРОВЕРКА…
 10-DIGIT KEY RECOVERED|КОД ИЗ 10 ЦИФР НАЙДЕН
 IDENTITY CONFIRMED|ЛИЧНОСТЬ ПОДТВЕРЖДЕНА
 TRUTH UNLOCKED|ИСТИНА ОТКРЫТА
+ENGINE ROOM|РЕАКТОРНЫЙ ОТСЕК
+CELL|ЯЧ.
+STANDBY|ОЖИДАНИЕ
+ONLINE|В РАБОТЕ
+PROTECTION|ЗАЩИТА
+PAUSED|ПАУЗА
+CHARGING|ЗАРЯДКА
+CALIBRATING|НАСТРОЙКА
+SAVED SESSION RESTORED|ПРОГРЕСС ВОССТАНОВЛЕН
+Cell connected. Power routed to the next cell.|Ячейка заряжена. Питание переключено на следующую.
 Reactor guide|Инструкция к реактору
 Reactor chamber with animated energy rings|Реакторный отсек с вращающимися энергетическими кольцами
 Reactor startup progress|Этапы запуска реактора
@@ -415,6 +425,7 @@ PULSE ALIGNMENT|МОМЕНТ ИМПУЛЬСА
 Ignition pulse position|Положение указателя запуска
 START IGNITION|НАЧАТЬ ЗАПУСК
 FIRE PULSE|ПОДАТЬ ИМПУЛЬС
+NEXT PULSE|СЛЕДУЮЩИЙ ИМПУЛЬС
 RETRY PULSE|ПОВТОРИТЬ ИМПУЛЬС
 IGNITION IN PROGRESS|РЕАКТОР ЗАПУСКАЕТСЯ
 THERMAL PROTECTION|ЗАЩИТА ОТ ПЕРЕГРЕВА
