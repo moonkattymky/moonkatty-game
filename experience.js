@@ -14,7 +14,7 @@ window.MKTYExperience=(()=>{
   ['Enter the code from the first chapter. A wrong code costs one life and starts a one-hour wait.','Repeat the four symbols. Adjust the mixture until all indicators are green and total load is 100.','Read the NAV/CORE/COMMS order, then activate the systems before the timer runs out.'],
   ['Hold ▲ to brake or rise, ▼ to descend. Set engine power with the slider.','Use ◀ and ▶ to centre the ship over the landing pad.','Touch down at 14 m/s or less with drift inside ±42. Begin braking before final approach.']
  ];
- guides[7]=['Use ◀ and ▶ to change lanes and avoid the asteroids.','A shield absorbs one impact. You have three charges.','Reach 100 distance with the hull intact. Pause to save your current flight.'];
+ guides[7]=['Amber markers warn of incoming asteroids. Tap or hold ◀ and ▶, swipe the scene, or use the arrow keys to change lanes.','Arm a shield before impact. Each charge blocks one asteroid; press Space or the shield button.','Cross three sectors. Each checkpoint repairs 12% hull and restores one shield charge. Retry a failed sector with full supplies.'];
  guides[8]=['Sweep the frequency until the signal is strongest, then lock it.','Align the phase marker and hold a stable signal.','Repeat three pulse sequences. The decoded coordinates are saved for the finale.'];
  guides[9]=['Enter the saved coordinates, then align the return corridor.','Repeat three core sequences. Wrong inputs reduce core integrity.','Transmit the six-symbol return code before power runs out.'];
  const titles=['','THE AWAKENING','THE CREW','THE LAUNCH CODE','THE DESCENT','','','THE VOID','THE SIGNAL','THE RETURN'];

@@ -1,6 +1,60 @@
 /* Russian UI text stays in sync with dynamic mission updates and language changes. */
 (() => {
  const pairs = `
+LIFE #7 / DEEP SPACE|ГЛАВА 7 / ДАЛЬНИЙ КОСМОС
+FLIGHT CONTROL|ЦЕНТР ПОЛЁТА
+Flight sectors|Секторы полёта
+OUTER BELT|ВНЕШНИЙ ПОЯС
+DEBRIS FIELD|ПОЛЕ ОБЛОМКОВ
+SIGNAL GATE|ВОРОТА СИГНАЛА
+Three flight lanes; amber markers warn of incoming asteroids.|Три полосы полёта. Янтарные маркеры предупреждают об астероидах.
+TRAJECTORY PREVIEW|ПЛАН МАРШРУТА
+GUIDANCE ONLINE|НАВИГАЦИЯ АКТИВНА
+SECTOR SECURED|СЕКТОР ПРОЙДЕН
+CHECKPOINT SAVED|ПРОГРЕСС СОХРАНЁН
+ROUTE|МАРШРУТ
+BEYOND LUNAR ORBIT|ЗА ЛУННОЙ ОРБИТОЙ
+CROSS THE ASTEROID BELT|ПРОЙДИТЕ ПОЯС АСТЕРОИДОВ
+Read the amber warnings. Change lanes to find a clear route. Arm a shield before impact.|Следите за янтарными маркерами. Меняйте полосу, обходите астероиды. Включайте щит до столкновения.
+SECTORS|СЕКТОРА
+ENTER THE VOID|ВОЙТИ В ПУСТОТУ
+Change lane left|Перейти на полосу слева
+Change lane right|Перейти на полосу справа
+Arm shield|Включить щит
+ARM SHIELD|ВКЛЮЧИТЬ ЩИТ
+SHIELD ACTIVE|ЩИТ АКТИВЕН
+NO CHARGES|НЕТ ЗАРЯДОВ
+Every sector saves a checkpoint.|Прогресс сохраняется в каждом секторе.
+EMERGENCY RECOVERY|АВАРИЙНОЕ ВОССТАНОВЛЕНИЕ
+HULL COMPROMISED|КОРПУС ПОВРЕЖДЁН
+Your last sector is safe. Retry with full hull and three shields.|Последний сектор сохранён. Повторите попытку с целым корпусом и тремя зарядами щита.
+CLEAR OF THE BELT|ПОЯС ПОЗАДИ
+TRANSMISSION GATE AHEAD|ВПЕРЕДИ ВОРОТА СИГНАЛА
+Flight control is securing the signal corridor.|Центр полёта подтверждает выход в коридор сигнала.
+LIFE #7 COMPLETE|ГЛАВА 7 ПРОЙДЕНА
+THE VOID IS BEHIND YOU|ПУСТОТА ПОЗАДИ
+ASTEROIDS EVADED|ОБЛОМКОВ ОБОЙДЕНО
+FOLLOW THE SIGNAL|СЛЕДОВАТЬ ЗА СИГНАЛОМ
+The next signal lies beyond the belt.|Новый сигнал ждёт за поясом астероидов.
+Watch the amber markers. Keep a clear lane.|Следите за янтарными маркерами. Выбирайте свободную полосу.
+Shield armed. One impact protected.|Щит включён. Одно столкновение будет поглощено.
+Sector saved. Hull repaired; one shield charge restored.|Сектор сохранён. Корпус подлатан, один заряд щита восстановлен.
+Flight interrupted. Your last sector is preserved.|Полёт прерван. Последний сектор сохранён.
+Supplies restored. Resume from the last sector.|Запасы восстановлены. Продолжайте с последнего сектора.
+Transmission gate reached. Follow the signal.|Ворота достигнуты. Следуйте за сигналом.
+All three sectors crossed. Approaching the gate.|Три сектора пройдены. Подходим к воротам.
+Impact absorbed. Shield charge spent.|Удар поглощён. Заряд щита израсходован.
+Hull impact. Move to a clear lane or arm a shield.|Удар по корпусу! Смените полосу или включите щит.
+EMERGENCY BEACON|АВАРИЙНЫЙ МАЯК
+SIGNAL CORRIDOR|КОРИДОР СИГНАЛА
+SHIELD ONLINE|ЩИТ ВКЛЮЧЁН
+RECOVERY READY|ВОССТАНОВЛЕНИЕ ГОТОВО
+TRANSMISSION ACQUIRED|СИГНАЛ ПОЛУЧЕН
+Amber means incoming debris. Keep a clear lane.|Янтарный маркер предупреждает об обломках. Ищите свободную полосу.
+Amber markers warn of incoming asteroids. Tap or hold ◀ and ▶, swipe the scene, or use the arrow keys to change lanes.|Янтарные маркеры предупреждают об астероидах. Меняйте полосу кнопками ◀ и ▶, свайпом по сцене или стрелками клавиатуры. Кнопку можно удерживать.
+Arm a shield before impact. Each charge blocks one asteroid; press Space or the shield button.|Включайте щит до удара кнопкой щита или пробелом. Каждый заряд поглощает одно столкновение.
+Cross three sectors. Each checkpoint repairs 12% hull and restores one shield charge. Retry a failed sector with full supplies.|Пройдите три сектора. На границе восстанавливаются 12% корпуса и один заряд щита. После аварии можно повторить сектор с полными запасами.
+
 MKTY // LUNAR CREW|MKTY // ЛУННЫЙ ЭКИПАЖ
 9 LIVES|9 ЖИЗНЕЙ
 RULES & REWARDS|ПРАВИЛА И НАГРАДЫ

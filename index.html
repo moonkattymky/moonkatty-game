@@ -13,8 +13,9 @@
   <link rel="stylesheet" href="mission-polish.css?v=20261003-polish-1" />
   <link rel="stylesheet" href="reactor5.css?v=20261004-cinematic-2" />
   <link rel="stylesheet" href="campaign.css?v=20261004-repair-1" />
-  <link rel="stylesheet" href="experience.css?v=20261004-campaign-audit-1" />
+  <link rel="stylesheet" href="experience.css?v=20261004-void-1" />
   <link rel="stylesheet" href="liftoff6.css?v=20261004-flight-design-1" />
+  <link rel="stylesheet" href="void7.css?v=20261004-void-1" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -319,14 +320,31 @@
       </div>
       <dialog id="liftoffGuide6" class="lf-guide" aria-labelledby="lfGuideTitle6"><div class="lf-guide-copy"><span class="eyebrow">MOONKATTY / FLIGHT MANUAL</span><h2 id="lfGuideTitle6">FLIGHT PAUSED</h2><p>Simulation paused. Your current progress is preserved.</p><ol><li><b>01</b><div><strong>FLIGHT CHECK</strong><p>Arm NAV, FUEL, CREW and CORE in the transmitted order. After two systems, diagnose the fault and choose the matching repair.</p></div></li><li><b>02</b><div><strong>IGNITION</strong><p>Set thrust to 54–70%. Hold IGNITION for three steady seconds.</p></div></li><li><b>03</b><div><strong>ASCENT</strong><p>Hold ◀ or ▶ to follow the green corridor. Cross all three beacons at 35–110 m/s. Stay below 92° and watch fuel.</p></div></li></ol><p>Each beacon saves a retry checkpoint. A failed attempt never removes a completed chapter.</p><div class="experience-options"></div></div><div class="lf-guide-actions"><button id="lfResume6" class="lf-primary">RESUME FLIGHT</button><button id="lfExit6" class="lf-secondary">MISSIONS</button></div></dialog>
     </section>
-    <section id="mission7" class="screen mission-screen life-theme life-theme-7 mission-polished">
-      <header><div><span class="eyebrow">LIFE #7</span><h2>THE VOID</h2></div><div class="crew-badge">HULL <span id="hull7">100</span>%</div></header>
-      <div id="voidWorld7" class="void-world"><div class="void-stars"></div><div class="void-lane7 l0"></div><div class="void-lane7 l1"></div><div class="void-lane7 l2"></div><div id="voidShip" class="void-ship">🚀</div><div id="shieldBubble7" class="shield-bubble7"></div><div id="asteroidField" class="asteroid-field"></div></div>
-      <div class="panel objective"><span class="eyebrow">DEEP SPACE</span><h3>SURVIVE THE VOID</h3><p>Dodge the debris, preserve the hull and reach the transmission gate.</p></div>
-      <div class="void-hud"><span>DISTANCE <b id="distance7">0</b>/100</span><span>SHIELDS <b id="shield7">3</b></span><span>HULL <b id="hullHud7">100</b>%</span></div><div class="hull-bar7"><i id="hullFill7"></i></div>
-      <div class="void-controls"><button id="voidLeft">◀ EVADE</button><button id="shieldBtn">SHIELD ⚡</button><button id="voidRight">EVADE ▶</button></div>
-      <p id="voidStatus" class="mission-status">Unknown debris field ahead.</p>
-      <div id="life7Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">VOID CROSSED</p><h3>TRANSMISSION GATE REACHED</h3><strong>+1750 MOON POINTS ⭐</strong><button id="continueLife8Btn" class="primary">UNLOCK LIFE #8 📡</button><button id="life7ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
+    <section id="mission7" class="screen mission-screen void-seven" data-phase="briefing">
+      <header class="v7-header"><div><span class="eyebrow">LIFE #7 / DEEP SPACE</span><h2>THE VOID</h2></div><span class="v7-badge"><i></i><span>FLIGHT CONTROL</span></span></header>
+      <ol class="v7-route" aria-label="Flight sectors"><li><b translate="no">01</b><span>OUTER BELT</span><i>✓</i></li><li><b translate="no">02</b><span>DEBRIS FIELD</span><i>✓</i></li><li><b translate="no">03</b><span>SIGNAL GATE</span><i>✓</i></li></ol>
+      <div class="v7-workspace">
+        <div id="voidWorld7" class="v7-world" role="img" aria-label="Three flight lanes; amber markers warn of incoming asteroids.">
+          <div class="v7-environment"></div><canvas id="voidCanvas7" aria-hidden="true"></canvas>
+          <div class="v7-scene-heading"><span id="v7SceneTitle">TRAJECTORY PREVIEW</span><b translate="no">MK–07 / VOID</b></div>
+          <div class="v7-warnings" aria-hidden="true"><span data-v7-lane="0"><i>⌄</i><b translate="no">L</b></span><span data-v7-lane="1"><i>⌄</i><b translate="no">C</b></span><span data-v7-lane="2"><i>⌄</i><b translate="no">R</b></span></div>
+          <div id="asteroidField" class="v7-rocks" aria-hidden="true"></div>
+          <div id="shieldBubble7" class="v7-bubble" aria-hidden="true"><i></i></div>
+          <div id="voidShip" class="v7-ship" aria-hidden="true"><i></i><img src="moonkatty-life4-ship.png" width="520" height="343" alt="" draggable="false"></div>
+          <div id="v7Checkpoint" class="v7-checkpoint" hidden><span>SECTOR SECURED</span><strong>CHECKPOINT SAVED</strong></div>
+          <div class="v7-scene-footer"><span id="v7SceneState">GUIDANCE ONLINE</span><span id="v7Sector" translate="no">01 / 03</span></div>
+        </div>
+        <div class="v7-console">
+          <div class="v7-instruments"><div class="v7-hull"><span>HULL</span><strong><b id="hull7" translate="no">100</b><small>%</small></strong><div class="v7-hull-track"><i id="hullFill7"></i></div></div><div class="v7-distance"><span>ROUTE</span><strong><b id="distance7" translate="no">0</b><small>%</small></strong><div class="v7-distance-track"><i id="v7DistanceFill"></i></div></div><div class="v7-shields"><span>SHIELDS</span><strong id="shield7" translate="no">3</strong><div id="v7Charges" aria-hidden="true"><i></i><i></i><i></i></div></div></div>
+          <section id="v7Brief" class="v7-panel"><span class="eyebrow">BEYOND LUNAR ORBIT</span><h3>CROSS THE ASTEROID BELT</h3><p>Read the amber warnings. Change lanes to find a clear route. Arm a shield before impact.</p><div class="v7-brief-spec"><span><b translate="no">3</b><small>SECTORS</small></span><span><b translate="no">3</b><small>SHIELDS</small></span><span><b translate="no">1750</b><small>MOON POINTS</small></span></div><button id="v7Begin" class="v7-primary">ENTER THE VOID</button></section>
+          <div id="v7Controls" class="v7-controls" hidden><button id="voidLeft" aria-label="Change lane left"><b>◀</b><span>LEFT</span></button><button id="shieldBtn" aria-label="Arm shield"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 27 7v9c0 6-6 10-11 13C11 26 5 22 5 16V7Z"/><path d="m11 15 4 4 7-8"/></svg><span id="v7ShieldState">ARM SHIELD</span></button><button id="voidRight" aria-label="Change lane right"><b>▶</b><span>RIGHT</span></button></div>
+          <div id="v7FlightNote" class="v7-flight-note" hidden><i></i><span>Every sector saves a checkpoint.</span></div>
+          <section id="v7Abort" class="v7-panel" hidden><span class="eyebrow">EMERGENCY RECOVERY</span><h3>HULL COMPROMISED</h3><p>Your last sector is safe. Retry with full hull and three shields.</p><button id="v7Retry" class="v7-primary">RETRY FROM CHECKPOINT</button></section>
+          <section id="v7Approach" class="v7-panel" hidden><span class="eyebrow">CLEAR OF THE BELT</span><h3>TRANSMISSION GATE AHEAD</h3><p>Flight control is securing the signal corridor.</p></section>
+          <section id="life7Complete" class="v7-panel v7-complete" hidden><span class="eyebrow">LIFE #7 COMPLETE</span><h3>THE VOID IS BEHIND YOU</h3><div id="v7Report" class="v7-report" hidden><div><b id="v7ReportTime" translate="no">01:12</b><small>FLIGHT TIME</small></div><div><b id="v7ReportHull" translate="no">100%</b><small>HULL</small></div><div><b id="v7ReportEvades" translate="no">0</b><small>ASTEROIDS EVADED</small></div></div><strong id="v7Reward">+1750 MOON POINTS</strong><button id="continueLife8Btn" class="v7-primary">FOLLOW THE SIGNAL</button><button id="life7ReturnBtn" class="v7-secondary">MISSION CONTROL</button></section>
+          <p id="voidStatus" class="v7-status" role="status">The next signal lies beyond the belt.</p>
+        </div>
+      </div>
     </section>
     <section id="mission8" class="screen mission-screen life-theme life-theme-8 mission-polished">
       <header><div><span class="eyebrow">LIFE #8</span><h2>THE SIGNAL</h2></div><div class="crew-badge">LINK <span id="link8">0</span>%</div></header>
@@ -352,13 +370,15 @@
       <div id="life9Complete" class="complete-card final-complete" hidden><span class="complete-icon">🌙</span><p class="eyebrow">9 LIVES COMPLETE</p><h3>MOONKATTY HAS RETURNED</h3><strong>+3000 MOON POINTS ⭐ • 9 LIVES COMPLETE</strong><p class="final-message">THE SIGNAL WAS NEVER CALLING US TO THE MOON.<br>IT WAS CALLING MOONKATTY HOME.</p><button id="life9ReturnBtn" class="primary">RETURN TO MISSION CONTROL</button></div>
     </section>
   </main>
-  <script src="i18n.js?v=20261004-campaign-audit-1"></script>
-  <script src="app.js?v=20261004-campaign-audit-1"></script>
+  <script src="i18n.js?v=20261004-void-1"></script>
+  <script src="app.js?v=20261004-void-1"></script>
   <script src="reactor5-fx.js?v=20261004-liftoff-1"></script>
   <script src="reactor5.js?v=20261004-liftoff-1"></script>
   <script src="liftoff6-fx.js?v=20261004-flight-design-1"></script>
   <script src="liftoff6.js?v=20261004-flight-design-1"></script>
-  <script src="continuation.js?v=20261004-campaign-audit-1"></script>
-  <script src="campaign.js?v=20261004-campaign-audit-1"></script>
-  <script src="experience.js?v=20261004-campaign-audit-1"></script>
+  <script src="void7-fx.js?v=20261004-void-1"></script>
+  <script src="void7.js?v=20261004-void-1"></script>
+  <script src="continuation.js?v=20261004-void-1"></script>
+  <script src="campaign.js?v=20261004-void-1"></script>
+  <script src="experience.js?v=20261004-void-1"></script>
 </body></html>

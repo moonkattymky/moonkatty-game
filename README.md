@@ -39,3 +39,18 @@ node tests/continuation.cjs
 ```
 
 An existing compatible Chromium executable can be supplied via `CHROMIUM_PATH`; `MKTY_TEST_OUTPUT` selects the report directory. The test serves this checkout locally on a random port and never touches a real player's data. Full scene animation and asteroid avoidance are additionally checked with a real-time browser playthrough; the saved regression uses a virtual clock to exercise pause/reload boundaries deterministically.
+
+## LIFE #7 — The Void
+
+The seventh chapter now crosses three asteroid sectors in a 72-second flight, followed by a short gate approach. Amber lane markers precede each incoming wave; every wave leaves a safe lane, with enough spacing for the previous wave to pass before the next warning. Tap or hold the steering buttons, swipe the scene, or use the arrow keys. Space and the shield button arm one charge until a single impact consumes it. Large rocks remove 28% hull, smaller rocks 18%.
+
+Sector boundaries save progress, repair 12% hull and restore one shield charge (maximum three). Hull failure opens an explicit retry at the start of the last sector with full supplies. A single animation clock drives bounded-step motion, collision checks, warnings and effects; hazards no longer depend on independent CSS animations. Pause, backgrounding and app exit preserve flight positions and supplies. Unfinished version-2 checkpoints resume behind the guide; old version-1 saves migrate their distance, lane, hull and shields into the new flight with a safe warning window. Completed sessions remain complete, retain a flight report when available, award 1,750 points once and unlock chapter 8.
+
+`void7.css` provides compact portrait and landscape decks with English and Russian copy. The new background and original ship keep their proportions. Asset provenance is in `art/README.md`.
+
+```sh
+node tests/void7.cjs
+node tests/continuation.cjs
+```
+
+The chapter-specific regression flies all three sectors through actual controls, reloads amid moving hazards, checks shields, failure/retry, old-save migration, keyboard/hold/swipe input and scene cleanup. Layout checks cover nine viewport sizes in English and Russian. The continuation regression also exercises chapter 8–9 puzzles and prevents duplicate rewards. These are isolated Chromium browser tests; they do not represent physical-device or Telegram-client certification.

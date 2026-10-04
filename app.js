@@ -105,7 +105,7 @@ function leaveMission(id){
  if(n===4){descentActive4=false;cancelAnimationFrame(descentTimer);descentTimer=null;releaseDescentControls();}
  if(n===5)stopReactor5();
  if(n===6)stopLiftoff6();
- if(n===7){stopVoid7();$('asteroidField').replaceChildren();asteroids7=[];}
+ if(n===7)stopVoid7();
  if(n===8){clearInterval(phaseTimer8);phaseTimer8=null;pulseReady8=false;}
  if(n===9){clearInterval(finalTimer9);finalTimer9=null;syncReady9=finalReady9=false;}
 }
@@ -804,26 +804,9 @@ function unlockLife7(){
  if(localStorage.getItem('mkty_life6')!=='complete')return false;const a=$('life6Card'),b=$('life7Card'),i=$('life7Icon'),p=$('storyProgress');a?.classList.add('complete');if(b){b.disabled=false;b.classList.remove('locked');b.classList.add('unlocked');}if(i)i.textContent='7';if(p)p.style.width='77%';return true;
 }
 $('continueLife7Btn').onclick=(ev)=>{ev?.preventDefault?.();if(!unlockLife7())return;startLife7();};if($('life7Card'))$('life7Card').onclick=()=>$('continueLife7Btn').click();
-let lane7=1,hull7=100,shield7=3,distance7=0,shieldActive7=false,voidTimer=null,spawnTimer7=null,voidActive7=false,asteroids7=[];
-function renderVoid(){
- $('hull7').textContent=Math.max(0,Math.round(hull7));$('hullHud7').textContent=Math.max(0,Math.round(hull7));$('hullFill7').style.width=Math.max(0,hull7)+'%';$('shield7').textContent=shield7;$('distance7').textContent=Math.min(100,Math.round(distance7));
- const left=[22,50,78][lane7];$('voidShip').style.left=left+'%';$('shieldBubble7').style.left=left+'%';$('shieldBubble7').classList.toggle('active',shieldActive7);$('shieldBtn').disabled=shield7<=0||shieldActive7;
-}
-function spawnAsteroid7(saved=null){
- if(!voidActive7||document.hidden||window.MKTYExperience?.paused)return;const field=$('asteroidField'),lane=saved?.lane??Math.floor(Math.random()*3),el=document.createElement('span');const big=saved?.big??Math.random()<.22;el.className='asteroid7 '+(big?'big':'small');el.setAttribute('aria-hidden','true');el.dataset.lane=lane;el.dataset.hit='0';el.style.left=['22%','50%','78%'][lane];const speed=saved?.duration??Math.max(1.15,2.5-distance7*.012);el.style.setProperty('--fall7',speed+'s');if(saved)el.style.animationDelay=(-speed*saved.progress)+'s';field.appendChild(el);asteroids7.push(el);
- el.addEventListener('animationend',()=>{el.remove();asteroids7=asteroids7.filter(x=>x!==el);},{once:true});
-}
-function stopVoid7(){voidActive7=false;clearInterval(voidTimer);clearInterval(spawnTimer7);voidTimer=spawnTimer7=null;}
-function crashVoid7(){stopVoid7();$('voidStatus').textContent='HULL FAILURE — emergency reset.';tg?.HapticFeedback?.notificationOccurred?.('error');laterInMission(7,openMission7,1500);}
+function stopVoid7(){window.Void7?.stop();}
 function startLife7(){playLifeCinematic(7,openMission7);}
-function openMission7(){
- clearMissionDelays(7);
- stopVoid7();lane7=1;hull7=100;shield7=3;distance7=0;shieldActive7=false;asteroids7=[];$('asteroidField').innerHTML='';$('life7Complete').hidden=true;$('voidStatus').textContent='Debris field entered. Survive to the transmission gate.';show('mission7');voidActive7=true;renderVoid();
- spawnTimer7=setInterval(spawnAsteroid7,720);
- voidTimer=setInterval(()=>{if(!voidActive7||document.hidden||window.MKTYExperience?.paused)return;distance7+=.42;const world=$('voidWorld7').getBoundingClientRect(),ship=$('voidShip').getBoundingClientRect();asteroids7.forEach(el=>{if(!el.isConnected||el.dataset.hit==='1')return;const r=el.getBoundingClientRect();const overlap=!(r.right<ship.left+8||r.left>ship.right-8||r.bottom<ship.top+8||r.top>ship.bottom-8);if(overlap){el.dataset.hit='1';el.remove();asteroids7=asteroids7.filter(x=>x!==el);if(shieldActive7){shieldActive7=false;$('voidStatus').textContent='Shield absorbed asteroid impact.';}else{hull7-=el.classList.contains('big')?34:20;$('voidStatus').textContent='HULL IMPACT! Evade!';$('voidWorld7').classList.remove('hit7');void $('voidWorld7').offsetWidth;$('voidWorld7').classList.add('hit7');tg?.HapticFeedback?.notificationOccurred?.('error');}renderVoid();}});
- if(hull7<=0){crashVoid7();return;}if(distance7>=100){stopVoid7();awardLifePoints(7,1750);$('voidStatus').textContent='Transmission gate reached ✓';$('life7Complete').hidden=false;tg?.HapticFeedback?.notificationOccurred?.('success');return;}renderVoid();},100);window.MKTYCampaign?.restore(7);
-}
-$('voidLeft').onclick=()=>{if(!voidActive7||window.MKTYExperience?.paused)return;lane7=Math.max(0,lane7-1);renderVoid();};$('voidRight').onclick=()=>{if(!voidActive7||window.MKTYExperience?.paused)return;lane7=Math.min(2,lane7+1);renderVoid();};$('shieldBtn').onclick=()=>{if(!voidActive7||window.MKTYExperience?.paused||shield7<=0||shieldActive7)return;shield7--;shieldActive7=true;$('voidStatus').textContent='Shield armed — one impact protected.';renderVoid();};
+function openMission7(){clearMissionDelays(7);window.Void7?.open();}
 $('life7ReturnBtn').onclick=()=>show('home');
 
 function unlockLife8(){

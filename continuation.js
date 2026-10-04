@@ -1,5 +1,5 @@
 /* Versioned checkpoints for the already-playable chapters beyond the flight deck.
-   Keep puzzle inputs, damage and asteroid positions; completion never awards twice. */
+   Keep chapter 8–9 puzzle inputs and damage; completion never awards twice. */
 window.MKTYContinuation=(()=>{
  const finite=(v,min,max)=>Number.isFinite(v)&&v>=min&&v<=max;
  const integer=(v,min,max)=>Number.isInteger(v)&&finite(v,min,max);
@@ -7,11 +7,6 @@ window.MKTYContinuation=(()=>{
  const prefix=(input,pattern)=>Array.isArray(input)&&input.length<pattern.length&&input.every((n,i)=>n===pattern[i]);
  const enable=(selector,enabled)=>document.querySelectorAll(selector).forEach(b=>b.disabled=!enabled);
  function save(n){
-  if(n===7){
-   if(!voidActive7||hull7<=0||distance7>=100)return null;
-   const height=$('voidWorld7').clientHeight;
-   return {version:1,lane:lane7,hull:hull7,shields:shield7,distance:distance7,shieldActive:shieldActive7,rocks:asteroids7.filter(e=>e.isConnected&&e.dataset.hit!=='1').slice(-8).map(e=>({lane:Number(e.dataset.lane),big:e.classList.contains('big'),duration:parseFloat(e.style.getPropertyValue('--fall7')),progress:Math.max(0,Math.min(.999,(e.offsetTop+50)/(height*1.05+50)))}))};
-  }
   if(n===8)return {version:1,stage:$('mission8').dataset.stage,frequency:Number($('freq8').value),phase:Number($('phase8').value),targetFrequency:targetFreq8,targetPhase:targetPhase8,round:pulseRound8,pattern:pulse8.slice(),input:pulseInput8.slice(),ready:pulseReady8};
   if(n===9){
    if(coreHealth9<=20||finalPower9<=0)return null;
@@ -21,17 +16,11 @@ window.MKTYContinuation=(()=>{
  }
  function review(n){
   clearMissionDelays(n);
-  if(n===7){stopVoid7();$('asteroidField').replaceChildren();asteroids7=[];distance7=100;shieldActive7=false;renderVoid();$('voidStatus').textContent='Transmission gate reached ✓';}
   if(n===8){clearInterval(phaseTimer8);phaseTimer8=null;pulseReady8=false;setSignalStage8('complete');$('link8').textContent='100';$('coordinates8').hidden=false;$('coordinatesValue8').textContent='LUNA // '+(localStorage.getItem('mkty_life9_coordinates')||'—').replace(',',' // ');$('signalPulse').classList.add('decoded');$('signalStatus8').textContent='Signal decoded. Final coordinates received ✓';}
   if(n===9){clearInterval(finalTimer9);finalTimer9=null;syncReady9=finalReady9=false;setFinalStage9('complete');['nav9','sync9','transmit9'].forEach(id=>$(id).hidden=true);['phase9a','phase9b','phase9c'].forEach(id=>$(id).className='done');$('finalGate').classList.add('open');$('finalShip').classList.add('returned');$('finalStatus9').textContent='RETURN TRANSMISSION ACCEPTED ✓';}
   $('life'+n+'Complete').hidden=false;
  }
  function restore(n,v){
-  if(n===7){
-   if(!integer(v.lane,0,2)||!finite(v.hull,1,100)||!integer(v.shields,0,3)||!finite(v.distance,0,99.999)||typeof v.shieldActive!=='boolean'||!Array.isArray(v.rocks)||v.rocks.length>8||!v.rocks.every(r=>r&&integer(r.lane,0,2)&&typeof r.big==='boolean'&&finite(r.duration,1,3)&&finite(r.progress,0,1)))return false;
-   lane7=v.lane;hull7=v.hull;shield7=v.shields;distance7=v.distance;shieldActive7=v.shieldActive;
-   $('asteroidField').replaceChildren();asteroids7=[];v.rocks.forEach(spawnAsteroid7);renderVoid();return true;
-  }
   if(n===8){
    if(!['frequency','phase','pulse'].includes(v.stage)||!finite(v.frequency,0,100)||!finite(v.phase,0,100)||!integer(v.targetFrequency,25,75)||!integer(v.targetPhase,25,75)||!integer(v.round,1,3))return false;
    targetFreq8=v.targetFrequency;targetPhase8=v.targetPhase;pulseRound8=v.round;$('freq8').value=v.frequency;$('phase8').value=v.phase;document.querySelector('.phase-scope8').style.setProperty('--phase-target',targetPhase8+'%');updateFreq8();updatePhase8();setSignalStage8(v.stage);

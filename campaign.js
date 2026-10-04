@@ -9,8 +9,9 @@ window.MKTYCampaign=(()=>{
  function save(){
   if(restoring||!current||current===5||current===6)return;
   if(done(current)){localStorage.removeItem(key(current));return;}
+  if(current===7){window.Void7?.save();return;}
   let v={version:1};
-  if(current>=7){v=window.MKTYContinuation?.save(current);if(!v){localStorage.removeItem(key(current));return;}}
+  if(current>=8){v=window.MKTYContinuation?.save(current);if(!v){localStorage.removeItem(key(current));return;}}
   if(current===1)Object.assign(v,{stage:life1Stage,x:l1PX,y:l1PY,energy:[...document.querySelectorAll('.energy.collected')].map(e=>e.dataset.energy),frequency:targetFrequency,dial:Number($('frequencyDial').value)});
   if(current===2)Object.assign(v,{joined:[...document.querySelectorAll('.mate.joined')].map(e=>e.dataset.mate),pipes:engineerTiles2});
   if(current===3)Object.assign(v,{phase:$('mission3').dataset.phase,mix:['mixO2','mixFuel','mixCool'].map(id=>Number($(id).value))});
@@ -18,7 +19,8 @@ window.MKTYCampaign=(()=>{
   try{localStorage.setItem(key(current),JSON.stringify(v));}catch{/* Continue playing if device storage is full. */}
  }
  function review(n){
-  if(n>=7){window.MKTYContinuation?.review(n);return;}
+  if(n===7)return;
+  if(n>=8){window.MKTYContinuation?.review(n);return;}
   if(n===1){
    life1Stage=3;energyCollected=3;repairCells=4;
    document.querySelectorAll('.l1-hotspot').forEach(e=>{e.disabled=true;if(e.classList.contains('energy'))e.classList.add('collected');});
@@ -32,12 +34,13 @@ window.MKTYCampaign=(()=>{
   if(n===4){descentActive4=false;cancelAnimationFrame(descentTimer);releaseDescentControls();alt4=0;vel4=0;renderDescent();$('mission4').dataset.brake='false';$('landingPhase4').textContent='TOUCHDOWN';$('descentStatus').textContent='Touchdown confirmed ✓';$('life4Complete').hidden=false;}
  }
  function restore(n){
+  if(n===7)return; // Chapter 7 owns version-2 restoration and legacy migration.
   restoring=true;
   try{
    if(done(n)){review(n);return;}
    if(n===3&&localStorage.getItem('mkty_life3_memory_verified')==='yes')setLaunchPhase3('signal');
    const v=read(n);if(!v)return;
-   if(n>=7){if(window.MKTYContinuation?.restore(n,v))window.MKTYExperience?.pause();return;}
+   if(n>=8){if(window.MKTYContinuation?.restore(n,v))window.MKTYExperience?.pause();return;}
    if(n===1&&[0,1,2].includes(v.stage)&&Array.isArray(v.energy)&&v.energy.every(x=>['1','2','3'].includes(x))&&Number.isFinite(v.x)&&Number.isFinite(v.y)){
     const collected=new Set(v.energy);if(v.stage>0&&collected.size!==3)return;
     life1Stage=v.stage;energyCollected=collected.size;l1PX=Math.max(7,Math.min(90,v.x));l1PY=Math.max(18,Math.min(88,v.y));
@@ -82,7 +85,7 @@ window.MKTYCampaign=(()=>{
   $('enterBtn').textContent=n?(n===1&&!done(1)&&!read(1)?'ENTER THE MISSION 🚀':'CONTINUE LIFE #'+n+' 🚀'):'CHOOSE A MISSION';
   $('enterBtn').onclick=()=>n?openChapter(n,!localStorage.getItem('mkty_current_chapter')):show('chapters');
   const list=$('chapterList');list.replaceChildren(...titles.map((title,i)=>{
-   const n=i+1;if(n>6&&!unlocked(n)&&!done(n))return null;const b=document.createElement('button');b.className='chapter-card';b.dataset.chapter=String(n);b.style.setProperty('--chapter-art',"url('art/"+['life1-base.webp','life2-bridge-v2.webp','life3-bridge-v2.webp','life4-landing.webp','life5-reactor-v2.webp','life6-launchpad.webp','orbit-v2.webp','life1-base.webp','orbit-v2.webp'][i]+"')");b.disabled=!unlocked(n);
+   const n=i+1;if(n>6&&!unlocked(n)&&!done(n))return null;const b=document.createElement('button');b.className='chapter-card';b.dataset.chapter=String(n);b.style.setProperty('--chapter-art',"url('art/"+['life1-base.webp','life2-bridge-v2.webp','life3-bridge-v2.webp','life4-landing.webp','life5-reactor-v2.webp','life6-launchpad.webp','life7-void.webp','life1-base.webp','orbit-v2.webp'][i]+"')");b.disabled=!unlocked(n);
    const number=document.createElement('b');number.textContent=String(n).padStart(2,'0');
    const body=document.createElement('span'),name=document.createElement('strong'),status=document.createElement('small');name.textContent=title;
    status.textContent=done(n)?'COMPLETE • VIEW':unlocked(n)?'CONTINUE':'COMPLETE THE PREVIOUS CHAPTER';body.append(name,status);b.append(number,body);b.onclick=()=>openChapter(n);return b;
