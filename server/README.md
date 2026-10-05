@@ -24,3 +24,29 @@ POST /api/lives/spend
 
 Security:
 Validate Telegram initData server-side, rate-limit writes, keep secrets outside the repository, and maintain an auditable reward-event ledger.
+
+## Mission control standings (2026-10-05)
+
+`server/mission-control/index.ts` is deployed as the `mission-control` Edge Function.
+
+- `GET /functions/v1/mission-control` returns up to 50 scored server profiles,
+  ordered by Moon Points and completed chapters; equal results share a rank.
+- `POST` with `{ "initData": "..." }` additionally returns the current player's
+  position after checking Telegram's Ed25519 signature and a ten-minute expiry.
+- The public response contains HMAC-derived callsigns, points and chapter counts.
+  It excludes Telegram IDs, first names and usernames. No writes are performed.
+- The gateway JWT check is disabled because public standings are readable without
+  login and the optional personal view has custom Telegram signature validation.
+  The service-role credential exists only in the function environment.
+- These are existing server profile scores. This release does not upload local
+  campaign scores, mint reward events, or implement referral payouts. Local route
+  records and daily training results are labelled separately in the interface.
+- Authentication and authorisation paths, response privacy, ties, HTTP methods,
+  failure states, and read-only database requests are covered by
+  `node tests/mission-control-server.cjs`. The deployed endpoint was checked for
+  successful public responses and rejection of a forged Telegram signature.
+
+No database policies or schema were changed. Existing RLS remains enabled on all
+three game tables. The advisor still reports the pre-existing public execute
+privilege on `rls_auto_enable()`; this release does not use that function. See
+[Supabase's SECURITY DEFINER guidance](https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable).

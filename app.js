@@ -115,7 +115,7 @@ function show(id){
  window.MKTYExpedition?.onScreen(id);window.MKTYField?.onScreen(id);
  document.querySelectorAll('.mission-screen.active').forEach(s=>{if(s.id!==id)leaveMission(s.id);});
  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
- $(id).classList.add('active');window.scrollTo(0,0);window.MKTYCampaign?.onScreen(id);window.MKTYExperience?.onScreen(id);
+ $(id).classList.add('active');window.scrollTo(0,0);window.MKTYCampaign?.onScreen(id);window.MKTYExperience?.onScreen(id);window.MKTYHub?.onScreen(id);
  if(id==='mission1'){refreshLife1Geometry();l1LastFrame=0;cancelAnimationFrame(l1MoveFrame);l1MoveFrame=requestAnimationFrame(life1MoveLoop);}
 }
 function openMission(){

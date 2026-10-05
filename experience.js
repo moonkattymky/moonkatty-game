@@ -144,5 +144,5 @@ window.MKTYExperience=(()=>{
  window.addEventListener('blur',()=>{if(current>=7&&guided(current)&&!flightReview.open)openGuide();});
  document.querySelectorAll('#mission1 .mission-status,#crewStatus,#life3GateStatus,#descentStatus').forEach(e=>e.setAttribute('role','status'));
  onScreen(document.querySelector('.screen.active')?.id||'home');
- return {onScreen,signal,flightFailed,pause:openGuide,get paused(){return paused;},get effectsReduced(){return light||media.matches;}};
+ return {onScreen,signal,flightFailed,mountOptions(root){makeOptions(root);updateOptions();},pause:openGuide,get paused(){return paused;},get effectsReduced(){return light||media.matches;}};
 })();
