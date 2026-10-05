@@ -56,6 +56,26 @@ node tests/operations-edges.cjs
 
 Tests isolate campaign layers with seeded prerequisite records. Separate tests play the actual 1–3 finales and operations/finales 4–9. This is not a single uninterrupted human playthrough, a phone benchmark or Telegram certification. Virtual-clock solver times do not establish a human 2–3 hour duration. The remaining pacing target requires new-player observation.
 
+## Gameplay depth and detail — 5 October 2026
+
+New field checkpoints use format 2. Existing format-1 assignments continue with their original rules; future assignments use the new rules. Saved chapter editions and once-only rewards are unchanged.
+
+- Orbital maneuvers have changing lateral disturbance and gravity. Angle/impulse guide the ship through an intermediate relay; a separate post-relay trim controls the final capture. Both windows must be crossed.
+- Landing surveys validate all four supports of a 2 × 2 footprint. Later assignments require an independent backup pad. Seeds change viable locations, and surface strength remains hidden until sampling.
+- Thermal control now cycles through standby, life support and drive loads. Each mode needs diagnosis, the correct bypass and balancing of three coupled valves. Live readings stay visible while scrolling the controls.
+- Convoy scouts must actually visit waypoints before the heavy transport can use them. Engineering gate access, narrow passages and occupied nodes still constrain the route.
+- Detailed transparent station assets replace simplified props. Each operation displays objective progress and a completion review. Error, collision, detection and action counts persist with completed field stages; the plan identifies precise executions. Help can be expanded without leaving the operation.
+
+Additional regression checks:
+
+```sh
+node tests/detail-rules.cjs
+node tests/detail-ui.cjs
+node tests/worlds-release.cjs
+```
+
+The detail rules suite covers 45 legacy missions, recovery after failed choices, intermediate saves and the separate effect of trajectory trim. Browser tests reload after the first orbital burn, primary landing pad, thermal load and scout move; they also play the original orbital/thermal rules and the new thermal controls in eight Russian/English viewport configurations. `worlds-release.cjs` checks nine rendered spaces and SHA-256 of 19 deployed files.
+
 ## Open-sector expeditions
 
 The home screen and chapter menu now lead directly to **Expeditions**, a separate repeatable flight mode. Players pilot the original MK–01 freely through a generated sector, inspect a navigable map, discover optional containers, evade asteroids and ion clouds, and recover crew or equipment before docking at Ark station.

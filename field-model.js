@@ -4,7 +4,7 @@
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
  const kinds=['','rover','crew','trajectory','survey','thermal','docking','stealth','signal','convoy'];
  function random(seed){let a=seed>>>0;return()=>{a+=0x6D2B79F5;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};}
- function create(n,stage,seed){const rnd=random(seed),s={version:1,n,stage,seed:seed>>>0,kind:kinds[n],seconds:0,moves:0,errors:0,complete:false,notice:'intro',selected:0};
+ function createLegacy(n,stage,seed){const rnd=random(seed),s={version:1,n,stage,seed:seed>>>0,kind:kinds[n],seconds:0,moves:0,errors:0,complete:false,notice:'intro',selected:0};
   if(n===1||n===7){s.pos=30;s.collected=[];s.turn=0;s.energy=4;s.alert=0;s.scanned=false;s.pos=layout(s).start;}
   if(n===2){s.jobs=[];s.crew=0;s.energy=3;s.selected=0;}
   if(n===3){s.angle=40;s.power=48;s.burn=0;s.trails=[];}
@@ -15,7 +15,7 @@
   if(n===9){s.ships=[[0,1,2],[0,2,1],[2,0,1],[1,0,2]][stage%4].slice();s.selected=0;s.gate=false;s.cells=3;s.evacuated=[];}
   return s;
  }
- function layout(s){const rnd=random(s.seed),n=s.n,t=s.stage;
+ function layoutLegacy(s){const rnd=random(s.seed),n=s.n,t=s.stage;
   if(n===1||n===7){const rotation=(s.seed+t)%4,flip=((s.seed>>>2)+t)%2,transform=i=>{let x=i%6,y=Math.floor(i/6);if(flip)x=5-x;for(let j=0;j<rotation;j++)[x,y]=[5-y,x];return y*6+x;};const walls=[7,8,10,13,16,19,22,25];return {size:6,start:transform(30),walls:walls.map(transform),targets:(t%2?[2,15,33]:[9,17,27]).map(transform),exit:transform(5),cover:[0,6,12,18,24,30,31,32,33,34,35,5,11,17,23,29].map(transform),hazards:n===1?[9,20,27].map(transform):[],watchers:[{at:transform(14),dir:(s.turn+1+rotation)%4},{at:transform(21),dir:(s.turn+3+rotation)%4}]};}
   if(n===2){const roles=[1,0,2,1,2,0],permutation=[0,1,2,3,4,5].map(i=>(i+t*2)%6),jobs=[];roles.forEach((role,i)=>jobs[permutation[i]]={role:(role+t)%3,requires:(i===0||i===1?[]:i===2?[0]:i===3?[1]:i===4?[2,3]:[4]).map(j=>permutation[j]),cost:i===2?2:1,gain:i===0||i===1?2:i===3?1:0});return {jobs};}
   if(n===3){const targets=Array.from({length:3},(_,i)=>{const angle=35+Math.floor(rnd()*34),power=43+Math.floor(rnd()*21),p=trajectory(angle,power);return{...p,angle,power,radius:22-Math.min(t,3)*2};});return {origin:{x:70,y:390},target:targets[s.burn]||targets[2],targets};}
@@ -31,7 +31,7 @@
  function watched(s,at){const b=layout(s);if(b.cover.includes(at))return false;return b.watchers.some(w=>{const x=at%6,y=Math.floor(at/6),wx=w.at%6,wy=Math.floor(w.at/6);return w.dir===0?x===wx&&y<wy:w.dir===1?y===wy&&x>wx:w.dir===2?x===wx&&y>wy:y===wy&&x<wx;});}
  function signal(s,i){const b=layout(s),delta=Math.abs(((s.angles[i]-b.bearings[i]+540)%360)-180);return Math.round(clamp(100-delta*3,0,100));}
  function reject(s,notice){s.errors++;s.notice=notice;return false;}
- function act(s,action,value){if(!s||s.complete)return false;if(['angle','power'].includes(action)&&!Number.isFinite(Number(value)))return false;if(action==='valve'&&(!Array.isArray(value)||!Number.isFinite(Number(value[1]))))return false;const b=layout(s);s.notice='working';
+ function actLegacy(s,action,value){if(!s||s.complete)return false;if(['angle','power'].includes(action)&&!Number.isFinite(Number(value)))return false;if(action==='valve'&&(!Array.isArray(value)||!Number.isFinite(Number(value[1]))))return false;const b=layout(s);s.notice='working';
   if(s.n===1||s.n===7){
    if(action==='scan'){s.scanned=true;s.notice='scan';return true;}
    if(action==='wait'){s.turn++;s.moves++;s.notice='wait';return true;}
@@ -54,7 +54,7 @@
   return false;
  }
  function tick(s,dt,input={}){if(s.complete)return;s.seconds+=clamp(dt,0,.05);if(s.n!==6)return;const b=layout(s),p=s.ship,d=clamp(dt,0,.04),mag=Math.max(1,Math.hypot(input.x||0,input.y||0));p.vx+=(input.x||0)/mag*b.accel*d;p.vy+=(input.y||0)/mag*b.accel*d;p.vx*=Math.exp(-.9*d);p.vy*=Math.exp(-.9*d);p.x=clamp(p.x+p.vx*d,25,575);p.y=clamp(p.y+p.vy*d,25,425);for(const w of b.walls)if(p.x>w.x-14&&p.x<w.x+w.w+14&&p.y>w.y-14&&p.y<w.y+w.h+14){const edges=[{d:Math.abs(p.x-w.x+14),x:w.x-15,y:p.y},{d:Math.abs(p.x-w.x-w.w-14),x:w.x+w.w+15,y:p.y},{d:Math.abs(p.y-w.y+14),x:p.x,y:w.y-15},{d:Math.abs(p.y-w.y-w.h-14),x:p.x,y:w.y+w.h+15}].sort((a,b)=>a.d-b.d);p.x=edges[0].x;p.y=edges[0].y;p.vx*=.1;p.vy*=.1;s.integrity=Math.max(25,s.integrity-8);s.impacts++;s.notice='impact';}}
- function restore(v,n,stage,seed){if(!v||v.version!==1||v.n!==n||v.stage!==stage||v.seed!==(seed>>>0)||v.kind!==kinds[n]||!Number.isFinite(v.seconds)||v.seconds<0||typeof v.complete!=='boolean'||!Number.isInteger(v.moves)||v.moves<0||!Number.isInteger(v.errors)||v.errors<0)return null;const s=create(n,stage,seed),ints=(a,max,len)=>Array.isArray(a)&&(len===undefined||a.length===len)&&a.every(x=>Number.isInteger(x)&&x>=0&&x<=max)&&a.length<=36,nums=(a,len)=>Array.isArray(a)&&a.length===len&&a.every(x=>Number.isFinite(x)&&x>=0&&x<=100);
+ function restoreLegacy(v,n,stage,seed){if(!v||v.version!==1||v.n!==n||v.stage!==stage||v.seed!==(seed>>>0)||v.kind!==kinds[n]||!Number.isFinite(v.seconds)||v.seconds<0||typeof v.complete!=='boolean'||!Number.isInteger(v.moves)||v.moves<0||!Number.isInteger(v.errors)||v.errors<0)return null;const s=createLegacy(n,stage,seed),ints=(a,max,len)=>Array.isArray(a)&&(len===undefined||a.length===len)&&a.every(x=>Number.isInteger(x)&&x>=0&&x<=max)&&a.length<=36,nums=(a,len)=>Array.isArray(a)&&a.length===len&&a.every(x=>Number.isFinite(x)&&x>=0&&x<=100);
   if((n===1||n===7)&&(!Number.isInteger(v.pos)||v.pos<0||v.pos>35||!ints(v.collected,35)||new Set(v.collected).size!==v.collected.length||!v.collected.every(i=>layout(s).targets.includes(i))||!Number.isInteger(v.turn)||v.turn<0||!Number.isFinite(v.alert)||v.alert<0||v.alert>2||!Number.isFinite(v.energy)||v.energy<0||v.energy>4))return null;
   if(n===2&&(!Number.isInteger(v.selected)||v.selected<0||v.selected>5||!Number.isInteger(v.crew)||v.crew<0||v.crew>2||!ints(v.jobs,5)||new Set(v.jobs).size!==v.jobs.length||!v.jobs.every(i=>layout(s).jobs[i].requires.every(j=>v.jobs.includes(j)))||!Number.isFinite(v.energy)||v.energy<0||v.energy>10))return null;
   if(n===3&&(!Number.isInteger(v.burn)||v.burn<0||v.burn>3||!Number.isFinite(v.angle)||v.angle<15||v.angle>80||!Number.isFinite(v.power)||v.power<20||v.power>90||!Array.isArray(v.trails)||v.trails.length>4||v.trails.some(t=>!Number.isFinite(t.angle)||!Number.isFinite(t.power))))return null;
@@ -65,6 +65,40 @@
   if(n===9&&(!Number.isInteger(v.selected)||v.selected<0||v.selected>2||!ints(v.ships,8,3)||typeof v.gate!=='boolean'||!Number.isFinite(v.cells)||v.cells<0||v.cells>6||!ints(v.evacuated,2)||new Set(v.evacuated).size!==v.evacuated.length))return null;
   const result={...s,...JSON.parse(JSON.stringify(v))};if(v.complete&&!won(result))return null;return result;
  }
- function won(s){const b=layout(s);if(s.n===1||s.n===7)return s.collected.length===3&&s.pos===b.exit;if(s.n===2)return s.jobs.length===6;if(s.n===3)return s.burn===3;if(s.n===4){const t=b.tiles[s.pad];return !!t&&s.samples.includes(s.pad)&&t.slope<=b.maxSlope&&t.wind<=b.maxWind&&t.strength>=b.requiredStrength;}if(s.n===5)return thermal(s.valves).every((v,i)=>Math.abs(v-b.desired[i])<=b.tolerance);if(s.n===6)return s.docked===3;if(s.n===8)return s.samples.every(Boolean)&&s.angles.every((_,i)=>signal(s,i)>=100-b.tolerance*3)&&s.pin&&distance(s.pin,b.source)<=32;if(s.n===9)return s.gate&&s.ships.every(v=>v===8);return false;}
- return {create,layout,act,tick,restore,won,signal,thermal,trajectory,watched,random,clamp,distance,kinds};
+ function wonLegacy(s){const b=layout(s);if(s.n===1||s.n===7)return s.collected.length===3&&s.pos===b.exit;if(s.n===2)return s.jobs.length===6;if(s.n===3)return s.burn===3;if(s.n===4){const t=b.tiles[s.pad];return !!t&&s.samples.includes(s.pad)&&t.slope<=b.maxSlope&&t.wind<=b.maxWind&&t.strength>=b.requiredStrength;}if(s.n===5)return thermal(s.valves).every((v,i)=>Math.abs(v-b.desired[i])<=b.tolerance);if(s.n===6)return s.docked===3;if(s.n===8)return s.samples.every(Boolean)&&s.angles.every((_,i)=>signal(s,i)>=100-b.tolerance*3)&&s.pin&&distance(s.pin,b.source)<=32;if(s.n===9)return s.gate&&s.ships.every(v=>v===8);return false;}
+
+ // Format 2 deepens new assignments; format-1 checkpoints retain their exact rules.
+ const footprint=i=>Number.isInteger(i)&&i>=0&&i<30&&i%6<5?[i,i+1,i+6,i+7]:[];
+ const condition=(s,burn=s.burn)=>s.version===2?{wind:((s.seed+burn*13+s.stage*7)%31)-15,gravity:[3.2,5,6.2][(burn+s.stage)%3]}:{wind:0,gravity:4};
+ function flightPoint(angle,power,time,env={wind:0,gravity:4},trim=0){const a=angle*Math.PI/180;return{x:70+Math.cos(a)*power*1.8*time+env.wind*(time/4)**2+trim*Math.max(0,time-2)**2,y:390-Math.sin(a)*power*1.8*time+env.gravity*time*time};}
+ function create(n,stage,seed){const s=createLegacy(n,stage,seed);s.version=2;s.detections=0;if(n===3)s.trim=0;if(n===4)s.sites=[];if(n===5){s.load=0;s.diagnosed=false;s.isolated=-1;}if(n===9)s.surveyed=[0,1,2];return s;}
+ function layout(s){const b=layoutLegacy(s);if(s.version!==2)return b;
+  if(s.n===3){b.targets=b.targets.map((t,i)=>{const trim=(s.seed+i*7+s.stage*3)%25-12;return {...t,trim,...flightPoint(t.angle,t.power,4,condition(s,i),trim),relay:flightPoint(t.angle,t.power,2,condition(s,i))};});b.target=b.targets[s.burn]||b.targets[2];b.condition=condition(s);}
+  if(s.n===4){const zones=Array.from({length:30},(_,i)=>i).filter(i=>footprint(i).length===4),safe=zones[(s.seed+s.stage*7)%zones.length],alternatives=zones.filter(i=>Math.abs(i%6-safe%6)+Math.abs(Math.floor(i/6)-Math.floor(safe/6))>=4&&!footprint(i).some(j=>footprint(safe).includes(j))),backup=alternatives[(s.seed+s.stage)%alternatives.length];for(const i of [...footprint(safe),...footprint(backup)])b.tiles[i]={slope:2+i%2,wind:4+i%3,strength:89+i%6};b.safe=safe;b.backup=backup;b.requiredSites=s.stage>=2?2:1;b.footprint=footprint(s.selected);}
+  if(s.n===5){const rnd=random((s.seed+Math.min(s.load,2)*997)>>>0);b.target=Array.from({length:3},()=>30+Math.floor(rnd()*41));b.desired=thermalLoad(b.target,Math.min(s.load,2));b.fault=(s.seed+s.stage+Math.min(s.load,2))%3;b.mode=Math.min(s.load,2);}
+  return b;
+ }
+ function thermalLoad(v,load){const matrices=[[[.7,.2,.1],[.15,.65,.2],[.2,.15,.65]],[[.55,.3,.15],[.1,.7,.2],[.25,.2,.55]],[[.6,.15,.25],[.25,.6,.15],[.15,.25,.6]]];return matrices[load%3].map(row=>row.reduce((sum,a,i)=>sum+a*v[i],0));}
+ function readouts(s){if(s.version!==2)return thermal(s.valves);const b=layout(s),v=thermalLoad(s.valves,Math.min(s.load,2));if(s.isolated!==b.fault)v[b.fault]+=14;return v;}
+ function validSite(s,i){const b=layout(s),cells=footprint(i);return cells.length===4&&cells.every(j=>s.scans.includes(j)&&s.samples.includes(j)&&b.tiles[j].slope<=b.maxSlope&&b.tiles[j].wind<=b.maxWind&&b.tiles[j].strength>=b.requiredStrength);}
+ function act(s,action,value){if(!s||s.complete)return false;if(s.version!==2)return actLegacy(s,action,value);const b=layout(s);
+  if(s.n===3&&action==='trim'){if(!Number.isFinite(Number(value)))return false;s.trim=clamp(Number(value),-20,20);return true;}
+  if(s.n===3&&action==='burn'){const env=condition(s),p=flightPoint(s.angle,s.power,4,env,s.trim),mid=flightPoint(s.angle,s.power,2,env,s.trim),hit=distance(p,b.target)<=b.target.radius&&distance(mid,b.target.relay)<=14;s.trails=[...s.trails.slice(-3),{angle:s.angle,power:s.power,trim:s.trim,hit,...env}];s.moves++;if(!hit)return reject(s,'trajectory-miss');s.burn++;s.complete=s.burn===3;s.notice='burn-ok';return true;}
+  if(s.n===4){if(action==='select'){s.selected=clamp(value|0,0,35);return true;}const cells=footprint(s.selected);if(!cells.length)return reject(s,'footprint-edge');if(action==='scan'){s.scans=[...new Set([...s.scans,...cells])];s.moves++;s.notice='scan';return true;}if(action==='sample'){if(!cells.every(i=>s.scans.includes(i)))return reject(s,'scan-first');s.samples=[...new Set([...s.samples,...cells])];s.moves++;s.notice='sample';return true;}if(action==='land'){if(!cells.every(i=>s.samples.includes(i)))return reject(s,'sample-first');if(!validSite(s,s.selected))return reject(s,'unsafe-pad');if(s.sites.some(i=>footprint(i).some(j=>cells.includes(j))))return reject(s,'separate-pad');s.sites.push(s.selected);s.pad=s.sites[0];s.moves++;s.complete=s.sites.length>=b.requiredSites;s.notice=s.complete?'sites-ready':'backup-pad';return true;}return false;}
+  if(s.n===5){if(action==='diagnose'){s.diagnosed=true;s.notice='diagnosed';return true;}if(action==='isolate'){if(!s.diagnosed)return reject(s,'diagnose-first');if(value!==b.fault)return reject(s,'wrong-loop');s.isolated=value;s.notice='isolated';return true;}if(action==='stabilize'){if(s.isolated!==b.fault)return reject(s,'isolate-first');if(readouts(s).some((v,i)=>Math.abs(v-b.desired[i])>b.tolerance))return reject(s,'thermal-range');s.load++;s.moves++;s.complete=s.load===3;if(!s.complete){s.diagnosed=false;s.isolated=-1;}s.notice=s.complete?'balanced':'load-changed';return true;}}
+  if(s.n===9&&action==='move'){if(s.selected===2&&value>2&&value<8&&!s.surveyed.includes(value))return reject(s,'scout-first');const ok=actLegacy(s,action,value);if(ok&&s.selected===0&&!s.surveyed.includes(value))s.surveyed.push(value);return ok;}
+  const nextTurn=s.turn+1,ok=actLegacy(s,action,value);if(s.n===7&&action==='move'&&ok&&watched({...s,turn:nextTurn},value))s.detections++;return ok;
+ }
+ function restore(v,n,stage,seed){if(v?.version===1)return restoreLegacy(v,n,stage,seed);if(v?.version!==2||typeof v.complete!=='boolean')return null;const base=restoreLegacy({...v,version:1,complete:false},n,stage,seed);if(!base)return null;const s={...base,...JSON.parse(JSON.stringify(v))},ints=(a,max)=>Array.isArray(a)&&a.every(i=>Number.isInteger(i)&&i>=0&&i<=max)&&new Set(a).size===a.length;
+  if(!Number.isInteger(s.detections)||s.detections<0)return null;
+  if(n===3&&(!Number.isFinite(s.trim)||Math.abs(s.trim)>20||s.trails.some(t=>!Number.isFinite(t.trim)||Math.abs(t.trim)>20||!Number.isFinite(t.wind)||Math.abs(t.wind)>15||![3.2,5,6.2].includes(t.gravity))))return null;
+  if(n===4&&(!ints(s.sites,34)||s.pad!==(s.sites[0]??null)||s.sites.length>layout(s).requiredSites||s.sites.some(i=>!validSite(s,i))||s.sites.length>1&&footprint(s.sites[0]).some(i=>footprint(s.sites[1]).includes(i))))return null;
+  if(n===5&&(!Number.isInteger(s.load)||s.load<0||s.load>3||typeof s.diagnosed!=='boolean'||!Number.isInteger(s.isolated)||s.isolated< -1||s.isolated>2||s.isolated!==-1&&!s.diagnosed))return null;
+  if(n===9&&(!ints(s.surveyed,8)||![0,1,2].every(i=>s.surveyed.includes(i))))return null;
+  if(s.complete&&!won(s))return null;return s;
+ }
+ function won(s){if(s.version!==2)return wonLegacy(s);if(s.n===4)return s.sites.length===layout(s).requiredSites&&s.sites.every(i=>validSite(s,i));if(s.n===5)return s.load===3&&s.isolated===layout(s).fault&&readouts(s).every((v,i)=>Math.abs(v-layout(s).desired[i])<=layout(s).tolerance);return wonLegacy(s);}
+ function progress(s){const b=layout(s);return s.n===1||s.n===7?[s.collected.length,3]:s.n===2?[s.jobs.length,6]:s.n===3?[s.burn,3]:s.n===4?[s.version===2?s.sites.length:Number(s.complete),b.requiredSites||1]:s.n===5?[s.version===2?s.load:Number(s.complete),s.version===2?3:1]:s.n===6?[s.docked,3]:s.n===8?[s.samples.filter(Boolean).length,3]:[s.ships.filter(i=>i===8).length,3];}
+ function performance(s){return {errors:s.errors,impacts:s.impacts||0,detections:s.detections||0,moves:s.moves,precise:s.errors===0&&!(s.impacts||s.detections),seconds:s.seconds};}
+ return {create,layout,act,tick,restore,won,signal,thermal,trajectory,watched,random,clamp,distance,kinds,footprint,condition,flightPoint,readouts,validSite,progress,performance};
 });

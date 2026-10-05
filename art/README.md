@@ -113,3 +113,10 @@ Five assets were produced with the built-in ImageGen tool, then encoded to WebP 
 - `launch-bridge-v3.webp`: edit of `life3-bridge-v2.webp`. Preserve exact portrait composition, cat upper left, branded white cat-eared ship upper right, planet, and broad empty lower deck. Replace kitten look with mature adult tabby, natural eyes, closed mouth and calm expression. Ivory ceramic, brushed titanium, restrained gold, precise seams, fine wear, bright cinematic lighting; no text or new objects. Original `exec-c558f9e0-f5ee-499b-8e63-37f45ef43e2d.png`; quality 86.
 
 These files are game assets; they are not screenshots of a tested interface. Gameplay previews in the redesign audit are actual browser captures.
+
+
+## Station props and spatial detail — 5 October 2026
+
+`station-details-v2.webp` was generated with the built-in ImageGen tool and encoded at WebP quality 88 with alpha preserved. Original: `exec-285570d2-3332-401a-90db-839dd616fa2e.png`, 1254 × 1254, four 627 × 627 atlas cells. Clockwise from top left: habitat/power module, relay dish, docking ring, scientific cargo unit. SVG patterns crop each cell at its native proportions; bounded rectangles keep artwork from changing hit-target bounds. The atlas is shared by chapter maps, crew stations, collectibles, docking structures and convoy waypoints.
+
+Prompt: Create a 2 × 2 transparent atlas of four separate production space-game objects: an ivory/titanium habitat power module, a precision relay dish, a scientific cargo power container and a mechanical docking ring. Mature cinematic industrial realism, consistent near-overhead three-quarter orthographic view, warm upper-left lighting, cool reflected fill. Brushed metal, ceramic panels, gold foil, fine seams, bolts, pipes and restrained wear. Full silhouettes, matching scale and transparent margins. No text, UI, outlines, toy proportions or background.
