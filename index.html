@@ -31,7 +31,7 @@
     <section id="language" class="screen active">
       <div class="moonkatty-hero" aria-label="MOONKATTY astronaut">
   <div class="hero-orbit"></div><div class="hero-moon"></div>
-  <div class="cat-helmet"><div class="cat-ears">▲ ▲</div><div class="cat-face">🐱</div><div class="visor-glow"></div></div>
+  <div class="cat-helmet"><img class="cat-face-art" src="art/moonkatty-hero.webp" width="512" height="512" alt="MOONKATTY" decoding="async"><div class="visor-glow"></div></div>
   <div class="hero-badge">MKTY // LUNAR CREW</div>
 </div>
 <p class="eyebrow">MOONKATTY</p><h1>9 LIVES</h1>
@@ -53,7 +53,7 @@
     </section>
     <section id="home" class="screen">
       <div class="mk-home-hero">
-        <video class="mk-home-bg" autoplay muted loop playsinline preload="metadata"><source src="life-1.mp4" type="video/mp4"></video>
+        <video class="mk-home-bg" autoplay muted loop playsinline preload="metadata" poster="posters/life-1.jpg"><source src="life-1.mp4" type="video/mp4"></video>
         <div class="mk-home-shade"></div>
         <header class="mk-topbar"><div><h2>MOONKATTY</h2><span>9 LIVES. 1 BIG MISSION.</span></div><div class="header-actions"><button id="rulesBtn" class="icon-btn">♫</button><button id="settingsBtn" class="icon-btn">🌐</button></div></header>
         <div class="mk-hero-copy"><span>A SMALL CAT</span><strong>FOR A BIG MISSION</strong></div>
@@ -67,28 +67,28 @@
       <nav class="mk-bottom-nav"><button class="active">⌂<span>Home</span></button><button id="missionsBtn">🚀<span>Missions</span></button><button>♙<span>Crew</span></button><button>♜<span>Leaderboard</span></button><button>•••<span>More</span></button></nav>
       <section id="dailyMissions" class="daily-missions" aria-label="Daily Missions">
         <div class="daily-head">
-          <div><small>SOCIAL + COMMUNITY</small><strong>Daily Missions</strong></div>
+          <div><small>SOCIAL + COMMUNITY · DEMO</small><strong>Daily Missions</strong></div>
           <span id="dailyProgress">0 / 7</span>
         </div>
         <div class="daily-streak">
           <span>UTC DAY</span>
           <strong id="dailyReset">RESET 00:00:00</strong>
-          <small>DEMO — verification later</small>
+          <small>DEMO — not real verification</small>
         </div>
-        <p class="daily-note">Provisional local claims only. Server verification later · проверка позже / demo.</p>
+        <p class="daily-note">DEMO mode: open the link, then press CLAIM DEMO for local points. Not a real like / follow / subscribe check.</p>
         <div class="daily-list" aria-label="Social missions">
-          <article class="daily-task" data-daily="watch"><span>▶</span><div><strong>WATCH ON YOUTUBE</strong><small>+5 ⭐ · open channel, then claim</small></div><button type="button" class="daily-action">OPEN</button></article>
-          <article class="daily-task" data-daily="like"><span>♥</span><div><strong>LIKE ON TIKTOK</strong><small>+5 ⭐ · TikTok</small></div><button type="button" class="daily-action">OPEN</button></article>
-          <article class="daily-task" data-daily="share"><span>↗</span><div><strong>SHARE IN TELEGRAM</strong><small>+10 ⭐ · Telegram</small></div><button type="button" class="daily-action">SHARE</button></article>
+          <article class="daily-task" data-daily="watch"><span>▶</span><div><strong>WATCH ON YOUTUBE</strong><small>+5 ⭐ · DEMO · open, then claim</small></div><button type="button" class="daily-action">OPEN</button></article>
+          <article class="daily-task" data-daily="like"><span>♥</span><div><strong>VISIT TIKTOK (DEMO)</strong><small>+5 ⭐ · DEMO claim — not a verified like</small></div><button type="button" class="daily-action">OPEN</button></article>
+          <article class="daily-task" data-daily="share"><span>↗</span><div><strong>SHARE IN TELEGRAM</strong><small>+10 ⭐ · DEMO · share, then claim</small></div><button type="button" class="daily-action">SHARE</button></article>
         </div>
         <div class="daily-list daily-follow-list" aria-label="Follow channels" style="margin-top:9px">
-          <article class="daily-task" data-daily="follow_telegram"><span>✈</span><div><strong>FOLLOW TELEGRAM</strong><small>+5 ⭐ · subscribe</small></div><button type="button" class="daily-action">FOLLOW</button></article>
-          <article class="daily-task" data-daily="follow_youtube"><span>▶</span><div><strong>FOLLOW YOUTUBE</strong><small>+5 ⭐ · subscribe</small></div><button type="button" class="daily-action">FOLLOW</button></article>
-          <article class="daily-task" data-daily="follow_x"><span>𝕏</span><div><strong>FOLLOW X</strong><small>+5 ⭐ · subscribe</small></div><button type="button" class="daily-action">FOLLOW</button></article>
-          <article class="daily-task" data-daily="follow_tiktok"><span>♪</span><div><strong>FOLLOW TIKTOK</strong><small>+5 ⭐ · subscribe</small></div><button type="button" class="daily-action">FOLLOW</button></article>
+          <article class="daily-task" data-daily="follow_telegram"><span>✈</span><div><strong>OPEN TELEGRAM</strong><small>+5 ⭐ · DEMO claim after open</small></div><button type="button" class="daily-action">OPEN</button></article>
+          <article class="daily-task" data-daily="follow_youtube"><span>▶</span><div><strong>OPEN YOUTUBE</strong><small>+5 ⭐ · DEMO claim after open</small></div><button type="button" class="daily-action">OPEN</button></article>
+          <article class="daily-task" data-daily="follow_x"><span>𝕏</span><div><strong>OPEN X</strong><small>+5 ⭐ · DEMO claim after open</small></div><button type="button" class="daily-action">OPEN</button></article>
+          <article class="daily-task" data-daily="follow_tiktok"><span>♪</span><div><strong>OPEN TIKTOK</strong><small>+5 ⭐ · DEMO claim — not a verified follow</small></div><button type="button" class="daily-action">OPEN</button></article>
         </div>
-        <div id="dailyReward" class="daily-reward"><span>DAY PROGRESS</span><strong>+40 ⭐ max today · demo</strong></div>
-        <p class="daily-note">No real API check yet — opening a link awards local points once per UTC day.</p>
+        <div id="dailyReward" class="daily-reward"><span>DAY PROGRESS · DEMO</span><strong>+40 ⭐ max today · local only</strong></div>
+        <p class="daily-note">Points only after you press CLAIM DEMO. Server rewards.verify will confirm later when Edge Function is live.</p>
       </section>
 
       <section id="communityHub" class="community-hub" hidden></section>
@@ -103,7 +103,7 @@
     <section id="life1" class="screen cinematic-screen">
       <div class="cinematic">
         <p class="eyebrow">LIFE #1</p><h2 id="awakeningTitle">THE AWAKENING</h2>
-        <video id="life1Video" class="life-video" playsinline preload="none" poster=""><source src="life-1.mp4" type="video/mp4"></video>
+        <video id="life1Video" class="life-video" playsinline preload="none" poster="posters/life-1.jpg"><source src="life-1.mp4" type="video/mp4"></video>
         <p id="awakeningText">THE SIGNAL HAS BEEN RECEIVED</p><div class="cinematic-progress"><i id="cinematicBar"></i></div>
         <button id="skipBtn" class="ghost">SKIP</button>
       </div>
@@ -142,7 +142,7 @@
     <section id="life2" class="screen cinematic-screen">
       <div class="cinematic">
         <p class="eyebrow">LIFE #2</p><h2>THE CREW</h2>
-        <video id="life2Video" class="life-video" playsinline preload="none"><source src="life-2.mp4" type="video/mp4"></video>
+        <video id="life2Video" class="life-video" playsinline preload="none" poster="posters/life-2.jpg"><source src="life-2.mp4" type="video/mp4"></video>
         <p class="crew-line">NO MISSION SUCCEEDS ALONE.</p>
         <div class="cinematic-progress"><i id="life2Bar"></i></div>
         <button id="life2SkipBtn" class="ghost">SKIP</button>
@@ -172,7 +172,7 @@
     </section>
     <section id="life3" class="screen cinematic-screen">
       <div class="cinematic"><p class="eyebrow">LIFE #3</p><h2>THE LAUNCH CODE</h2>
-        <video id="life3Video" class="life-video" playsinline preload="none"><source src="life-3.mp4" type="video/mp4"></video>
+        <video id="life3Video" class="life-video" playsinline preload="none" poster="posters/life-3.jpg"><source src="life-3.mp4" type="video/mp4"></video>
         <p class="crew-line">THE CREW IS READY. THE SHIP IS NOT.</p>
         <div class="cinematic-progress"><i id="life3Bar"></i></div><button id="life3SkipBtn" class="ghost">SKIP</button>
       </div>
@@ -206,38 +206,38 @@
       <div id="life3Complete" class="complete-card" hidden><span class="complete-icon">✓</span><p class="eyebrow">ACCESS GRANTED</p><h3>LAUNCH CODE DECRYPTED</h3><strong>+750 MOON POINTS ⭐</strong><button id="continueLife4Btn" class="primary">UNLOCK LIFE #4 🚀</button><button id="life3ReturnBtn" class="ghost return-control">MISSION CONTROL</button></div>
     </section>
     <section id="life4" class="screen cinematic-screen">
-      <div class="cinematic"><p class="eyebrow">LIFE #4</p><h2>THE ROCKET</h2>
-        <video id="life4Video" class="life-video" playsinline preload="none"><source src="life-4.mp4" type="video/mp4"></video>
+      <div class="cinematic"><p class="eyebrow">LIFE #4</p><h2>THE DESCENT</h2>
+        <video id="life4Video" class="life-video" playsinline preload="none" poster="posters/life-4.jpg"><source src="life-4.mp4" type="video/mp4"></video>
         <div class="cinematic-progress"><i id="life4Bar"></i></div><button id="life4SkipBtn" class="ghost">SKIP</button>
       </div>
     </section>
     <section id="life5" class="screen cinematic-screen">
       <div class="cinematic"><p class="eyebrow">LIFE #5</p><h2>IGNITION</h2>
-        <video id="life5Video" class="life-video" playsinline preload="none"><source src="life-5.mp4" type="video/mp4"></video>
+        <video id="life5Video" class="life-video" playsinline preload="none" poster="posters/life-5.jpg"><source src="life-5.mp4" type="video/mp4"></video>
         <div class="cinematic-progress"><i id="life5Bar"></i></div><button id="life5SkipBtn" class="ghost">SKIP</button>
       </div>
     </section>
     <section id="life6" class="screen cinematic-screen">
       <div class="cinematic"><p class="eyebrow">LIFE #6</p><h2>LIFTOFF</h2>
-        <video id="life6Video" class="life-video" playsinline preload="none"><source src="life-6.mp4" type="video/mp4"></video>
+        <video id="life6Video" class="life-video" playsinline preload="none" poster="posters/life-6.jpg"><source src="life-6.mp4" type="video/mp4"></video>
         <div class="cinematic-progress"><i id="life6Bar"></i></div><button id="life6SkipBtn" class="ghost">SKIP</button>
       </div>
     </section>
     <section id="life7" class="screen cinematic-screen">
-      <div class="cinematic"><p class="eyebrow">LIFE #7</p><h2>ORBIT</h2>
-        <video id="life7Video" class="life-video" playsinline preload="none"><source src="life-7.mp4" type="video/mp4"></video>
+      <div class="cinematic"><p class="eyebrow">LIFE #7</p><h2>THE VOID</h2>
+        <video id="life7Video" class="life-video" playsinline preload="none" poster="posters/life-7.jpg"><source src="life-7.mp4" type="video/mp4"></video>
         <div class="cinematic-progress"><i id="life7Bar"></i></div><button id="life7SkipBtn" class="ghost">SKIP</button>
       </div>
     </section>
     <section id="life8" class="screen cinematic-screen">
-      <div class="cinematic"><p class="eyebrow">LIFE #8</p><h2>LUNAR APPROACH</h2>
-        <video id="life8Video" class="life-video" playsinline preload="none"><source src="life-8.mp4" type="video/mp4"></video>
+      <div class="cinematic"><p class="eyebrow">LIFE #8</p><h2>THE SIGNAL</h2>
+        <video id="life8Video" class="life-video" playsinline preload="none" poster="posters/life-8.jpg"><source src="life-8.mp4" type="video/mp4"></video>
         <div class="cinematic-progress"><i id="life8Bar"></i></div><button id="life8SkipBtn" class="ghost">SKIP</button>
       </div>
     </section>
     <section id="life9" class="screen cinematic-screen">
-      <div class="cinematic"><p class="eyebrow">LIFE #9</p><h2>THE MOON</h2>
-        <video id="life9Video" class="life-video" playsinline preload="none"><source src="life-9.mp4" type="video/mp4"></video>
+      <div class="cinematic"><p class="eyebrow">LIFE #9</p><h2>THE RETURN</h2>
+        <video id="life9Video" class="life-video" playsinline preload="none" poster="posters/life-9.jpg"><source src="life-9.mp4" type="video/mp4"></video>
         <div class="cinematic-progress"><i id="life9Bar"></i></div><button id="life9SkipBtn" class="ghost">SKIP</button>
       </div>
     </section>

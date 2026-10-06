@@ -979,7 +979,6 @@ function openDailyMission(type){
 }
 function dailyActionLabel(type){
  if(type==='share')return 'SHARE';
- if(String(type).startsWith('follow_'))return 'FOLLOW';
  return 'OPEN';
 }
 function awardDailyPointsLocal(type,amount){
@@ -990,27 +989,50 @@ function awardDailyPointsLocal(type,amount){
  if($('points'))$('points').textContent=pts+(moonPointsLocked()?' ⭐ 🔒':' ⭐');
  return pts;
 }
+function prepareDailyVerifyPayload(type,amount){
+ // Payload shape for Edge Function rewards.verify (server confirms when live).
+ return {
+  action:'rewards.verify',
+  event_key:'daily:'+dailyKey()+':'+type,
+  event_type:'daily.'+type,
+  points:amount,
+  source:'daily_missions_demo',
+  demo:true,
+  platform:type==='like'||type==='follow_tiktok'?'tiktok':type==='watch'||type==='follow_youtube'?'youtube':type==='share'||type==='follow_telegram'?'telegram':type==='follow_x'?'x':'unknown'
+ };
+}
 function claimDailyMission(type){
  if(moonPointsLocked())return false;
  if(!DAILY_REWARDS.hasOwnProperty(type))return false;
  const state=dailyState();
  if(state[type]==='verified')return false;
- openDailyMission(type);
- // Provisional / demo claim: no real social verification yet.
+ // Two-step DEMO: first intentional open, then intentional CLAIM DEMO.
+ // Never award on mere open — avoids looking like a real verified like/follow.
+ if(state[type]!=='opened'){
+  openDailyMission(type);
+  state[type]='opened';
+  saveDailyState(state);
+  return 'opened';
+ }
  const amount=DAILY_REWARDS[type]||0;
  state[type]='verified';
  saveDailyState(state);
  awardDailyPointsLocal(type,amount);
  try{
-  const event_key='daily:'+dailyKey()+':'+type;
-  window.MKTYRewards?.call?.('rewards.verify',{event_key,event_type:'daily.'+type,points:amount})?.then?.(body=>{
+  const payload=prepareDailyVerifyPayload(type,amount);
+  window.MKTYRewards?.call?.('rewards.verify',{
+   event_key:payload.event_key,
+   event_type:payload.event_type,
+   points:payload.points,
+   meta:{source:payload.source,demo:payload.demo,platform:payload.platform}
+  })?.then?.(body=>{
    if(body?.ok&&body.player&&typeof body.player.moon_points==='number'){
     localStorage.setItem('mkty_points',String(body.player.moon_points));
     if($('points'))$('points').textContent=body.player.moon_points+(moonPointsLocked()?' ⭐ 🔒':' ⭐');
    }
   });
  }catch(_){ }
- return true;
+ return 'claimed';
 }
 function showDailyMissionsSection(){
  const box=$('dailyMissions');
@@ -1022,11 +1044,14 @@ function renderDailyMissions(){
  showDailyMissionsSection();
  const state=dailyState();let done=0,locked=moonPointsLocked(),total=DAILY_TASK_TYPES.length;
  document.querySelectorAll('#dailyMissions .daily-task').forEach(card=>{
-  const type=card.dataset.daily,ok=state[type]==='verified',b=card.querySelector('.daily-action');
+  const type=card.dataset.daily,status=state[type],ok=status==='verified',opened=status==='opened',b=card.querySelector('.daily-action');
   card.classList.toggle('done',ok);
+  card.classList.toggle('opened',opened&&!ok);
   if(!b)return;
+  b.classList.toggle('claim-demo',opened&&!ok&&!locked);
   if(ok){done++;b.textContent='CLAIMED ✓';b.disabled=true;}
   else if(locked){b.disabled=true;b.textContent='BALANCE LOCKED';}
+  else if(opened){b.disabled=false;b.textContent='CLAIM DEMO';}
   else{b.disabled=false;b.textContent=dailyActionLabel(type);}
  });
  if($('dailyProgress'))$('dailyProgress').textContent=done+' / '+total;
@@ -1039,8 +1064,9 @@ $('dailyMissions')?.addEventListener('click',ev=>{
  if(!btn||btn.disabled)return;
  const card=btn.closest('.daily-task'),type=card?.dataset?.daily;
  if(!type||moonPointsLocked())return;
- if($('dailyProgress'))$('dailyProgress').textContent='VERIFYING…';
- claimDailyMission(type);
+ const result=claimDailyMission(type);
+ if(result==='opened'&&$('dailyProgress'))$('dailyProgress').textContent='OPENED · CLAIM NEXT';
+ if(result==='claimed'&&$('dailyProgress'))$('dailyProgress').textContent='DEMO CLAIM…';
  setTimeout(()=>renderDailyMissions(),450);
 });
 showDailyMissionsSection();

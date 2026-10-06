@@ -120,3 +120,8 @@ These files are game assets; they are not screenshots of a tested interface. Gam
 `station-details-v2.webp` was generated with the built-in ImageGen tool and encoded at WebP quality 88 with alpha preserved. Original: `exec-285570d2-3332-401a-90db-839dd616fa2e.png`, 1254 × 1254, four 627 × 627 atlas cells. Clockwise from top left: habitat/power module, relay dish, docking ring, scientific cargo unit. SVG patterns crop each cell at its native proportions; bounded rectangles keep artwork from changing hit-target bounds. The atlas is shared by chapter maps, crew stations, collectibles, docking structures and convoy waypoints.
 
 Prompt: Create a 2 × 2 transparent atlas of four separate production space-game objects: an ivory/titanium habitat power module, a precision relay dish, a scientific cargo power container and a mechanical docking ring. Mature cinematic industrial realism, consistent near-overhead three-quarter orthographic view, warm upper-left lighting, cool reflected fill. Brushed metal, ceramic panels, gold foil, fine seams, bolts, pipes and restrained wear. Full silhouettes, matching scale and transparent margins. No text, UI, outlines, toy proportions or background.
+
+
+## Language-screen hero — 7 October 2026
+
+- `moonkatty-hero.webp` / `moonkatty-bust.webp`: cropped from root `moonkatty.png` for the language screen (replaces emoji cat). CSS class `.cat-face-art`.

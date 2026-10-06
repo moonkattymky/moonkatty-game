@@ -76,3 +76,7 @@ Rules enforced server-side: initData Ed25519 verify (10 min), unique `(telegram_
 Client: `rewards-client.js` treats `localStorage` as cache. Without deploy / without Telegram initData the game keeps provisional local awards (unchanged UX).
 
 Tests: `node tests/rewards-server.cjs` (no live secrets).
+
+## Overnight note (2026-10-07)
+
+Rewards Edge Function was **not** deployed: no `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` available in the agent environment. Client daily missions prepare a `rewards.verify` payload and stay in DEMO local-claim mode until the owner deploys.

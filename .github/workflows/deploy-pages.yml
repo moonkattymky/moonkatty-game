@@ -26,10 +26,21 @@ jobs:
         uses: actions/checkout@v6
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Prepare client site
+        run: |
+          mkdir -p _site
+          # Client Mini App only — keep server Edge sources and tests off Pages.
+          shopt -s dotglob nullglob
+          for item in *; do
+            case "$item" in
+              _site|server|tests|.git|.github) continue ;;
+            esac
+            cp -a "$item" _site/
+          done
       - name: Upload site
         uses: actions/upload-pages-artifact@v4
         with:
-          path: '.'
+          path: '_site'
       - name: Deploy current main
         id: deployment
         uses: actions/deploy-pages@v4
