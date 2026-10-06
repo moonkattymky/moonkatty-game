@@ -65,9 +65,34 @@
         </div>
       </div>
       <nav class="mk-bottom-nav"><button class="active">⌂<span>Home</span></button><button id="missionsBtn">🚀<span>Missions</span></button><button>♙<span>Crew</span></button><button>♜<span>Leaderboard</span></button><button>•••<span>More</span></button></nav>
+      <section id="dailyMissions" class="daily-missions" aria-label="Daily Missions">
+        <div class="daily-head">
+          <div><small>SOCIAL + COMMUNITY</small><strong>Daily Missions</strong></div>
+          <span id="dailyProgress">0 / 7</span>
+        </div>
+        <div class="daily-streak">
+          <span>UTC DAY</span>
+          <strong id="dailyReset">RESET 00:00:00</strong>
+          <small>DEMO — verification later</small>
+        </div>
+        <p class="daily-note">Provisional local claims only. Server verification later · проверка позже / demo.</p>
+        <div class="daily-list" aria-label="Social missions">
+          <article class="daily-task" data-daily="watch"><span>▶</span><div><strong>WATCH ON YOUTUBE</strong><small>+5 ⭐ · open channel, then claim</small></div><button type="button" class="daily-action">OPEN</button></article>
+          <article class="daily-task" data-daily="like"><span>♥</span><div><strong>LIKE ON TIKTOK</strong><small>+5 ⭐ · TikTok</small></div><button type="button" class="daily-action">OPEN</button></article>
+          <article class="daily-task" data-daily="share"><span>↗</span><div><strong>SHARE IN TELEGRAM</strong><small>+10 ⭐ · Telegram</small></div><button type="button" class="daily-action">SHARE</button></article>
+        </div>
+        <div class="daily-list daily-follow-list" aria-label="Follow channels" style="margin-top:9px">
+          <article class="daily-task" data-daily="follow_telegram"><span>✈</span><div><strong>FOLLOW TELEGRAM</strong><small>+5 ⭐ · subscribe</small></div><button type="button" class="daily-action">FOLLOW</button></article>
+          <article class="daily-task" data-daily="follow_youtube"><span>▶</span><div><strong>FOLLOW YOUTUBE</strong><small>+5 ⭐ · subscribe</small></div><button type="button" class="daily-action">FOLLOW</button></article>
+          <article class="daily-task" data-daily="follow_x"><span>𝕏</span><div><strong>FOLLOW X</strong><small>+5 ⭐ · subscribe</small></div><button type="button" class="daily-action">FOLLOW</button></article>
+          <article class="daily-task" data-daily="follow_tiktok"><span>♪</span><div><strong>FOLLOW TIKTOK</strong><small>+5 ⭐ · subscribe</small></div><button type="button" class="daily-action">FOLLOW</button></article>
+        </div>
+        <div id="dailyReward" class="daily-reward"><span>DAY PROGRESS</span><strong>+40 ⭐ max today · demo</strong></div>
+        <p class="daily-note">No real API check yet — opening a link awards local points once per UTC day.</p>
+      </section>
+
       <section id="communityHub" class="community-hub" hidden></section>
       <section id="crewNetwork" class="crew-network" hidden></section>
-      <section id="dailyMissions" class="daily-missions" hidden></section>
       <div id="missionArchive" class="mission-archive" hidden></div>
     </section>
     <section id="chapters" class="screen campaign-screen">
