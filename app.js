@@ -948,7 +948,8 @@ function renderCrewNetwork(){
 $('copyReferralBtn')?.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(referralLink());$('copyReferralBtn').textContent='COPIED ✓';setTimeout(()=>{$('copyReferralBtn').textContent='COPY';},1400);}catch{}});
 $('shareReferralBtn')?.addEventListener('click',()=>{if(moonPointsLocked())return;const url=referralLink(),text='Join my MOONKATTY crew 🚀🌙';if(navigator.share)navigator.share({title:'MOONKATTY',text,url}).catch(()=>{});else window.open('https://t.me/share/url?url='+encodeURIComponent(url)+'&text='+encodeURIComponent(text),'_blank');});
 
-const DAILY_REWARDS={watch:5,like:5,share:10};
+const DAILY_REWARDS={watch:5,like:5,share:10,follow_telegram:5,follow_youtube:5,follow_x:5,follow_tiktok:5};
+const DAILY_TASK_TYPES=Object.keys(DAILY_REWARDS);
 function dailyKey(){return new Date().toISOString().slice(0,10);}
 function dailyState(){
  const key='mkty_daily_'+dailyKey();try{return JSON.parse(localStorage.getItem(key)||'{}')}catch{return{}}
@@ -957,8 +958,12 @@ function saveDailyState(state){localStorage.setItem('mkty_daily_'+dailyKey(),JSO
 function secondsToUtcReset(){const n=new Date(),t=new Date(n);t.setUTCHours(24,0,0,0);return Math.max(0,Math.ceil((t-n)/1000));}
 function dailyMissionDestination(type){
  if(type==='watch')return COMMUNITY_LINKS.youtube;
- if(type==='like')return COMMUNITY_LINKS.x;
+ if(type==='like')return COMMUNITY_LINKS.tiktok;
  if(type==='share')return COMMUNITY_LINKS.telegram;
+ if(type==='follow_telegram')return COMMUNITY_LINKS.telegram;
+ if(type==='follow_youtube')return COMMUNITY_LINKS.youtube;
+ if(type==='follow_x')return COMMUNITY_LINKS.x;
+ if(type==='follow_tiktok')return COMMUNITY_LINKS.tiktok;
  return '';
 }
 function openDailyMission(type){
@@ -972,22 +977,74 @@ function openDailyMission(type){
  }
  if(tg?.openLink)tg.openLink(url);else window.open(url,'_blank','noopener');
 }
-
+function dailyActionLabel(type){
+ if(type==='share')return 'SHARE';
+ if(String(type).startsWith('follow_'))return 'FOLLOW';
+ return 'OPEN';
+}
+function awardDailyPointsLocal(type,amount){
+ if(!amount)return Number(localStorage.getItem('mkty_points')||0);
+ let pts=Number(localStorage.getItem('mkty_points')||0);
+ pts+=amount;
+ localStorage.setItem('mkty_points',String(pts));
+ if($('points'))$('points').textContent=pts+(moonPointsLocked()?' ⭐ 🔒':' ⭐');
+ return pts;
+}
+function claimDailyMission(type){
+ if(moonPointsLocked())return false;
+ if(!DAILY_REWARDS.hasOwnProperty(type))return false;
+ const state=dailyState();
+ if(state[type]==='verified')return false;
+ openDailyMission(type);
+ // Provisional / demo claim: no real social verification yet.
+ const amount=DAILY_REWARDS[type]||0;
+ state[type]='verified';
+ saveDailyState(state);
+ awardDailyPointsLocal(type,amount);
+ try{
+  const event_key='daily:'+dailyKey()+':'+type;
+  window.MKTYRewards?.call?.('rewards.verify',{event_key,event_type:'daily.'+type,points:amount})?.then?.(body=>{
+   if(body?.ok&&body.player&&typeof body.player.moon_points==='number'){
+    localStorage.setItem('mkty_points',String(body.player.moon_points));
+    if($('points'))$('points').textContent=body.player.moon_points+(moonPointsLocked()?' ⭐ 🔒':' ⭐');
+   }
+  });
+ }catch(_){ }
+ return true;
+}
+function showDailyMissionsSection(){
+ const box=$('dailyMissions');
+ if(!box)return;
+ box.hidden=false;
+ box.removeAttribute('hidden');
+}
 function renderDailyMissions(){
- const state=dailyState();let done=0,locked=moonPointsLocked();
- document.querySelectorAll('.daily-task').forEach(card=>{const type=card.dataset.daily,ok=state[type]==='verified';card.classList.toggle('done',ok);const b=card.querySelector('.daily-action');if(ok){done++;b.textContent='CLAIMED ✓';b.disabled=true;}else if(locked){b.disabled=true;b.textContent='BALANCE LOCKED';}else{b.disabled=false;b.textContent=type==='share'?'SHARE':'OPEN';}});
- if($('dailyProgress'))$('dailyProgress').textContent=done+' / 3';
- if($('dailyReward'))$('dailyReward').classList.toggle('ready',done===3);
+ showDailyMissionsSection();
+ const state=dailyState();let done=0,locked=moonPointsLocked(),total=DAILY_TASK_TYPES.length;
+ document.querySelectorAll('#dailyMissions .daily-task').forEach(card=>{
+  const type=card.dataset.daily,ok=state[type]==='verified',b=card.querySelector('.daily-action');
+  card.classList.toggle('done',ok);
+  if(!b)return;
+  if(ok){done++;b.textContent='CLAIMED ✓';b.disabled=true;}
+  else if(locked){b.disabled=true;b.textContent='BALANCE LOCKED';}
+  else{b.disabled=false;b.textContent=dailyActionLabel(type);}
+ });
+ if($('dailyProgress'))$('dailyProgress').textContent=done+' / '+total;
+ if($('dailyReward'))$('dailyReward').classList.toggle('ready',done===total);
  const sec=secondsToUtcReset(),hh=String(Math.floor(sec/3600)).padStart(2,'0'),mm=String(Math.floor(sec%3600/60)).padStart(2,'0'),ss=String(sec%60).padStart(2,'0');
  if($('dailyReset'))$('dailyReset').textContent='RESET '+hh+':'+mm+':'+ss;
 }
-document.querySelectorAll('.daily-action').forEach(btn=>btn.onclick=()=>{
- const card=btn.closest('.daily-task'),type=card.dataset.daily;if(moonPointsLocked())return;openDailyMission(type);
- // Placeholder until official community URLs/API verification are connected.
- if(type==='share' && navigator.share){navigator.share({title:'MOONKATTY',text:'Join the MOONKATTY mission 🚀🌙'}).catch(()=>{});}
- $('dailyProgress').textContent='VERIFYING…';
- setTimeout(()=>renderDailyMissions(),700);
+$('dailyMissions')?.addEventListener('click',ev=>{
+ const btn=ev.target.closest('.daily-action');
+ if(!btn||btn.disabled)return;
+ const card=btn.closest('.daily-task'),type=card?.dataset?.daily;
+ if(!type||moonPointsLocked())return;
+ if($('dailyProgress'))$('dailyProgress').textContent='VERIFYING…';
+ claimDailyMission(type);
+ setTimeout(()=>renderDailyMissions(),450);
 });
+showDailyMissionsSection();
+renderDailyMissions();
 setInterval(renderDailyMissions,1000);
 
 function renderMissionArchive(){
