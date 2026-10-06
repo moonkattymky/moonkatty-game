@@ -1,3 +1,4 @@
+# Copy to .github/workflows/model-tests.yml when a token with `workflow` scope is available.
 name: Model tests
 
 on:
