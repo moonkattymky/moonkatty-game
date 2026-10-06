@@ -5,7 +5,7 @@ window.MKTYHub=(()=>{
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const read=(k,f=null)=>{try{return JSON.parse(localStorage.getItem(k))??f;}catch{return f;}};
  const number=n=>Math.max(0,Number(n)||0),done=n=>localStorage.getItem('mkty_life'+n)==='complete';
- const titles=[['Пробуждение','The Awakening'],['Экипаж','The Crew'],['Код запуска','The Launch Code'],['Спуск','The Descent'],['Реактор','The Reactor'],['Взлёт','Liftoff'],['Пустота','The Void'],['Сигнал','The Signal'],['Возвращение','The Return']];
+ const titles=[['Пробуждение','The Awakening'],['Экипаж','The Crew'],['Код запуска','The Launch Code'],['Спуск','The Descent'],['Зажигание','Ignition'],['Взлёт','Liftoff'],['Пустота','The Void'],['Сигнал','The Signal'],['Возвращение','The Return']];
  const art=['life1-base.webp','crew-bridge-v3.webp','launch-bridge-v3.webp','life4-landing.webp','life5-reactor-v2.webp','life6-launchpad.webp','life7-void.webp','world-orbital.webp','orbit-v2.webp'];
  const routes={crew:['Экипаж','Crew'],ranking:['Рейтинг и рекорды','Standings & records'],more:['Центр управления','Mission control'],settings:['Настройки','Settings'],journal:['Бортовой журнал','Flight journal'],daily:['Тренировка дня','Daily training'],cinema:['Киноархив','Film archive'],community:['Связь с экипажем','Crew communications']};
  const base='https://moonkattymky.github.io/moonkatty-game/',endpoint='https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/mission-control';

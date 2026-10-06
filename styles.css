@@ -115,14 +115,15 @@ input[type="range"]{height:34px}
 .moonkatty-hero{height:285px;position:relative;overflow:hidden;margin:-8px -18px 14px;display:grid;place-items:center;background:radial-gradient(circle at 50% 42%,#23436a55,#08111f 42%,#03060c 72%);border-bottom:1px solid #e9bd5822}
 .hero-moon{position:absolute;width:250px;height:250px;border-radius:50%;right:-105px;top:-85px;background:radial-gradient(circle at 34% 32%,#e1ddd0,#8d8a84 58%,#474b54 78%);opacity:.34;box-shadow:0 0 70px #b9d8ff1c}
 .hero-orbit{position:absolute;width:310px;height:310px;border:1px solid #77b9dc22;border-radius:50%;animation:heroOrbit 18s linear infinite}
-.cat-helmet{width:178px;height:178px;position:relative;display:grid;place-items:center;border-radius:50%;border:3px solid #b6c7d8;background:radial-gradient(circle at 35% 25%,#8dc6e22b,#16283d 45%,#060b12 75%);box-shadow:inset 0 0 28px #9edfff2b,0 18px 45px #000,0 0 45px #78bce52b;z-index:2}
+.cat-helmet{width:178px;height:178px;position:relative;display:grid;place-items:center;border-radius:50%;border:3px solid #b6c7d8;background:radial-gradient(circle at 35% 25%,#8dc6e22b,#16283d 45%,#060b12 75%);box-shadow:inset 0 0 28px #9edfff2b,0 18px 45px #000,0 0 45px #78bce52b;z-index:2;overflow:hidden}
 .cat-face{font-size:94px;filter:drop-shadow(0 8px 8px #0008);transform:translateY(6px)}
+.cat-face-art{width:132%;height:132%;object-fit:cover;object-position:50% 28%;filter:drop-shadow(0 8px 10px #0009);transform:translateY(8px);pointer-events:none;user-select:none}
 .cat-ears{position:absolute;top:15px;left:0;right:0;text-align:center;letter-spacing:55px;padding-left:50px;color:#c89d63;font-size:30px;opacity:.9}
-.visor-glow{position:absolute;inset:10px;border-radius:50%;border-top:2px solid #dff7ff88;box-shadow:inset 15px 15px 24px #d8f5ff12;pointer-events:none}
+.visor-glow{position:absolute;inset:10px;border-radius:50%;border-top:2px solid #dff7ff88;box-shadow:inset 15px 15px 24px #d8f5ff12;pointer-events:none;z-index:2}
 .hero-badge{position:absolute;bottom:16px;padding:7px 12px;border:1px solid #e9bd5844;border-radius:999px;background:#060b12cc;color:var(--gold);font-size:7px;letter-spacing:2px;z-index:3;backdrop-filter:blur(8px)}
 .moonkatty-hero:after{content:"";position:absolute;width:120px;height:42px;bottom:0;background:linear-gradient(#1b2938,#070b11);clip-path:polygon(18% 0,82% 0,100% 100%,0 100%);border-radius:30px 30px 0 0;box-shadow:0 0 25px #6db5df1a}
 @keyframes heroOrbit{to{transform:rotate(360deg)}}
-@media(max-width:390px){.moonkatty-hero{height:255px;margin-left:-14px;margin-right:-14px}.cat-helmet{width:158px;height:158px}.cat-face{font-size:82px}.hero-orbit{width:275px;height:275px}}
+@media(max-width:390px){.moonkatty-hero{height:255px;margin-left:-14px;margin-right:-14px}.cat-helmet{width:158px;height:158px}.cat-face{font-size:82px}.cat-face-art{width:136%;height:136%}.hero-orbit{width:275px;height:275px}}
 
 /* UNIFIED CINEMATIC LIFE SYSTEM */
 .life-theme{--life-accent:#78bce5;--life-accent2:#e9bd58;position:relative;background:radial-gradient(circle at 50% 0,var(--life-glow,#18365a55),transparent 34%),#040812}
@@ -198,7 +199,7 @@ input[type="range"]{height:34px}
 .daily-head,.daily-streak,.daily-task{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .daily-head strong{display:block;margin-top:3px;font-size:10px;letter-spacing:1px}.daily-head>span{padding:5px 8px;border:1px solid #3c526e;border-radius:999px;color:var(--gold);font-size:8px}
 .daily-streak{margin:10px 0;padding:8px 10px;border:1px solid #25364c;border-radius:10px;background:#08111d}.daily-streak span,.daily-streak small{font-size:6px;letter-spacing:1px;color:#7f8ca1}.daily-streak strong{font-size:10px}
-.daily-list{display:grid;gap:7px}.daily-task{padding:9px;border:1px solid #27374d;border-radius:11px;background:#08101b}.daily-task>span{width:27px;height:27px;display:grid;place-items:center;border:1px solid #40536d;border-radius:50%;color:var(--gold)}.daily-task>div{flex:1;display:grid;gap:2px}.daily-task strong{font-size:8px;letter-spacing:.6px}.daily-task small{font-size:6px;color:#75849a}.daily-task button{min-height:32px;padding:6px 9px;font-size:7px}.daily-task.done{border-color:#e9bd5844;opacity:.72}
+.daily-list{display:grid;gap:7px}.daily-task{padding:9px;border:1px solid #27374d;border-radius:11px;background:#08101b}.daily-task>span{width:27px;height:27px;display:grid;place-items:center;border:1px solid #40536d;border-radius:50%;color:var(--gold)}.daily-task>div{flex:1;display:grid;gap:2px}.daily-task strong{font-size:8px;letter-spacing:.6px}.daily-task small{font-size:6px;color:#75849a}.daily-task button{min-height:32px;padding:6px 9px;font-size:7px}.daily-task.done{border-color:#e9bd5844;opacity:.72}.daily-task.opened{border-color:#67d7f055}.daily-action.claim-demo{background:linear-gradient(135deg,#3a4a62,#1c2738);color:#f0d792;border:1px solid #e9bd5866}
 .daily-reward{margin-top:9px;padding:9px;border:1px dashed #3c4b61;border-radius:10px;text-align:center;opacity:.45}.daily-reward span,.daily-reward strong{display:block;font-size:7px;letter-spacing:.8px}.daily-reward.ready{opacity:1;border-color:#e9bd5877;box-shadow:0 0 20px #e9bd5815}.daily-note{margin:8px 2px 0;font-size:6px;line-height:1.5;color:#68768b}
 
 /* RULES & REWARDS */
