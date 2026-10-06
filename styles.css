@@ -280,7 +280,7 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 .mk-l1{position:relative;min-height:100dvh;padding:88px 16px 112px;background:#020711;color:#fff;overflow-x:hidden}
 .mk-l1 .l1-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-bottom:12px}
 .mk-l1 .l1-head h2{margin:4px 0 0;font-size:25px;line-height:1}.mk-l1 .l1-hud{display:flex;gap:8px}.mk-l1 .l1-hud b{padding:8px 10px;border:1px solid #31506e;border-radius:12px;background:#06101bdd;font-size:10px}
-.mk-l1 .l1-world{position:relative;height:56dvh;min-height:480px;max-height:620px;margin:0 -16px 14px;background:linear-gradient(#02071108,#0207113d),url('life-1-background-wide.webp') center/cover no-repeat;border-block:1px solid #294760;overflow:hidden}
+.mk-l1 .l1-world{position:relative;height:56dvh;min-height:480px;max-height:620px;margin:0 -16px 14px;background:linear-gradient(#02071108,#0207113d),url('art/life1-base.webp') center/cover no-repeat;border-block:1px solid #294760;overflow:hidden}
 .mk-l1 .l1-space,.mk-l1 .l1-earth,.mk-l1 .l1-base{display:none}
 .mk-l1 .l1-cat{position:absolute;left:50%;top:68%;bottom:auto;transform:none;width:145px;height:205px;background:url('moonkatty.png') center bottom/contain no-repeat;z-index:8;pointer-events:none;filter:drop-shadow(0 14px 14px #000a);font-size:0}
 .mk-l1 .l1-cat *{display:none}
@@ -381,7 +381,7 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 .life-theme-2{background:radial-gradient(circle at 70% 8%,#25324d 0,#080c14 38%,#03050a 78%)}
 .life-theme-2>header{padding:8px 2px 18px;border-bottom:1px solid #e9bd5828}
 .life-theme-2>header h2{font-size:34px;letter-spacing:-1px}.life-theme-2 .crew-badge{border-color:#e9bd5866;color:#f1d47d;background:#0a0d13cc}
-.crew-world-v2{position:relative;height:540px;margin:0 -20px 18px;overflow:hidden;background:linear-gradient(#02081444,#05080eaa),url('life2-poster.jpg') center/cover no-repeat;border-bottom:1px solid #e9bd5830}
+.crew-world-v2{position:relative;height:540px;margin:0 -20px 18px;overflow:hidden;background:linear-gradient(#02081444,#05080eaa),url('art/crew-bridge-v3.webp') center/cover no-repeat;border-bottom:1px solid #e9bd5830}
 .crew-world-v2:after{content:"";position:absolute;inset:auto 0 0;height:55%;background:linear-gradient(transparent,#03050ae8);pointer-events:none}
 .crew-world-v2 .crew-orbit{position:absolute;left:50%;top:46%;width:330px;height:330px;border:1px solid #e9bd5824;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 80px #1d4d7a22}
 .crew-earth2{position:absolute;right:-110px;top:-90px;width:290px;height:290px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#6381a4,#193250 38%,#06101d 70%);opacity:.7;box-shadow:0 0 70px #5aa9ff22}
@@ -403,7 +403,7 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 /* LIFE #2 visual upgrade */
 #mission2{background:radial-gradient(circle at 70% 10%,#1b2842 0,#080d17 35%,#03060b 78%);min-height:100vh}
 #mission2 header{position:relative;z-index:5;padding-bottom:14px;border-bottom:1px solid #b78a3a44}
-.crew-world-v2{position:relative;min-height:520px;margin:12px -4px 18px;overflow:hidden;border:1px solid #2a3b5266;border-radius:24px;background:linear-gradient(180deg,#07111f88,#050912ee),url('moon-base-bg.png') center/cover no-repeat;box-shadow:inset 0 0 70px #000b,0 20px 45px #0006}
+.crew-world-v2{position:relative;min-height:520px;margin:12px -4px 18px;overflow:hidden;border:1px solid #2a3b5266;border-radius:24px;background:linear-gradient(180deg,#07111f88,#050912ee),url('art/crew-bridge-v3.webp') center/cover no-repeat;box-shadow:inset 0 0 70px #000b,0 20px 45px #0006}
 .crew-world-v2:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,#d5a84618,transparent 38%);pointer-events:none}
 .crew-earth2{position:absolute;right:-75px;top:-65px;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#5e8dc8,#183052 45%,#07101c 72%);box-shadow:0 0 45px #4d83c333;opacity:.72}
 .crew-base2{position:absolute;left:0;right:0;bottom:0;height:42%;background:linear-gradient(transparent,#060a10cc),repeating-linear-gradient(90deg,#131b26 0 2px,transparent 2px 65px);opacity:.55}
@@ -641,7 +641,7 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 
 /* FINAL Navigator layered game assets */
 #navField2.nav-field2{height:520px!important;background-image:linear-gradient(180deg,#0206110d,#02061124),url('moonkatty-navigator-canyon.webp')!important;background-size:cover!important;background-position:center 48%!important;background-repeat:no-repeat!important;overflow:hidden!important}
-#navField2 #navShip2{width:76px!important;height:50px!important;background:url('moonkatty-nav-ship.png') center/contain no-repeat!important;color:transparent!important;font-size:0!important;border:0!important;filter:drop-shadow(0 7px 7px #000b) drop-shadow(0 0 8px #65dfff55)!important;z-index:20!important;transform:translate(-35%,-45%)!important}
+#navField2 #navShip2{width:76px!important;height:50px!important;background:url('moonkatty-life4-ship.png') center/contain no-repeat!important;color:transparent!important;font-size:0!important;border:0!important;filter:drop-shadow(0 7px 7px #000b) drop-shadow(0 0 8px #65dfff55)!important;z-index:20!important;transform:translate(-35%,-45%)!important}
 #navField2 .industrial-gate2{width:112px!important;height:74px!important;border:0!important;border-radius:0!important;background-color:transparent!important;background-position:center!important;background-size:contain!important;background-repeat:no-repeat!important;box-shadow:none!important;filter:drop-shadow(0 8px 8px #000b)!important;opacity:1!important;transform:none!important;z-index:12!important}
 #navField2 .industrial-gate2.g1{background-image:url('moonkatty-gate-01.png')!important}
 #navField2 .industrial-gate2.g2{background-image:url('moonkatty-gate-02.png')!important}
@@ -663,8 +663,8 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 #navField2 .flight-direction2{display:none!important}
 
 /* NAVIGATOR FINAL ASSET COMPOSITION — clean environment + interactive layers */
-#navField2.nav-field2{height:520px!important;background-image:linear-gradient(180deg,#02061108,#02061120),url('moonkatty-nav-environment.webp')!important;background-size:cover!important;background-position:center 48%!important;background-repeat:no-repeat!important;overflow:hidden!important;box-shadow:inset 0 0 35px #0009!important}
-#navField2 #navShip2{display:block!important;width:82px!important;height:54px!important;background:url('moonkatty-nav-ship.png') center/contain no-repeat!important;color:transparent!important;font-size:0!important;border:0!important;opacity:1!important;filter:drop-shadow(0 7px 7px #000b) drop-shadow(0 0 10px #5fe1ff66)!important;z-index:30!important;transform:translate(-35%,-45%)!important}
+#navField2.nav-field2{height:520px!important;background-image:linear-gradient(180deg,#02061108,#02061120),url('moonkatty-life4-environment.webp')!important;background-size:cover!important;background-position:center 48%!important;background-repeat:no-repeat!important;overflow:hidden!important;box-shadow:inset 0 0 35px #0009!important}
+#navField2 #navShip2{display:block!important;width:82px!important;height:54px!important;background:url('moonkatty-life4-ship.png') center/contain no-repeat!important;color:transparent!important;font-size:0!important;border:0!important;opacity:1!important;filter:drop-shadow(0 7px 7px #000b) drop-shadow(0 0 10px #5fe1ff66)!important;z-index:30!important;transform:translate(-35%,-45%)!important}
 #navField2 .industrial-gate2{display:block!important;opacity:1!important;width:118px!important;height:78px!important;border:0!important;border-radius:0!important;background-color:transparent!important;background-position:center!important;background-size:contain!important;background-repeat:no-repeat!important;box-shadow:none!important;filter:drop-shadow(0 8px 8px #000b)!important;transform:none!important;z-index:18!important}
 #navField2 .industrial-gate2.g1{background-image:url('moonkatty-gate-01.png')!important}
 #navField2 .industrial-gate2.g2{background-image:url('moonkatty-gate-02.png')!important}
@@ -717,3 +717,18 @@ body.mkty-ru .l1-joystick:after{content:"ДВИЖЕНИЕ"}
 body.mkty-ru .mk-bottom-nav button span{font-size:11px}
 body.mkty-ru .mk-topbar span{letter-spacing:1px;font-size:10px}
 body.mkty-ru .mk-l1 .l1-quest p{font-size:12px;letter-spacing:0}
+
+/* Hebrew RTL extras (dir=rtl already on <html>) */
+body.mkty-he .mk-bottom-nav,body.mkty-he .mk-topbar{direction:rtl}
+body.mkty-ko .mk-bottom-nav button span,body.mkty-zh .mk-bottom-nav button span{font-size:11px;letter-spacing:0}
+
+
+/* Flight HUD: hold-action affordance when near a usable object */
+#expAction.exp-action-ready{
+  box-shadow:0 0 0 2px #e9bd5888,0 0 18px #e9bd5844;
+  animation:expActionPulse 1.1s ease-in-out infinite;
+}
+@keyframes expActionPulse{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.18)}
+}

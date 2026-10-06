@@ -50,3 +50,29 @@ No database policies or schema were changed. Existing RLS remains enabled on all
 three game tables. The advisor still reports the pre-existing public execute
 privilege on `rls_auto_enable()`; this release does not use that function. See
 [Supabase's SECURITY DEFINER guidance](https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable).
+
+
+## Rewards / lives Edge Function (2026-10-07)
+
+`server/rewards/` is the mutating counterpart to read-only `mission-control`.
+
+Deploy as Edge Function name **`rewards`** with env:
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY` (never commit)
+- optional `REFERRAL_DAILY_CAP` (default 40)
+
+Contract (POST JSON, Telegram `initData` required except GET probe):
+
+| action | purpose |
+|--------|---------|
+| `player` | upsert/read profile; applies 12h life restore |
+| `life.complete` | idempotent chapter reward via `event_key` (default `life:N:complete`) |
+| `rewards.verify` | generic verified reward ledger insert + points |
+| `lives.spend` | idempotent life spend (`event_key`) |
+| `referrals.claim` | inviter +1 with daily cap; rejects self-referral / duplicates |
+
+Rules enforced server-side: initData Ed25519 verify (10 min), unique `(telegram_id, event_key)`, LIFE #9 sets `final_balance` + `balance_locked_at`, no further point increases after lock.
+
+Client: `rewards-client.js` treats `localStorage` as cache. Without deploy / without Telegram initData the game keeps provisional local awards (unchanged UX).
+
+Tests: `node tests/rewards-server.cjs` (no live secrets).

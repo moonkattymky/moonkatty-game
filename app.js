@@ -31,6 +31,8 @@ async function authenticateMoonkattyPlayer(){
  }
 }
 mktyAuthPromise=authenticateMoonkattyPlayer();
+mktyAuthPromise.then(()=>{ try{ window.MKTYRewards?.syncPlayer?.(); }catch(_){ } });
+
 
 // MOONKATTY Crew identity
 const crewUser = tg?.initDataUnsafe?.user;
@@ -387,6 +389,13 @@ function spendGlobalLife(){
  let lives=getLifeBank(); if(lives<=0)return false;
  lives--; localStorage.setItem('mkty_global_lives',String(lives));
  if(!localStorage.getItem('mkty_life_restore_at'))localStorage.setItem('mkty_life_restore_at',String(Date.now()));
+ // Fire-and-forget server spend (idempotent event_key). Local cache remains provisional until deploy.
+ try{
+  const event_key='life:spend:'+Date.now()+':'+Math.random().toString(36).slice(2,8);
+  window.MKTYRewards?.spendLife?.(event_key)?.then?.(res=>{
+   if(res&&typeof res.lives==='number'){localStorage.setItem('mkty_global_lives',String(res.lives));renderLife3Gate();}
+  });
+ }catch(_){ }
  renderLife3Gate(); return true;
 }
 function ensureLife1MemoryCode(){
@@ -464,9 +473,16 @@ function awardLifePoints(n,amount){
  window.MKTYOps?.complete(n);
  window.MKTYStory?.complete(n);
  const key='mkty_life'+n,awardKey=key+'_awarded';
+ // Optimistic local cache; server confirms when rewards Edge Function is deployed + Telegram initData present.
  let pts=Number(localStorage.getItem('mkty_points')||0);
  if(localStorage.getItem(awardKey)!=='yes'){pts+=amount;localStorage.setItem('mkty_points',String(pts));localStorage.setItem(awardKey,'yes');}
- localStorage.setItem(key,'complete');window.MKTYExperience?.signal('complete');if($('points'))$('points').textContent=pts+' ⭐';if($('livesProgress')){const done=[1,2,3,4,5,6,7,8,9].filter(x=>localStorage.getItem('mkty_life'+x)==='complete').length;$('livesProgress').textContent=done+' / 9 🌙';}renderMissionArchive();if(n===9){renderFinalMoonPoints();renderCrewNetwork();renderDailyMissions();}return pts;
+ localStorage.setItem(key,'complete');
+ try{
+  window.MKTYRewards?.completeLife?.(n,amount)?.then?.(res=>{
+   if(res&&typeof res.pts==='number'){pts=res.pts;localStorage.setItem('mkty_points',String(pts));if($('points'))$('points').textContent=pts+(moonPointsLocked()?' ⭐ 🔒':' ⭐');}
+  });
+ }catch(_){ }
+ window.MKTYExperience?.signal('complete');if($('points'))$('points').textContent=pts+' ⭐';if($('livesProgress')){const done=[1,2,3,4,5,6,7,8,9].filter(x=>localStorage.getItem('mkty_life'+x)==='complete').length;$('livesProgress').textContent=done+' / 9 🌙';}renderMissionArchive();if(n===9){renderFinalMoonPoints();renderCrewNetwork();renderDailyMissions();}return pts;
 }
 
 function unlockLife2(){

@@ -1,7 +1,7 @@
 /* Mission control: real local records, server standings and playable daily training. */
 window.MKTYHub=(()=>{
  'use strict';
- const $=id=>document.getElementById(id),tr=(ru,en)=>localStorage.getItem('mkty_lang')==='ru'?ru:en;
+ const $=id=>document.getElementById(id),tr=(ru,en)=>window.MKTYI18n?window.MKTYI18n.tr(ru,en):(localStorage.getItem('mkty_lang')==='ru'?ru:en);
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const read=(k,f=null)=>{try{return JSON.parse(localStorage.getItem(k))??f;}catch{return f;}};
  const number=n=>Math.max(0,Number(n)||0),done=n=>localStorage.getItem('mkty_life'+n)==='complete';
