@@ -34,7 +34,8 @@
       rocks.push(rock);
     }
     const fields=[{x:450,y:700,r:230},{x:2820,y:1760,r:210},{x:1750,y:1100,r:165}];
-    const drones=Array.from({length:tier+1},(_,i)=>({id:i,x:650+i*710,y:850+(i%2)*700,homeX:650+i*710,homeY:850+(i%2)*700,disabled:0,aim:0,cooldown:3+i,targetX:0,targetY:0}));
+    const droneCount=tier===1?1:tier+1;
+    const drones=Array.from({length:droneCount},(_,i)=>({id:i,x:650+i*710,y:850+(i%2)*700,homeX:650+i*710,homeY:850+(i%2)*700,disabled:0,aim:0,cooldown:3.5+i*1.2,targetX:0,targetY:0}));
     return {seed:seed>>>0,type,tier,phase:'flight',time:0,ship:{...BASE,vx:0,vy:0,angle:0,hull:maxHull(p),energy:100,invulnerable:0},points,rocks,fields,drones,shots:[],cargo:0,rescued:0,emp:0,scan:0,alert:0,scanWave:0,pulse:0,damage:0,target:null,notice:'launch',noticeUntil:7,interacting:null,report:null};
   }
   const primary = (r,p) => r.type==='rescue'?p.kind==='pod':r.type==='salvage'?['relay-a','relay-b','wreck'].includes(p.id):p.kind==='relay';
@@ -69,7 +70,7 @@
     if(Math.hypot(s.vx,s.vy)>12){const a=Math.atan2(s.vx,-s.vy);let d=((a-s.angle+Math.PI*3)%(Math.PI*2))-Math.PI;s.angle+=d*Math.min(1,dt*9);}
     for(const rock of r.rocks) {
       const d=distance(s,rock),radius=rock.r+19;
-      if(d<radius){const ax=(s.x-rock.x)/(d||1),ay=(s.y-rock.y)/(d||1);s.x=rock.x+ax*(radius+1);s.y=rock.y+ay*(radius+1);s.vx*=.25;s.vy*=.25;hit(r,10+r.tier*2);}
+      if(d<radius){const ax=(s.x-rock.x)/(d||1),ay=(s.y-rock.y)/(d||1);s.x=rock.x+ax*(radius+1);s.y=rock.y+ay*(radius+1);s.vx*=.25;s.vy*=.25;hit(r,r.tier===1?7:10+r.tier*2);}
     }
     for(const f of r.fields)if(distance(f,s)<f.r){s.hull=Math.max(0,s.hull-dt*(4+r.tier));notice(r,'radiation');}
     r.points.forEach(o=>{if(distance(o,s)<330+p.upgrades.scanner*90)o.seen=true;});
@@ -87,7 +88,7 @@
         if(chasing&&d.cooldown===0){d.aim=.95;d.targetX=s.x+s.vx*.45;d.targetY=s.y+s.vy*.45;}
       }
     }
-    r.shots=r.shots.filter(b=>{b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(distance(b,s)<24){hit(r,12+r.tier*3);return false;}return b.life>0;});
+    r.shots=r.shots.filter(b=>{b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(distance(b,s)<24){hit(r,r.tier===1?8:12+r.tier*3);return false;}return b.life>0;});
     const n=near(r);r.interacting=null;
     // Moving away or taking evasive action preserves completed salvage work.
     if(input.action&&n&&Math.hypot(s.vx,s.vy)<65) {
@@ -138,7 +139,7 @@
     const r=data.run;
     if(!r||!int(r.seed,0,4294967295)||!TYPES.includes(r.type)||!int(r.tier,1,3)||!['flight','result'].includes(r.phase))return clean;
     const original=create(r.seed,r.type,r.tier,clean.profile),s=r.ship;
-    if(!s||!['x','y'].every(k=>num(s[k],0,SIZE))||!['vx','vy'].every(k=>num(s[k],-600,600))||!num(s.hull,0,maxHull(clean.profile))||!num(s.energy,0,100)||!num(s.angle,-1000,1000)||!num(s.invulnerable,0,1)||!num(r.time,0,1e7)||!int(r.cargo,0,300)||!int(r.rescued,0,2))return clean;
+    if(!s||!['x','y'].every(k=>num(s[k],0,SIZE))||!['vx','vy'].every(k=>num(s[k],-600,600))||!num(s.hull,0,maxHull(clean.profile))||!num(s.energy,0,100)||!num(s.angle,-1000,1000)||!num(s.invulnerable,0,3)||!num(r.time,0,1e7)||!int(r.cargo,0,300)||!int(r.rescued,0,2))return clean;
     if(!Array.isArray(r.points)||r.points.length!==original.points.length||r.points.some((o,i)=>o.id!==original.points[i].id||typeof o.done!=='boolean'||typeof o.seen!=='boolean'||!num(o.work,0,1)))return clean;
     original.points.forEach((o,i)=>Object.assign(o,{done:r.points[i].done,seen:r.points[i].seen,work:r.points[i].work}));
     if(!Array.isArray(r.drones)||r.drones.length!==original.drones.length||r.drones.some(d=>!['x','y','targetX','targetY'].every(k=>num(d[k],-1000,4200))||!num(d.aim,0,1)||!num(d.disabled,0,6)||!num(d.cooldown,0,10)))return clean;
@@ -154,5 +155,25 @@
     }
     original.notice='resumed';original.noticeUntil=r.time+5;clean.run=original;return clean;
   }
-  return {SIZE,BASE,TYPES,clamp,distance,random,profile,create,maxHull,price,unlocked,primary,ready,relays,locked,target,near,step,action,finish,buy,restore};
+  
+  /** Soft death restart: same seed/map, keep completed objectives, full hull at base. */
+  function softRestart(r,p){
+    const keep=r.points.map(pt=>({id:pt.id,done:!!pt.done,seen:!!pt.seen||!!pt.done,work:pt.done?1:0}));
+    const next=create(r.seed,r.type,r.tier,p);
+    let cargo=0,rescued=0;
+    next.points.forEach((pt,i)=>{
+      const k=keep[i];if(!k||k.id!==pt.id)return;
+      pt.done=k.done;pt.seen=k.seen;pt.work=k.work;
+      if(!pt.done)return;
+      if(pt.kind==='relay')cargo+=10;
+      else if(pt.kind==='cache')cargo+=25;
+      else if(pt.kind==='wreck')cargo+=40;
+      else if(pt.kind==='pod')rescued++;
+    });
+    next.cargo=cargo;next.rescued=rescued;
+    next.notice='resumed';next.noticeUntil=6;
+    next.ship.invulnerable=1;
+    return next;
+  }
+  return {SIZE,BASE,TYPES,clamp,distance,random,profile,create,maxHull,price,unlocked,primary,ready,relays,locked,target,near,step,action,finish,buy,restore,softRestart};
 });

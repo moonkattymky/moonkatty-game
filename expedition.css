@@ -26,3 +26,5 @@
 @media(prefers-reduced-motion:reduce){.exp-screen *{scroll-behavior:auto!important}}
 
 .exp-control svg{display:block;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.3}.exp-joystick>span{inset:12px;background:linear-gradient(90deg,transparent calc(50% - .5px),#8fa9b22d calc(50% - .5px),#8fa9b22d calc(50% + .5px),transparent calc(50% + .5px)),linear-gradient(0deg,transparent calc(50% - .5px),#8fa9b22d calc(50% - .5px),#8fa9b22d calc(50% + .5px),transparent calc(50% + .5px));border-radius:50%}
+
+#expAction.exp-action-ready{outline:2px solid #e9bd58aa;outline-offset:2px}

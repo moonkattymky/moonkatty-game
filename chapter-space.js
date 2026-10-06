@@ -1,7 +1,7 @@
 /* New spatial finales are opt-in with the new chapter route. Legacy saves keep their original finale. */
 window.MKTYSpatialFinale=(()=>{
  const original={8:openMission8,9:openMission9},key=n=>'mkty_field_finale_'+n+'_v1';
- const tr=(ru,en)=>localStorage.getItem('mkty_lang')==='ru'?ru:en;
+ const tr=(ru,en)=>window.MKTYI18n?window.MKTYI18n.tr(ru,en):(localStorage.getItem('mkty_lang')==='ru'?ru:en);
  const sequences={8:[{mechanic:8,title:['Обнаружить станцию «Эхо»','Locate Echo station']},{mechanic:3,title:['Доставить зонд к источнику','Deliver the probe to the source']}],9:[{mechanic:9,title:['Провести экипаж через шлюз','Guide the crew through the gate']},{mechanic:6,title:['Собрать корабль возвращения','Assemble the return vessel']},{mechanic:3,title:['Последний манёвр домой','Final homebound maneuver']}]};
  function read(n){if(!sequences[n])return null;try{const v=JSON.parse(localStorage.getItem(key(n)));if(v?.version===1&&v.n===n&&Number.isInteger(v.phase)&&v.phase>=0&&v.phase<sequences[n].length&&Number.isInteger(v.seed)&&v.seed>=0&&v.seed<=0xffffffff&&Number.isFinite(v.seconds)&&v.seconds>=0)return v;}catch{}return null;}
  function write(s){try{localStorage.setItem(key(s.n),JSON.stringify(s));}catch{}}
