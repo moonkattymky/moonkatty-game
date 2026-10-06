@@ -1,8 +1,12 @@
-# Pages client-only trim (pending workflow scope)
+# Pages client-only trim (blocked — needs `workflow` OAuth scope)
 
-OAuth push cannot update `.github/workflows/*` without `workflow` scope.
+**Status (2026-10-07 ~02:40 IL):** cannot apply from this agent. `gh` token scopes are
+`gist, read:org, repo` only — **no `workflow`**. GitHub rejects pushes that modify
+`.github/workflows/*` without that scope. Do **not** re-auth overnight; owner applies.
 
-Intended `deploy-pages.yml` step before upload:
+## Owner steps (workflow-scoped token / PAT)
+
+1. Edit `.github/workflows/deploy-pages.yml` — insert **before** Upload site:
 
 ```yaml
       - name: Prepare client site
@@ -21,4 +25,7 @@ Intended `deploy-pages.yml` step before upload:
           path: '_site'
 ```
 
-Copy `tools/ci/model-tests.yml` → `.github/workflows/model-tests.yml` with a workflow-scoped token.
+2. Copy `tools/ci/model-tests.yml` → `.github/workflows/model-tests.yml`.
+3. Commit + push to `main` (or merge a PR that touches workflows).
+
+Current `deploy-pages.yml` still uploads `path: '.'` (includes `server/` + `tests/`).
