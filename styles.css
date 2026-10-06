@@ -290,8 +290,8 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 .mk-l1 .l1-cat *{display:none}
 .mk-l1 .l1-hotspot{position:absolute;z-index:20;border:0;background-color:transparent;background-position:center;background-size:contain;background-repeat:no-repeat;color:#fff;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .mk-l1 .l1-hotspot.energy{width:100px;height:116px;background-image:url('energy-crystal-final.png')}
-.mk-l1 .repair-terminal,.mk-l1 #repairTerminal{width:116px;height:126px;background-image:url('terminal-v2.png')}
-.mk-l1 .antenna,.mk-l1 #antennaHotspot{width:120px;height:132px;background-image:url('antenna-v2.png')}
+.mk-l1 .repair-terminal,.mk-l1 #repairTerminal{width:116px;height:126px;background-image:url('terminal-clean.png')}
+.mk-l1 .antenna,.mk-l1 #antennaHotspot{width:120px;height:132px;background-image:url('antenna-clean.png')}
 .mk-l1 .l1-hotspot>span:first-child{display:none}.mk-l1 .l1-hotspot>span:last-child{position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);padding:5px 9px;border:1px solid #66d9ff;border-radius:999px;background:#03101de8;font-size:7px;letter-spacing:.8px;white-space:nowrap}
 .mk-l1 .l1-hotspot:disabled{opacity:.42}.mk-l1 .l1-hotspot.collected{opacity:0;transform:scale(.25);pointer-events:none;transition:.3s}
 .mk-l1 .e1{left:7%;bottom:20%}.mk-l1 .e2{left:24%;bottom:45%}.mk-l1 .e3{right:7%;bottom:31%}.mk-l1 .terminal{right:23%;bottom:12%}.mk-l1 .antenna{right:4%;top:32%}
@@ -391,7 +391,7 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 .crew-earth2{position:absolute;right:-110px;top:-90px;width:290px;height:290px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#6381a4,#193250 38%,#06101d 70%);opacity:.7;box-shadow:0 0 70px #5aa9ff22}
 .crew-base2{position:absolute;left:0;right:0;bottom:0;height:44%;background:linear-gradient(transparent,#0a0e16aa)}
 .crew-card2{position:absolute!important;width:128px!important;height:178px!important;padding:0!important;border:1px solid #e9bd5833!important;border-radius:22px!important;background:linear-gradient(180deg,#0b1015aa,#06080de8)!important;color:#fff!important;overflow:hidden;z-index:5!important;box-shadow:0 16px 32px #0008!important;transition:transform .2s,border-color .2s,box-shadow .2s!important}
-.crew-card2 .crew-avatar2{display:block;position:absolute;left:8px;right:8px;top:8px;height:116px;border-radius:16px;background:url('moonkatty.png') center 18%/115% auto no-repeat,linear-gradient(145deg,#182334,#070b11);filter:drop-shadow(0 8px 10px #0008)}
+.crew-card2 .crew-avatar2{display:block;position:absolute;left:8px;right:8px;top:8px;height:116px;border-radius:16px;background:url('art/moonkatty-bust.webp') center 18%/115% auto no-repeat,linear-gradient(145deg,#182334,#070b11);filter:drop-shadow(0 8px 10px #0008)}
 .crew-card2 small{position:absolute;left:8px;right:8px;bottom:29px;color:#f1d47d;font-size:9px;letter-spacing:1.4px;font-weight:900}
 .crew-card2 b{position:absolute;left:7px;right:7px;bottom:10px;color:#9ba7b8;font-size:6px;letter-spacing:.8px;font-weight:700}
 .crew-card2.mate:hover,.crew-card2.mate:active{transform:translateY(-4px) scale(1.02);border-color:#e9bd58!important;box-shadow:0 18px 38px #0009,0 0 24px #e9bd5822!important}
@@ -413,7 +413,7 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 .crew-base2{position:absolute;left:0;right:0;bottom:0;height:42%;background:linear-gradient(transparent,#060a10cc),repeating-linear-gradient(90deg,#131b26 0 2px,transparent 2px 65px);opacity:.55}
 .crew-world-v2 .crew-orbit{opacity:.3;border-color:#d8a84b55}
 .crew-card2{position:absolute!important;width:42%!important;height:205px!important;padding:0!important;border:1px solid #b98b3d55!important;border-radius:20px!important;background:linear-gradient(180deg,#111a28dd,#060a11f2)!important;box-shadow:0 14px 30px #0008!important;color:#fff!important;overflow:hidden;display:flex!important;flex-direction:column;align-items:center;justify-content:flex-end;transition:transform .18s,border-color .18s,box-shadow .18s}
-.crew-card2 .crew-avatar2{position:absolute;inset:8px 8px 48px;background:url('moonkatty.png') center bottom/contain no-repeat;filter:drop-shadow(0 12px 10px #0009)}
+.crew-card2 .crew-avatar2{position:absolute;inset:8px 8px 48px;background:url('art/moonkatty-bust.webp') center bottom/contain no-repeat;filter:drop-shadow(0 12px 10px #0009)}
 .crew-card2 small{position:relative;z-index:2;display:block!important;width:auto!important;height:auto!important;margin:0 0 4px!important;color:#f3c862!important;font-size:10px!important;font-weight:900;letter-spacing:1.5px}
 .crew-card2 b{position:relative;z-index:2;margin-bottom:10px;color:#9eabbc;font-size:7px;letter-spacing:1px}
 .crew-card2.mate:not(.joined):active{transform:scale(.97)}
