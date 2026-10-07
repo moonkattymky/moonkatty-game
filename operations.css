@@ -1,5 +1,5 @@
 /* Industrial flight instruments. The control dock remains independent of diagram height. */
-#operationsDeck{--ops-cyan:#93cbd5;--ops-gold:#d4ba84;--ops-text:#e1e9ed;--ops-muted:#9cadb7;box-sizing:border-box;height:100dvh;min-height:0;padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom);background:radial-gradient(ellipse at 90% 0,#3f59673b,transparent 60%),linear-gradient(145deg,#172733,#0d1923 68%);color:var(--ops-text);overflow:hidden;isolation:isolate;font-family:system-ui,sans-serif}
+#operationsDeck{--ops-cyan:#93cbd5;--ops-gold:#d4ba84;--ops-text:#e1e9ed;--ops-muted:#9cadb7;box-sizing:border-box;height:var(--mk-vh,100dvh);min-height:0;padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom);background:radial-gradient(ellipse at 90% 0,#3f59673b,transparent 60%),linear-gradient(145deg,#172733,#0d1923 68%);color:var(--ops-text);overflow:hidden;isolation:isolate;font-family:system-ui,sans-serif}
 #operationsDeck.active{display:flex;flex-direction:column;gap:8px;animation:none}
 #operationsDeck *{box-sizing:border-box}#operationsDeck button{font-family:inherit;touch-action:manipulation}#operationsDeck [hidden]{display:none!important}
 #operationsDeck .ops-header{position:relative;inset:auto;margin:0;padding:12px 0 0;background:none;backdrop-filter:none;display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none}

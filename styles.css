@@ -1,8 +1,8 @@
 
 :root{--bg:#05070d;--card:#101521;--gold:#e9bd58;--text:#f7f2e7;--muted:#98a0ad}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#182039 0,#05070d 45%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#182039 0,#05070d 45%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:var(--mk-vh,100vh)}
 .stars{position:fixed;inset:0;pointer-events:none;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:47px 47px;opacity:.13}
-#app{position:relative;max-width:520px;margin:auto;min-height:100vh}.screen{display:none;padding:calc(28px + env(safe-area-inset-top)) 20px 28px}.screen.active{display:block}
+#app{position:relative;max-width:520px;margin:auto;min-height:var(--mk-vh,100vh)}.screen{display:none;padding:calc(28px + env(safe-area-inset-top)) 20px 28px}.screen.active{display:block}
 #language{text-align:center;padding-top:16vh}.brand{font-size:68px}.eyebrow{font-size:12px;letter-spacing:3px;color:var(--gold);font-weight:800}h1{font-size:52px;margin:3px 0 8px}h2{margin:3px 0;font-size:28px}h3{margin:8px 0}
 .language-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:28px}.lang,.primary,.icon-btn{border:1px solid #2a3242;color:var(--text);background:#111725;border-radius:16px;padding:15px;font-size:16px;font-weight:700}.lang:active,.primary:active{transform:scale(.98)}
 header{display:flex;align-items:center;justify-content:space-between}.icon-btn{padding:12px}.hero{text-align:center;margin:26px 0}.moon{font-size:84px;filter:drop-shadow(0 0 25px #d7ad4a66)}.cat{font-size:74px;margin-top:-42px}.primary{width:100%;margin-top:14px;background:linear-gradient(135deg,#d6a83e,#f1d47d);color:#15100a;border:0}
@@ -11,7 +11,7 @@ header{display:flex;align-items:center;justify-content:space-between}.icon-btn{p
 
 .life-video{display:block;width:min(100%,320px);aspect-ratio:9/16;max-height:58vh;object-fit:cover;margin:20px auto 16px;border-radius:22px;background:#000;box-shadow:0 0 45px #e9bd5822;border:1px solid #e9bd5833}
 
-.cinematic-screen{min-height:100vh;background:radial-gradient(circle at 50% 42%,#263150 0,#070a12 45%,#020306 100%);text-align:center}
+.cinematic-screen{min-height:var(--mk-vh,100vh);background:radial-gradient(circle at 50% 42%,#263150 0,#070a12 45%,#020306 100%);text-align:center}
 .cinematic{padding-top:2vh}.cinematic h2{font-size:30px;letter-spacing:4px}
 #awakeningText{letter-spacing:3px;color:var(--muted);font-size:11px}
 .cinematic-progress{height:3px;background:#ffffff18;margin:16px 20px;overflow:hidden;border-radius:3px}
@@ -19,7 +19,7 @@ header{display:flex;align-items:center;justify-content:space-between}.icon-btn{p
 .cinematic-progress i.run{animation:cinematic 8s linear forwards}
 .ghost{border:1px solid #2a3242;border-radius:16px;background:transparent;padding:10px 25px;font-size:12px;color:var(--muted)}
 @keyframes cinematic{to{width:100%}}@keyframes pulse{50%{transform:scale(1.04);box-shadow:0 0 90px #e9bd5844}}
-.mission-screen{min-height:100vh;background:linear-gradient(#070b16,#11172a)}
+.mission-screen{min-height:var(--mk-vh,100vh);background:linear-gradient(#070b16,#11172a)}
 .crew-badge{font-size:10px;letter-spacing:1px;border:1px solid #e9bd5844;padding:8px 10px;border-radius:12px;color:var(--gold)}
 .mission-world{height:43vh;min-height:300px;position:relative;overflow:hidden;margin:20px -20px 0;background:radial-gradient(circle at 72% 24%,#d6a83e22,transparent 22%),linear-gradient(#080d1b,#171b2a)}
 .planet{position:absolute;width:160%;height:50%;left:-30%;bottom:-25%;border-radius:50% 50% 0 0;background:radial-gradient(circle at 55% 10%,#727783,#2b303b 42%,#151923 70%);box-shadow:0 -15px 50px #ffffff0d}
@@ -229,7 +229,7 @@ input[type="range"]{height:34px}
 
 
 /* MOONKATTY Mission Control — cinematic mobile redesign */
-#home{padding:calc(16px + env(safe-area-inset-top)) 18px 28px;min-height:100vh;background:
+#home{padding:calc(16px + env(safe-area-inset-top)) 18px 28px;min-height:var(--mk-vh,100vh);background:
 radial-gradient(circle at 50% 28%,#26345655 0,transparent 31%),
 linear-gradient(180deg,#050914 0%,#070b13 55%,#03050a 100%)}
 #home header{padding:4px 2px 0}
@@ -266,8 +266,8 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 }
 
 /* Reference-matched cinematic home */
-#home{padding:0!important;min-height:100vh;background:#02050a!important;overflow-x:hidden;overflow-y:auto;position:relative}
-.mk-home-hero{position:relative;min-height:max(520px,calc(100vh - 200px));overflow:hidden;background:#03070d}
+#home{padding:0!important;min-height:var(--mk-vh,100vh);background:#02050a!important;overflow-x:hidden;overflow-y:auto;position:relative}
+.mk-home-hero{position:relative;min-height:max(520px,calc(var(--mk-vh,100vh) - 200px));overflow:hidden;background:#03070d}
 .mk-home-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 38%;filter:saturate(1.05) contrast(1.08) brightness(.78)}
 .mk-home-shade{position:absolute;inset:0;background:linear-gradient(180deg,#02050a55 0%,transparent 25%,transparent 48%,#02050acc 72%,#02050af7 100%)}
 .mk-topbar{position:relative;z-index:3;padding:calc(18px + env(safe-area-inset-top)) 20px 0;align-items:flex-start}
@@ -280,11 +280,11 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 #home>.daily-missions{display:block;margin:12px 16px 18px;position:relative;z-index:6}
 #home .daily-follow-list{margin-top:9px}
 #home .daily-note{margin-top:8px}
-@media(max-height:760px){.mk-home-bottom{bottom:10px}.mk-life-teaser{display:none}.mk-home-hero{min-height:calc(100vh - 72px)}.mk-bottom-nav{height:72px}}
+@media(max-height:760px){.mk-home-bottom{bottom:10px}.mk-life-teaser{display:none}.mk-home-hero{min-height:calc(var(--mk-vh,100vh) - 72px)}.mk-bottom-nav{height:72px}}
 
 
 /* LIFE #1 — CLEAN PRODUCTION LAYER */
-.mk-l1{position:relative;min-height:100dvh;padding:88px 16px 112px;background:#020711;color:#fff;overflow-x:hidden}
+.mk-l1{position:relative;min-height:var(--mk-vh,100dvh);padding:88px 16px 112px;background:#020711;color:#fff;overflow-x:hidden}
 .mk-l1 .l1-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-bottom:12px}
 .mk-l1 .l1-head h2{margin:4px 0 0;font-size:25px;line-height:1}.mk-l1 .l1-hud{display:flex;gap:8px}.mk-l1 .l1-hud b{padding:8px 10px;border:1px solid #31506e;border-radius:12px;background:#06101bdd;font-size:10px}
 .mk-l1 .l1-world{position:relative;height:56dvh;min-height:480px;max-height:620px;margin:0 -16px 14px;background:linear-gradient(#02071108,#0207113d),url('art/life1-base.webp') center/cover no-repeat;border-block:1px solid #294760;overflow:hidden}
@@ -408,7 +408,7 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 @media(max-width:390px){.crew-world-v2{height:510px}.crew-card2{width:116px!important;height:166px!important}.crew-card2 .crew-avatar2{height:108px}.crew-world-v2 .mate1{left:3%!important}.crew-world-v2 .mate2{right:3%!important}}
 
 /* LIFE #2 visual upgrade */
-#mission2{background:radial-gradient(circle at 70% 10%,#1b2842 0,#080d17 35%,#03060b 78%);min-height:100vh}
+#mission2{background:radial-gradient(circle at 70% 10%,#1b2842 0,#080d17 35%,#03060b 78%);min-height:var(--mk-vh,100vh)}
 #mission2 header{position:relative;z-index:5;padding-bottom:14px;border-bottom:1px solid #b78a3a44}
 .crew-world-v2{position:relative;min-height:520px;margin:12px -4px 18px;overflow:hidden;border:1px solid #2a3b5266;border-radius:24px;background:linear-gradient(180deg,#07111f88,#050912ee),url('art/crew-bridge-v3.webp') center/cover no-repeat;box-shadow:inset 0 0 70px #000b,0 20px 45px #0006}
 .crew-world-v2:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,#d5a84618,transparent 38%);pointer-events:none}
@@ -483,7 +483,7 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 .crew-sync-keys2 button{border-color:#d3a64c55!important;background:#0c1119!important;color:#f1c761!important}
 
 /* LIFE #3 secure launch terminal visual overhaul */
-#mission3{background:radial-gradient(circle at 50% 0,#271c0d 0,#0a0d13 28%,#030509 72%);min-height:100vh}
+#mission3{background:radial-gradient(circle at 50% 0,#271c0d 0,#0a0d13 28%,#030509 72%);min-height:var(--mk-vh,100vh)}
 #mission3>header{padding-bottom:15px;border-bottom:1px solid #d6a74344}
 #mission3>header h2{font-size:31px;letter-spacing:-.6px}
 #mission3 .crew-badge{border-color:#d6a74366;background:#151006cc;color:#f1c761}
@@ -511,7 +511,7 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 /* =========================================================
    MOONKATTY 9 LIVES — unified cinematic mobile art direction
    ========================================================= */
-#mission4,#mission5,#mission6,#mission7,#mission8,#mission9{min-height:100vh;background:#04070c;color:#f7f2e7}
+#mission4,#mission5,#mission6,#mission7,#mission8,#mission9{min-height:var(--mk-vh,100vh);background:#04070c;color:#f7f2e7}
 #mission4>header,#mission5>header,#mission6>header,#mission7>header,#mission8>header,#mission9>header{padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid #d6a74333}
 #mission4>header h2,#mission5>header h2,#mission6>header h2,#mission7>header h2,#mission8>header h2,#mission9>header h2{font-size:32px;letter-spacing:-.7px}
 #mission4 .crew-badge,#mission5 .crew-badge,#mission6 .crew-badge,#mission7 .crew-badge,#mission8 .crew-badge,#mission9 .crew-badge{border:1px solid #d6a74355;background:#0a0e15cc;color:#f0c65e;box-shadow:inset 0 0 16px #0008}
@@ -699,7 +699,7 @@ box-shadow:0 0 80px #c8d8ff20,inset -35px -25px 55px #05070d88}
 @media(max-width:390px){#mission4 .descent-world{height:510px!important}#mission4 #lander{width:98px!important;height:65px!important}#mission4 .landing-zone{width:132px!important;height:68px!important}}
 
 /* Keep the descent world and all flight controls together in the WebView. */
-#mission4.active{display:flex;flex-direction:column;height:100vh;height:100dvh;min-height:0;padding:calc(8px + env(safe-area-inset-top)) 12px calc(8px + env(safe-area-inset-bottom));gap:5px;position:relative;overflow:hidden}
+#mission4.active{display:flex;flex-direction:column;height:var(--mk-vh,100vh);height:var(--mk-vh,100dvh);min-height:0;padding:calc(8px + env(safe-area-inset-top)) 12px calc(8px + env(safe-area-inset-bottom));gap:5px;position:relative;overflow:hidden}
 #mission4>header{flex:none;margin:0;padding:0 0 5px;min-height:42px}
 #mission4>header h2{font-size:22px;letter-spacing:0}
 #mission4>header .eyebrow{font-size:12px;letter-spacing:1px}

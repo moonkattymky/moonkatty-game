@@ -1,5 +1,5 @@
 /* LIFE 3: one working console screen per launch phase. */
-#mission3.launch-bridge3 {--console-gold:#f4d18a;--console-ice:#aee8f5;position:relative;isolation:isolate;height:100vh;height:100dvh;min-height:0;padding:16px 14px max(12px,env(safe-area-inset-bottom));overflow:hidden;background:#132632}
+#mission3.launch-bridge3 {--console-gold:#f4d18a;--console-ice:#aee8f5;position:relative;isolation:isolate;height:var(--mk-vh,100vh);height:var(--mk-vh,100dvh);min-height:0;padding:16px 14px max(12px,env(safe-area-inset-bottom));overflow:hidden;background:#132632}
 #mission3.launch-bridge3.active {display:flex;flex-direction:column}
 #mission3.launch-bridge3::before {content:'';display:block;position:absolute;inset:0;z-index:-1;opacity:1;mask-image:none;pointer-events:none;background:linear-gradient(#08162455,transparent 25%,transparent 48%,#08182766),url('art/launch-bridge-v3.webp') center top/cover no-repeat}
 #mission3.launch-bridge3 header {flex:none;align-items:flex-start;min-height:0;margin:0;padding:0;border:0;background:none;gap:8px;text-shadow:0 2px 10px #0008}

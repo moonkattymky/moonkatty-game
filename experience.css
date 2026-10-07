@@ -17,7 +17,7 @@ html[data-light-fx="true"] :is(#mission1,#mission2,#mission3,#mission4,#mission5
 html[data-light-fx="true"] :is(#mission1,#mission2,#mission3,#mission4,#mission5) *::after {animation:none!important;scroll-behavior:auto!important}
 .action-flash {animation:action-confirm .45s ease-out!important}
 @keyframes action-confirm {30%{filter:brightness(1.35);box-shadow:0 0 17px #b6f5ee55}}
-#chapterGuide {box-sizing:border-box;width:min(430px,calc(100% - 24px));max-height:calc(100dvh - 24px);padding:24px 20px;border:1px solid #d3e5dda1;border-radius:22px;background:linear-gradient(145deg,#254e63,#102638);color:#f1f8fa;overflow:auto;box-shadow:0 18px 60px #0008}
+#chapterGuide {box-sizing:border-box;width:min(430px,calc(100% - 24px));max-height:calc(var(--mk-vh,100dvh) - 24px);padding:24px 20px;border:1px solid #d3e5dda1;border-radius:22px;background:linear-gradient(145deg,#254e63,#102638);color:#f1f8fa;overflow:auto;box-shadow:0 18px 60px #0008}
 #chapterGuide::backdrop {background:#041320c9;backdrop-filter:blur(7px)}
 #chapterGuide h2 {font-size:23px;line-height:1.15;color:#ffe7b0;margin:8px 0 12px}
 #chapterGuide .eyebrow {font-size:9px;letter-spacing:1.7px;color:#a4d9e8}
@@ -84,7 +84,7 @@ html[data-light-fx="true"] :is(#mission1,#mission2,#mission3,#mission4,#mission5
 #landingVector4 i {position:absolute;left:calc(50% + var(--vector,0%));top:3px;bottom:3px;width:3px;border-radius:2px;background:#ffe7ad;transform:translateX(-50%)}
 #mission4[data-flight="final"] #landingPhase4 {border-color:#ffe7aab3;color:#ffecb2}
 #mission4 .landing-zone {transition:box-shadow .3s,border-color .3s}
-#mission5 .reactor-dialog5 {overflow:auto;max-height:calc(100dvh - 28px)}
+#mission5 .reactor-dialog5 {overflow:auto;max-height:calc(var(--mk-vh,100dvh) - 28px)}
 .chapter-card {position:relative;isolation:isolate;overflow:hidden;min-height:100px;background:linear-gradient(90deg,#17354af2,#163448b0)}
 .chapter-card::before {content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#0c2637f5 25%,#122c40b0 62%,#16344955),var(--chapter-art) 80% 45%/cover;opacity:.8;transition:opacity .2s}
 .chapter-card:disabled {opacity:.62}.chapter-card:not(:disabled):active::before {opacity:1}
@@ -168,7 +168,7 @@ html[data-light-fx="true"] :is(#mission1,#mission2,#mission3,#mission4,#mission5
 #chapterGuide .guide-copy {flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;padding:23px 20px 12px}
 #chapterGuide .guide-actions,#flightReview .guide-actions {flex:none;margin:0;padding:13px 20px 17px;background:#143246;border-top:1px solid #a7d7df29}
 #chapterGuide .guide-actions .ghost,#flightReview .guide-actions .ghost {color:#d6ebef;border-color:#accdd35c;background:#1e4257}
-#flightReview {box-sizing:border-box;width:min(420px,calc(100% - 24px));max-height:calc(100dvh - 24px);padding:0;border:1px solid #efd9a78f;border-radius:22px;background:linear-gradient(145deg,#254e63,#102638);color:#edf7f8;overflow:hidden;box-shadow:0 18px 60px #0008}
+#flightReview {box-sizing:border-box;width:min(420px,calc(100% - 24px));max-height:calc(var(--mk-vh,100dvh) - 24px);padding:0;border:1px solid #efd9a78f;border-radius:22px;background:linear-gradient(145deg,#254e63,#102638);color:#edf7f8;overflow:hidden;box-shadow:0 18px 60px #0008}
 #flightReview::backdrop {background:#071825bf;backdrop-filter:blur(7px)}
 .flight-review-copy {flex:1 1 auto;min-height:0;overflow:auto;padding:24px 20px 10px}
 #flightReview .eyebrow {font-size:9px;color:#acdce5;letter-spacing:1.8px}

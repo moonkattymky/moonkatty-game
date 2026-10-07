@@ -1,7 +1,7 @@
 /* LIFE 2: interactive stations over the approved ship-interior artwork. */
 #mission2.crew-deck2 {
   --crew-gold:#f3d58d;--crew-ice:#a9ebff;--crew-edge:#ebd59983;
-  position:relative;isolation:isolate;box-sizing:border-box;height:100vh;height:100dvh;
+  position:relative;isolation:isolate;box-sizing:border-box;height:var(--mk-vh,100vh);height:var(--mk-vh,100dvh);
   min-height:0;padding:16px 14px max(12px,env(safe-area-inset-bottom));overflow:hidden;
   background:#122332;
 }

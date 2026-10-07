@@ -40,7 +40,7 @@
 :is(#mission1,#mission2,#mission3,#mission4) [hidden] {display:none!important}
 
 /* The world and its controls share one viewport; controls never cover objects. */
-#mission1.active {display:flex;flex-direction:column;height:100vh;height:100dvh;min-height:0;overflow:hidden}
+#mission1.active {display:flex;flex-direction:column;height:var(--mk-vh,100vh);height:var(--mk-vh,100dvh);min-height:0;overflow:hidden}
 #mission1 .l1-hud {gap:4px;flex-shrink:0}
 #mission1 .l1-hud b {padding:7px 6px;border:1px solid #8fc6d244;border-radius:8px;background:#19384c;font-size:10px;white-space:nowrap}
 #mission1.mk-l1 #life1World {
@@ -125,7 +125,7 @@
 #mission2 .crew-task>strong {color:#f5dda9;font-size:13px;letter-spacing:1px}
 #mission2 .crew-task>p {font-size:12px;line-height:1.4;color:#c5dbe7;margin:7px 0}
 #mission2 .crew-task>small {font-size:11px;line-height:1.4;color:#a8e8d9}
-#mission2:has(.crew-task:not([hidden])).active {display:flex;flex-direction:column;height:100vh;height:100dvh;min-height:0;overflow:hidden}
+#mission2:has(.crew-task:not([hidden])).active {display:flex;flex-direction:column;height:var(--mk-vh,100vh);height:var(--mk-vh,100dvh);min-height:0;overflow:hidden}
 #mission2:has(.crew-task:not([hidden])) .crew-world-v2 {flex:none;height:68px!important;margin-bottom:8px;border:0;background:#234455;box-shadow:none}
 #mission2:has(.crew-task:not([hidden])) .crew-card2.mate {bottom:5px!important}
 #mission2:has(.crew-task:not([hidden])) .objective {display:none}

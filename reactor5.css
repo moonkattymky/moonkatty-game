@@ -1,6 +1,6 @@
 /* LIFE 5. The artwork and every energy ring share one SVG coordinate system.
    xMidYMid meet preserves their shape on every viewport, including landscape. */
-#mission5.engineering5{--reactor-gold:#f3d69a;--reactor-blue:#b0eef4;--reactor-green:#a3eccd;--core-dim:.72;--core-light:.07;position:relative;isolation:isolate;height:100vh;height:100dvh;min-height:0!important;padding:calc(12px + env(safe-area-inset-top)) 14px max(12px,env(safe-area-inset-bottom));overflow:hidden;background:radial-gradient(ellipse at 40% 8%,#35586a,transparent 55%),linear-gradient(145deg,#1a3446,#0c1f31)!important;color:#f3f5ec}
+#mission5.engineering5{--reactor-gold:#f3d69a;--reactor-blue:#b0eef4;--reactor-green:#a3eccd;--core-dim:.72;--core-light:.07;position:relative;isolation:isolate;height:var(--mk-vh,100vh);height:var(--mk-vh,100dvh);min-height:0!important;padding:calc(12px + env(safe-area-inset-top)) 14px max(12px,env(safe-area-inset-bottom));overflow:hidden;background:radial-gradient(ellipse at 40% 8%,#35586a,transparent 55%),linear-gradient(145deg,#1a3446,#0c1f31)!important;color:#f3f5ec}
 #mission5.engineering5.active{display:flex;flex-direction:column;gap:10px}
 #mission5.engineering5::before{display:none}
 #mission5.engineering5 [hidden]{display:none!important}
