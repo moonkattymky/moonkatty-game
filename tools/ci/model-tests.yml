@@ -32,3 +32,5 @@ jobs:
         run: node tests/detail-rules.cjs
       - name: rewards-server
         run: node tests/rewards-server.cjs
+      - name: creator-server
+        run: node tests/creator-server.cjs

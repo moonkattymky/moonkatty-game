@@ -2,6 +2,7 @@
    Requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY in the Edge Function env.
    Telegram initData verified with Ed25519 (same contract as mission-control). */
 import {createDaily} from './daily.mjs';
+import {createCreator,parseAdminIds} from './creator.mjs';
 const BOT_ID='8659740610',PUBLIC_KEY='e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
 const LIFE_RESTORE_MS=12*60*60*1000, MAX_LIVES=9;
 const REFERRAL_BONUS=200, REFERRAL_INVITEE_BONUS=200; // paid once, only after the invitee completes LIFE #1
@@ -32,7 +33,7 @@ function restHeaders(key,extra={}){
  return {apikey:key,Authorization:'Bearer '+key,'Content-Type':'application/json',Prefer:'return=representation',...extra};
 }
 
-export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock=()=>new Date(),referralDailyCap=REFERRAL_DAILY_CAP,cipherSecret=(typeof Deno!=='undefined'&&Deno.env?.get?.('CIPHER_SECRET'))||''}){
+export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock=()=>new Date(),referralDailyCap=REFERRAL_DAILY_CAP,cipherSecret=(typeof Deno!=='undefined'&&Deno.env?.get?.('CIPHER_SECRET'))||'',adminIds=(typeof Deno!=='undefined'&&Deno.env?.get?.('ADMIN_TG_IDS'))||''}){
  async function rest(path,opts={}){
   const target=new URL(path,url.endsWith('/')?url:url+'/');
   if(opts.params)for(const [k,v] of Object.entries(opts.params))target.searchParams.set(k,String(v));
@@ -228,11 +229,12 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
  }
 
  const daily=createDaily({rest,clock,insertReward,applyPoints,secret:cipherSecret});
+ const creator=createCreator({rest,clock,insertReward,applyPoints,adminIds:adminIds instanceof Set?adminIds:parseAdminIds(adminIds)});
  return async request=>{
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
   if(request.method==='GET'){
    // Health / contract probe — no secrets leaked
-   return json({ok:true,service:'rewards',actions:['player','life.complete','rewards.verify','lives.spend','referrals.claim','referrals.stats','daily.status','cipher.solve','streak.checkin','youtube.redeem']});
+   return json({ok:true,service:'rewards',actions:['player','life.complete','rewards.verify','lives.spend','referrals.claim','referrals.stats','daily.status','cipher.solve','streak.checkin','youtube.redeem','creator.status','creator.submit','admin.creator.list','admin.creator.review','admin.creator.tier']});
   }
   if(request.method!=='POST')return json({ok:false,error:'method'},405);
   if(!url||!key)return json({ok:false,error:'unavailable'},503);
@@ -270,6 +272,11 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
    if(action==='cipher.solve'){const r=await daily.solveCipher(player,body.answer);return json({ok:true,...r,player:publicPlayer(r.player)});}
    if(action==='streak.checkin'){const r=await daily.checkin(player);return json({ok:true,...r,player:publicPlayer(r.player)});}
    if(action==='youtube.redeem'){const r=await daily.redeemCode(player,body.code);return json({ok:true,...r,player:publicPlayer(r.player)});}
+   if(action==='creator.status')return json({ok:true,...await creator.mine(player),is_admin:creator.isAdmin(user),player:publicPlayer(player)});
+   if(action==='creator.submit')return json({ok:true,...await creator.submit(player,body),player:publicPlayer(player)});
+   if(action==='admin.creator.list')return json({ok:true,...await creator.adminList(user,body)});
+   if(action==='admin.creator.review')return json({ok:true,...await creator.adminReview(user,body)});
+   if(action==='admin.creator.tier')return json({ok:true,...await creator.adminTier(user,body)});
    return json({ok:false,error:'action'},400);
   }catch(e){
    const msg=String(e.message||e);
@@ -277,6 +284,10 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
    if(msg==='no_lives')return json({ok:false,error:'no_lives'},409);
    if(msg==='no_attempts')return json({ok:false,error:'no_attempts'},429);
    if(msg==='answer'||msg==='code')return json({ok:false,error:msg},400);
+   if(msg==='forbidden')return json({ok:false,error:'forbidden'},403);
+   if(msg==='weekly')return json({ok:false,error:'weekly'},429);
+   if(msg==='duplicate_url'||msg==='reviewed'||msg==='not_approved')return json({ok:false,error:msg},409);
+   if(msg==='url'||msg==='hashtag'||msg==='own'||msg==='submission'||msg==='decision'||msg==='tier')return json({ok:false,error:msg},400);
    if(msg==='cap')return json({ok:false,error:'cap'},429);
    if(msg==='life'||msg==='event_key'||msg==='event_type'||msg==='points'||msg==='referral'||msg==='source'||msg==='use_life_complete')return json({ok:false,error:msg},400);
    return json({ok:false,error:'unavailable'},503);

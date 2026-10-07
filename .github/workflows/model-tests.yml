@@ -36,3 +36,5 @@ jobs:
         run: node tests/rewards-server.cjs
       - name: daily-server
         run: node tests/daily-server.cjs
+      - name: creator-server
+        run: node tests/creator-server.cjs
