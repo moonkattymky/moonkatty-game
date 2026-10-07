@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="field-missions.css?v=20261005-detail-2">
   <link rel="stylesheet" href="worlds.css?v=20261005-detail-2">
   <link rel="stylesheet" href="mission-control.css?v=20261007-more-1">
+  <link rel="stylesheet" href="daily-retention.css?v=20261007-daily-1">
 </head>
 <body>
   <div class="stars"></div>
@@ -48,6 +49,7 @@
         <article><b>05</b><div><strong>FINAL BALANCE 🔒</strong><p>After successful completion of LIFE #9, Moon Point earning ends. Your accumulated Moon Points are totaled and locked as your FINAL MOON POINTS BALANCE.</p></div></article>
         <article><b>06</b><div><strong>MKTY REWARD 🚀</strong><p>After the MKTY launch, the locked balance may be used to determine a reward under the official distribution rules published for the launch. Moon Points do not represent a fixed MKTY conversion rate or guaranteed monetary value.</p></div></article>
         <article><b>07</b><div><strong>FAIR PLAY</strong><p>Duplicate activity, self-referrals, automation, manipulation or other abuse may be excluded from rewards. Reward limits and verification parameters may be adjusted to protect the game economy.</p></div></article>
+        <article><b>08</b><div><strong>DAILY SIGNALS 📡</strong><p>Once per UTC day: login streak +3 to +25 ⭐ (day 7 cap; one shield per week saves one missed day), Moon Signal cipher +15 ⭐ with 5 attempts, and YouTube code words up to +50 ⭐ each, once per code. All are verified by the server through Telegram.</p></div></article>
       </div>
       <button id="rulesBackBtn" class="primary">BACK TO MISSION CONTROL</button>
     </section>
@@ -91,6 +93,29 @@
         <p class="daily-note">Points only after you press CLAIM DEMO. Server rewards.verify will confirm later when Edge Function is live.</p>
       </section>
 
+      <section id="dailyOps" class="daily-ops" aria-label="Daily signals">
+        <div class="daily-head"><div><small>EVERY UTC DAY</small><strong>MOON SIGNAL &amp; STREAK</strong></div><span id="dopsMode" class="dops-mode">…</span></div>
+        <article class="dops-card streak-card">
+          <div class="dops-title"><span>🔥</span><div><strong>LOGIN STREAK</strong><small>Check in every UTC day. Rewards grow to day 7, then stay at the cap.</small></div><b id="streakCount">Day 0</b></div>
+          <div id="streakPips" class="streak-pips" dir="ltr" translate="no"></div>
+          <div class="streak-foot"><small id="streakShield" class="streak-shield">🛡</small><button id="streakBtn" type="button" class="primary dops-btn">CHECK IN</button></div>
+        </article>
+        <article class="dops-card cipher-card">
+          <div class="dops-title"><span>📡</span><div><strong>MOON SIGNAL</strong><small>Daily cipher: decode the lore word sent in Morse code.</small></div><b id="cipherAttempts">…</b></div>
+          <div id="cipherTape" class="cipher-tape" dir="ltr" translate="no"></div>
+          <p class="dops-hint">Tap a symbol to replay it. Enter dots and dashes, then press LETTER — or type the word.</p>
+          <div class="cipher-pad" dir="ltr"><output id="cipherInput" class="cipher-input" translate="no">—</output><button type="button" data-morse="." aria-label="Dot">•</button><button type="button" data-morse="-" aria-label="Dash">—</button><button type="button" data-morse="ok" class="pad-ok">LETTER</button><button type="button" data-morse="del" aria-label="Delete">⌫</button></div>
+          <div class="cipher-row"><input id="cipherText" class="dops-input" maxlength="16" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="TYPE THE WORD" dir="ltr"><button type="button" id="cipherRefToggle" class="ghost dops-small">MORSE KEY</button></div>
+          <div id="cipherRef" class="cipher-ref" dir="ltr" translate="no" hidden></div>
+          <button id="cipherSubmit" type="button" class="primary dops-btn wide">TRANSMIT ANSWER</button>
+        </article>
+        <article class="dops-card yt-card">
+          <div class="dops-title"><span>▶</span><div><strong>YOUTUBE CODE WORD</strong><small>Watch the new MOONKATTY video and enter the code word said or shown in it. Each code pays once.</small></div></div>
+          <div class="cipher-row"><input id="ytCode" class="dops-input" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="CODE WORD" dir="ltr"><button id="ytBtn" type="button" class="primary dops-small">REDEEM</button></div>
+          <small id="ytMsg" class="yt-msg">Codes expire — new ones appear with new videos.</small>
+        </article>
+        <p id="dopsFlash" class="dops-flash" aria-live="polite"></p>
+      </section>
       <section id="communityHub" class="community-hub" hidden></section>
       <section id="crewNetwork" class="crew-network" hidden></section>
       <div id="missionArchive" class="mission-archive" hidden></div>
@@ -413,6 +438,7 @@
   <script src="locales/he.js?v=20261007-more-1"></script>
   <script src="locales/ko.js?v=20261007-more-1"></script>
   <script src="locales/zh.js?v=20261007-more-1"></script>
+  <script src="locales/daily-retention.js?v=20261007-daily-1"></script>
   <script src="i18n.js?v=20261007-more-1"></script>
   <script src="rewards-client.js?v=20261007-more-1"></script>
   <script src="app.js?v=20261007-more-1"></script>
@@ -437,4 +463,5 @@
   <script src="story-plan.js?v=20261005-detail-2"></script>
   <script src="story.js?v=20261005-detail-2"></script>
   <script src="mission-control.js?v=20261007-more-1"></script>
+  <script src="daily-retention.js?v=20261007-daily-1"></script>
 </body></html>
