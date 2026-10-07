@@ -15,5 +15,14 @@ function solve(s){let b=R.layout(s);
  assert(s.complete&&R.won(s),'Unsolved chapter '+s.n);assert(R.restore(s,s.n,s.stage,s.seed));return s;
 }
 if(require.main===module){let runs=0;for(let n=1;n<=9;n++)for(let stage=0;stage<5;stage++)for(let seed=1;seed<=40;seed++){const s=R.create(n,stage,seed);assert(!s.complete);assert(R.restore(s,n,stage,seed));const forged={...s,complete:true};assert.equal(R.restore(forged,n,stage,seed),null);solve(s);runs++;}
- const dock=R.create(6,3,7);R.act(dock,'dock');assert.equal(dock.docked,0);for(let i=0;i<300;i++)R.tick(dock,.016,{x:1,y:0});assert(dock.ship.x>80&&dock.integrity>=25);const bad=R.create(8,2,9);R.act(bad,'locate');assert(!bad.complete);bad.angles=[NaN,2,3];assert.equal(R.restore(bad,8,2,9),null);console.log(JSON.stringify({solvedSpatialMissions:runs,forgedCompletionsRejected:true,dockingPhysics:true}));}
+ const dock=R.create(6,3,7);R.act(dock,'dock');assert.equal(dock.docked,0);for(let i=0;i<300;i++)R.tick(dock,.016,{x:1,y:0});assert(dock.ship.x>80&&dock.integrity>=0);const bad=R.create(8,2,9);R.act(bad,'locate');assert(!bad.complete);bad.angles=[NaN,2,3];assert.equal(R.restore(bad,8,2,9),null);console.log(JSON.stringify({solvedSpatialMissions:runs,forgedCompletionsRejected:true,dockingPhysics:true}));}
+if(require.main===module){ // Chapter 6: the hull can reach 0 and the attempt fails (no 25% floor).
+ assert.equal(R.hullDamage(0),6);assert.equal(R.hullDamage(500),18);
+ const ram=R.create(6,1,11);ram.ship={x:200,y:225,vx:0,vy:0};let ticks=0;while(!ram.failed&&ticks<20000){R.tick(ram,.04,{x:1,y:0});ticks++;if(ram.ship.x<225)continue;ram.ship.x=150;}
+ assert(ram.failed&&ram.integrity===0&&ram.impacts>=6&&ram.impacts<=17,'hull breach '+ram.impacts);assert.equal(ram.notice,'hull-breach');
+ const frozen=JSON.stringify(ram);R.tick(ram,.04,{x:1,y:0});assert.equal(R.act(ram,'brake'),false);assert.equal(JSON.stringify(ram),frozen);
+ assert(R.restore(JSON.parse(frozen),6,1,11)?.failed);assert.equal(R.restore({...JSON.parse(frozen),integrity:40},6,1,11),null);assert.equal(R.restore({...JSON.parse(frozen),integrity:-1},6,1,11),null);
+ // A careful pilot (gentle scrape each port) still finishes: three slow contacts cost 18% and docking repairs it.
+ const careful=R.create(6,2,5);for(let i=0;i<3;i++){careful.ship={x:228,y:200,vx:5,vy:0};R.tick(careful,.02,{});}assert(!careful.failed&&careful.integrity>=75);
+ console.log('docking failure OK: breach after '+ram.impacts+' rams');}
 module.exports={route,solve,crewOrder,convoyPlan};

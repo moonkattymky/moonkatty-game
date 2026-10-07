@@ -1483,7 +1483,15 @@
     "Signals, safe routes and resource reconnaissance.": "الإشارات والطرق الآمنة واستطلاع الموارد.",
     "SHARE": "مشاركة",
     "Global standings show only your Telegram display name and photo, points and chapters. Your Telegram ID, @username and other data are never published. You can hide yourself — a callsign is shown instead.": "يعرض الترتيب العام اسمك وصورتك في Telegram ونقاطك وعدد الفصول فقط. لا يُنشر أبدًا معرّف Telegram أو @اسم المستخدم أو أي بيانات أخرى. يمكنك إخفاء نفسك — وسيظهر رمز نداء بدلًا من ذلك.",
-    "Available when opened in Telegram.": "متاح عند الفتح في Telegram."
+    "Available when opened in Telegram.": "متاح عند الفتح في Telegram.",
+    "HULL BREACHED": "تحطّم الهيكل",
+    "Mission failed: the hull reached 0%. Every impact costs 6–18% depending on speed; each docking repairs 12%. Brake early and give the module a wide berth.": "فشلت المهمة: وصل الهيكل إلى 0%. كل اصطدام يكلّف 6–18% حسب السرعة، وكل التحام يصلح 12%. اكبح مبكرًا والتفّ حول الوحدة بمسافة واسعة.",
+    "1 ❤️ lost.": "خسرت 1 ❤️.",
+    "Training: no lives are spent.": "تدريب: لا تُستهلك أي أرواح.",
+    "RETRY DOCKING": "أعد محاولة الالتحام",
+    "Hull destroyed. Mission failed.": "تحطّم الهيكل. فشلت المهمة.",
+    "New attempt: hull 100%. Brake before contact.": "محاولة جديدة: الهيكل 100%. اكبح قبل التلامس.",
+    "Impacts wear down the hull: at 0% the mission fails.": "الاصطدامات تُضعف الهيكل: عند 0% تفشل المهمة."
   },
   "prefixes": {
     "Energy collected • ": "تم جمع الطاقة • ",

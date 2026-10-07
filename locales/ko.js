@@ -1498,6 +1498,14 @@
   "Repeat core pulse • cycle ":"코어 펄스 반복 • 사이클 ",
   "Synchronized ":"동기화 ",
   "Return code: ":"귀환 코드: ",
-  "RESET ":"초기화 "
+  "RESET ":"초기화 ",
+  "HULL BREACHED":"선체 파손",
+  "Mission failed: the hull reached 0%. Every impact costs 6–18% depending on speed; each docking repairs 12%. Brake early and give the module a wide berth.":"임무 실패: 선체가 0%가 되었습니다. 충돌마다 속도에 따라 6–18%가 줄고, 도킹할 때마다 12%가 복구됩니다. 일찍 감속하고 모듈을 넓게 돌아가세요.",
+  "1 ❤️ lost.":"❤️ 1개를 잃었습니다.",
+  "Training: no lives are spent.":"훈련: 목숨이 소모되지 않습니다.",
+  "RETRY DOCKING":"도킹 재시도",
+  "Hull destroyed. Mission failed.":"선체 파손. 임무 실패.",
+  "New attempt: hull 100%. Brake before contact.":"새 시도: 선체 100%. 접촉 전에 감속하세요.",
+  "Impacts wear down the hull: at 0% the mission fails.":"충돌은 선체를 손상시킵니다. 0%가 되면 임무 실패입니다."
  };
 })(typeof globalThis!=="undefined"?globalThis:window);

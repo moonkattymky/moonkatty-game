@@ -1498,6 +1498,14 @@
   "Repeat core pulse • cycle ":"Çekirdek nabzını tekrarla • döngü ",
   "Synchronized ":"Senkronize ",
   "Return code: ":"Dönüş kodu: ",
-  "RESET ":"SIFIRLA "
+  "RESET ":"SIFIRLA ",
+  "HULL BREACHED":"GÖVDE PARÇALANDI",
+  "Mission failed: the hull reached 0%. Every impact costs 6–18% depending on speed; each docking repairs 12%. Brake early and give the module a wide berth.":"Görev başarısız: gövde %0'a indi. Her çarpma hıza göre %6–18 götürür; her kenetlenme %12 onarır. Erken fren yapın ve modülün etrafından geniş dönün.",
+  "1 ❤️ lost.":"1 ❤️ kaybedildi.",
+  "Training: no lives are spent.":"Antrenman: can harcanmaz.",
+  "RETRY DOCKING":"KENETLENMEYİ TEKRARLA",
+  "Hull destroyed. Mission failed.":"Gövde parçalandı. Görev başarısız.",
+  "New attempt: hull 100%. Brake before contact.":"Yeni deneme: gövde %100. Temastan önce fren yapın.",
+  "Impacts wear down the hull: at 0% the mission fails.":"Çarpmalar gövdeyi aşındırır: %0'da görev başarısız olur."
  };
 })(typeof globalThis!=="undefined"?globalThis:window);

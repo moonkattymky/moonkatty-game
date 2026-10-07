@@ -1498,7 +1498,15 @@
   "Repeat core pulse • cycle ":"Повторите импульс ядра • цикл ",
   "Synchronized ":"Синхронизировано ",
   "Return code: ":"Код возвращения: ",
-  "RESET ":"СБРОС "
+  "RESET ":"СБРОС ",
+  "HULL BREACHED":"КОРПУС РАЗРУШЕН",
+  "Mission failed: the hull reached 0%. Every impact costs 6–18% depending on speed; each docking repairs 12%. Brake early and give the module a wide berth.":"Миссия провалена: корпус достиг 0%. Каждый удар о модуль снимает 6–18% в зависимости от скорости, стыковка чинит 12%. Тормозите заранее и огибайте модуль по широкой дуге.",
+  "1 ❤️ lost.":"Потеряна 1 ❤️.",
+  "Training: no lives are spent.":"Тренировка: жизни не тратятся.",
+  "RETRY DOCKING":"ПОВТОРИТЬ СТЫКОВКУ",
+  "Hull destroyed. Mission failed.":"Корпус разрушен. Миссия провалена.",
+  "New attempt: hull 100%. Brake before contact.":"Новая попытка: корпус 100%. Тормозите до контакта.",
+  "Impacts wear down the hull: at 0% the mission fails.":"Удары о модуль разрушают корпус: при 0% миссия провалена."
  };
  locales["ru"].dynamic=[];
 })(typeof globalThis!=='undefined'?globalThis:this);

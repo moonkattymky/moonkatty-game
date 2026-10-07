@@ -1498,7 +1498,15 @@
   "Repeat core pulse • cycle ":"Repete o impulso do núcleo • ciclo ",
   "Synchronized ":"Sincronizado ",
   "Return code: ":"Código de retorno: ",
-  "RESET ":"REPOR "
+  "RESET ":"REPOR ",
+  "HULL BREACHED":"CASCO DESTRUÍDO",
+  "Mission failed: the hull reached 0%. Every impact costs 6–18% depending on speed; each docking repairs 12%. Brake early and give the module a wide berth.":"Missão falhou: o casco chegou a 0%. Cada impacto custa 6–18% conforme a velocidade; cada acoplagem repara 12%. Trave cedo e contorne o módulo com folga.",
+  "1 ❤️ lost.":"Perdeu 1 ❤️.",
+  "Training: no lives are spent.":"Treino: nenhuma vida é gasta.",
+  "RETRY DOCKING":"REPETIR ACOPLAGEM",
+  "Hull destroyed. Mission failed.":"Casco destruído. Missão falhou.",
+  "New attempt: hull 100%. Brake before contact.":"Nova tentativa: casco a 100%. Trave antes do contato.",
+  "Impacts wear down the hull: at 0% the mission fails.":"Impactos desgastam o casco: a 0% a missão falha."
  };
  locales["pt"].dynamic=[];
 })(typeof globalThis!=='undefined'?globalThis:this);

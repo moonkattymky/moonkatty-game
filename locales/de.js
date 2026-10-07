@@ -1502,6 +1502,14 @@
   "Repeat core pulse • cycle ":"Kernimpuls wiederholen • Zyklus ",
   "Synchronized ":"Synchronisiert ",
   "Return code: ":"Rückkehrcode: ",
-  "RESET ":"RESET "
+  "RESET ":"RESET ",
+  "HULL BREACHED":"RUMPF ZERSTÖRT",
+  "Mission failed: the hull reached 0%. Every impact costs 6–18% depending on speed; each docking repairs 12%. Brake early and give the module a wide berth.":"Mission gescheitert: Der Rumpf ist bei 0%. Jeder Aufprall kostet je nach Tempo 6–18%, jedes Andocken repariert 12%. Früh bremsen und das Modul weiträumig umfliegen.",
+  "1 ❤️ lost.":"1 ❤️ verloren.",
+  "Training: no lives are spent.":"Training: Es werden keine Leben verbraucht.",
+  "RETRY DOCKING":"ANDOCKEN WIEDERHOLEN",
+  "Hull destroyed. Mission failed.":"Rumpf zerstört. Mission gescheitert.",
+  "New attempt: hull 100%. Brake before contact.":"Neuer Versuch: Rumpf 100%. Vor dem Kontakt bremsen.",
+  "Impacts wear down the hull: at 0% the mission fails.":"Aufpralle schwächen den Rumpf: Bei 0% scheitert die Mission."
  };
 })(typeof globalThis!=="undefined"?globalThis:window);

@@ -1498,6 +1498,14 @@
   "Repeat core pulse • cycle ":"Répétez l’impulsion du cœur • cycle ",
   "Synchronized ":"Synchronisé ",
   "Return code: ":"Code de retour : ",
-  "RESET ":"RESET "
+  "RESET ":"RESET ",
+  "HULL BREACHED":"COQUE DÉTRUITE",
+  "Mission failed: the hull reached 0%. Every impact costs 6–18% depending on speed; each docking repairs 12%. Brake early and give the module a wide berth.":"Mission échouée : la coque est à 0 %. Chaque impact coûte 6–18 % selon la vitesse ; chaque amarrage répare 12 %. Freinez tôt et contournez largement le module.",
+  "1 ❤️ lost.":"1 ❤️ perdue.",
+  "Training: no lives are spent.":"Entraînement : aucune vie dépensée.",
+  "RETRY DOCKING":"REFAIRE L'AMARRAGE",
+  "Hull destroyed. Mission failed.":"Coque détruite. Mission échouée.",
+  "New attempt: hull 100%. Brake before contact.":"Nouvelle tentative : coque à 100 %. Freinez avant le contact.",
+  "Impacts wear down the hull: at 0% the mission fails.":"Les impacts usent la coque : à 0 %, la mission échoue."
  };
 })(typeof globalThis!=="undefined"?globalThis:window);

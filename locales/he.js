@@ -1498,6 +1498,14 @@
   "Repeat core pulse • cycle ":"חזור על פעימת הליבה • מחזור ",
   "Synchronized ":"מסונכרן ",
   "Return code: ":"קוד חזרה: ",
-  "RESET ":"איפוס "
+  "RESET ":"איפוס ",
+  "HULL BREACHED":"הגוף נהרס",
+  "Mission failed: the hull reached 0%. Every impact costs 6–18% depending on speed; each docking repairs 12%. Brake early and give the module a wide berth.":"המשימה נכשלה: הגוף הגיע ל־0%. כל פגיעה עולה 6–18% לפי המהירות; כל עגינה מתקנת 12%. בלמו מוקדם והקיפו את המודול במרחק.",
+  "1 ❤️ lost.":"אבדה ❤️ 1.",
+  "Training: no lives are spent.":"אימון: לא מאבדים חיים.",
+  "RETRY DOCKING":"נסו לעגון שוב",
+  "Hull destroyed. Mission failed.":"הגוף נהרס. המשימה נכשלה.",
+  "New attempt: hull 100%. Brake before contact.":"ניסיון חדש: הגוף ב־100%. בלמו לפני מגע.",
+  "Impacts wear down the hull: at 0% the mission fails.":"פגיעות שוחקות את הגוף: ב־0% המשימה נכשלת."
  };
 })(typeof globalThis!=="undefined"?globalThis:window);

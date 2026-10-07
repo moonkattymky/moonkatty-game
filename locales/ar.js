@@ -1500,6 +1500,14 @@
   "Repeat core pulse • cycle ":"كرّر نبضة النواة • الدورة ",
   "Synchronized ":"متزامن ",
   "Return code: ":"رمز العودة: ",
-  "RESET ":"إعادة ضبط "
+  "RESET ":"إعادة ضبط ",
+  "HULL BREACHED":"تحطّم الهيكل",
+  "Mission failed: the hull reached 0%. Every impact costs 6–18% depending on speed; each docking repairs 12%. Brake early and give the module a wide berth.":"فشلت المهمة: وصل الهيكل إلى 0%. كل اصطدام يكلّف 6–18% حسب السرعة، وكل التحام يصلح 12%. اكبح مبكرًا والتفّ حول الوحدة بمسافة واسعة.",
+  "1 ❤️ lost.":"خسرت 1 ❤️.",
+  "Training: no lives are spent.":"تدريب: لا تُستهلك أي أرواح.",
+  "RETRY DOCKING":"أعد محاولة الالتحام",
+  "Hull destroyed. Mission failed.":"تحطّم الهيكل. فشلت المهمة.",
+  "New attempt: hull 100%. Brake before contact.":"محاولة جديدة: الهيكل 100%. اكبح قبل التلامس.",
+  "Impacts wear down the hull: at 0% the mission fails.":"الاصطدامات تُضعف الهيكل: عند 0% تفشل المهمة."
  };
 })(typeof globalThis!=="undefined"?globalThis:window);

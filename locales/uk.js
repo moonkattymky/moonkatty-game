@@ -1499,7 +1499,15 @@
   "Repeat core pulse • cycle ":"Повторіть імпульс ядра • цикл ",
   "Synchronized ":"Синхронізовано ",
   "Return code: ":"Код повернення: ",
-  "RESET ":"СКИДАННЯ "
+  "RESET ":"СКИДАННЯ ",
+  "HULL BREACHED":"КОРПУС ЗРУЙНОВАНО",
+  "Mission failed: the hull reached 0%. Every impact costs 6–18% depending on speed; each docking repairs 12%. Brake early and give the module a wide berth.":"Місію провалено: корпус досяг 0%. Кожен удар об модуль знімає 6–18% залежно від швидкості, стикування лагодить 12%. Гальмуйте заздалегідь і огинайте модуль широкою дугою.",
+  "1 ❤️ lost.":"Втрачено 1 ❤️.",
+  "Training: no lives are spent.":"Тренування: життя не витрачаються.",
+  "RETRY DOCKING":"ПОВТОРИТИ СТИКУВАННЯ",
+  "Hull destroyed. Mission failed.":"Корпус зруйновано. Місію провалено.",
+  "New attempt: hull 100%. Brake before contact.":"Нова спроба: корпус 100%. Гальмуйте до контакту.",
+  "Impacts wear down the hull: at 0% the mission fails.":"Удари об модуль руйнують корпус: при 0% місію провалено."
  };
  locales["uk"].dynamic=[];
 })(typeof globalThis!=='undefined'?globalThis:this);
