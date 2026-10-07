@@ -25,7 +25,7 @@ export async function verifyTelegram(initData,now=Date.now(),publicKey=PUBLIC_KE
 const LIFE_REWARDS={1:500,2:500,3:750,4:1000,5:1250,6:1500,7:1750,8:2000,9:3000};
 
 function restHeaders(key,extra={}){
- return {apikey:key,Authorization:'Bearer '+key,Prefer:'return=representation',...extra};
+ return {apikey:key,Authorization:'Bearer '+key,'Content-Type':'application/json',Prefer:'return=representation',...extra};
 }
 
 export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock=()=>new Date(),referralDailyCap=REFERRAL_DAILY_CAP}){

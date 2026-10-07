@@ -37,3 +37,10 @@ create table if not exists referral_events (
 );
 
 create index if not exists referral_events_day_idx on referral_events(inviter_id, created_at);
+
+-- 2026-10-07: rewards Edge Function (service_role) needs ledger access
+grant select, insert on referral_events to service_role;
+grant usage, select on sequence referral_events_id_seq to service_role;
+grant select, insert on reward_events to service_role;
+grant usage, select on sequence reward_events_id_seq to service_role;
+grant select, insert, update on players to service_role;
