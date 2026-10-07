@@ -928,8 +928,8 @@ document.querySelectorAll('[data-community]').forEach(btn=>btn.addEventListener(
 const REFERRAL_DAILY_CAP=40;
 function referralCode(){return crewUser?.id?String(crewUser.id):'guest';}
 function referralLink(){
- const bot='MOONKATTY_BOT'; // replace with the final official Telegram bot username before launch
- return 'https://t.me/'+bot+'?start=ref_'+referralCode();
+ const bot=(document.querySelector('meta[name="mkty-bot"]')?.content||'MOONKATTY_BOT').replace(/^@/,''); // set <meta name="mkty-bot"> in index.html
+ return 'https://t.me/'+bot+'?startapp=ref_'+referralCode();
 }
 function referralStats(){
  try{return JSON.parse(localStorage.getItem('mkty_referral_stats')||'{"total":0,"activeToday":0,"earnedToday":0}')}catch{return{total:0,activeToday:0,earnedToday:0}}

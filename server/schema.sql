@@ -99,3 +99,6 @@ grant execute on function cipher_attempt(bigint, date, integer) to service_role;
 insert into youtube_codes (code, points, note, is_test, expires_at)
 values ('MOONTEST', 5, 'TEST CODE — example only, not from a real video', true, '2026-10-31T23:59:59Z')
 on conflict (code) do nothing;
+
+-- 2026-10-07: referral attribution lookups (players.referred_by set once from signed start_param ref_<id>)
+create index if not exists players_referred_by_idx on players(referred_by);
