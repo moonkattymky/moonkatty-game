@@ -41,5 +41,6 @@ if(require.main===module){let minNoise=0,minStab=999;for(let seed=1;seed<=400;se
  const m=R.create(11,4,3,{stability:25,charges:2,bogus:9});assert.deepEqual(m.mods,{stability:25,charges:2});assert.equal(m.stability,R.GATE_BASE+25);assert.equal(R.restore({...m,mods:{stability:99}},11,4,3),null);
  const crew=R.create(2,1,4,{role:1});assert(R.layout(crew).jobs.filter(j=>j.role===1).every((j,i)=>j.cost<=R.layout(R.create(2,1,4)).jobs.filter(x=>x.role===1)[i].cost));
  const conv=R.create(9,2,4,{cells:1});assert.equal(conv.cells,4);const dk=R.create(6,1,2,{repair:6});assert.equal(dk.mods.repair,6);
+ assert.equal(R.create(1,1,3,{scanned:1}).scanned,true);const n4=R.create(4,2,8,{wind:3,strength:10,site:1});assert.equal(R.layout(n4).maxWind,R.layout(R.create(4,2,8)).maxWind+3);assert.equal(R.layout(n4).requiredStrength,R.layout(R.create(4,2,8)).requiredStrength-10);solve(n4);assert(R.restore(JSON.parse(JSON.stringify(R.create(4,1,2,{site:0,wind:3}))),4,1,2));
  console.log('finale mechanics OK: decode worst noise '+minNoise+'%, gate worst remaining stability '+minStab);}
 module.exports={route,solve,crewOrder,convoyPlan,decodeStep,gateStep};

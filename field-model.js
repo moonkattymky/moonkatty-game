@@ -74,10 +74,10 @@
  const condition=(s,burn=s.burn)=>s.version===2?{wind:((s.seed+burn*13+s.stage*7)%31)-15,gravity:[3.2,5,6.2][(burn+s.stage)%3]}:{wind:0,gravity:4};
  function flightPoint(angle,power,time,env={wind:0,gravity:4},trim=0){const a=angle*Math.PI/180;return{x:70+Math.cos(a)*power*1.8*time+env.wind*(time/4)**2+trim*Math.max(0,time-2)**2,y:390-Math.sin(a)*power*1.8*time+env.gravity*time*time};}
  /* Cross-chapter consequences (crew lead, rescued crew, Echo contact, earlier precision) arrive as small bounded modifiers. */
- const MODS={radius:[0,6],tolerance:[0,1],repair:[0,10],role:[0,2],cells:[0,2],charges:[0,3],stability:[0,40],preview:[0,1]};
+ const MODS={radius:[0,6],tolerance:[0,1],repair:[0,10],role:[0,2],cells:[0,2],charges:[0,3],stability:[0,40],preview:[0,1],scanned:[0,1],wind:[0,3],strength:[0,10],site:[0,1]};
  function cleanMods(m){const o={};if(m&&typeof m==='object')for(const [k,[a,z]]of Object.entries(MODS))if(Number.isFinite(m[k])&&m[k]>=a&&m[k]<=z&&(k==='role'||m[k]!==0))o[k]=m[k];return o;}
  const GATE_BASE=70,decodeNeed=6,gateShips=3;
- function create(n,stage,seed,mods){const s=createLegacy(n,stage,seed);s.version=2;s.detections=0;s.mods=cleanMods(mods);if(n===9)s.cells+=s.mods.cells||0;
+ function create(n,stage,seed,mods){const s=createLegacy(n,stage,seed);s.version=2;s.detections=0;s.mods=cleanMods(mods);if(n===9)s.cells+=s.mods.cells||0;if(n===1&&s.mods.scanned)s.scanned=true;
   if(n===10){s.turn=0;s.band=2;s.fragments=0;s.noise=0;s.charges=2+(s.mods.charges||0);s.filter=false;s.log=[];s.event=null;s.choice=null;}
   if(n===11){s.turn=0;s.home=0;s.stability=GATE_BASE+(s.mods.stability||0);s.charges=1+(s.mods.charges||0);s.log=[];}
 if(n===3)s.trim=0;if(n===4)s.sites=[];if(n===5){s.load=0;s.diagnosed=false;s.isolated=-1;}if(n===9)s.surveyed=[0,1,2];return s;}
@@ -87,6 +87,7 @@ if(n===3)s.trim=0;if(n===4)s.sites=[];if(n===5){s.load=0;s.diagnosed=false;s.iso
   if(s.n===4){const zones=Array.from({length:30},(_,i)=>i).filter(i=>footprint(i).length===4),safe=zones[(s.seed+s.stage*7)%zones.length],alternatives=zones.filter(i=>Math.abs(i%6-safe%6)+Math.abs(Math.floor(i/6)-Math.floor(safe/6))>=4&&!footprint(i).some(j=>footprint(safe).includes(j))),backup=alternatives[(s.seed+s.stage)%alternatives.length];for(const i of [...footprint(safe),...footprint(backup)])b.tiles[i]={slope:2+i%2,wind:4+i%3,strength:89+i%6};b.safe=safe;b.backup=backup;b.requiredSites=s.stage>=2?2:1;b.footprint=footprint(s.selected);}
   const m=s.mods||{};if(s.n===2&&Number.isInteger(m.role))b.jobs=b.jobs.map(j=>j.role===m.role?{...j,cost:Math.max(0,j.cost-1)}:j);
   if(s.n===3&&m.radius){b.targets=b.targets.map(t=>({...t,radius:t.radius+m.radius}));b.target=b.targets[s.burn]||b.targets[2];}
+  if(s.n===4){b.maxWind+=m.wind||0;b.requiredStrength-=m.strength||0;b.site=m.site||0;}
   if(s.n===10){const r=random((s.seed^0x5eed1)>>>0),start=Math.floor(r()*5),step=1+Math.floor(r()*4),jstart=Math.floor(r()*5);let jstep=1+Math.floor(r()*4);if(jstep===step)jstep=jstep%4+1;const carrier=t=>(start+step*(t+2))%5,jam=t=>(jstart+jstep*t)%5;Object.assign(b,{bands:5,need:decodeNeed,eventAt:3,carrier,jam,preamble:[carrier(-2),carrier(-1)],step});}
   if(s.n===11){const r=random((s.seed^0x6a7e)>>>0),offset0=1+Math.floor(r()*3),rot=r()<.5?1:3,offset=t=>(offset0+rot*t)%8,aligned=t=>offset(t)%4===0;let wait=0;while(!aligned(s.turn+wait)&&wait<8)wait++;Object.assign(b,{sectors:8,ships:gateShips,offset,aligned,rot,nextWindow:wait,costs:{wait:5,launch:2,hit:15}});}
   if(s.n===5){const rnd=random((s.seed+Math.min(s.load,2)*997)>>>0);b.target=Array.from({length:3},()=>30+Math.floor(rnd()*41));b.desired=thermalLoad(b.target,Math.min(s.load,2));b.fault=(s.seed+s.stage+Math.min(s.load,2))%3;b.mode=Math.min(s.load,2);b.tolerance+=m.tolerance||0;}

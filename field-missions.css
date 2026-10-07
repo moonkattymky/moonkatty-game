@@ -38,3 +38,4 @@
 .field-mission:is([data-kind=trajectory],[data-kind=thermal],[data-kind=decode],[data-kind=gate]) .field-footer button{min-height:44px}
 }
 @media(max-width:649px) and (min-height:540px) and (max-height:700px){.field-mission:is([data-kind=trajectory],[data-kind=thermal],[data-kind=decode],[data-kind=gate]) .field-route{display:none}.field-mission:is([data-kind=trajectory],[data-kind=thermal],[data-kind=decode],[data-kind=gate]) .field-telemetry small{font-size:7px}.field-mission:is([data-kind=trajectory],[data-kind=thermal],[data-kind=decode],[data-kind=gate]) .field-telemetry strong{font-size:14px}}
+.field-svg text:not([stroke]){stroke:#0b2232;stroke-width:3px;stroke-opacity:.85;paint-order:stroke;stroke-linejoin:round}
