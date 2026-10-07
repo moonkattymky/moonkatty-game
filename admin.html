@@ -49,7 +49,7 @@ h1{font-size:18px;font-weight:500;margin:4px 0 2px;letter-spacing:.5px}
  const lang=(localStorage.getItem('mkty_lang')||tg?.initDataUnsafe?.user?.language_code||'en').slice(0,2);
  const pack=(window.MKTYLocales?.[lang]?.strings)||{};
  const t=en=>pack[en]??en;
- document.documentElement.lang=lang;if(lang==='he')document.documentElement.dir='rtl';
+ document.documentElement.lang=lang;if(lang==='he'||lang==='ar')document.documentElement.dir='rtl';
  document.querySelectorAll('[data-t]').forEach(n=>n.textContent=t(n.dataset.t));
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const $=id=>document.getElementById(id),body=$('adBody'),msg=$('adMsg');

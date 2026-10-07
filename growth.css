@@ -1,6 +1,6 @@
 .mk-growth-row{display:flex;gap:8px;margin:10px 0}
 .mk-invite-btn,.mk-share-btn{border:1px solid rgba(255,214,102,.55);border-radius:16px;color:#fff;cursor:pointer;font:inherit}
-.mk-invite-btn{flex:1;display:flex;align-items:center;gap:10px;padding:10px 14px;text-align:left;background:linear-gradient(135deg,rgba(255,196,64,.28),rgba(124,77,255,.32));box-shadow:0 0 18px rgba(255,196,64,.25)}
+.mk-invite-btn{flex:1;display:flex;align-items:center;gap:10px;padding:10px 14px;text-align:start;background:linear-gradient(135deg,rgba(255,196,64,.28),rgba(124,77,255,.32));box-shadow:0 0 18px rgba(255,196,64,.25)}
 .mk-invite-btn b{display:block;font-size:15px;letter-spacing:.02em}.mk-invite-btn small{color:#ffd666;font-weight:700}
 .mk-gi{font-size:24px}.mk-gt{display:flex;flex-direction:column}
 .mk-share-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:76px;padding:8px 10px;background:rgba(124,77,255,.22)}

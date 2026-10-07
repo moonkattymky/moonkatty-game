@@ -6,7 +6,8 @@
  const locales = () => (typeof MKTYLocales === 'object' && MKTYLocales) || {};
  const sources = new WeakMap(), rendered = new WeakMap(), attrs = new WeakMap();
  let language = 'en';
- const PACK_LANGS = ['ru','uk','es','pt','de','fr','it','tr','he','ko','zh'];
+ const RTL_LANGS = ['he','ar'];
+ const PACK_LANGS = ['ru','uk','es','pt','de','fr','it','tr','he','ar','ko','zh'];
 
  const dynamics = {
   ru: [
@@ -153,6 +154,22 @@
    [/^SIGNAL (.*)$/, (_, v) => 'אות ' + v],
    [/^HINT: first 5 digits are (.*) • remaining digits: (.*)$/, (_, a, b) => 'רמז: 5 הספרות הראשונות הן ' + a + ' • הנותרות: ' + b]
   ],
+  ar: [
+   [/^Junction (\d+) • rotate clockwise$/, (_, n) => 'التقاطع ' + n + ' — أدِره باتجاه عقارب الساعة'],
+   [/^CONTINUE LIFE #(\d+) 🚀$/, (_, n) => 'تابع الفصل ' + n + ' 🚀'],
+   [/^VISIBLE FOR (\d+) SECONDS$/, (_, n) => 'مرئي لمدة ' + n + ' ث'],
+   [/^LIFE #(\d+)$/, (_, n) => 'الفصل ' + n],
+   [/^UNLOCK LIFE #(\d+)(.*)$/, (_, n, end) => 'افتح الفصل ' + n + end],
+   [/^Story progress: (.*)$/, (_, v) => 'تقدّم القصة: ' + v],
+   [/^NEXT \+1\s+(.*)$/, (_, v) => 'التالي +1 ' + v],
+   [/^Gates cleared: (.*)$/, (_, v) => 'البوابات المُجتازة: ' + v.replace('Use ▲ / ▼', 'استخدم ▲ / ▼')],
+   [/^Anomalies tagged: (.*)$/, (_, v) => 'الشذوذات المعلَّمة: ' + v],
+   [/^Power connected through (\d+) \/ 4 junctions\.$/, (_, n) => 'الطاقة موصولة عبر ' + n + ' / 4 تقاطعات.'],
+   [/^Crew assembled: (.*)$/, (_, v) => 'الطاقم المجتمع: ' + v.replace('Final sync locked', 'التزامن النهائي مقفل').replace('Final sync ready', 'التزامن النهائي جاهز')],
+   [/^Stage (\d+) \/ (\d+) • Attempts: (\d+)$/, (_, a, b, c) => 'المرحلة ' + a + ' / ' + b + ' • المحاولات: ' + c],
+   [/^SIGNAL (.*)$/, (_, v) => 'الإشارة ' + v],
+   [/^HINT: first 5 digits are (.*) • remaining digits: (.*)$/, (_, a, b) => 'تلميح: أول 5 أرقام هي ' + a + ' • الأرقام المتبقية: ' + b]
+  ],
   ko: [
    [/^Junction (\d+) • rotate clockwise$/, (_, n) => '정션 ' + n + ' — 시계 방향으로 회전'],
    [/^CONTINUE LIFE #(\d+) 🚀$/, (_, n) => '챕터 ' + n + ' 계속 🚀'],
@@ -197,6 +214,7 @@
   it: (text) => text.replaceAll('MOON POINTS', 'PUNTI LUNA').replace('9 LIVES COMPLETE', '9 CAPITOLI COMPLETATI'),
   tr: (text) => text.replaceAll('MOON POINTS', 'AY PUANLARI').replace('9 LIVES COMPLETE', '9 BÖLÜM TAMAMLANDI'),
   he: (text) => text.replaceAll('MOON POINTS', 'נקודות ירח').replace('9 LIVES COMPLETE', '9 פרקים הושלמו'),
+  ar: (text) => text.replaceAll('MOON POINTS', 'نقاط القمر').replace('9 LIVES COMPLETE', 'اكتملت الأرواح التسع'),
   ko: (text) => text.replaceAll('MOON POINTS', '문 포인트').replace('9 LIVES COMPLETE', '9개 챕터 완료'),
   zh: (text) => text.replaceAll('MOON POINTS', '月球点数').replace('9 LIVES COMPLETE', '已完成9章')
  };
@@ -210,6 +228,7 @@
   it: (text) => text.replace('CORE', 'NUCLEO').replace('COMMS', 'COMMS').replace('LIVES', 'VITE'),
   tr: (text) => text.replace('CORE', 'ÇEKİRDEK').replace('COMMS', 'HABER').replace('LIVES', 'CANLAR'),
   he: (text) => text.replace('CORE', 'ליבה').replace('COMMS', 'קשר').replace('LIVES', 'חיים'),
+  ar: (text) => text.replace('CORE', 'النواة').replace('COMMS', 'الاتصالات').replace('LIVES', 'الأرواح'),
   ko: (text) => text.replace('CORE', '코어').replace('COMMS', '통신').replace('LIVES', '라이프'),
   zh: (text) => text.replace('CORE', '核心').replace('COMMS', '通讯').replace('LIVES', '生命')
  };
@@ -308,7 +327,7 @@
   observer.disconnect();
   language = code || 'en';
   for (const c of PACK_LANGS) document.body.classList.toggle('mkty-' + c, language === c);
-  document.documentElement.dir = language === 'he' ? 'rtl' : 'ltr';
+  document.documentElement.dir = RTL_LANGS.includes(language) ? 'rtl' : 'ltr';
   document.documentElement.lang = language;
   const app = document.getElementById('app');
   if (app) visit(app);
@@ -321,7 +340,8 @@
   tr,
   getLanguage: () => language,
   hasLocale: (code) => !!pack(code)?.strings,
-  packLangs: () => PACK_LANGS.slice()
+  packLangs: () => PACK_LANGS.slice(),
+  isRtl: (code) => RTL_LANGS.includes(code || language)
  };
  window.MKTYI18n.setLanguage(localStorage.getItem('mkty_lang') || 'en');
 })();

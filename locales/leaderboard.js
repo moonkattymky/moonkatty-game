@@ -123,6 +123,17 @@ const D={
   "Your Telegram name and photo are visible in standings.": "你的 Telegram 名字和头像在排行榜中可见。",
   "Could not save the setting. Try again later.": "无法保存设置，请稍后重试。",
   "This setting is available when the game runs in Telegram.": "在 Telegram 中运行游戏时可使用此设置。"
+ },
+ "ar": {
+  "Server profile standings. Pilots appear with their Telegram name and photo; anyone who hid themselves in settings appears under a callsign. Results on this device may differ.": "ترتيب ملفات الخادم. يظهر الطيارون باسمهم وصورتهم في Telegram؛ ومن أخفى نفسه في الإعدادات يظهر باسم نداء. قد تختلف النتائج على هذا الجهاز.",
+  "What we store: your Telegram ID and username, game progress and reward events. For the global standings we store your Telegram name and photo (only from a verified session). You can hide yourself in Settings — a callsign is shown instead. This data is kept in Supabase and used only to run the game and its rewards.": "ما نخزّنه: معرّفك واسم المستخدم في Telegram، وتقدّمك في اللعبة، وأحداث المكافآت. ومن أجل الترتيب العالمي نخزّن اسمك وصورتك في Telegram (من جلسة مُتحقَّق منها فقط). يمكنك إخفاء نفسك في الإعدادات — فيظهر اسم نداء بدلًا من ذلك. تُحفظ هذه البيانات في Supabase وتُستخدم فقط لتشغيل اللعبة ومكافآتها.",
+  "Standings": "الترتيب",
+  "Your Telegram name and photo are shown in the global standings. If you hide yourself, a callsign and a generic badge are shown instead.": "يظهر اسمك وصورتك في Telegram في الترتيب العالمي. إذا أخفيت نفسك، يظهر اسم نداء وشارة عامة بدلًا من ذلك.",
+  "Hide me in standings": "أخفِني في الترتيب",
+  "You are hidden in standings: a callsign is shown.": "أنت مخفي في الترتيب: يظهر اسم نداء.",
+  "Your Telegram name and photo are visible in standings.": "اسمك وصورتك في Telegram ظاهران في الترتيب.",
+  "Could not save the setting. Try again later.": "تعذّر حفظ الإعداد. حاول لاحقًا.",
+  "This setting is available when the game runs in Telegram.": "هذا الإعداد متاح عندما تعمل اللعبة داخل Telegram."
  }
 };
 for(const c of Object.keys(D)){L[c]=L[c]||{};L[c].strings=Object.assign(L[c].strings||{},D[c]);}

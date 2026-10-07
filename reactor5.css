@@ -54,7 +54,7 @@
 #mission5.engineering5 .reactor-console-heading5 h3{color:#fce9bd;font-size:19px;line-height:1.2;letter-spacing:0;margin:0 0 6px}
 #mission5.engineering5 .reactor-console-heading5 p{font-size:11px;line-height:1.45;color:#c7e0e9;margin:0 0 11px}
 #mission5.engineering5 .reactor-cells5{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0 0 12px}
-#mission5.engineering5 .reactor-cells5 button{position:relative;display:grid;grid-template-columns:1fr 23px;grid-template-rows:1fr 1fr;column-gap:5px;align-items:center;padding:9px;height:78px;border:1px solid #a3c7d471;border-bottom:3px solid #081e2d;border-radius:10px;background:linear-gradient(#284d62,#132f45);color:#b3cedc;text-align:left;box-shadow:inset 0 1px 0 #d5e5e524}
+#mission5.engineering5 .reactor-cells5 button{position:relative;display:grid;grid-template-columns:1fr 23px;grid-template-rows:1fr 1fr;column-gap:5px;align-items:center;padding:9px;height:78px;border:1px solid #a3c7d471;border-bottom:3px solid #081e2d;border-radius:10px;background:linear-gradient(#284d62,#132f45);color:#b3cedc;text-align:start;box-shadow:inset 0 1px 0 #d5e5e524}
 #mission5.engineering5 .reactor-cells5 button.selected{border-color:#f4d294;border-bottom-color:#be9654;box-shadow:inset 0 0 20px #ffda9021,0 0 0 1px #ecd29218;background:linear-gradient(#3d565d,#223c4b);color:#ffe7af}
 #mission5.engineering5 .reactor-cells5 button.charged{opacity:1;border-color:#9ae0bf;background:linear-gradient(#28564e,#153b3d);color:#c5fbdc}
 #mission5.engineering5 .cell-name5{font-size:8px;line-height:1.2;letter-spacing:.5px;white-space:nowrap}

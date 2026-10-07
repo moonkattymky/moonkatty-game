@@ -52,7 +52,7 @@
   "What counts as fair play?":"Що вважається чесною грою?",
   "One player, one account. Duplicate activity, self-referrals, bots and manipulation may be excluded from rewards.":"Один гравець — один акаунт. Повторна активність, запрошення самого себе, боти й маніпуляції можуть бути виключені з нагород.",
   "How do I change the language?":"Як змінити мову?",
-  "Open Settings → Interface language. The game is available in 12 languages.":"Відкрийте «Налаштування» → «Мова інтерфейсу». Гра доступна 12 мовами.",
+  "Open Settings → Interface language. The game is available in 13 languages.":"Відкрийте «Налаштування» → «Мова інтерфейсу». Гра доступна 13 мовами.",
   "Privacy":"Конфіденційність",
   "What we store: your Telegram ID and username, game progress and reward events. This data is kept in Supabase and used only to run the game and its rewards.":"Що ми зберігаємо: ваш Telegram ID та ім’я користувача, ігровий прогрес і події нагород. Дані зберігаються в Supabase і використовуються лише для роботи гри та нагород.",
   "We do not sell your data.":"Ми не продаємо ваші дані.",
