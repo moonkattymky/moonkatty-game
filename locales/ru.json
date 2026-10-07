@@ -1481,7 +1481,15 @@
     "🌙 MOON POINTS": "🌙 ЛУННЫЕ ОЧКИ",
     "🚀 MKTY · SOON": "🚀 MKTY · СКОРО",
     "Global standings show only your Telegram display name and photo, points and chapters. Your Telegram ID, @username and other data are never published. You can hide yourself — a callsign is shown instead.": "В общем рейтинге видны только ваше имя и фото из Telegram, очки и число глав. Telegram ID, @username и другие данные не публикуются. Можно скрыть себя — тогда будет показан позывной.",
-    "Available when opened in Telegram.": "Настройка доступна при запуске в Telegram."
+    "Available when opened in Telegram.": "Настройка доступна при запуске в Telegram.",
+    "HULL BREACHED": "КОРПУС РАЗРУШЕН",
+    "Mission failed: the hull reached 0%. Every impact costs 6–18% depending on speed; each docking repairs 12%. Brake early and give the module a wide berth.": "Миссия провалена: корпус достиг 0%. Каждый удар о модуль снимает 6–18% в зависимости от скорости, стыковка чинит 12%. Тормозите заранее и огибайте модуль по широкой дуге.",
+    "1 ❤️ lost.": "Потеряна 1 ❤️.",
+    "Training: no lives are spent.": "Тренировка: жизни не тратятся.",
+    "RETRY DOCKING": "ПОВТОРИТЬ СТЫКОВКУ",
+    "Hull destroyed. Mission failed.": "Корпус разрушен. Миссия провалена.",
+    "New attempt: hull 100%. Brake before contact.": "Новая попытка: корпус 100%. Тормозите до контакта.",
+    "Impacts wear down the hull: at 0% the mission fails.": "Удары о модуль разрушают корпус: при 0% миссия провалена."
   },
   "prefixes": {
     "Energy collected • ": "Энергия собрана • ",

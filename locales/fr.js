@@ -1485,7 +1485,15 @@
   "🌙 MOON POINTS":"🌙 POINTS LUNAIRES",
   "🚀 MKTY · SOON":"🚀 MKTY · BIENTÔT",
   "Global standings show only your Telegram display name and photo, points and chapters. Your Telegram ID, @username and other data are never published. You can hide yourself — a callsign is shown instead.":"Le classement global n’affiche que votre nom et votre photo Telegram, vos points et chapitres. Votre ID Telegram, votre @pseudo et vos autres données ne sont jamais publiés. Vous pouvez vous masquer : un indicatif s’affichera.",
-  "Available when opened in Telegram.":"Disponible à l’ouverture dans Telegram."
+  "Available when opened in Telegram.":"Disponible à l’ouverture dans Telegram.",
+  "HULL BREACHED":"COQUE DÉTRUITE",
+  "Mission failed: the hull reached 0%. Every impact costs 6–18% depending on speed; each docking repairs 12%. Brake early and give the module a wide berth.":"Mission échouée : la coque est à 0 %. Chaque impact coûte 6–18 % selon la vitesse ; chaque amarrage répare 12 %. Freinez tôt et contournez largement le module.",
+  "1 ❤️ lost.":"1 ❤️ perdue.",
+  "Training: no lives are spent.":"Entraînement : aucune vie dépensée.",
+  "RETRY DOCKING":"REFAIRE L'AMARRAGE",
+  "Hull destroyed. Mission failed.":"Coque détruite. Mission échouée.",
+  "New attempt: hull 100%. Brake before contact.":"Nouvelle tentative : coque à 100 %. Freinez avant le contact.",
+  "Impacts wear down the hull: at 0% the mission fails.":"Les impacts usent la coque : à 0 %, la mission échoue."
 };
  locales["fr"].prefixes={
   "Energy collected • ":"Énergie collectée • ",

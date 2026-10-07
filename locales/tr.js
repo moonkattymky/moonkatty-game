@@ -1485,7 +1485,15 @@
   "🌙 MOON POINTS":"🌙 AY PUANLARI",
   "🚀 MKTY · SOON":"🚀 MKTY · YAKINDA",
   "Global standings show only your Telegram display name and photo, points and chapters. Your Telegram ID, @username and other data are never published. You can hide yourself — a callsign is shown instead.":"Genel sıralamada yalnızca Telegram adın ve fotoğrafın, puanların ve bölüm sayın görünür. Telegram ID'n, @kullanıcı adın ve diğer verilerin asla yayımlanmaz. Kendini gizleyebilirsin — bunun yerine bir çağrı adı gösterilir.",
-  "Available when opened in Telegram.":"Telegram'da açıldığında kullanılabilir."
+  "Available when opened in Telegram.":"Telegram'da açıldığında kullanılabilir.",
+  "HULL BREACHED":"GÖVDE PARÇALANDI",
+  "Mission failed: the hull reached 0%. Every impact costs 6–18% depending on speed; each docking repairs 12%. Brake early and give the module a wide berth.":"Görev başarısız: gövde %0'a indi. Her çarpma hıza göre %6–18 götürür; her kenetlenme %12 onarır. Erken fren yapın ve modülün etrafından geniş dönün.",
+  "1 ❤️ lost.":"1 ❤️ kaybedildi.",
+  "Training: no lives are spent.":"Antrenman: can harcanmaz.",
+  "RETRY DOCKING":"KENETLENMEYİ TEKRARLA",
+  "Hull destroyed. Mission failed.":"Gövde parçalandı. Görev başarısız.",
+  "New attempt: hull 100%. Brake before contact.":"Yeni deneme: gövde %100. Temastan önce fren yapın.",
+  "Impacts wear down the hull: at 0% the mission fails.":"Çarpmalar gövdeyi aşındırır: %0'da görev başarısız olur."
 };
  locales["tr"].prefixes={
   "Energy collected • ":"Enerji toplandı • ",
