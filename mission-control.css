@@ -119,3 +119,28 @@
 }
 
 .hub-screen.active{animation:none;transform:none}
+/* More: about, community, FAQ, privacy */
+.more-about{position:relative;overflow:hidden;border-color:#d6a84a55;background:radial-gradient(120% 90% at 100% 0,#d6a84a22,transparent 60%),linear-gradient(135deg,#14283399,#0b1822aa)}
+.more-kicker{display:block;font-size:10px;letter-spacing:.18em;color:var(--hub-gold)}
+.more-about h2{margin-top:6px}
+.more-lead{color:#f1d38b!important;font-size:14px!important;margin:4px 0 8px!important}
+.more-badges{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.more-badges span{font-size:10px;letter-spacing:.08em;padding:5px 9px;border:1px solid #d6a84a66;border-radius:999px;color:#f1d38b;background:#d6a84a14;white-space:nowrap}
+.more-note{font-size:12px!important;border-left:2px solid var(--hub-gold);padding-left:10px;color:#9fb6c3!important}
+.more-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0 6px}
+.more-link{display:grid;grid-template-columns:28px minmax(0,1fr) 12px;align-items:center;gap:8px;min-height:64px;padding:10px;border:1px solid var(--hub-line);border-radius:4px;background:#0e1d27aa;color:#dce8ee;text-decoration:none}
+.more-link:active,.more-link:focus-visible{border-color:var(--hub-gold)}
+.more-link b{color:var(--hub-gold);font-size:20px;font-weight:400;text-align:center}
+.more-link strong{display:block;font-size:14px;font-weight:500}
+.more-link small{display:block;font-size:10.5px;line-height:1.35;color:#91a9b9;margin-top:2px;overflow-wrap:anywhere}
+.more-link em{color:#76919e;font-style:normal}
+.more-faq{margin:8px 0 6px}
+.more-faq details{border-bottom:1px solid var(--hub-line)}
+.more-faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:10px;padding:14px 0;font-size:14px;color:#dce8ee;line-height:1.4}
+.more-faq summary::-webkit-details-marker{display:none}
+.more-faq summary::after{content:'+';color:var(--hub-gold);font-size:18px;line-height:1}
+.more-faq details[open] summary::after{content:'−'}
+.more-faq details p{margin:0 0 14px;font-size:13px;line-height:1.6;color:#b1c5d0}
+.more-privacy a{text-decoration:none}
+@media (max-width:359px){.more-links{grid-template-columns:1fr}.more-link{min-height:54px}}
+[dir=rtl] .more-note{border-left:0;border-right:2px solid var(--hub-gold);padding-left:0;padding-right:10px}
