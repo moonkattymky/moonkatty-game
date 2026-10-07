@@ -11,7 +11,7 @@ window.MKTYExpedition = (() => {
   root.innerHTML=`
     <div id="expHangar" class="exp-hangar">
       <header class="exp-hangar-head"><div><span class="exp-kicker" id="expHangarKicker">MOONKATTY / DEEP SPACE</span><h1 id="expTitle"></h1></div><button id="expHome" class="exp-quiet"></button></header>
-      <div class="exp-hangar-art"><div class="exp-orbit-lines"></div><img src="moonkatty-life4-ship.png" alt="MOONKATTY 01"><div><span id="expVessel"></span><strong>MK–01</strong><small id="expRank"></small></div></div>
+      <div class="exp-hangar-art"><div class="exp-orbit-lines"></div><img src="moonkatty-life4-ship.webp" alt="MOONKATTY 01"><div><span id="expVessel"></span><strong>MK–01</strong><small id="expRank"></small></div></div>
       <div class="exp-hangar-body"><p id="expIntro" class="exp-intro"></p><div id="expProfile" class="exp-profile"></div>
         <div id="expResumeCard" class="exp-resume" hidden><div><strong id="expSaved"></strong><small id="expSavedInfo"></small></div><button id="expResume" class="exp-primary"></button><button id="expAbandon" class="exp-quiet"></button></div>
         <div id="expDispatch"><div class="exp-section-label"><span id="expContractsTitle"></span><span>01—03</span></div><div id="expContracts" class="exp-contracts"></div>
@@ -39,7 +39,7 @@ window.MKTYExpedition = (() => {
     <dialog id="expDialog" class="exp-dialog"><div id="expDialogBody"></div></dialog>`;
   $('app').append(root);
   const ctx=$('expCanvas').getContext('2d'),radar=$('expRadar').getContext('2d');let width=390,height=480,dpr=1,zoom=.7;
-  const images={};for(const [k,url] of Object.entries({ship:'moonkatty-life4-ship.png',rock:'art/life7-asteroid-v2.webp',space:'art/life7-void.webp'})){const i=new Image();i.src=url;i.onload=()=>{if(active()&&mode==='flight')draw();};images[k]=i;}
+  const images={};for(const [k,url] of Object.entries({ship:'moonkatty-life4-ship.webp',rock:'art/life7-asteroid-v2.webp',space:'art/life7-void.webp'})){const i=new Image();i.src=url;i.onload=()=>{if(active()&&mode==='flight')draw();};images[k]=i;}
   const stars=Array.from({length:230},(_,i)=>{const rng=R.random(i*6719+492);return{x:rng()*R.SIZE,y:rng()*R.SIZE,r:.5+rng()*1.3,alpha:.18+rng()*.6};});
   const active=()=>root.classList.contains('active');
   const title=type=>({rescue:tr('Никого не оставить','Leave no one behind'),salvage:tr('Чёрный ящик','Black box'),survey:tr('За краем карты','Beyond the chart')})[type];

@@ -94,7 +94,7 @@ Rewards Edge Function was **not** deployed: no `SUPABASE_URL` / `SUPABASE_SERVIC
 - **Moon Signal cipher**: lore word chosen per UTC day by HMAC(`CIPHER_SECRET`, day) from the server list;
   clients only get Morse. 5 attempts/day via atomic `cipher_attempt()` RPC (`cipher_attempts` table); +15 ⭐ once via `cipher:<day>`.
 - **YouTube code words**: table `youtube_codes` (expiry, active, 1–50 ⭐, server-capped); once per code per player via `yt:<id>`.
-  Admin guide: `server/youtube-codes.md`. Seed `MOONTEST` is a TEST code.
+  Admin guide: `server/youtube-codes.md`. No codes are seeded.
 - Migration: `server/migrations/20261007_daily_retention.sql` (additive, RLS on, no anon access).
 - Tests: `node tests/daily-server.cjs`.
 

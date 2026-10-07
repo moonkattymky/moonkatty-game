@@ -24,6 +24,7 @@ const assert=require('node:assert/strict');
  assert.equal(pub.entries[0].name,'Igor Sh');assert.equal(pub.entries[0].photo,'https://t.me/i/userpic/320/a.jpg');
  assert.equal(pub.entries[1].hidden,true);assert.match(pub.entries[1].name,/^PILOT-[0-9A-F]{8}$/);assert.equal(pub.entries[1].name,pub.entries[1].callsign);assert.equal(pub.entries[1].photo,null);
  assert(!JSON.stringify(pub).includes('Secret Person'));assert(!JSON.stringify(pub).includes('telegram_id'));assert.equal(pub.entries[2].name,pub.entries[2].callsign);
+ for(const e of pub.entries){assert.deepEqual(Object.keys(e).filter(k=>!['rank','callsign','name','photo','hidden','points','chapters','self'].includes(k)),[],'public entry exposes only display fields');if(!e.hidden&&e.name!==e.callsign)assert.equal(e.callsign,undefined,'named players carry no extra pseudonymous id');}
  // Verified session refreshes name/photo; unsafe name escaped, foreign photo dropped.
  const own=await (await h(new Request('https://x.test',{method:'POST',body:JSON.stringify({initData:'ok'})}))).json();
  assert.equal(patches.length,1);assert.equal(patches[0].id,'eq.2');assert.equal(patches[0].body.display_name,'bNew/b Name');assert.equal(patches[0].body.photo_url,null);assert(!('leaderboard_hidden' in patches[0].body));

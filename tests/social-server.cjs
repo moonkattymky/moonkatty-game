@@ -96,7 +96,7 @@ const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
  assert.match((await call(12,'social.youtube.verify',{},he)).body.auth_url,/youtube\.readonly/);
  r=await call(12,'social.youtube.verify',{code:'abc'},he);assert.equal(r.body.awarded,true);
  assert.equal((await call(12,'social.youtube.verify',{code:'abc'},he)).body.awarded,false);
- const probe=await (await h(new Request('https://x'))).json();assert.ok(probe.actions.includes('social.telegram.verify'));
+ const probe=await (await h(new Request('https://x'))).json();assert.equal(probe.ok,true);assert.equal(probe.actions,undefined);
  assert.ok(!JSON.stringify(probe).includes('TEST:TOKEN'));
  console.log('PASS: social — open-link claims blocked, Telegram getChatMember (non-member rejected, member once, bot-not-admin status), X/TikTok code submissions, admin approve/reject, non-admin 403, daily limits, YouTube OAuth flag');
 })().catch(e=>{console.error(e);process.exitCode=1;});

@@ -14,7 +14,7 @@ const server=http.createServer((req,res)=>{const file=path.join(root,new URL(req
   {rank:3,callsign:'PILOT-22222222',name:'<img src=x onerror="window.__xss=1">Mallory',photo:'javascript:alert(1)',hidden:false,points:500,chapters:3,self:false},
   {rank:4,callsign:'PILOT-33333333',name:'PILOT-33333333',photo:null,hidden:true,points:300,chapters:2,self:false},
   {rank:5,callsign:'PILOT-44444444',name:'@moon_cat_with_a_really_really_long_username_here',photo:null,hidden:false,points:120,chapters:1,self:false}]})});});
- const png=fs.readFileSync(path.join(root,'moonkatty.png'));await p.route(/https:\/\/(t\.me|cdn4\.telesco\.pe)\/.*/,r=>r.fulfill({status:200,contentType:'image/png',body:png}));
+ const png=fs.readFileSync(path.join(root,'art','og-preview.png'));await p.route(/https:\/\/(t\.me|cdn4\.telesco\.pe)\/.*/,r=>r.fulfill({status:200,contentType:'image/png',body:png}));
  await p.goto('http://localhost:'+server.address().port);await p.evaluate(()=>setLang('ru'));
  const board=async()=>{await p.evaluate(()=>MKTYHub.open('ranking'));await p.locator('[data-rank="online"]').click();await p.locator('.hub-standings').waitFor();};
  await board();const text=await p.locator('.hub-standings').innerText();

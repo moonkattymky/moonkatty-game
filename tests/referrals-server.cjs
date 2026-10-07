@@ -30,7 +30,7 @@ const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
  const call=async(id,start,action,extra={})=>(await handler(new Request('https://x',{method:'POST',body:JSON.stringify({initData:await signed(id,start),action,...extra})}))).json();
  const pl=id=>tables.players.find(p=>p.telegram_id===id);
 
- assert.ok((await (await handler(new Request('https://x'))).json()).actions.includes('referrals.stats'));
+ {const probe=await (await handler(new Request('https://x'))).json();assert.equal(probe.ok,true);assert.equal(probe.actions,undefined,'GET probe must not list actions');}
  await call(100,null,'player');                       // inviter exists
  // self-referral ignored
  await call(100,'ref_100','player'); assert.equal(pl(100).referred_by,null);
