@@ -28,12 +28,12 @@
 
  function mountHome(){
   const enter = $('enterBtn');
-  if (!enter || $('mkGrowthRow')) return;
-  const row = document.createElement('div');
+  if (!enter) return;
+  const row = $('mkGrowthRow') || document.createElement('div');
   row.id = 'mkGrowthRow'; row.className = 'mk-growth-row';
-  row.innerHTML = '<button id="mkInviteBtn" type="button" class="mk-invite-btn"><span class="mk-gi">👥</span><span class="mk-gt"><b>Invite friends</b><small>+' + BONUS + ' ⭐ each</small></span></button>' +
+  if(!row.children.length)row.innerHTML = '<button id="mkInviteBtn" type="button" class="mk-invite-btn"><span class="mk-gi">👥</span><span class="mk-gt"><b>Invite friends</b><small>+' + BONUS + ' ⭐ each</small></span></button>' +
    '<button id="mkShareBtn" type="button" class="mk-share-btn" aria-label="Share"><span>↗</span><b>Share</b></button>';
-  enter.insertAdjacentElement('afterend', row);
+  if(!row.isConnected)enter.insertAdjacentElement('afterend', row);
   $('mkInviteBtn').addEventListener('click', openInvite);
   $('mkShareBtn').addEventListener('click', shareGame);
  }
