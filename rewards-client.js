@@ -95,13 +95,8 @@
    return {ok: body.spent || body.duplicate, source: 'server', player: body.player, lives: body.player.lives};
   }
   if(body && body.error === 'no_lives') return {ok:false, source:'server', lives:0};
-  // Local provisional
-  let lives = Number(localStorage.getItem('mkty_global_lives') ?? 9);
-  if(lives <= 0) return {ok:false, source:'cache', lives:0};
-  lives--;
-  localStorage.setItem('mkty_global_lives', String(lives));
-  if(!localStorage.getItem('mkty_life_restore_at')) localStorage.setItem('mkty_life_restore_at', String(Date.now()));
-  return {ok:true, source:'cache', lives};
+  // No server: the caller (spendGlobalLife in app.js) already deducted the life locally. Never deduct a second time here.
+  return {ok:true, source:'cache'};
  }
 
  window.MKTYRewards = {
