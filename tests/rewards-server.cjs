@@ -1,9 +1,10 @@
+const {atomicFixture}=require('./atomic-rpc-fixture.cjs');
 const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
 (async()=>{
  const {createHandler,verifyTelegram}=await import('../server/rewards/core.mjs');
  const keys=await webcrypto.subtle.generateKey({name:'Ed25519'},true,['sign','verify']);
  const pub=Buffer.from(await crypto.subtle.exportKey('raw',keys.publicKey)).toString('hex');
- const now=Date.now();
+ let now=Date.now();
  const signed=async(extra={})=>{
   const p=new URLSearchParams({auth_date:String(Math.floor(now/1000)),user:JSON.stringify({id:42,first_name:'Pilot'}),...extra});
   const fields=[...p].sort(([a],[b])=>a<b?-1:a>b?1:0).map(([k,v])=>k+'='+v).join('\n');
@@ -58,7 +59,7 @@ const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
   return new Response('no',{status:404});
  };
 
- const handler=createHandler({url:'https://example.supabase.co',key:'service-test-key',verify:x=>verifyTelegram(x,now,pub),fetcher,clock:()=>new Date(now),referralDailyCap:40});
+ const handler=createHandler({url:'https://example.supabase.co',key:'service-test-key',verify:x=>verifyTelegram(x,Number(new URLSearchParams(x).get('auth_date'))*1000,pub),fetcher:atomicFixture(fetcher),clock:()=>new Date(now),referralDailyCap:40});
 
  const get=await handler(new Request('https://x')); assert.equal(get.status,200); assert.equal((await get.json()).service,'rewards');
  assert.equal((await handler(new Request('https://x',{method:'POST',body:'{}'}))).status,401);
@@ -80,6 +81,7 @@ const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
 
  // lock on life 9
  for(const life of [2,3,4,5,6,7,8,9]){
+  now+=86400000;
   const r=await (await handler(new Request('https://x',{method:'POST',body:JSON.stringify({initData:data,action:'life.complete',life})}))).json();
   assert.equal(r.ok,true);
  }

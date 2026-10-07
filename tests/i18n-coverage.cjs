@@ -5,10 +5,12 @@ const dir=path.join(__dirname,'..','locales');
 const LANGS=['ru','uk','es','pt','de','fr','it','tr','he','ar','ko','zh'];
 const BUNDLES=['daily-retention','creator','leaderboard','social','pacing'];
 const html=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8');
-for(const f of [...LANGS,...BUNDLES])assert(html.includes(`locales/${f}.js`),`index.html loads locales/${f}.js`);
+assert(html.includes('locale-loader.js'),'single locale loader');
+for(const l of LANGS)assert(fs.existsSync(path.join(dir,'runtime',l+'.js')),`runtime locale ${l}`);
 const root={};const ctx=vm.createContext(root);
 for(const f of [...LANGS,...BUNDLES])vm.runInContext(fs.readFileSync(path.join(dir,f+'.js'),'utf8'),ctx,{filename:f+'.js'});
 const L=root.MKTYLocales;
+for(const l of LANGS){const c=vm.createContext({});vm.runInContext(fs.readFileSync(path.join(dir,'runtime',l+'.js'),'utf8'),c);assert.equal(JSON.stringify(c.MKTYLocales[l]),JSON.stringify(L[l]),`runtime ${l} must match source packs`);}
 const all=new Set();for(const l of LANGS){assert(L[l]&&L[l].strings,`locale ${l} loaded`);for(const k of Object.keys(L[l].strings))all.add(k);}
 for(const b of BUNDLES){const src=fs.readFileSync(path.join(dir,b+'.js'),'utf8');for(const l of LANGS)assert(new RegExp(`"${l}"\\s*:`).test(src),`${b}.js has a "${l}" section`);}
 const BAD=/[\uFFFD⟦⟧⟎⟁]|localStorage|\{\\f/;

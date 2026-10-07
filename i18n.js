@@ -324,6 +324,7 @@
  }
 
  function setLanguage(code) {
+  if(PACK_LANGS.includes(code)&&!pack(code))return window.MKTYLocaleLoader?.load(code).then(()=>setLanguage(code)).catch(()=>{});
   observer.disconnect();
   language = code || 'en';
   for (const c of PACK_LANGS) document.body.classList.toggle('mkty-' + c, language === c);

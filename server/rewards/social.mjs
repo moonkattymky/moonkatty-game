@@ -138,22 +138,9 @@ export function createSocial({rest,clock,insertReward,applyPoints,isAdmin,secret
   if(!sub)throw Error('submission');
   if(body.decision!=='approve'&&body.decision!=='reject')throw Error('decision');
   if(sub.status!=='pending')throw Error('reviewed');
-  const status=body.decision==='approve'?'approved':'rejected';
-  const upd=await rest('/rest/v1/social_submissions',{method:'PATCH',params:{id:'eq.'+id,status:'eq.pending'},body:JSON.stringify({status,reviewed_at:clock().toISOString(),reviewed_by:user.id})});
-  if(!(Array.isArray(upd)?upd[0]:upd))throw Error('reviewed');
-  let reward={awarded:false,points:0};
-  if(status==='approved'){
-   const owner=(await rest('/rest/v1/players',{params:{select:'*',telegram_id:'eq.'+sub.telegram_id,limit:1}}))?.[0];
-   if(owner&&!owner.balance_locked_at){
-    const pts=SOCIAL_POINTS[sub.platform+'_'+sub.kind]||0;
-    const key='social:'+sub.platform+':'+sub.kind+(sub.kind==='daily'?':'+sub.day:'');
-    const {inserted}=await insertReward(owner,key,'social.'+sub.platform+'_'+sub.kind,pts);
-    if(inserted&&pts)await applyPoints(owner,pts);
-    reward={awarded:inserted,points:inserted?pts:0,duplicate:!inserted};
-    if(reward.points)await rest('/rest/v1/social_submissions',{method:'PATCH',params:{id:'eq.'+id},body:JSON.stringify({points:reward.points})});
-   }else reward.reason=owner?'locked':'player';
-  }
-  return {submission:pub({...sub,status,points:reward.points}),reward};
+  const key='social:'+sub.platform+':'+sub.kind+(sub.kind==='daily'?':'+sub.day:'');
+  const r=await rest('/rest/v1/rpc/mkty_review',{method:'POST',body:JSON.stringify({p_entity:'social',p_id:id,p_decision:body.decision,p_kind:'base',p_actor:user.id,p_points:SOCIAL_POINTS[sub.platform+'_'+sub.kind]||0,p_key:key,p_type:'social.'+sub.platform+'_'+sub.kind,p_now:clock().toISOString()})});
+  if(r.error)throw Error(r.error);return {...r,submission:pub(r.submission)};
  }
 
  return {telegramMembership,mine,verifyTelegram,submit,adminList,adminReview};

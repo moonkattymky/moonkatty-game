@@ -1,3 +1,4 @@
+const {atomicFixture}=require('./atomic-rpc-fixture.cjs');
 const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
 (async()=>{
  const {createHandler,verifyTelegram}=await import('../server/rewards/core.mjs');
@@ -39,7 +40,7 @@ const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
  const tgFetcher=async url=>{const u=new URL(url);tgCalls.push(u);assert.ok(u.pathname.startsWith('/botTEST:TOKEN/getChatMember'));
   if(u.searchParams.get('chat_id')==='@locked')return res({ok:false,error_code:400,description:'Bad Request: member list is inaccessible'},400);
   const st={1:'member',2:'left',3:'creator',4:'kicked'}[u.searchParams.get('user_id')]||'left';return res({ok:true,result:{status:st}});};
- const mk=(o={})=>createHandler({url:'https://e.supabase.co',key:'k',verify:x=>verifyTelegram(x,now,pub),fetcher,clock:()=>new Date(now),adminIds:'900',cipherSecret:'s',botToken:'TEST:TOKEN',tgFetcher,...o});
+ const mk=(o={})=>createHandler({url:'https://e.supabase.co',key:'k',verify:x=>verifyTelegram(x,now,pub),fetcher:atomicFixture(fetcher),clock:()=>new Date(now),adminIds:'900',cipherSecret:'s',botToken:'TEST:TOKEN',tgFetcher,...o});
  const h=mk();
  const call=async(id,action,extra={},hh=h)=>{const r=await hh(new Request('https://x',{method:'POST',body:JSON.stringify({initData:await signed(id),action,...extra})}));return {status:r.status,body:await r.json()};};
 

@@ -11,8 +11,7 @@ window.MKTYCreator=(()=>{
  const ERR={hashtag:'Add #MOONKATTY to the caption you pasted.',weekly:'One submission per week. Try again after the date shown.',duplicate_url:'This video has already been submitted.',url:'Paste a direct link to a TikTok, YouTube, X or Instagram video.',own:'Confirm that this video is yours.',locked:'Your balance is locked after LIFE #9 — new rewards are closed.',auth:'Telegram sign-in expired. Reopen the game.',unavailable:'Server unavailable. Try again later.'};
  async function call(action,payload={}){
   const data=initData();if(!data)return {ok:false,error:'telegram'};
-  try{const r=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:data,action,...payload}),signal:AbortSignal.timeout(10000)});return await r.json().catch(()=>({ok:false,error:'unavailable'}));}
-  catch{return {ok:false,error:'unavailable'};}
+  return await window.MKTYRewards?.call?.(action,payload)||{ok:false,error:'unavailable'};
  }
  const fmt=iso=>{try{return new Date(iso).toLocaleDateString(window.MKTYI18n?.getLanguage?.()||undefined,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}catch{return iso;}};
  const statusLabel=s=>({pending:t('ON REVIEW'),approved:t('APPROVED'),rejected:t('REJECTED')}[s]||s);

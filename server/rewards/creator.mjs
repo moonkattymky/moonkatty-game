@@ -116,16 +116,8 @@ export function createCreator({rest,clock,insertReward,applyPoints,adminIds}){
   const decision=body.decision;
   if(decision!=='approve'&&decision!=='reject')throw Error('decision');
   if(sub.status!=='pending')throw Error('reviewed');
-  const now=clock().toISOString();
-  const status=decision==='approve'?'approved':'rejected';
-  const updated=await patchSub(sub,{status,reviewed_at:now,reviewed_by:user.id},{status:'eq.pending'});
-  if(!updated)throw Error('reviewed');
-  let reward={awarded:false,points:0};
-  if(status==='approved'){
-   reward=await pay(sub,'base',CREATOR_POINTS.base);
-   if(reward.points)await patchSub(sub,{points:Number(sub.points||0)+reward.points});
-  }
-  return {submission:publicSub({...sub,...updated,points:Number(sub.points||0)+reward.points}),reward};
+  const r=await rest('/rest/v1/rpc/mkty_review',{method:'POST',body:JSON.stringify({p_entity:'creator',p_id:sub.id,p_decision:decision,p_kind:'base',p_actor:user.id,p_points:CREATOR_POINTS.base,p_key:'creator:'+sub.id+':base',p_type:'creator.base',p_now:clock().toISOString()})});
+  if(r.error)throw Error(r.error);return {...r,submission:publicSub(r.submission)};
  }
 
  async function adminTier(user,body){
@@ -135,10 +127,8 @@ export function createCreator({rest,clock,insertReward,applyPoints,adminIds}){
   const sub=await getSub(body.id);
   if(sub.status!=='approved')throw Error('not_approved');
   if(sub[tier+'_at'])return {submission:publicSub(sub),reward:{awarded:false,points:0,duplicate:true}};
-  const reward=await pay(sub,tier,CREATOR_POINTS[tier]);
-  const patch={[tier+'_at']:clock().toISOString(),points:Number(sub.points||0)+reward.points};
-  const updated=await patchSub(sub,patch,{[tier+'_at']:'is.null'});
-  return {submission:publicSub({...sub,...(updated||patch)}),reward:{...reward,duplicate:!reward.awarded&&!reward.reason}};
+  const r=await rest('/rest/v1/rpc/mkty_review',{method:'POST',body:JSON.stringify({p_entity:'creator',p_id:sub.id,p_decision:'approve',p_kind:tier,p_actor:user.id,p_points:CREATOR_POINTS[tier],p_key:'creator:'+sub.id+':'+tier,p_type:'creator.'+tier,p_now:clock().toISOString()})});
+  if(r.error)throw Error(r.error);return {...r,submission:publicSub(r.submission)};
  }
 
  return {isAdmin,mine,submit,adminList,adminReview,adminTier};

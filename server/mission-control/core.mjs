@@ -1,5 +1,6 @@
 /* Leaderboard. Telegram IDs never leave this service. Players appear under their verified Telegram
    display name/photo unless they chose to hide (then: HMAC callsign, no photo). */
+import {verifySession} from '../rewards/session.mjs';
 import {profileFields} from './profile.mjs';
 // PUBLIC_KEY is Telegram's published production Ed25519 key for third-party initData validation (public, not a secret).
 // Bot id is taken from the TELEGRAM_BOT_TOKEN secret prefix when present.
@@ -27,7 +28,7 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegramUser,c
  async function callsign(id){const secret=await crypto.subtle.importKey('raw',enc.encode(key),{name:'HMAC',hash:'SHA-256'},false,['sign']);const digest=new Uint8Array(await crypto.subtle.sign('HMAC',secret,enc.encode('moonkatty-callsign:'+id)));return 'PILOT-'+[...digest.slice(0,4)].map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase();}
  return async request=>{
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:cors});if(!['GET','POST'].includes(request.method))return json({ok:false,error:'method'},405);
-  let userId=null,user=null,body={};if(request.method==='POST'){try{if(Number(request.headers.get('Content-Length'))>12000)return json({ok:false,error:'body'},413);const raw=await request.text();if(raw.length>12000)return json({ok:false,error:'body'},413);body=JSON.parse(raw)||{};const v=await verify(body.initData);user=typeof v==='object'?v:null;userId=user?user.id:v;}catch{return json({ok:false,error:'auth'},401);}}
+  let userId=null,user=null,body={};if(request.method==='POST'){try{if(Number(request.headers.get('Content-Length'))>12000)return json({ok:false,error:'body'},413);const raw=await request.text();if(raw.length>12000)return json({ok:false,error:'body'},413);body=JSON.parse(raw)||{};const v=body.session?await verifySession(body.session,key,clock().getTime()):await verify(body.initData);user=typeof v==='object'?v:null;userId=user?user.id:v;}catch{return json({ok:false,error:'auth'},401);}}
   if(!url||!key)return json({ok:false,error:'unavailable'},503);
   if(user){const fields=profileFields(user);if(body.action==='privacy'&&typeof body.hidden==='boolean')fields.leaderboard_hidden=body.hidden;try{await patch(user.id,fields);}catch{if(body.action==='privacy')return json({ok:false,error:'unavailable'},503);}}
   try{const {rows,total}=await query({select:'telegram_id,moon_points,story_life,display_name,photo_url,leaderboard_hidden',moon_points:'gt.0',order:'moon_points.desc,story_life.desc,telegram_id.asc',limit:50},true);let rank=0,previous=null;

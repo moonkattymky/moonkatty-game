@@ -58,21 +58,10 @@ export function createDaily({rest,clock,insertReward,applyPoints,secret}){
   const today=utcDay(clock());
   const guess=normalizeCode(answer);
   if(!/^[A-Z]{2,16}$/.test(guess))throw Error('answer');
-  const c=await getCipher(p,today);
-  if(c?.solved)return {correct:true,awarded:false,duplicate:true,attempts_left:Math.max(0,CIPHER_MAX_ATTEMPTS-c.attempts),player:p};
-  // Atomic attempt counter (SQL function caps at max)
-  const left=await rest('/rest/v1/rpc/cipher_attempt',{method:'POST',body:JSON.stringify({p_telegram_id:p.telegram_id,p_day:today,p_max:CIPHER_MAX_ATTEMPTS})});
-  const used=Number(Array.isArray(left)?left[0]:left);
-  if(used===-1)throw Error('no_attempts');
-  if(!Number.isInteger(used)||used<1)throw Error('unavailable');
   const word=await cipherWord(today,secret);
-  const correct=guess===word;
-  const attempts_left=Math.max(0,CIPHER_MAX_ATTEMPTS-used);
-  if(!correct)return {correct:false,awarded:false,attempts_left,player:p};
-  await rest('/rest/v1/cipher_attempts',{method:'PATCH',params:{telegram_id:tid(p),day:'eq.'+today},body:JSON.stringify({solved:true,solved_at:clock().toISOString()})});
-  const {inserted}=await insertReward(p,'cipher:'+today,'daily.cipher',CIPHER_POINTS);
-  const player=inserted?await applyPoints(p,CIPHER_POINTS):p;
-  return {correct:true,awarded:inserted,points:inserted?CIPHER_POINTS:0,attempts_left,player};
+  const result=await rest('/rest/v1/rpc/mkty_cipher',{method:'POST',body:JSON.stringify({p_id:p.telegram_id,p_day:today,p_correct:guess===word,p_max:CIPHER_MAX_ATTEMPTS,p_now:clock().toISOString()})});
+  if(result?.error)throw Error(result.error);
+  return result;
  }
  async function checkin(p){
   const today=utcDay(clock());
@@ -80,10 +69,9 @@ export function createDaily({rest,clock,insertReward,applyPoints,secret}){
   const t=nextStreak(row,today);
   if(t.already)return {awarded:false,duplicate:true,streak:streakView(row,today),player:p};
   const points=streakReward(t.streak);
-  const {inserted}=await insertReward(p,'streak:'+today,'daily.streak',points);
-  if(!inserted)return {awarded:false,duplicate:true,streak:streakView(await getStreak(p),today),player:p};
   const next={telegram_id:p.telegram_id,streak:t.streak,last_day:today,shield_week:t.shield_week,best:Math.max(row?.best||0,t.streak),updated_at:clock().toISOString()};
-  await rest('/rest/v1/login_streaks',{method:'POST',headers:{Prefer:'return=representation,resolution=merge-duplicates'},params:{on_conflict:'telegram_id'},body:JSON.stringify(next)});
+  const {inserted}=await insertReward(p,'streak:'+today,'daily.streak',points,next);
+  if(!inserted)return {awarded:false,duplicate:true,streak:streakView(await getStreak(p),today),player:p};
   const player=await applyPoints(p,points);
   return {awarded:true,points,shield_used:t.shieldUsed,streak:streakView(next,today),player};
  }

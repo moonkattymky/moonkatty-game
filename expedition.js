@@ -169,8 +169,8 @@ window.MKTYExpedition = (() => {
     for(const d of r.drones)if(full||R.distance(d,r.ship)<800)circle(c,d.x*k,d.y*k,full?5:2,null,d.disabled?'#7899a0':'#d28272');
     const s=r.ship;c.save();c.translate(s.x*k,s.y*k);c.rotate(s.angle);const a=full?10:4;poly(c,[[0,-a],[a*.7,a*.7],[0,a*.4],[-a*.7,a*.7]],'#fff');c.restore();}
   // A prominent entry point is independent of campaign progression and rewards.
-  const homeButton=document.createElement('button');homeButton.id='expeditionEntry';homeButton.className='exp-entry';homeButton.setAttribute('translate','no');homeButton.onclick=open;
-  $('enterBtn').before(homeButton);
+  const homeButton=$('expeditionEntry')||document.createElement('button');homeButton.id='expeditionEntry';homeButton.className='exp-entry';homeButton.setAttribute('translate','no');homeButton.onclick=open;
+  if(!homeButton.isConnected)$('enterBtn').before(homeButton);
   const chapterButton=document.createElement('button');chapterButton.id='expeditionChapterEntry';chapterButton.className='exp-chapter-entry';chapterButton.setAttribute('translate','no');chapterButton.onclick=open;$('chapterList').before(chapterButton);
   function entryLabels(){homeButton.innerHTML=`<span><small>${tr('ГЛУБОКИЙ КОСМОС','DEEP SPACE')} / ${tr('НОВЫЙ РЕЖИМ','NEW MODE')}</small><strong>${tr('ВЫЛЕТ В ОТКРЫТЫЙ СЕКТОР','EXPLORE OPEN SPACE')}</strong><em>${tr('Исследуйте. Спасайте. Улучшайте корабль.','Explore. Rescue. Upgrade your ship.')}</em></span><b>↗</b>`;chapterButton.textContent=tr('ЭКСПЕДИЦИИ · СВОБОДНЫЙ ПОЛЁТ ↗','EXPEDITIONS · FREE FLIGHT ↗');}
   entryLabels();new MutationObserver(entryLabels).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});

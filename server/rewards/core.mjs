@@ -1,6 +1,7 @@
 /* Authoritative Moon Points / lives / life-complete. Browser storage is cache only.
    Requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY in the Edge Function env.
    Telegram initData verified with Ed25519 (same contract as mission-control). */
+import {issueSession,verifySession} from './session.mjs';
 import {profileFields} from './profile.mjs';
 import {createDaily} from './daily.mjs';
 import {createCreator,parseAdminIds} from './creator.mjs';
@@ -46,7 +47,7 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
   if(opts.params)for(const [k,v] of Object.entries(opts.params))target.searchParams.set(k,String(v));
   const r=await fetcher(target,{method:opts.method||'GET',headers:restHeaders(key,opts.headers||{}),body:opts.body,signal:AbortSignal.timeout(8000)});
   if(r.status===409)throw Error('duplicate');
-  if(!r.ok){const t=await r.text().catch(()=>'');throw Error('database:'+r.status+':'+t.slice(0,200));}
+  if(!r.ok)throw Error('database:'+r.status);
   if(r.status===204)return null;
   const text=await r.text();return text?JSON.parse(text):null;
  }
@@ -54,8 +55,9 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
  async function ensurePlayer(user){
   const rows=await rest('/rest/v1/players',{params:{select:'*',telegram_id:'eq.'+user.id,limit:1}});
   if(rows?.[0]){await refreshProfile(user,rows[0]);return attachReferrer(await restoreLives(rows[0]),user);}
-  const created=await rest('/rest/v1/players',{method:'POST',headers:{Prefer:'return=representation,resolution=merge-duplicates'},body:JSON.stringify({telegram_id:user.id,username:user.username,first_name:user.first_name,...profileFields(user),moon_points:0,lives:MAX_LIVES,story_life:0})});
-  return attachReferrer(Array.isArray(created)?created[0]:created,user);
+  const created=await rest('/rest/v1/players',{method:'POST',headers:{Prefer:'return=representation,resolution=ignore-duplicates'},body:JSON.stringify({telegram_id:user.id,username:user.username,first_name:user.first_name,...profileFields(user),moon_points:0,lives:MAX_LIVES,story_life:0})});
+  const row=Array.isArray(created)?created[0]:created;
+  return attachReferrer(row||(await rest('/rest/v1/players',{params:{select:'*',telegram_id:'eq.'+user.id,limit:1}}))[0],user);
  }
 
  // Signed start_param ref_<id>: attach once, only before LIFE #1, never self, inviter must exist.
@@ -69,25 +71,12 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
  }
 
  // Paid exactly once when the invitee's LIFE #1 completion is first recorded server-side.
- async function payReferralBonus(invitee){
-  const inviterId=Number(invitee.referred_by);
-  if(!inviterId||inviterId===invitee.telegram_id)return {invitee:invitee,inviter_paid:false};
-  let out={invitee,inviter_paid:false,invitee_points:0};
-  const own=await insertReward(invitee,'referral:invitee:life1','referral.invitee',REFERRAL_INVITEE_BONUS).catch(e=>{if(String(e.message)==='locked')return {inserted:false};throw e;});
-  if(own.inserted){out.invitee=await applyPoints(invitee,REFERRAL_INVITEE_BONUS);out.invitee_points=REFERRAL_INVITEE_BONUS;}
-  const invRows=await rest('/rest/v1/players',{params:{select:'*',telegram_id:'eq.'+inviterId,limit:1}});
-  const inviter=invRows?.[0];
-  if(!inviter||inviter.balance_locked_at)return out;
-  const since=new Date(clock()); since.setUTCHours(0,0,0,0);
-  const dayRows=await rest('/rest/v1/referral_events',{params:{select:'id',inviter_id:'eq.'+inviterId,created_at:'gte.'+since.toISOString()}});
-  if((dayRows?.length||0)>=referralDailyCap)return out;
-  try{
-   await rest('/rest/v1/referral_events',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({inviter_id:inviterId,referral_id:invitee.telegram_id,source_event_key:'life1',points:REFERRAL_BONUS})});
-  }catch(e){const m=String(e.message||e);if(m==='duplicate'||m.includes('23505')||m.includes('409'))return out;throw e;}
-  const {inserted}=await insertReward(inviter,'referral:'+invitee.telegram_id+':life1','referral.inviter',REFERRAL_BONUS);
-  if(inserted){await applyPoints(inviter,REFERRAL_BONUS);out.inviter_paid=true;}
+ async function rpc(name,params){
+  const out=await rest('/rest/v1/rpc/'+name,{method:'POST',body:JSON.stringify({...params,p_now:clock().toISOString()})});
+  if(out?.error){const e=Error(out.error);if(out.unlock_at)e.unlock_at=out.unlock_at;throw e;}
   return out;
  }
+ async function payReferralBonus(invitee){return rpc('mkty_referral',{p_invitee:invitee.telegram_id,p_inviter:Number(invitee.referred_by),p_source:'life1',p_activation:true,p_cap:referralDailyCap});}
 
  async function referralStats(player){
   const invited=await rest('/rest/v1/players',{params:{select:'telegram_id,story_life',referred_by:'eq.'+player.telegram_id}});
@@ -99,18 +88,7 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
  // Leaderboard identity refresh on every verified session; never blocks gameplay.
  async function refreshProfile(user,row){const f=profileFields(user);if(row.display_name===f.display_name&&row.photo_url===f.photo_url)return;try{await rest('/rest/v1/players',{method:'PATCH',params:{telegram_id:'eq.'+user.id},headers:{Prefer:'return=minimal'},body:JSON.stringify(f)});Object.assign(row,f);}catch{}}
 
- async function restoreLives(player){
-  const now=clock();
-  let lives=Number(player.lives), next=player.next_life_at?new Date(player.next_life_at):null;
-  if(lives<MAX_LIVES && next && now>=next){
-   const gained=Math.floor((now-next)/LIFE_RESTORE_MS)+1;
-   lives=Math.min(MAX_LIVES,lives+gained);
-   next=lives<MAX_LIVES?new Date(next.getTime()+gained*LIFE_RESTORE_MS):null;
-   await rest('/rest/v1/players',{method:'PATCH',params:{telegram_id:'eq.'+player.telegram_id},body:JSON.stringify({lives,next_life_at:next?next.toISOString():null,updated_at:now.toISOString()})});
-   player={...player,lives,next_life_at:next?next.toISOString():null};
-  }
-  return player;
- }
+ async function restoreLives(player){return rpc('mkty_restore_lives',{p_id:player.telegram_id});}
 
  function publicPlayer(p){
   return {
@@ -124,127 +102,39 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
   };
  }
 
- async function insertReward(player,event_key,event_type,points){
-  if(player.balance_locked_at && points>0)throw Error('locked');
-  // Idempotent: unique (telegram_id, event_key)
-  try{
-   const rows=await rest('/rest/v1/reward_events',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({telegram_id:player.telegram_id,event_key,event_type,points,verified:true})});
-   return {inserted:true,row:Array.isArray(rows)?rows[0]:rows};
-  }catch(e){
-   const msg=String(e.message||e);
-   if(msg==='duplicate'||msg.includes('23505')||msg.toLowerCase().includes('duplicate')||msg.includes('409')){
-    const existing=await rest('/rest/v1/reward_events',{params:{select:'*',telegram_id:'eq.'+player.telegram_id,event_key:'eq.'+event_key,limit:1}});
-    return {inserted:false,row:existing?.[0]||null};
-   }
-   throw e;
-  }
+ async function insertReward(player,event_key,event_type,points,meta={}){
+  const result=await rpc('mkty_reward',{p_id:player.telegram_id,p_key:event_key,p_type:event_type,p_points:points,p_meta:meta});
+  Object.assign(player,result.player);return result;
  }
-
- async function applyPoints(player,delta){
-  if(delta===0)return player;
-  if(player.balance_locked_at && delta>0)throw Error('locked');
-  const moon_points=Math.max(0,Number(player.moon_points)+delta);
-  const patch={moon_points,updated_at:clock().toISOString()};
-  const rows=await rest('/rest/v1/players',{method:'PATCH',params:{telegram_id:'eq.'+player.telegram_id},body:JSON.stringify(patch)});
-  return Array.isArray(rows)?{...player,...rows[0]}:{...player,...patch};
+ // The RPC already writes the ledger and balance atomically. Refresh, never add again.
+ async function applyPoints(player){return (await rest('/rest/v1/players',{params:{select:'*',telegram_id:'eq.'+player.telegram_id,limit:1}}))?.[0]||player;}
+ async function lifeComplete(player,life){
+  life=Number(life);if(!Number.isInteger(life)||life<1||life>9)throw Error('life');
+  if(life>Number(player.story_life||0)+1)throw Error('life');
+  const event_key='life:'+life+':complete';
+  if(life>Number(player.story_life||0))await pace.assertUnlocked(player,life);
+  const result=await insertReward(player,event_key,'life.complete',LIFE_REWARDS[life]);
+  let next=result.player,referral=null;
+  // Retry a missed referral transaction even if the chapter was already recorded.
+  if(life===1&&next.referred_by){const r=await payReferralBonus(next);next=r.invitee;referral={invitee_points:r.invitee_points||0,inviter_paid:r.inviter_paid};}
+  return {player:next,awarded:result.inserted,points:result.inserted?LIFE_REWARDS[life]:0,event_key,...(referral?{referral}:{})};
  }
-
- async function lifeComplete(player,life,event_key){
-  life=Number(life);
-  if(!Number.isInteger(life)||life<1||life>9)throw Error('life');
-  const points=LIFE_REWARDS[life];
-  // Canonical key only: pacing reads the LIFE #N completion time from it, and it blocks double awards.
-  const key='life:'+life+':complete';
-  // One new chapter per UTC day (completed chapters are never relocked).
-  if(Number(player.story_life||0)<life)await pace.assertUnlocked(player,life);
-  const {inserted}=await insertReward(player,key,'life.complete',points);
-  let next=player,referral=null;
-  if(inserted){
-   next=await applyPoints(player,points);
-   const story_life=Math.max(Number(next.story_life||0),life);
-   const patch={story_life,updated_at:clock().toISOString()};
-   if(life===9 && !next.balance_locked_at){
-    patch.final_balance=Number(next.moon_points);
-    patch.balance_locked_at=clock().toISOString();
-   }
-   const rows=await rest('/rest/v1/players',{method:'PATCH',params:{telegram_id:'eq.'+player.telegram_id},body:JSON.stringify(patch)});
-   next=Array.isArray(rows)?{...next,...rows[0]}:{...next,...patch};
-   if(life===1&&next.referred_by){const r=await payReferralBonus(next);next=r.invitee;referral={invitee_points:r.invitee_points||0,inviter_paid:r.inviter_paid};}
-  }else{
-   // already paid — refresh
-   const rows=await rest('/rest/v1/players',{params:{select:'*',telegram_id:'eq.'+player.telegram_id,limit:1}});
-   next=rows?.[0]||player;
-  }
-  return {player:next,awarded:inserted,points:inserted?points:0,event_key:key,...(referral?{referral}:{})};
- }
-
  async function spendLife(player,event_key){
-  if(event_key!=null&&(typeof event_key!=='string'||event_key.length<3||event_key.length>200||/^(chapter:|life:[1-9]:complete$|referral:|daily:|cipher:|streak:|youtube:|creator:)/.test(event_key)))throw Error('event_key');
-  const key=event_key||('life:spend:'+clock().toISOString());
-  // Idempotent spend marker (0 points) so retries don't double-charge lives
-  const existing=await rest('/rest/v1/reward_events',{params:{select:'id',telegram_id:'eq.'+player.telegram_id,event_key:'eq.'+key,limit:1}});
-  if(existing?.[0]){
-   const rows=await rest('/rest/v1/players',{params:{select:'*',telegram_id:'eq.'+player.telegram_id,limit:1}});
-   return {player:rows?.[0]||player,spent:false,duplicate:true};
-  }
-  player=await restoreLives(player);
-  if(Number(player.lives)<=0)throw Error('no_lives');
-  const lives=Number(player.lives)-1;
-  // next_life_at = when the NEXT life will restore (12h from now if no timer yet)
-  const next_life_at=player.next_life_at||new Date(clock().getTime()+LIFE_RESTORE_MS).toISOString();
-  await insertReward(player,key,'life.spend',0);
-  const rows=await rest('/rest/v1/players',{method:'PATCH',params:{telegram_id:'eq.'+player.telegram_id},body:JSON.stringify({lives,next_life_at,updated_at:clock().toISOString()})});
-  const next=Array.isArray(rows)?{...player,...rows[0]}:{...player,lives,next_life_at};
-  return {player:next,spent:true,duplicate:false};
+  if(typeof event_key!=='string'||event_key.length<3||event_key.length>200||/^(chapter:|life:[1-9]:complete$|referral:|daily:|cipher:|streak:|youtube:|creator:)/.test(event_key))throw Error('event_key');
+  const r=await insertReward(player,event_key,'life.spend',0);
+  return {player:r.player,spent:r.inserted,duplicate:!r.inserted};
  }
-
- async function verifyReward(player,event_key,event_type,points){
-  if(typeof event_key!=='string'||event_key.length<3||event_key.length>200)throw Error('event_key');
-  if(typeof event_type!=='string'||event_type.length<2||event_type.length>64)throw Error('event_type');
-  points=Number(points);
-  if(!Number.isInteger(points)||points<0||points>5000)throw Error('points');
-  // Reject client-invented life.complete amounts — those go through lifeComplete
-  if(event_type==='life.complete')throw Error('use_life_complete');
-  // Social / daily / creator rewards are paid only by their own server verification paths.
+ async function verifyReward(player){
   if(player.balance_locked_at)throw Error('locked');
-  if(/^(daily|social|creator)([._]|$)/.test(event_type))throw Error('unverified');
-  // Reserved server-only events (chapter pacing / life completion / life spends).
-  if(event_type==='chapter.skip'||event_type==='life.spend'||/^(chapter:|life:)/.test(event_key))throw Error('event_key');
-  const {inserted}=await insertReward(player,event_key,event_type,points);
-  let next=player;
-  if(inserted && points>0) next=await applyPoints(player,points);
-  else {
-   const rows=await rest('/rest/v1/players',{params:{select:'*',telegram_id:'eq.'+player.telegram_id,limit:1}});
-   next=rows?.[0]||player;
-  }
-  return {player:next,awarded:inserted,points:inserted?points:0,event_key};
+  // There is deliberately no public "arbitrary points" action. All rewards need a verified path.
+  throw Error('unverified');
  }
-
  async function claimReferral(player,referral_id,source_event_key){
   referral_id=Number(referral_id);
   if(!Number.isSafeInteger(referral_id)||referral_id<=0||referral_id===player.telegram_id)throw Error('referral');
-  if(typeof source_event_key!=='string'||source_event_key.length<3)throw Error('source');
-  const ref=await rest('/rest/v1/players',{params:{select:'referred_by',telegram_id:'eq.'+referral_id,limit:1}});
-  if(Number(ref?.[0]?.referred_by)!==player.telegram_id)throw Error('referral');
-  // daily cap
-  const since=new Date(clock()); since.setUTCHours(0,0,0,0);
-  const dayRows=await rest('/rest/v1/referral_events',{params:{select:'id',inviter_id:'eq.'+player.telegram_id,created_at:'gte.'+since.toISOString()}});
-  if((dayRows?.length||0)>=referralDailyCap)throw Error('cap');
-  try{
-   await rest('/rest/v1/referral_events',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({inviter_id:player.telegram_id,referral_id,source_event_key,points:1})});
-  }catch(e){
-   const msg=String(e.message||e);
-   if(msg==='duplicate'||msg.includes('23505')||msg.toLowerCase().includes('duplicate')||msg.includes('409')){
-    const rows=await rest('/rest/v1/players',{params:{select:'*',telegram_id:'eq.'+player.telegram_id,limit:1}});
-    return {player:rows?.[0]||player,awarded:false,duplicate:true};
-   }
-   throw e;
-  }
-  const event_key='referral:'+referral_id+':'+source_event_key;
-  const {inserted}=await insertReward(player,event_key,'referral.claim',1);
-  let next=player;
-  if(inserted) next=await applyPoints(player,1);
-  return {player:next,awarded:inserted,duplicate:false};
+  if(typeof source_event_key!=='string'||source_event_key.length<3||source_event_key.length>200)throw Error('source');
+  const r=await rpc('mkty_referral',{p_invitee:referral_id,p_inviter:player.telegram_id,p_source:source_event_key,p_activation:false,p_cap:referralDailyCap});
+  return {player:r.player,awarded:r.awarded,duplicate:!r.awarded};
  }
 
  const daily=createDaily({rest,clock,insertReward,applyPoints,secret:cipherSecret});
@@ -255,7 +145,7 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
   if(request.method==='GET'){
    // Health / contract probe — no secrets leaked
-   return json({ok:true,service:'rewards'});
+   return json({ok:true,service:'rewards',version:'20261007-integrity-1'});
   }
   if(request.method!=='POST')return json({ok:false,error:'method'},405);
   if(!url||!key)return json({ok:false,error:'unavailable'},503);
@@ -264,13 +154,14 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
    if(Number(request.headers.get('Content-Length'))>12000)return json({ok:false,error:'body'},413);
    const raw=await request.text();
    if(raw.length>12000)return json({ok:false,error:'body'},413);
-   body=JSON.parse(raw);
+   body=JSON.parse(raw);if(!body||typeof body!=='object'||Array.isArray(body))throw Error('body');
   }catch{return json({ok:false,error:'body'},400);}
   let user;
-  try{user=await verify(body.initData);}catch{return json({ok:false,error:'auth'},401);}
+  try{user=body.session?await verifySession(body.session,key,clock().getTime()):await verify(body.initData);}catch{return json({ok:false,error:'auth'},401);}
   try{
    let player=await ensurePlayer(user);
    const action=body.action||'player';
+   if(action==='session'){if(body.session)throw Error('auth');return json({ok:true,session:await issueSession(user,key,clock().getTime()),player:publicPlayer(player),pace:await pace.status(player)});}
    if(action==='player')return json({ok:true,player:publicPlayer(player),pace:await pace.status(player)});
    if(action==='chapter.status')return json({ok:true,pace:await pace.status(player),player:publicPlayer(player)});
    if(action==='chapter.skip'){const r=await pace.skip(player,body.life);return json({ok:true,...r,pace:await pace.status(player),player:publicPlayer(player)});}

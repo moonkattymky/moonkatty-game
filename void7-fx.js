@@ -5,7 +5,7 @@ const Void7FX={create({world,canvas,ship,bubble}){
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),sector=s=>Math.min(2,Math.floor(s.distance/(100/3)));
  const time=s=>s.elapsed+(s.phase==='approach'?s.phaseTime:0);
  const motes=Array.from({length:42},(_,i)=>({x:((i*73+19)%101)/101,y:((i*31+7)%97)/97,z:(i%3+1)/3}));
- const rock=new Image();rock.src='art/life7-asteroid-v2.webp';rock.onload=()=>{if(latest&&world.closest('.screen.active'))draw(latest);};
+ const rock=new Image();rock.onload=()=>{if(latest&&world.closest('.screen.active'))draw(latest);};
  function glow(color){const image=document.createElement('canvas');image.width=image.height=160;const c=image.getContext('2d');if(c){const g=c.createRadialGradient(80,80,0,80,80,80);g.addColorStop(0,color);g.addColorStop(1,'transparent');c.fillStyle=g;c.fillRect(0,0,160,160);}return image;}
  const cyan=glow('#80f6edbc'),gold=glow('#ffe0a688'),blue=glow('#589dff80');
  function resize(){w=Math.max(1,world.clientWidth);h=Math.max(1,world.clientHeight);shipW=ship.offsetWidth||72;shipH=shipW*343/520;const dpr=Math.min(devicePixelRatio||1,1.75);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx?.setTransform(dpr,0,0,dpr,0,0);}
@@ -44,6 +44,7 @@ const Void7FX={create({world,canvas,ship,bubble}){
   for(let i=0;i<3;i++){const a=spin+i*Math.PI*2/3;c.globalAlpha=.85;c.drawImage(cyan,Math.cos(a)*r*.92-9,Math.sin(a)*r*.54-9,18,18);}c.restore();
  }
  function draw(s){
+  if(!rock.src&&world.closest('.screen.active'))rock.src='art/life7-asteroid-v2.webp';
   latest=s;if(!ctx)return;const started=performance.now(),c=ctx,reduced=window.MKTYExperience?.effectsReduced,low=reduced||cost>5,t=reduced?0:time(s),x=s.x*w,y=h*.78,n=sector(s),live=s.phase==='flight';
   c.clearRect(0,0,w,h);c.save();
   // Distant rocks stay outside the playable lanes.

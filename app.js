@@ -8,30 +8,10 @@ let mktyServerPlayer=null;
 let mktyAuthPromise=null;
 
 async function authenticateMoonkattyPlayer(){
- if(!tg?.initData){
-  console.info('MOONKATTY auth: open the game inside Telegram to authenticate.');
-  return null;
- }
- try{
-  const response=await fetch(MKTY_AUTH_URL,{
-   method:'POST',
-   headers:{'Content-Type':'application/json'},
-   body:JSON.stringify({initData:tg.initData})
-  });
-  const payload=await response.json().catch(()=>({}));
-  if(!response.ok||!payload?.ok||!payload?.player){
-   throw new Error(payload?.error||('HTTP '+response.status));
-  }
-  mktyServerPlayer=payload.player;
-  console.info('MOONKATTY auth: Telegram identity verified.');
-  return mktyServerPlayer;
- }catch(error){
-  console.error('MOONKATTY auth failed:',error);
-  return null;
- }
+ if(!tg?.initData)return null;
+ mktyServerPlayer=await window.MKTYRewards?.syncPlayer?.();return mktyServerPlayer;
 }
 mktyAuthPromise=authenticateMoonkattyPlayer();
-mktyAuthPromise.then(()=>{ try{ window.MKTYRewards?.syncPlayer?.(); }catch(_){ } });
 
 
 // MOONKATTY Crew identity
@@ -74,8 +54,8 @@ function setLang(code){
  const t=copy[code]||copy.en;
  $('chooseText').textContent=t[0]; $('welcome').textContent=t[1]; $('enterBtn').textContent=t[2];
  if($('lifeTitle')) $('lifeTitle').textContent=t[3]; if($('lifeText')) $('lifeText').textContent=t[4];
- window.MKTYI18n?.setLanguage(code);
- show('home');window.MKTYCampaign?.render();
+ const ready=window.MKTYI18n?.setLanguage(code);
+ show('home');window.MKTYCampaign?.render();return ready;
 }
 langs.forEach(([code,flag,name])=>{
  const b=document.createElement('button'); b.className='lang'; b.textContent=`${flag} ${name}`;
@@ -118,6 +98,7 @@ function show(id){
  window.MKTYExpedition?.onScreen(id);window.MKTYField?.onScreen(id);
  document.querySelectorAll('.mission-screen.active').forEach(s=>{if(s.id!==id)leaveMission(s.id);});
  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+ $(id).querySelectorAll('[data-mkty-src]').forEach(el=>{el.setAttribute('href',el.dataset.mktySrc);el.removeAttribute('data-mkty-src');});
  $(id).classList.add('active');window.scrollTo(0,0);window.MKTYCampaign?.onScreen(id);window.MKTYExperience?.onScreen(id);window.MKTYHub?.onScreen(id);
  if(id==='mission1'){refreshLife1Geometry();l1LastFrame=0;cancelAnimationFrame(l1MoveFrame);l1MoveFrame=requestAnimationFrame(life1MoveLoop);}
 }
@@ -477,7 +458,7 @@ function awardLifePoints(n,amount){
  const key='mkty_life'+n,awardKey=key+'_awarded';
  // Optimistic local cache; server confirms when rewards Edge Function is deployed + Telegram initData present.
  let pts=Number(localStorage.getItem('mkty_points')||0);
- if(localStorage.getItem(awardKey)!=='yes'){pts+=amount;localStorage.setItem('mkty_points',String(pts));localStorage.setItem(awardKey,'yes');}
+ if(!tg?.initData&&localStorage.getItem(awardKey)!=='yes'){pts+=amount;localStorage.setItem('mkty_points',String(pts));localStorage.setItem(awardKey,'yes');}
  localStorage.setItem(key,'complete');
  try{
   window.MKTYRewards?.completeLife?.(n,amount)?.then?.(res=>{
@@ -966,9 +947,9 @@ function renderMissionArchive(){
  if($('archiveCount'))$('archiveCount').textContent=count+' / 3';
 }
 
-function moonPointsLocked(){return localStorage.getItem('mkty_life9')==='complete';}
+function moonPointsLocked(){return tg?.initData?!!localStorage.getItem('mkty_points_locked_at'):localStorage.getItem('mkty_life9')==='complete';}
 function lockFinalMoonPoints(){
- if(!moonPointsLocked())return;
+ if(tg?.initData||!moonPointsLocked())return;
  if(!localStorage.getItem('mkty_final_moon_points')){
   const shown=parseInt(($('points')?.textContent||'0').replace(/\D/g,''),10)||0;
   localStorage.setItem('mkty_final_moon_points',String(shown));
