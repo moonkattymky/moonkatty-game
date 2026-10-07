@@ -1,7 +1,9 @@
 /* Leaderboard. Telegram IDs never leave this service. Players appear under their verified Telegram
    display name/photo unless they chose to hide (then: HMAC callsign, no photo). */
 import {profileFields} from './profile.mjs';
-const BOT_ID='8659740610',PUBLIC_KEY='e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
+// PUBLIC_KEY is Telegram's published production Ed25519 key for third-party initData validation (public, not a secret).
+// Bot id is taken from the TELEGRAM_BOT_TOKEN secret prefix when present.
+const BOT_ID=(/^(\d{5,15}):/.exec((typeof Deno!=='undefined'&&Deno.env?.get?.('TELEGRAM_BOT_TOKEN'))||'')||[])[1]||'8659740610',PUBLIC_KEY='e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
 const enc=new TextEncoder(),cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'content-type','Access-Control-Allow-Methods':'GET, POST, OPTIONS'};
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{...cors,'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 export async function verifyTelegram(initData,now=Date.now(),publicKey=PUBLIC_KEY){

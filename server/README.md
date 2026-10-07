@@ -119,3 +119,21 @@ Admins: function secret `ADMIN_TG_IDS` (comma-separated Telegram user ids), e.g.
 `supabase secrets set ADMIN_TG_IDS=1264735363 --project-ref lswbmgoeinblzuqzakvi`.
 Admin UI: `admin.html` (no secrets; every call is checked server-side). Open inside Telegram via `https://t.me/<bot>?startapp=admin`, or More → Creator rewards → “Open admin review” (visible to admins only). Non-admins see 403 and their own Telegram ID.
 Tests: `node tests/creator-server.cjs`.
+
+## Verified social missions (2026-10-07)
+
+Opening a link never pays. `rewards.verify` now rejects `daily.*`, `social.*`, `creator.*` event types (`unverified`).
+
+- `social.telegram.verify` — Bot API `getChatMember(chat_id=@moonkattymkty, user_id)` with `TELEGRAM_BOT_TOKEN`
+  (override channel with `TELEGRAM_CHANNEL`). Pays +5 once (`social:telegram:follow`) for
+  member/administrator/creator. If the bot can't read members, returns `status:'bot_not_admin'` and pays nothing.
+  The bot must be an administrator of the channel (no extra rights needed).
+- `social.status` — personal code `MKTY-XXXX` (HMAC of telegram id with `CIPHER_SECRET`), submissions, paid flags.
+- `social.submit {platform:x|tiktok, kind:follow|daily, proof}` — pending row in `social_submissions`
+  (migration `20261007_social_verify.sql`). follow: once per platform; daily: once per platform per UTC day;
+  max 3 pending; each proof once globally.
+- `admin.social.list` / `admin.social.review` — ADMIN_TG_IDS only (403 otherwise); approval pays +5
+  (`social:<platform>:follow` or `social:<platform>:daily:<day>`), idempotent. UI: admin.html → tab «Соцсети».
+- `social.youtube.verify` — Google OAuth subscription check, disabled until `YOUTUBE_OAUTH_ENABLED=true`
+  plus GOOGLE_CLIENT_ID/SECRET, YOUTUBE_CHANNEL_ID, YOUTUBE_REDIRECT_URI. See `youtube-oauth.md`.
+Tests: `node tests/social-server.cjs`.

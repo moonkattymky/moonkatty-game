@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
-<title>MOONKATTY · Creator review</title>
+<title>MOONKATTY · Admin review</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="stylesheet" href="creator.css?v=20261007-creator-1">
 <style>
@@ -39,6 +39,7 @@ h1{font-size:18px;font-weight:500;margin:4px 0 2px;letter-spacing:.5px}
  <p><a href="./" style="color:#8fa6b2;font-size:12px" data-t="← Back to the game">← Back to the game</a></p>
 </main>
 <script src="locales/creator.js?v=20261007-creator-1"></script>
+<script src="locales/social.js?v=20261007-social-1"></script>
 <script>
 (()=>{
  'use strict';
@@ -53,7 +54,7 @@ h1{font-size:18px;font-weight:500;margin:4px 0 2px;letter-spacing:.5px}
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const $=id=>document.getElementById(id),body=$('adBody'),msg=$('adMsg');
  const initData=tg?.initData||'',me=tg?.initDataUnsafe?.user?.id;
- let status='pending',points={base:250,tier_1k:250,tier_10k:500};
+ let status='pending',points={base:250,tier_1k:250,tier_10k:500},mode=new URLSearchParams(location.search).get('tab')==='social'?'social':'video',spoints={};
  async function call(action,payload={}){
   try{const r=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData,action,...payload}),signal:AbortSignal.timeout(10000)});return await r.json().catch(()=>({ok:false,error:'unavailable'}));}catch{return {ok:false,error:'unavailable'};}
  }
@@ -69,17 +70,29 @@ h1{font-size:18px;font-weight:500;margin:4px 0 2px;letter-spacing:.5px}
   else if(s.status==='approved')act=`<button data-tier="1k" data-id="${s.id}" ${s.tier_1k?'disabled':''}>${s.tier_1k?'✓ ':''}${t('1,000+ views')} +${points.tier_1k} ⭐</button><button data-tier="10k" data-id="${s.id}" ${s.tier_10k?'disabled':''}>${s.tier_10k?'✓ ':''}${t('10,000+ views')} +${points.tier_10k} ⭐</button>`;
   return `<article class="ad-card"><a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.platform.toUpperCase())} · ${esc(s.url)}</a><div class="ad-meta">#${s.id} · ${esc(who)} · ID ${esc(s.telegram_id)} · ${esc(date)}${s.points?` · +${s.points} ⭐`:''}</div><div class="ad-cap">${esc(s.caption)}</div>${act?`<div class="ad-act">${act}</div>`:''}</article>`;
  }
+ function scard(s){
+  const who=s.username?'@'+s.username:(s.first_name||'');
+  const pts=spoints[s.platform+'_'+s.kind]||0;
+  const kind=s.kind==='follow'?t('Follow'):(s.platform==='x'?t('Post / reply with code'):t('Comment with code'));
+  const link=/^https:/.test(s.proof)?`<a href="${esc(s.proof)}" target="_blank" rel="noopener noreferrer">${esc(s.proof)}</a>`:`<a href="${s.platform==='x'?'https://x.com/':'https://www.tiktok.com/@'}${esc(s.proof.replace(/^@/,''))}" target="_blank" rel="noopener noreferrer">${esc(s.proof)}</a>`;
+  const act=s.status==='pending'?`<div class="ad-act"><button class="ok" data-sreview="approve" data-id="${s.id}">${t('APPROVE')} +${pts} ⭐</button><button class="no" data-sreview="reject" data-id="${s.id}">${t('REJECT')}</button></div>`:'';
+  return `<article class="ad-card"><div class="ad-meta">${esc(s.platform==='x'?'X':'TIKTOK')} · ${esc(kind)} · #${s.id}</div>${link}<div class="ad-cap">${t('Code')}: <b translate="no">${esc(s.code)}</b> · ${esc(s.day)}</div><div class="ad-meta">${esc(who)} · ID ${esc(s.telegram_id)} · ${esc(new Date(s.created_at).toLocaleString(lang))}${s.points?` · +${s.points} ⭐`:''}</div>${act}</article>`;
+ }
  async function load(){
   if(!initData){denied('telegram');return;}
   msg.textContent=t('Loading…');
-  const r=await call('admin.creator.list',{status});
+  const r=await call(mode==='social'?'admin.social.list':'admin.creator.list',{status});
   if(!r.ok){msg.textContent='';denied(r.error);return;}
-  points=r.points||points;msg.textContent='';
-  body.innerHTML=`<div class="ad-tabs">${[['pending','ON REVIEW'],['approved','APPROVED'],['rejected','REJECTED']].map(([k,l])=>`<button data-tab="${k}" aria-pressed="${k===status}">${t(l)}</button>`).join('')}</div>${r.submissions.length?r.submissions.map(card).join(''):`<p class="cr-empty">${t('No submissions yet.')}</p>`}`;
+  if(mode==='social')spoints=r.points||spoints;else points=r.points||points;msg.textContent='';
+  const modes=`<div class="ad-tabs ad-modes">${[['video','🎬 '+t('Videos')],['social','📣 '+t('Social')]].map(([k,l])=>`<button data-mode="${k}" aria-pressed="${k===mode}">${l}</button>`).join('')}</div>`;
+  const help=mode==='social'?`<p class="ad-sub">${t('Check that the post / comment / follower contains the player code, then approve. Points are paid once by the server.')}</p>`:'';
+  body.innerHTML=modes+help+`<div class="ad-tabs">${[['pending','ON REVIEW'],['approved','APPROVED'],['rejected','REJECTED']].map(([k,l])=>`<button data-tab="${k}" aria-pressed="${k===status}">${t(l)}</button>`).join('')}</div>${r.submissions.length?r.submissions.map(mode==='social'?scard:card).join(''):`<p class="cr-empty">${t('No submissions yet.')}</p>`}`;
  }
  body.addEventListener('click',async e=>{
   const b=e.target.closest('button');if(!b||b.disabled)return;
   if(b.dataset.tab){status=b.dataset.tab;load();return;}
+  if(b.dataset.mode){mode=b.dataset.mode;status='pending';load();return;}
+  if(b.dataset.sreview){if(!confirm(b.dataset.sreview==='reject'?t('Reject this submission?'):t('Award points for this submission?')))return;b.disabled=true;const r=await call('admin.social.review',{id:Number(b.dataset.id),decision:b.dataset.sreview});await load();msg.textContent=r.ok?(r.reward?.points?`+${r.reward.points} ⭐ ✓`:t('Saved.')):t('Error')+': '+(r.error||'');return;}
   const id=Number(b.dataset.id);
   const action=b.dataset.review?'admin.creator.review':'admin.creator.tier';
   const q=b.dataset.review==='reject'?t('Reject this video?'):t('Award points for this video?');

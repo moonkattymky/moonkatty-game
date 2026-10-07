@@ -4,7 +4,12 @@
 import {profileFields} from './profile.mjs';
 import {createDaily} from './daily.mjs';
 import {createCreator,parseAdminIds} from './creator.mjs';
-const BOT_ID='8659740610',PUBLIC_KEY='e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
+import {createSocial,channelFromUrl,TELEGRAM_CHANNEL_URL} from './social.mjs';
+import {youtubeConfig,authUrl,isSubscribed,YT_SUBSCRIBE_POINTS} from './youtube.mjs';
+const ENV=k=>(typeof Deno!=='undefined'&&Deno.env?.get?.(k))||'';
+// PUBLIC_KEY is Telegram's published production Ed25519 key for third-party initData validation (public, not a secret).
+// Bot id is taken from the TELEGRAM_BOT_TOKEN secret prefix when present.
+const BOT_ID=(/^(\d{5,15}):/.exec((typeof Deno!=='undefined'&&Deno.env?.get?.('TELEGRAM_BOT_TOKEN'))||'')||[])[1]||'8659740610',PUBLIC_KEY='e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
 const LIFE_RESTORE_MS=12*60*60*1000, MAX_LIVES=9;
 const REFERRAL_BONUS=200, REFERRAL_INVITEE_BONUS=200; // paid once, only after the invitee completes LIFE #1
 export function parseReferrer(start_param){const m=/^ref_([1-9][0-9]{0,15})$/.exec(start_param||'');const id=m?Number(m[1]):0;return Number.isSafeInteger(id)&&id>0?id:null;}
@@ -34,7 +39,7 @@ function restHeaders(key,extra={}){
  return {apikey:key,Authorization:'Bearer '+key,'Content-Type':'application/json',Prefer:'return=representation',...extra};
 }
 
-export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock=()=>new Date(),referralDailyCap=REFERRAL_DAILY_CAP,cipherSecret=(typeof Deno!=='undefined'&&Deno.env?.get?.('CIPHER_SECRET'))||'',adminIds=(typeof Deno!=='undefined'&&Deno.env?.get?.('ADMIN_TG_IDS'))||''}){
+export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock=()=>new Date(),referralDailyCap=REFERRAL_DAILY_CAP,cipherSecret=(typeof Deno!=='undefined'&&Deno.env?.get?.('CIPHER_SECRET'))||'',adminIds=(typeof Deno!=='undefined'&&Deno.env?.get?.('ADMIN_TG_IDS'))||'',botToken=ENV('TELEGRAM_BOT_TOKEN'),telegramChannel=ENV('TELEGRAM_CHANNEL')||channelFromUrl(TELEGRAM_CHANNEL_URL),tgFetcher=fetch,youtube=youtubeConfig({YOUTUBE_OAUTH_ENABLED:ENV('YOUTUBE_OAUTH_ENABLED'),GOOGLE_CLIENT_ID:ENV('GOOGLE_CLIENT_ID'),GOOGLE_CLIENT_SECRET:ENV('GOOGLE_CLIENT_SECRET'),YOUTUBE_CHANNEL_ID:ENV('YOUTUBE_CHANNEL_ID'),YOUTUBE_REDIRECT_URI:ENV('YOUTUBE_REDIRECT_URI')}),ytFetcher=fetch}){
  async function rest(path,opts={}){
   const target=new URL(path,url.endsWith('/')?url:url+'/');
   if(opts.params)for(const [k,v] of Object.entries(opts.params))target.searchParams.set(k,String(v));
@@ -195,6 +200,9 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
   if(!Number.isInteger(points)||points<0||points>5000)throw Error('points');
   // Reject client-invented life.complete amounts — those go through lifeComplete
   if(event_type==='life.complete')throw Error('use_life_complete');
+  // Social / daily / creator rewards are paid only by their own server verification paths.
+  if(player.balance_locked_at)throw Error('locked');
+  if(/^(daily|social|creator)([._]|$)/.test(event_type))throw Error('unverified');
   const {inserted}=await insertReward(player,event_key,event_type,points);
   let next=player;
   if(inserted && points>0) next=await applyPoints(player,points);
@@ -234,11 +242,12 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
 
  const daily=createDaily({rest,clock,insertReward,applyPoints,secret:cipherSecret});
  const creator=createCreator({rest,clock,insertReward,applyPoints,adminIds:adminIds instanceof Set?adminIds:parseAdminIds(adminIds)});
+ const social=createSocial({rest,clock,insertReward,applyPoints,isAdmin:creator.isAdmin,secret:cipherSecret,botToken,channel:telegramChannel,fetcher:tgFetcher,youtube});
  return async request=>{
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
   if(request.method==='GET'){
    // Health / contract probe — no secrets leaked
-   return json({ok:true,service:'rewards',actions:['player','life.complete','rewards.verify','lives.spend','referrals.claim','referrals.stats','daily.status','cipher.solve','streak.checkin','youtube.redeem','creator.status','creator.submit','admin.creator.list','admin.creator.review','admin.creator.tier']});
+   return json({ok:true,service:'rewards',actions:['player','life.complete','rewards.verify','lives.spend','referrals.claim','referrals.stats','daily.status','cipher.solve','streak.checkin','youtube.redeem','creator.status','creator.submit','admin.creator.list','admin.creator.review','admin.creator.tier','social.status','social.telegram.verify','social.submit','social.youtube.verify','admin.social.list','admin.social.review']});
   }
   if(request.method!=='POST')return json({ok:false,error:'method'},405);
   if(!url||!key)return json({ok:false,error:'unavailable'},503);
@@ -281,6 +290,21 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
    if(action==='admin.creator.list')return json({ok:true,...await creator.adminList(user,body)});
    if(action==='admin.creator.review')return json({ok:true,...await creator.adminReview(user,body)});
    if(action==='admin.creator.tier')return json({ok:true,...await creator.adminTier(user,body)});
+   if(action==='social.status')return json({ok:true,...await social.mine(player),is_admin:creator.isAdmin(user),player:publicPlayer(player)});
+   if(action==='social.telegram.verify'){const r=await social.verifyTelegram(player);return json({ok:true,...r,player:publicPlayer(r.player)});}
+   if(action==='social.submit')return json({ok:true,...await social.submit(player,body),player:publicPlayer(player)});
+   if(action==='social.youtube.verify'){
+    if(!youtube.enabled)return json({ok:false,error:'disabled'},409);
+    if(!body.code)return json({ok:true,auth_url:authUrl(youtube,'yt_'+player.telegram_id)});
+    if(player.balance_locked_at)throw Error('locked');
+    let sub=false;try{sub=await isSubscribed(youtube,String(body.code),ytFetcher);}catch{return json({ok:false,error:'oauth'},400);}
+    if(!sub)return json({ok:true,verified:false,awarded:false,player:publicPlayer(player)});
+    const {inserted}=await insertReward(player,'social:youtube:follow','social.youtube_follow',YT_SUBSCRIBE_POINTS);
+    const p2=inserted?await applyPoints(player,YT_SUBSCRIBE_POINTS):player;
+    return json({ok:true,verified:true,awarded:inserted,points:inserted?YT_SUBSCRIBE_POINTS:0,player:publicPlayer(p2)});
+   }
+   if(action==='admin.social.list')return json({ok:true,...await social.adminList(user,body)});
+   if(action==='admin.social.review')return json({ok:true,...await social.adminReview(user,body)});
    return json({ok:false,error:'action'},400);
   }catch(e){
    const msg=String(e.message||e);
@@ -292,6 +316,9 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
    if(msg==='weekly')return json({ok:false,error:'weekly'},429);
    if(msg==='duplicate_url'||msg==='reviewed'||msg==='not_approved')return json({ok:false,error:msg},409);
    if(msg==='url'||msg==='hashtag'||msg==='own'||msg==='submission'||msg==='decision'||msg==='tier')return json({ok:false,error:msg},400);
+   if(msg==='already'||msg==='duplicate_proof')return json({ok:false,error:msg},409);
+   if(msg==='daily_limit'||msg==='pending_limit')return json({ok:false,error:msg},429);
+   if(msg==='proof'||msg==='platform'||msg==='kind'||msg==='unverified')return json({ok:false,error:msg},400);
    if(msg==='cap')return json({ok:false,error:'cap'},429);
    if(msg==='life'||msg==='event_key'||msg==='event_type'||msg==='points'||msg==='referral'||msg==='source'||msg==='use_life_complete')return json({ok:false,error:msg},400);
    return json({ok:false,error:'unavailable'},503);
