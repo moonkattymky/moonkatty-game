@@ -26,10 +26,20 @@ jobs:
         uses: actions/checkout@v6
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Prepare client site
+        run: |
+          mkdir -p _site
+          shopt -s dotglob nullglob
+          for item in *; do
+            case "$item" in
+              _site|server|supabase|tests|tools|.git|.github|.gitignore|README.md) continue ;;
+            esac
+            cp -a "$item" _site/
+          done
       - name: Upload site
         uses: actions/upload-pages-artifact@v4
         with:
-          path: '.'
+          path: '_site'
       - name: Deploy current main
         id: deployment
         uses: actions/deploy-pages@v4
