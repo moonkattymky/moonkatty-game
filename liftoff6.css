@@ -1,5 +1,5 @@
 /* LIFE 6: a single flight deck. Artwork keeps its aspect ratio; controls stay in view. */
-#mission6.liftoff-six{--lf-ice:#a1eaf0;--lf-gold:#f5d89a;--lf-line:#a7d4df42;box-sizing:border-box;height:100dvh;min-height:0!important;padding:calc(10px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom));overflow:hidden;background:radial-gradient(ellipse at 85% 0,#416275,#1b3549 55%,#112c40)!important;color:#eff8fb;font-family:inherit;isolation:isolate}
+#mission6.liftoff-six{--lf-ice:#a1eaf0;--lf-gold:#f5d89a;--lf-line:#a7d4df42;box-sizing:border-box;height:var(--mk-vh,100dvh);min-height:0!important;padding:calc(10px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom));overflow:hidden;background:radial-gradient(ellipse at 85% 0,#416275,#1b3549 55%,#112c40)!important;color:#eff8fb;font-family:inherit;isolation:isolate}
 #mission6.active{display:flex;flex-direction:column;gap:9px;width:100%}
 #mission6 *,#liftoffGuide6 *{box-sizing:border-box}
 #mission6 [hidden]{display:none!important}
@@ -95,7 +95,7 @@
 #mission6 .lf-complete-mark{display:block;font-size:26px;color:#b4f7d5;margin-bottom:7px}
 #mission6 .lf-complete strong{display:block;font:600 21px monospace;color:#ffe1a1;margin:12px 0}
 #mission6 .lf-complete .lf-secondary{margin-top:7px}
-#liftoffGuide6{color:#eaf6fc;max-width:440px;width:calc(100% - 24px);max-height:calc(100dvh - 28px);padding:0;border:1px solid #b5d8dc99;border-radius:20px;background:linear-gradient(140deg,#35596e,#16394f);box-shadow:0 30px 100px #001322aa}
+#liftoffGuide6{color:#eaf6fc;max-width:440px;width:calc(100% - 24px);max-height:calc(var(--mk-vh,100dvh) - 28px);padding:0;border:1px solid #b5d8dc99;border-radius:20px;background:linear-gradient(140deg,#35596e,#16394f);box-shadow:0 30px 100px #001322aa}
 #liftoffGuide6[open]{display:flex;flex-direction:column}
 #liftoffGuide6::backdrop{background:#031929bb;backdrop-filter:blur(5px)}
 #liftoffGuide6 .lf-guide-copy{min-height:0;overflow:auto;overscroll-behavior:contain;padding:23px 20px 14px}

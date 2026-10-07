@@ -2,7 +2,7 @@
 #app:has(#mission7.active){max-width:1080px}
 #mission7 #voidWorld7.v7-world{height:auto!important;background:#062041!important;border:1px solid #a5d6e680!important;border-radius:20px!important}
 #mission7 #voidWorld7.v7-world:before{content:none}
-#mission7.void-seven{box-sizing:border-box;height:100dvh;min-height:0!important;width:100%;padding:calc(10px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom));overflow:hidden;background:radial-gradient(ellipse at 80% 0,#355975,#122e46 70%)!important;color:#e8f7ff;isolation:isolate}
+#mission7.void-seven{box-sizing:border-box;height:var(--mk-vh,100dvh);min-height:0!important;width:100%;padding:calc(10px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom));overflow:hidden;background:radial-gradient(ellipse at 80% 0,#355975,#122e46 70%)!important;color:#e8f7ff;isolation:isolate}
 #mission7.active{display:flex;flex-direction:column;gap:9px}
 #mission7 *,#mission7 *:before,#mission7 *:after{box-sizing:border-box}
 #mission7 [hidden]{display:none!important}

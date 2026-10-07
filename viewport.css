@@ -1,0 +1,8 @@
+/* Telegram Mini App viewport lock: the document never scrolls; #app is the only page-level scroll container. */
+html.mk-viewport,html.mk-viewport body{height:100%;height:var(--mk-full-h,100dvh);overflow:hidden;overscroll-behavior:none;margin:0}
+html.mk-viewport body{position:fixed;inset:0;width:100%;min-height:0}
+html.mk-viewport #app{box-sizing:border-box;height:var(--mk-full-h,100dvh);min-height:0;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:none}
+/* Fullscreen (Bot API 8.0+): keep content below Telegram's own Close/menu buttons. Device notch is handled by env() inside screens. */
+html.mk-tg-fullscreen #app{padding-top:var(--mk-content-top,0px)}
+html.mk-tg-fullscreen .exp-screen{top:var(--mk-content-top,0px);height:var(--mk-vh,100dvh)}
+.l1-joystick,.exp-joystick,.exp-controls,.screen canvas{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}

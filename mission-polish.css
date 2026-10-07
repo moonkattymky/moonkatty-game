@@ -5,7 +5,7 @@
 #mission1 .rock-a{width:17%}#mission1 .rock-b{width:14%}#mission1 .crate-a{width:13%}
 #mission3.launch-bridge3 .launch-signal3{display:flow-root}
 #mission3.launch-bridge3 #codeStatus{margin-bottom:0}
-.mission-polished{--life-accent:#9fe4e9;--muted:#c2d8e3;position:relative;isolation:isolate;height:100vh;height:100dvh;min-height:0!important;padding:calc(12px + env(safe-area-inset-top)) 14px max(12px,env(safe-area-inset-bottom));overflow:hidden;color:#f3f4ee!important;background:linear-gradient(145deg,#203d4e,#102434 55%,#0c1c2b)!important}
+.mission-polished{--life-accent:#9fe4e9;--muted:#c2d8e3;position:relative;isolation:isolate;height:var(--mk-vh,100vh);height:var(--mk-vh,100dvh);min-height:0!important;padding:calc(12px + env(safe-area-inset-top)) 14px max(12px,env(safe-area-inset-bottom));overflow:hidden;color:#f3f4ee!important;background:linear-gradient(145deg,#203d4e,#102434 55%,#0c1c2b)!important}
 .mission-polished.active{display:flex;flex-direction:column;gap:8px}
 .mission-polished::before{display:none}
 .mission-polished>*{flex-shrink:0;min-width:0}
@@ -168,7 +168,7 @@
  #mission9 .final-phases span{font-size:8px!important;padding:6px 2px!important}
  #mission9 .coordinate-record9 strong{font-size:15px}
 }
-@media(max-height:500px){.mission-polished{height:auto;min-height:100dvh!important;overflow:visible}.mission-polished :is(.reactor-world,.launch-world,.void-world,.signal-world,.final-world){flex:none;height:130px!important}.mission-polished .complete-card:not([hidden]){justify-content:flex-start}}
+@media(max-height:500px){.mission-polished{height:auto;min-height:var(--mk-vh,100dvh)!important;overflow:visible}.mission-polished :is(.reactor-world,.launch-world,.void-world,.signal-world,.final-world){flex:none;height:130px!important}.mission-polished .complete-card:not([hidden]){justify-content:flex-start}}
 @media(prefers-reduced-motion:reduce){.mission-polished.active,.mission-polished .reactor-core,.mission-polished .signal-orbit,.mission-polished .signal-pulse,.mission-polished .final-gate::after{animation:none!important}.mission-polished :is(.launch-ship,.final-ship){transition:none!important}}
 
 /* Keep legacy visual overrides from recoloring the shared cockpit components. */

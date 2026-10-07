@@ -5,7 +5,7 @@
 #home button.mk-life-teaser{width:100%;text-align:left;color:inherit;font:inherit;cursor:pointer}
 #home button.mk-life-teaser:focus-visible{outline:2px solid #acdfea;outline-offset:3px}
 
-.hub-screen{--hub-line:#abcbdc29;--hub-gold:#e5cd97;color:#e6eff2;background:radial-gradient(ellipse at 90% 0,#24455344,transparent 50%),#08131b;min-height:100svh;padding:22px 18px calc(100px + env(safe-area-inset-bottom));font-family:Arial,sans-serif;text-align:left}
+.hub-screen{--hub-line:#abcbdc29;--hub-gold:#e5cd97;color:#e6eff2;background:radial-gradient(ellipse at 90% 0,#24455344,transparent 50%),#08131b;min-height:var(--mk-vh,100svh);padding:22px 18px calc(100px + env(safe-area-inset-bottom));font-family:Arial,sans-serif;text-align:left}
 .hub-screen.active{display:block}
 .hub-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 24px}
 .hub-head small{font-size:9px;letter-spacing:2px;color:#93adbd}
@@ -109,7 +109,7 @@
 @media(prefers-reduced-motion:reduce){.hub-screen *{scroll-behavior:auto!important}
 }
 
-#home .mk-home-hero{min-height:max(570px,calc(100svh - 82px))}
+#home .mk-home-hero{min-height:max(570px,calc(var(--mk-vh,100svh) - 82px))}
 #home .mk-bottom-nav button>b{font-size:23px;line-height:28px;font-weight:400;display:block}
 #home .mk-bottom-nav button>span{display:block}
 

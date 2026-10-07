@@ -1,5 +1,5 @@
 /* Reviewed chapters: navigation and compact landing controls. */
-.campaign-screen {padding:20px 16px;background:linear-gradient(145deg,#24485c,#102638);min-height:100dvh;color:#e9f5fb}
+.campaign-screen {padding:20px 16px;background:linear-gradient(145deg,#24485c,#102638);min-height:var(--mk-vh,100dvh);color:#e9f5fb}
 .campaign-screen header {display:flex;justify-content:space-between;align-items:center;gap:12px}
 .campaign-screen h2 {margin:5px 0;font-size:25px}
 .campaign-screen>p {font-size:13px;line-height:1.5;color:#bad6e3}
