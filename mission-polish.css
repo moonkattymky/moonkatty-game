@@ -60,7 +60,7 @@
 #mission6 .launch-world{background:#153448 url('art/life4-landing.webp') center/cover no-repeat!important}
 #mission6 .launch-world::before{content:'LAUNCH PAD / ALPHA'}
 #mission6 .launch-moon{width:160px;height:30px;left:calc(50% - 80px);bottom:12%;background:radial-gradient(ellipse,#c7fdfb44,transparent 68%);border:2px solid #bdf2e8;border-radius:50%;box-shadow:0 0 16px #a1f9e744}
-#mission6 #launchShip{width:118px;height:79px;bottom:15%;font-size:0!important;background:url('moonkatty-life4-ship.png') center/contain no-repeat;filter:drop-shadow(0 8px 5px #061c3866);transform:translateX(-50%);transition:transform 1.3s ease-in,opacity 1.3s ease-in;z-index:4}
+#mission6 #launchShip{width:118px;height:79px;bottom:15%;font-size:0!important;background:url('moonkatty-life4-ship.webp') center/contain no-repeat;filter:drop-shadow(0 8px 5px #061c3866);transform:translateX(-50%);transition:transform 1.3s ease-in,opacity 1.3s ease-in;z-index:4}
 #mission6 #launchShip.lifted{transform:translate(-50%,-280px) scale(.45);opacity:0}
 #mission6 .launch-flame{width:58px;height:20px;left:calc(50% - 29px);bottom:13%;border-radius:50%;background:radial-gradient(ellipse,#d4ffff,#69eafa55,transparent 70%);opacity:.6;filter:blur(3px);z-index:3}
 #mission6 .launch-flame.active{height:120px;opacity:0;transform:translateY(-120px);transition:all 1.4s}
@@ -83,7 +83,7 @@
 #mission7 .void-stars,#mission9 .final-world::after{content:'';position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(#edf6ff 1px,transparent 1px),radial-gradient(#ceebff 1px,transparent 1px);background-size:47px 61px,103px 89px;background-position:5px 10px,33px 46px;opacity:.48}
 #mission7 .void-lane7{width:28%;border-left:1px solid #bbdce914;border-right:1px solid #bbdce914;background:linear-gradient(transparent,#b4daec08);transform:translateX(-50%)}
 #mission7 .void-lane7.l0{left:22%}#mission7 .void-lane7.l1{left:50%}#mission7 .void-lane7.l2{left:78%}
-#mission7 #voidShip{width:62px;height:42px;bottom:12%;font-size:0!important;background:url('moonkatty-life4-ship.png') center/contain no-repeat;transform:translateX(-50%);filter:drop-shadow(0 7px 7px #0005) drop-shadow(0 0 9px #6de7ffaa);z-index:8}
+#mission7 #voidShip{width:62px;height:42px;bottom:12%;font-size:0!important;background:url('moonkatty-life4-ship.webp') center/contain no-repeat;transform:translateX(-50%);filter:drop-shadow(0 7px 7px #0005) drop-shadow(0 0 9px #6de7ffaa);z-index:8}
 #mission7 #shieldBubble7{width:76px;height:76px;bottom:calc(12% - 17px);transform:translateX(-50%);border:1px solid #c6ffff;box-shadow:inset 0 0 14px #86eaff66,0 0 20px #8aeaff55;background:radial-gradient(circle,transparent 48%,#7bdfff33);animation:none}
 #mission7 #asteroidField{position:absolute;inset:0;display:block;pointer-events:none}
 #mission7 .asteroid7{width:30px;height:30px;top:-50px;font-size:0!important;background:url('art/lunar-props.webp') 0 0/300% 100% no-repeat;transform:translateX(-50%);filter:drop-shadow(3px 5px 3px #0006);animation:asteroidFall7 var(--fall7) linear forwards}
@@ -98,7 +98,7 @@
 /* Signal observatory. The antenna is an independent intact sprite. */
 #mission8 .signal-world{background:#224457 url('art/life1-base.webp') center 20%/cover no-repeat!important}
 #mission8 .signal-world::before{content:'LUNAR OBSERVATORY / 08'}
-#mission8 .signal-dish{position:absolute;width:106px;height:142px;left:calc(50% - 53px);bottom:5%;background:url('antenna-clean.png') center/contain no-repeat;font-size:0;filter:drop-shadow(0 8px 5px #0d30496b);z-index:3}
+#mission8 .signal-dish{position:absolute;width:106px;height:142px;left:calc(50% - 53px);bottom:5%;background:url('antenna-clean.webp') center/contain no-repeat;font-size:0;filter:drop-shadow(0 8px 5px #0d30496b);z-index:3}
 #mission8 .signal-orbit{width:180px;height:180px;border:1px dashed #cefdf694;box-shadow:0 0 0 22px #a6fff009;opacity:.65}
 #mission8 .signal-source{top:16%;right:20%;font-size:24px;color:#fef2c9;text-shadow:0 0 15px #c6ffef}
 #mission8 .signal-pulse{width:80px;height:80px;border-color:#cbfff8aa;z-index:2}
@@ -121,7 +121,7 @@
 #mission9 .final-gate{position:relative;width:130px;height:130px;flex:none;aspect-ratio:1;border:9px solid #d2c8a1;border-radius:50%;outline:2px solid #7596a6;outline-offset:3px;background:radial-gradient(circle,#77d4de42,#193d5e 53%,#a9f7f68c 65%,#203d52 68%);box-shadow:inset 0 0 20px #87edfa9c,0 0 28px #9bdce35e;font-size:0!important;color:transparent!important;animation:none;z-index:2}
 #mission9 .final-gate::after{content:'';position:absolute;inset:8px;border:1px dashed #c5ffed;border-radius:50%;animation:orbit8 24s linear infinite}
 #mission9 .final-gate.open{box-shadow:inset 0 0 36px #fff2bb,0 0 42px #fff2bb9c!important;border-color:#ffe5a3!important}
-#mission9 #finalShip{width:80px;height:54px;font-size:0;background:url('moonkatty-life4-ship.png') center/contain no-repeat;left:12%;bottom:12%;transform:none;z-index:4;filter:drop-shadow(0 7px 7px #0006);transition:left 1.2s,bottom 1.2s,transform 1.2s,opacity 1.2s}
+#mission9 #finalShip{width:80px;height:54px;font-size:0;background:url('moonkatty-life4-ship.webp') center/contain no-repeat;left:12%;bottom:12%;transform:none;z-index:4;filter:drop-shadow(0 7px 7px #0006);transition:left 1.2s,bottom 1.2s,transform 1.2s,opacity 1.2s}
 #mission9 #finalShip.returned{left:40%;bottom:42%;transform:scale(.18);opacity:0}
 #mission9 .final-phases{margin:0;gap:5px!important}
 #mission9 .final-phases span{padding:7px 3px!important;background:#183c51!important;border-color:#b0d4de42!important;font-size:9px!important;color:#b7d4e0;line-height:1.4;letter-spacing:.2px}

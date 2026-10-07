@@ -61,8 +61,8 @@
 #mission1.mk-l1 .e1 {left:10%!important;bottom:20%!important}
 #mission1.mk-l1 .e2 {left:29%!important;bottom:52%!important}
 #mission1.mk-l1 .e3 {right:6%!important;bottom:41%!important}
-#mission1.mk-l1 #repairTerminal {right:12%!important;bottom:4%!important;width:74px!important;height:85px!important;background-image:url('terminal-clean.png');filter:drop-shadow(0 4px 4px #17232c60)}
-#mission1.mk-l1 #antennaHotspot {right:4%!important;top:16%!important;width:72px!important;height:94px!important;background-image:url('antenna-clean.png');filter:drop-shadow(0 4px 4px #17232c60)}
+#mission1.mk-l1 #repairTerminal {right:12%!important;bottom:4%!important;width:74px!important;height:85px!important;background-image:url('terminal-clean.webp');filter:drop-shadow(0 4px 4px #17232c60)}
+#mission1.mk-l1 #antennaHotspot {right:4%!important;top:16%!important;width:72px!important;height:94px!important;background-image:url('antenna-clean.webp');filter:drop-shadow(0 4px 4px #17232c60)}
 #mission1.mk-l1 .l1-hotspot:disabled {opacity:.58}
 #mission1.mk-l1 .l1-hotspot.nearby {filter:drop-shadow(0 0 9px #fff8b0)}
 #mission1.mk-l1 .l1-hotspot>span:last-child {font-size:8px;border-color:#b9efff;background:#102c40ed;bottom:-9px}

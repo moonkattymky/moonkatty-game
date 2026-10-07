@@ -255,7 +255,7 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
   if(request.method==='GET'){
    // Health / contract probe — no secrets leaked
-   return json({ok:true,service:'rewards',actions:['player','life.complete','rewards.verify','lives.spend','referrals.claim','referrals.stats','daily.status','cipher.solve','streak.checkin','youtube.redeem','chapter.status','chapter.skip','creator.status','creator.submit','admin.creator.list','admin.creator.review','admin.creator.tier','social.status','social.telegram.verify','social.submit','social.youtube.verify','admin.social.list','admin.social.review']});
+   return json({ok:true,service:'rewards'});
   }
   if(request.method!=='POST')return json({ok:false,error:'method'},405);
   if(!url||!key)return json({ok:false,error:'unavailable'},503);

@@ -6,3 +6,15 @@ html.mk-viewport #app{box-sizing:border-box;height:var(--mk-full-h,100dvh);min-h
 html.mk-tg-fullscreen #app{padding-top:var(--mk-content-top,0px)}
 html.mk-tg-fullscreen .exp-screen{top:var(--mk-content-top,0px);height:var(--mk-vh,100dvh)}
 .l1-joystick,.exp-joystick,.exp-controls,.screen canvas{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}
+
+/* Audit 2026-10-07: long localized labels (e.g. de "MISSIONSKONTROLLE") must never push header buttons off-screen. */
+.screen>header{gap:10px;min-width:0}
+.screen>header>div:first-child{min-width:0;flex:1 1 auto}
+.screen>header>button,.screen>header>a,.screen>header .header-actions>button{flex:0 1 auto;min-width:0;max-width:min(56%,240px);white-space:normal;overflow-wrap:break-word;-webkit-hyphens:auto;hyphens:auto;line-height:1.15;text-align:center}
+.screen>header .header-actions{min-width:0;flex:0 1 auto;flex-wrap:wrap;justify-content:flex-end}
+@media (max-width:360px){.screen>header>button,.screen>header>a,.screen>header .header-actions>button{font-size:clamp(9.5px,3.1vw,12px);letter-spacing:0!important;padding-left:8px!important;padding-right:8px!important}}
+/* RTL: mirror directional arrow glyphs wrapped by i18n (see i18n.js .mk-dir-arrow). */
+[dir=rtl] .mk-dir-arrow{display:inline-block;transform:scaleX(-1)}
+[dir=rtl] .mk-share-btn>span,[dir=rtl] .sv-card[data-sv=share] .sv-ico,[dir=rtl] .hub-link>b,[dir=rtl] #crewBack2{display:inline-block}
+[dir=rtl] .mk-share-btn>span,[dir=rtl] .sv-card[data-sv=share] .sv-ico,[dir=rtl] .hub-link>b{transform:scaleX(-1)}
+.mk-dir-arrow{font-style:normal}

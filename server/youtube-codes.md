@@ -24,8 +24,7 @@ update youtube_codes set expires_at = now() + interval '2 days' where code = 'LU
 select count(*) from reward_events where event_key = 'yt:' || (select id from youtube_codes where code='LUNARECHO');
 ```
 
-`MOONTEST` (5 ⭐, until 2026-10-31) is a seeded **test** code (`is_test = true`).
-Disable it before public launch: `update youtube_codes set active=false where code='MOONTEST';`
+The old seeded test code `MOONTEST` was removed from the schema and is disabled in production.
 
 ## Коротко для Игоря (RU)
 1. Supabase → проект → **SQL Editor** → New query.

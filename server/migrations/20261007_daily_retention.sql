@@ -49,7 +49,6 @@ end $$;
 revoke all on function cipher_attempt(bigint, date, integer) from public, anon, authenticated;
 grant execute on function cipher_attempt(bigint, date, integer) to service_role;
 
--- TEST code (clearly marked): safe to deactivate any time.
-insert into youtube_codes (code, points, note, is_test, expires_at)
-values ('MOONTEST', 5, 'TEST CODE — example only, not from a real video', true, '2026-10-31T23:59:59Z')
-on conflict (code) do nothing;
+-- No seeded codes: add real YouTube codes via admin (see server/youtube-codes.md).
+-- Legacy test code is disabled if present:
+update youtube_codes set active=false where code='MOONTEST';
