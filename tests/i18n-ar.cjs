@@ -31,5 +31,6 @@ assert(/RTL_LANGS = \['he','ar'\]/.test(i18n),'ar not RTL');
 for(const block of ['dynamics','moonPointFix','tokenFix'])assert(new RegExp('const '+block+' = \\{[\\s\\S]*?\\n  ar: ').test(i18n),'ar missing in '+block);
 assert(app.includes("['ar','🌙','العربية']"),'ar missing in language picker');
 assert(/\n ar:\['/.test(app),'ar intro copy missing');
-assert(html.includes('locales/ar.js'),'index.html does not load locales/ar.js');
+assert(html.includes('locale-loader.js'),'lazy locale loader missing');
+assert(fs.existsSync(require('path').join(__dirname,'../locales/runtime/ar.js')),'Arabic runtime pack missing');
 console.log('PASS ar locale:',Object.keys(ar).length,'strings,',Object.keys(L.ar.prefixes).length,'prefixes');

@@ -13,7 +13,7 @@ window.MKTYSocial=(()=>{
  const ERR={not_member:'Not subscribed yet. Join the channel, then check again.',bot_not_admin:'Check is temporarily unavailable: the channel has not connected the MOONKATTY bot yet. No points were lost — try later.',not_configured:'Check is temporarily unavailable. Try later.',telegram_unavailable:'Telegram did not answer. Try again.',proof:'Paste a link to your post / comment (or your @handle for follow).',already:'Already submitted — wait for review.',daily_limit:'One submission per platform per UTC day.',pending_limit:'Too many submissions on review. Wait for the team.',duplicate_proof:'This link has already been submitted.',locked:'Your balance is locked after LIFE #9 — new rewards are closed.',auth:'Telegram sign-in expired. Reopen the game.',unavailable:'Server unavailable. Try again later.',telegram:'Open the game in Telegram to verify.'};
  async function call(action,payload={}){
   const d=initData();if(!d)return {ok:false,error:'telegram'};
-  try{const r=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:d,action,...payload}),signal:AbortSignal.timeout(10000)});return await r.json().catch(()=>({ok:false,error:'unavailable'}));}catch{return {ok:false,error:'unavailable'};}
+  return await window.MKTYRewards?.call?.(action,payload)||{ok:false,error:'unavailable'};
  }
  function openLink(url){if(url.startsWith('https://t.me/')&&tg()?.openTelegramLink)tg().openTelegramLink(url);else if(tg()?.openLink)tg().openLink(url);else window.open(url,'_blank','noopener');}
  const setPts=p=>{if(typeof p?.moon_points==='number'){localStorage.setItem('mkty_points',String(p.moon_points));const el=document.getElementById('points');if(el)el.textContent=p.moon_points+' ⭐';}};

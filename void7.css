@@ -25,7 +25,7 @@
 #mission7 .v7-route .done i{opacity:1}
 #mission7 .v7-workspace{display:flex;flex-direction:column;flex:1;min-height:0;gap:10px}
 #mission7 .v7-world{position:relative;flex:1;min-height:140px;isolation:isolate;overflow:hidden;border-radius:20px;border:1px solid #a5d6e680;background:#062041;box-shadow:0 10px 30px #02162955;touch-action:none}
-#mission7 .v7-environment{position:absolute;inset:0;background:linear-gradient(180deg,#041c4138,#06173108 35%,#021b4e20),url('art/life7-void.webp') center/cover no-repeat}
+#mission7.active .v7-environment{position:absolute;inset:0;background:linear-gradient(180deg,#041c4138,#06173108 35%,#021b4e20),url('art/life7-void.webp') center/cover no-repeat}
 #voidCanvas7{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
 #mission7 .v7-scene-heading,#mission7 .v7-scene-footer{position:absolute;left:12px;right:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;z-index:6;font-size:8px;font-weight:600;letter-spacing:.7px;text-shadow:0 1px 5px #001529;color:#d4f2ff;pointer-events:none}
 #mission7 .v7-scene-heading{top:12px}
@@ -106,7 +106,7 @@
 
 /* Optical depth, a live tactical strip and physically aligned danger cues. */
 #mission7.void-seven{background:radial-gradient(ellipse at 10% 0,#42627155,transparent 55%),linear-gradient(135deg,#25445e,#122e46 70%)!important}
-#mission7 .v7-environment{will-change:transform;transform-origin:center}
+#mission7.active .v7-environment{will-change:transform;transform-origin:center}
 #mission7 .v7-atmosphere{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 110% -15%,#abf3f51a,transparent 63%),linear-gradient(180deg,#ffe7a409,transparent 28%);box-shadow:inset 0 0 36px #06213428}
 #mission7[data-sector="1"] .v7-atmosphere{background:radial-gradient(ellipse at -10% 10%,#ffc78425,transparent 65%)}
 #mission7[data-sector="2"] .v7-atmosphere{background:radial-gradient(ellipse at 60% -10%,#9cebdd2b,transparent 75%)}

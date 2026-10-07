@@ -1,0 +1,13 @@
+{
+  "name": "moonkatty-9-lives",
+  "private": true,
+  "scripts": {
+    "test": "node tests/run-all.cjs --jobs=3 --timeout=1500",
+    "test:integrity": "node tests/integrity-sql.cjs && node tests/rewards-client-ui.cjs",
+    "locales": "node tools/build-runtime-locales.cjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.3.14",
+    "playwright": "1.58.2"
+  }
+}

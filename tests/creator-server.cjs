@@ -1,3 +1,4 @@
+const {atomicFixture}=require('./atomic-rpc-fixture.cjs');
 const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
 (async()=>{
  const {createHandler,verifyTelegram}=await import('../server/rewards/core.mjs');
@@ -35,7 +36,7 @@ const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
   if(db.subs.some(r=>r.url_norm===body.url_norm))return res({code:'23505'},409);
   const row={id:db.subs.length+1,created_at:new Date(now).toISOString(),points:0,tier_1k_at:null,tier_10k_at:null,reviewed_at:null,...body};db.subs.push(row);return res([row]);
  };
- const handler=createHandler({url:'https://example.supabase.co',key:'k',verify:x=>verifyTelegram(x,now,pub),fetcher,clock:()=>new Date(now),adminIds:'900'});
+ const handler=createHandler({url:'https://example.supabase.co',key:'k',verify:x=>verifyTelegram(x,now,pub),fetcher:atomicFixture(fetcher),clock:()=>new Date(now),adminIds:'900'});
  const call=async(id,action,extra={})=>{const r=await handler(new Request('https://x',{method:'POST',body:JSON.stringify({initData:await signed(id),action,...extra})}));return {status:r.status,body:await r.json()};};
  const ok={url:'https://www.youtube.com/watch?v=dQw4w9WgXcQ',caption:'My run #MOONKATTY',own:true};
 

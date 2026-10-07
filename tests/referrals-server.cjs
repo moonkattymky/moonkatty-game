@@ -1,3 +1,4 @@
+const {atomicFixture}=require('./atomic-rpc-fixture.cjs');
 const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
 (async()=>{
  const {createHandler,verifyTelegram,parseReferrer}=await import('../server/rewards/core.mjs');
@@ -26,7 +27,7 @@ const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
    const row={referred_by:null,next_life_at:null,final_balance:null,balance_locked_at:null,...body,created_at:new Date(fakeTime).toISOString()};rows.push(row);return new Response(JSON.stringify([row]));}
   if(m==='PATCH'){const hit=rows.filter(r=>match(r,u));hit.forEach(r=>Object.assign(r,body));return new Response(JSON.stringify(hit));}
  };
- const handler=createHandler({url:'https://example.supabase.co',key:'k',verify:x=>verifyTelegram(x,now,pub),fetcher,clock:()=>new Date(fakeTime),referralDailyCap:2});
+ const handler=createHandler({url:'https://example.supabase.co',key:'k',verify:x=>verifyTelegram(x,now,pub),fetcher:atomicFixture(fetcher),clock:()=>new Date(fakeTime),referralDailyCap:2});
  const call=async(id,start,action,extra={})=>(await handler(new Request('https://x',{method:'POST',body:JSON.stringify({initData:await signed(id,start),action,...extra})}))).json();
  const pl=id=>tables.players.find(p=>p.telegram_id===id);
 

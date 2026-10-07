@@ -1,3 +1,4 @@
+const {atomicFixture}=require('./atomic-rpc-fixture.cjs');
 const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
 (async()=>{
  const {createHandler}=await import('../server/rewards/core.mjs');
@@ -47,7 +48,7 @@ const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
   return new Response('no',{status:404});
  };
  let t=new Date('2026-10-07T10:00:00Z');
- const h=createHandler({url:'https://db.test',key:'k',fetcher,verify:d=>verifyTelegram(d,now,pub),clock:()=>t,cipherSecret:'test-secret'});
+ const h=createHandler({url:'https://db.test',key:'k',fetcher:atomicFixture(fetcher),verify:d=>verifyTelegram(d,now,pub),clock:()=>t,cipherSecret:'test-secret'});
  const A=await signed(42),B=await signed(43);
  const call=async(initData,action,extra={})=>{const r=await h(new Request('https://x',{method:'POST',body:JSON.stringify({initData,action,...extra})}));return {status:r.status,body:await r.json()};};
  const pts=id=>db.players.get(id).moon_points;

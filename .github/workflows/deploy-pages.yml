@@ -32,7 +32,7 @@ jobs:
           shopt -s dotglob nullglob
           for item in *; do
             case "$item" in
-              _site|server|supabase|tests|tools|.git|.github|.gitignore|README.md) continue ;;
+              _site|server|supabase|tests|tools|docs|node_modules|package.json|package-lock.json|.git|.github|.gitignore|README.md) continue ;;
             esac
             cp -a "$item" _site/
           done

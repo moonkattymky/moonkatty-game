@@ -1,3 +1,4 @@
+const {atomicFixture}=require('./atomic-rpc-fixture.cjs');
 /* Chapter pacing (one chapter per UTC day), referral skips, life loss on failure — server side. */
 const assert=require('node:assert/strict');
 (async()=>{
@@ -31,7 +32,7 @@ const assert=require('node:assert/strict');
   if(path.endsWith('/referral_events')){if(method==='GET')return new Response('[]');return new Response('[{}]');}
   return new Response('no',{status:404});
  };
- const handler=createHandler({url:'https://example.supabase.co',key:'k',verify:async d=>({id:Number(d),start_param:null}),fetcher,clock:()=>new Date(now)});
+ const handler=createHandler({url:'https://example.supabase.co',key:'k',verify:async d=>({id:Number(d),start_param:null}),fetcher:atomicFixture(fetcher),clock:()=>new Date(now)});
  const call=async(id,action,extra={})=>{const r=await handler(new Request('https://x',{method:'POST',body:JSON.stringify({initData:String(id),action,...extra})}));return {status:r.status,...await r.json()};};
 
  // Fresh player: LIFE #1 open, completes, LIFE #2 locked until next 00:00 UTC

@@ -63,7 +63,7 @@
  }
  async function load() {
   const body = await api('daily.status');
-  state = body?.ok ? body : demoStatus();
+  state = body?.ok && body.streak && body.cipher ? body : {...demoStatus(), offline:online()};
   render();
  }
 
@@ -73,7 +73,7 @@
   if (!state) return;
   const box = $('dailyOps'); if (!box) return;
   box.classList.toggle('is-demo', !!state.demo);
-  setText($('dopsMode'), state.demo ? T('DEMO · local preview — rewards verified only in Telegram') : T('SERVER VERIFIED · Telegram'));
+  setText($('dopsMode'), state.offline ? T('Connection lost — try again') : state.demo ? T('DEMO · local preview — rewards verified only in Telegram') : T('SERVER VERIFIED · Telegram'));
   // streak
   const s = state.streak, cur = s.streak, base = cur >= 7 ? cur - 6 : 1;
   setText($('streakCount'), T('Day {n}', { n: cur }));
@@ -88,7 +88,7 @@
   }
   setText($('streakShield'), s.shield_available ? T('🛡 Shield ready — saves 1 missed day this week') : T('🛡 Shield used this week'));
   $('streakShield').classList.toggle('used', !s.shield_available);
-  const sb = $('streakBtn'); sb.disabled = s.claimed_today || locked() || busy;
+  const sb = $('streakBtn'); sb.disabled = s.claimed_today || locked() || busy || state.offline;
   setText(sb, locked() ? T('BALANCE LOCKED') : s.claimed_today ? T('CHECKED IN ✓') : T('CHECK IN +{n} ⭐', { n: s.next_reward }));
   // cipher
   const c = state.cipher;
@@ -99,7 +99,7 @@
   setText($('cipherAttempts'), c.solved ? T('Decoded ✓ +{n} ⭐', { n: c.points }) : T('Attempts left: {n} / {m}', { n: c.attempts_left, m: MAX_ATTEMPTS }));
   const sub = $('cipherSubmit'), done = c.solved || c.attempts_left <= 0 || locked();
   box.querySelector('.cipher-card').classList.toggle('solved', c.solved);
-  for (const b of box.querySelectorAll('[data-morse],#cipherSubmit,#cipherText')) b.disabled = done || busy;
+  for (const b of box.querySelectorAll('[data-morse],#cipherSubmit,#cipherText')) b.disabled = done || busy || state.offline;
   setText(sub, c.solved ? T('SIGNAL DECODED ✓') : c.attempts_left <= 0 ? T('NO ATTEMPTS — NEW SIGNAL AT 00:00 UTC') : T('TRANSMIT ANSWER +{n} ⭐', { n: c.points }));
   setText($('dopsFlash'), flash);
  }
@@ -114,7 +114,7 @@
   const ans = ($('cipherText').value || word()).toUpperCase().replace(/[^A-Z]/g, '');
   if (ans.length !== state.cipher.length) { flash = T('Need {n} letters', { n: state.cipher.length }); render(); return; }
   busy = true; render();
-  const r = state.demo ? demoSolve(ans) : await api('cipher.solve', { answer: ans });
+  const r = state.demo && !online() ? demoSolve(ans) : await api('cipher.solve', { answer: ans });
   busy = false;
   if (r?.error === 'no_attempts') flash = T('No attempts left today');
   else if (r?.correct) { flash = r.awarded ? T('Signal decoded! +{n} ⭐', { n: r.points }) : T('Already decoded today'); }
@@ -124,7 +124,7 @@
  }
  async function checkin() {
   busy = true; render();
-  const r = state.demo ? demoCheckin() : await api('streak.checkin');
+  const r = state.demo && !online() ? demoCheckin() : await api('streak.checkin');
   busy = false;
   flash = r?.awarded ? (r.shield_used ? T('Shield saved your streak! +{n} ⭐', { n: r.points }) : T('Check-in +{n} ⭐', { n: r.points })) : r?.duplicate ? T('Already checked in today') : T('Connection lost — try again');
   await load();
@@ -134,7 +134,7 @@
   const msg = $('ytMsg');
   if (!/^[A-Z0-9]{3,32}$/.test(code)) { setText(msg, T('Enter the code word from the video')); return; }
   $('ytBtn').disabled = true;
-  const r = state?.demo ? demoRedeem(code) : await api('youtube.redeem', { code });
+  const r = state?.demo && !online() ? demoRedeem(code) : await api('youtube.redeem', { code });
   $('ytBtn').disabled = false;
   setText(msg, r?.awarded ? T('Code accepted! +{n} ⭐', { n: r.points }) : r?.duplicate ? T('You already used this code') : r && r.valid === false ? T('Unknown or expired code') : r?.error === 'locked' ? T('BALANCE LOCKED') : T('Connection lost — try again'));
   $('ytMsg').classList.toggle('ok', !!r?.awarded);

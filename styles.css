@@ -751,3 +751,6 @@ body.mkty-ar .mk-bottom-nav,body.mkty-ar .mk-topbar{direction:rtl}
 [dir=rtl] :is(.hub-link,.hub-record)>b{display:inline-block;transform:scaleX(-1)}
 [dir=rtl] :is(.v7-scene-heading,.v7-scene-footer){direction:rtl}
 [dir=rtl] input[type=range]{direction:ltr}
+/* Pending network operations are visible and retryable; confirmed balance stays unchanged. */
+.reward-sync-status{position:fixed;z-index:12000;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 76px);transform:translateX(-50%);width:min(92vw,500px);padding:10px 14px;border:1px solid #d7b96d;border-radius:12px;background:#172b38;color:#fff0c7;font:600 12px/1.4 system-ui;box-shadow:0 6px 24px #0007;text-align:center;cursor:pointer}
+.reward-sync-status[hidden]{display:none}
