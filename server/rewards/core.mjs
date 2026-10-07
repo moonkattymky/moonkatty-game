@@ -1,6 +1,7 @@
 /* Authoritative Moon Points / lives / life-complete. Browser storage is cache only.
    Requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY in the Edge Function env.
    Telegram initData verified with Ed25519 (same contract as mission-control). */
+import {profileFields} from './profile.mjs';
 import {createDaily} from './daily.mjs';
 import {createCreator,parseAdminIds} from './creator.mjs';
 const BOT_ID='8659740610',PUBLIC_KEY='e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
@@ -24,7 +25,7 @@ export async function verifyTelegram(initData,now=Date.now(),publicKey=PUBLIC_KE
  if(!await crypto.subtle.verify('Ed25519',key,bytes,enc.encode(BOT_ID+':WebAppData\n'+fields)))throw Error('auth');
  const user=JSON.parse(raw);if(!Number.isSafeInteger(user?.id)||user.id<=0)throw Error('auth');
  const sp=p.get('start_param');
- return {id:user.id,username:user.username||null,first_name:user.first_name||null,start_param:sp&&/^[A-Za-z0-9_-]{1,64}$/.test(sp)?sp:null};
+ return {id:user.id,username:user.username||null,first_name:user.first_name||null,last_name:user.last_name||null,photo_url:user.photo_url||null,start_param:sp&&/^[A-Za-z0-9_-]{1,64}$/.test(sp)?sp:null};
 }
 
 const LIFE_REWARDS={1:500,2:500,3:750,4:1000,5:1250,6:1500,7:1750,8:2000,9:3000};
@@ -46,8 +47,8 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
 
  async function ensurePlayer(user){
   const rows=await rest('/rest/v1/players',{params:{select:'*',telegram_id:'eq.'+user.id,limit:1}});
-  if(rows?.[0])return attachReferrer(await restoreLives(rows[0]),user);
-  const created=await rest('/rest/v1/players',{method:'POST',headers:{Prefer:'return=representation,resolution=merge-duplicates'},body:JSON.stringify({telegram_id:user.id,username:user.username,first_name:user.first_name,moon_points:0,lives:MAX_LIVES,story_life:0})});
+  if(rows?.[0]){await refreshProfile(user,rows[0]);return attachReferrer(await restoreLives(rows[0]),user);}
+  const created=await rest('/rest/v1/players',{method:'POST',headers:{Prefer:'return=representation,resolution=merge-duplicates'},body:JSON.stringify({telegram_id:user.id,username:user.username,first_name:user.first_name,...profileFields(user),moon_points:0,lives:MAX_LIVES,story_life:0})});
   return attachReferrer(Array.isArray(created)?created[0]:created,user);
  }
 
@@ -88,6 +89,9 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
   const since=new Date(clock()); since.setUTCHours(0,0,0,0);
   return {invited:invited?.length||0,activated:(invited||[]).filter(r=>Number(r.story_life)>=1).length,earned:(paid||[]).reduce((a,r)=>a+Number(r.points||0),0),today:(paid||[]).filter(r=>new Date(r.created_at||0)>=since).length,daily_cap:referralDailyCap,bonus:REFERRAL_BONUS,invitee_bonus:REFERRAL_INVITEE_BONUS,referred_by:player.referred_by?true:false};
  }
+
+ // Leaderboard identity refresh on every verified session; never blocks gameplay.
+ async function refreshProfile(user,row){const f=profileFields(user);if(row.display_name===f.display_name&&row.photo_url===f.photo_url)return;try{await rest('/rest/v1/players',{method:'PATCH',params:{telegram_id:'eq.'+user.id},headers:{Prefer:'return=minimal'},body:JSON.stringify(f)});Object.assign(row,f);}catch{}}
 
  async function restoreLives(player){
   const now=clock();

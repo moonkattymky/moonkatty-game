@@ -34,6 +34,8 @@ jobs:
         run: node tests/referrals-server.cjs
       - name: rewards-server
         run: node tests/rewards-server.cjs
+      - name: leaderboard-server
+        run: node tests/leaderboard-server.cjs
       - name: daily-server
         run: node tests/daily-server.cjs
       - name: creator-server
