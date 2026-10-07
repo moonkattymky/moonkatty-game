@@ -32,3 +32,5 @@ jobs:
         run: node tests/detail-rules.cjs
       - name: rewards-server
         run: node tests/rewards-server.cjs
+      - name: daily-server
+        run: node tests/daily-server.cjs

@@ -1,6 +1,7 @@
 /* Authoritative Moon Points / lives / life-complete. Browser storage is cache only.
    Requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY in the Edge Function env.
    Telegram initData verified with Ed25519 (same contract as mission-control). */
+import {createDaily} from './daily.mjs';
 const BOT_ID='8659740610',PUBLIC_KEY='e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
 const LIFE_RESTORE_MS=12*60*60*1000, MAX_LIVES=9;
 const REFERRAL_DAILY_CAP=Number((typeof Deno!=='undefined'&&Deno.env?.get?.('REFERRAL_DAILY_CAP'))||40);
@@ -28,7 +29,7 @@ function restHeaders(key,extra={}){
  return {apikey:key,Authorization:'Bearer '+key,'Content-Type':'application/json',Prefer:'return=representation',...extra};
 }
 
-export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock=()=>new Date(),referralDailyCap=REFERRAL_DAILY_CAP}){
+export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock=()=>new Date(),referralDailyCap=REFERRAL_DAILY_CAP,cipherSecret=(typeof Deno!=='undefined'&&Deno.env?.get?.('CIPHER_SECRET'))||''}){
  async function rest(path,opts={}){
   const target=new URL(path,url.endsWith('/')?url:url+'/');
   if(opts.params)for(const [k,v] of Object.entries(opts.params))target.searchParams.set(k,String(v));
@@ -182,11 +183,12 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
   return {player:next,awarded:inserted,duplicate:false};
  }
 
+ const daily=createDaily({rest,clock,insertReward,applyPoints,secret:cipherSecret});
  return async request=>{
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
   if(request.method==='GET'){
    // Health / contract probe — no secrets leaked
-   return json({ok:true,service:'rewards',actions:['player','life.complete','rewards.verify','lives.spend','referrals.claim']});
+   return json({ok:true,service:'rewards',actions:['player','life.complete','rewards.verify','lives.spend','referrals.claim','daily.status','cipher.solve','streak.checkin','youtube.redeem']});
   }
   if(request.method!=='POST')return json({ok:false,error:'method'},405);
   if(!url||!key)return json({ok:false,error:'unavailable'},503);
@@ -219,11 +221,17 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
     const result=await claimReferral(player,body.referral_id,body.source_event_key);
     return json({ok:true,...result,player:publicPlayer(result.player)});
    }
+   if(action==='daily.status')return json({ok:true,...await daily.status(player),player:publicPlayer(player)});
+   if(action==='cipher.solve'){const r=await daily.solveCipher(player,body.answer);return json({ok:true,...r,player:publicPlayer(r.player)});}
+   if(action==='streak.checkin'){const r=await daily.checkin(player);return json({ok:true,...r,player:publicPlayer(r.player)});}
+   if(action==='youtube.redeem'){const r=await daily.redeemCode(player,body.code);return json({ok:true,...r,player:publicPlayer(r.player)});}
    return json({ok:false,error:'action'},400);
   }catch(e){
    const msg=String(e.message||e);
    if(msg==='locked')return json({ok:false,error:'locked'},409);
    if(msg==='no_lives')return json({ok:false,error:'no_lives'},409);
+   if(msg==='no_attempts')return json({ok:false,error:'no_attempts'},429);
+   if(msg==='answer'||msg==='code')return json({ok:false,error:msg},400);
    if(msg==='cap')return json({ok:false,error:'cap'},429);
    if(msg==='life'||msg==='event_key'||msg==='event_type'||msg==='points'||msg==='referral'||msg==='source'||msg==='use_life_complete')return json({ok:false,error:msg},400);
    return json({ok:false,error:'unavailable'},503);
