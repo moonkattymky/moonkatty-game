@@ -80,3 +80,17 @@ Tests: `node tests/rewards-server.cjs` (no live secrets).
 ## Overnight note (2026-10-07)
 
 Rewards Edge Function was **not** deployed: no `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` available in the agent environment. Client daily missions prepare a `rewards.verify` payload and stay in DEMO local-claim mode until the owner deploys.
+
+## Daily retention (2026-10-07)
+
+`server/rewards/daily.mjs` (imported by `core.mjs`) adds actions:
+`daily.status`, `streak.checkin`, `cipher.solve`, `youtube.redeem`.
+
+- **Login streak**: UTC days, rewards 3/5/7/10/12/15/25 ⭐ (day 7+ capped at 25), reset after a miss;
+  one shield per ISO week auto-saves exactly one missed day. Table `login_streaks`; paid once/day via `streak:<day>`.
+- **Moon Signal cipher**: lore word chosen per UTC day by HMAC(`CIPHER_SECRET`, day) from the server list;
+  clients only get Morse. 5 attempts/day via atomic `cipher_attempt()` RPC (`cipher_attempts` table); +15 ⭐ once via `cipher:<day>`.
+- **YouTube code words**: table `youtube_codes` (expiry, active, 1–50 ⭐, server-capped); once per code per player via `yt:<id>`.
+  Admin guide: `server/youtube-codes.md`. Seed `MOONTEST` is a TEST code.
+- Migration: `server/migrations/20261007_daily_retention.sql` (additive, RLS on, no anon access).
+- Tests: `node tests/daily-server.cjs`.
