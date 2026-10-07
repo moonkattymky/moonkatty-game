@@ -144,3 +144,10 @@
 .more-privacy a{text-decoration:none}
 @media (max-width:359px){.more-links{grid-template-columns:1fr}.more-link{min-height:54px}}
 [dir=rtl] .more-note{border-left:0;border-right:2px solid var(--hub-gold);padding-left:0;padding-right:10px}
+/* Leaderboard avatars: Telegram photo over an initials circle (fallback). */
+.hub-standings li{gap:12px}
+.hub-ava{position:relative;flex:0 0 36px;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;overflow:hidden;font-style:normal;font-size:12px;font-weight:600;letter-spacing:.5px;color:#0d1b24;background:radial-gradient(circle at 30% 25%,#f4e7bd,#dfce9d 55%,#a8935a);box-shadow:0 0 0 1px #dfce9d66,0 0 12px #dfce9d33}
+.hub-ava.anon{background:radial-gradient(circle at 30% 25%,#3a5a6b,#1d3542);color:#9bb3c2;font-size:15px;box-shadow:0 0 0 1px #7c97a855}
+.hub-ava img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hub-standings strong bdi{display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
+@media (max-width:360px){.hub-standings li{gap:8px;padding:12px 6px}.hub-ava{flex-basis:30px;width:30px;height:30px;font-size:11px}}

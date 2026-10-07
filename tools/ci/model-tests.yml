@@ -32,5 +32,10 @@ jobs:
         run: node tests/detail-rules.cjs
       - name: rewards-server
         run: node tests/rewards-server.cjs
+<<<<<<< HEAD
       - name: creator-server
         run: node tests/creator-server.cjs
+=======
+      - name: leaderboard-server
+        run: node tests/leaderboard-server.cjs
+>>>>>>> 6628bae (Leaderboard: verified Telegram names/photos, hide-me toggle, initials avatars, 12 locales)
