@@ -928,8 +928,9 @@ document.querySelectorAll('[data-community]').forEach(btn=>btn.addEventListener(
 const REFERRAL_DAILY_CAP=40;
 function referralCode(){return crewUser?.id?String(crewUser.id):'guest';}
 function referralLink(){
- const bot=(document.querySelector('meta[name="mkty-bot"]')?.content||'MOONKATTY_BOT').replace(/^@/,''); // set <meta name="mkty-bot"> in index.html
- return 'https://t.me/'+bot+'?startapp=ref_'+referralCode();
+ const bot=(document.querySelector('meta[name="mkty-bot"]')?.content||'MoonKattyGameBot').trim().replace(/^@/,''); // Main App link (not the /play direct link)
+ const id=crewUser?.id?String(crewUser.id):'';
+ return 'https://t.me/'+bot+(id?'?startapp=ref_'+id:'');
 }
 function referralStats(){
  try{return JSON.parse(localStorage.getItem('mkty_referral_stats')||'{"total":0,"activeToday":0,"earnedToday":0}')}catch{return{total:0,activeToday:0,earnedToday:0}}
