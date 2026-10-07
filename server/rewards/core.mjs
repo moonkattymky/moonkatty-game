@@ -4,6 +4,8 @@
 import {createDaily} from './daily.mjs';
 const BOT_ID='8659740610',PUBLIC_KEY='e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
 const LIFE_RESTORE_MS=12*60*60*1000, MAX_LIVES=9;
+const REFERRAL_BONUS=200, REFERRAL_INVITEE_BONUS=200; // paid once, only after the invitee completes LIFE #1
+export function parseReferrer(start_param){const m=/^ref_([1-9][0-9]{0,15})$/.exec(start_param||'');const id=m?Number(m[1]):0;return Number.isSafeInteger(id)&&id>0?id:null;}
 const REFERRAL_DAILY_CAP=Number((typeof Deno!=='undefined'&&Deno.env?.get?.('REFERRAL_DAILY_CAP'))||40);
 const enc=new TextEncoder(),cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'content-type','Access-Control-Allow-Methods':'GET, POST, OPTIONS'};
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{...cors,'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
@@ -20,7 +22,8 @@ export async function verifyTelegram(initData,now=Date.now(),publicKey=PUBLIC_KE
  const bytes=Uint8Array.from(atob(sig+'='.repeat((4-sig.length%4)%4)),x=>x.charCodeAt(0));
  if(!await crypto.subtle.verify('Ed25519',key,bytes,enc.encode(BOT_ID+':WebAppData\n'+fields)))throw Error('auth');
  const user=JSON.parse(raw);if(!Number.isSafeInteger(user?.id)||user.id<=0)throw Error('auth');
- return {id:user.id,username:user.username||null,first_name:user.first_name||null};
+ const sp=p.get('start_param');
+ return {id:user.id,username:user.username||null,first_name:user.first_name||null,start_param:sp&&/^[A-Za-z0-9_-]{1,64}$/.test(sp)?sp:null};
 }
 
 const LIFE_REWARDS={1:500,2:500,3:750,4:1000,5:1250,6:1500,7:1750,8:2000,9:3000};
@@ -42,9 +45,47 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
 
  async function ensurePlayer(user){
   const rows=await rest('/rest/v1/players',{params:{select:'*',telegram_id:'eq.'+user.id,limit:1}});
-  if(rows?.[0])return restoreLives(rows[0]);
+  if(rows?.[0])return attachReferrer(await restoreLives(rows[0]),user);
   const created=await rest('/rest/v1/players',{method:'POST',headers:{Prefer:'return=representation,resolution=merge-duplicates'},body:JSON.stringify({telegram_id:user.id,username:user.username,first_name:user.first_name,moon_points:0,lives:MAX_LIVES,story_life:0})});
-  return Array.isArray(created)?created[0]:created;
+  return attachReferrer(Array.isArray(created)?created[0]:created,user);
+ }
+
+ // Signed start_param ref_<id>: attach once, only before LIFE #1, never self, inviter must exist.
+ async function attachReferrer(player,user){
+  const inviter=parseReferrer(user.start_param);
+  if(!inviter||player.referred_by||inviter===player.telegram_id||Number(player.story_life||0)>0)return player;
+  const inv=await rest('/rest/v1/players',{params:{select:'telegram_id,referred_by',telegram_id:'eq.'+inviter,limit:1}});
+  if(!inv?.[0]||Number(inv[0].referred_by)===player.telegram_id)return player;
+  const rows=await rest('/rest/v1/players',{method:'PATCH',params:{telegram_id:'eq.'+player.telegram_id,referred_by:'is.null',story_life:'eq.0'},body:JSON.stringify({referred_by:inviter,updated_at:clock().toISOString()})});
+  return Array.isArray(rows)&&rows[0]?{...player,...rows[0]}:player;
+ }
+
+ // Paid exactly once when the invitee's LIFE #1 completion is first recorded server-side.
+ async function payReferralBonus(invitee){
+  const inviterId=Number(invitee.referred_by);
+  if(!inviterId||inviterId===invitee.telegram_id)return {invitee:invitee,inviter_paid:false};
+  let out={invitee,inviter_paid:false,invitee_points:0};
+  const own=await insertReward(invitee,'referral:invitee:life1','referral.invitee',REFERRAL_INVITEE_BONUS).catch(e=>{if(String(e.message)==='locked')return {inserted:false};throw e;});
+  if(own.inserted){out.invitee=await applyPoints(invitee,REFERRAL_INVITEE_BONUS);out.invitee_points=REFERRAL_INVITEE_BONUS;}
+  const invRows=await rest('/rest/v1/players',{params:{select:'*',telegram_id:'eq.'+inviterId,limit:1}});
+  const inviter=invRows?.[0];
+  if(!inviter||inviter.balance_locked_at)return out;
+  const since=new Date(clock()); since.setUTCHours(0,0,0,0);
+  const dayRows=await rest('/rest/v1/referral_events',{params:{select:'id',inviter_id:'eq.'+inviterId,created_at:'gte.'+since.toISOString()}});
+  if((dayRows?.length||0)>=referralDailyCap)return out;
+  try{
+   await rest('/rest/v1/referral_events',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({inviter_id:inviterId,referral_id:invitee.telegram_id,source_event_key:'life1',points:REFERRAL_BONUS})});
+  }catch(e){const m=String(e.message||e);if(m==='duplicate'||m.includes('23505')||m.includes('409'))return out;throw e;}
+  const {inserted}=await insertReward(inviter,'referral:'+invitee.telegram_id+':life1','referral.inviter',REFERRAL_BONUS);
+  if(inserted){await applyPoints(inviter,REFERRAL_BONUS);out.inviter_paid=true;}
+  return out;
+ }
+
+ async function referralStats(player){
+  const invited=await rest('/rest/v1/players',{params:{select:'telegram_id,story_life',referred_by:'eq.'+player.telegram_id}});
+  const paid=await rest('/rest/v1/referral_events',{params:{select:'points,created_at',inviter_id:'eq.'+player.telegram_id}});
+  const since=new Date(clock()); since.setUTCHours(0,0,0,0);
+  return {invited:invited?.length||0,activated:(invited||[]).filter(r=>Number(r.story_life)>=1).length,earned:(paid||[]).reduce((a,r)=>a+Number(r.points||0),0),today:(paid||[]).filter(r=>new Date(r.created_at||0)>=since).length,daily_cap:referralDailyCap,bonus:REFERRAL_BONUS,invitee_bonus:REFERRAL_INVITEE_BONUS,referred_by:player.referred_by?true:false};
  }
 
  async function restoreLives(player){
@@ -103,7 +144,7 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
   const points=LIFE_REWARDS[life];
   const key=event_key||('life:'+life+':complete');
   const {inserted}=await insertReward(player,key,'life.complete',points);
-  let next=player;
+  let next=player,referral=null;
   if(inserted){
    next=await applyPoints(player,points);
    const story_life=Math.max(Number(next.story_life||0),life);
@@ -114,12 +155,13 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
    }
    const rows=await rest('/rest/v1/players',{method:'PATCH',params:{telegram_id:'eq.'+player.telegram_id},body:JSON.stringify(patch)});
    next=Array.isArray(rows)?{...next,...rows[0]}:{...next,...patch};
+   if(life===1&&next.referred_by){const r=await payReferralBonus(next);next=r.invitee;referral={invitee_points:r.invitee_points||0,inviter_paid:r.inviter_paid};}
   }else{
    // already paid — refresh
    const rows=await rest('/rest/v1/players',{params:{select:'*',telegram_id:'eq.'+player.telegram_id,limit:1}});
    next=rows?.[0]||player;
   }
-  return {player:next,awarded:inserted,points:inserted?points:0,event_key:key};
+  return {player:next,awarded:inserted,points:inserted?points:0,event_key:key,...(referral?{referral}:{})};
  }
 
  async function spendLife(player,event_key){
@@ -162,6 +204,8 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
   referral_id=Number(referral_id);
   if(!Number.isSafeInteger(referral_id)||referral_id<=0||referral_id===player.telegram_id)throw Error('referral');
   if(typeof source_event_key!=='string'||source_event_key.length<3)throw Error('source');
+  const ref=await rest('/rest/v1/players',{params:{select:'referred_by',telegram_id:'eq.'+referral_id,limit:1}});
+  if(Number(ref?.[0]?.referred_by)!==player.telegram_id)throw Error('referral');
   // daily cap
   const since=new Date(clock()); since.setUTCHours(0,0,0,0);
   const dayRows=await rest('/rest/v1/referral_events',{params:{select:'id',inviter_id:'eq.'+player.telegram_id,created_at:'gte.'+since.toISOString()}});
@@ -188,7 +232,7 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
   if(request.method==='GET'){
    // Health / contract probe — no secrets leaked
-   return json({ok:true,service:'rewards',actions:['player','life.complete','rewards.verify','lives.spend','referrals.claim','daily.status','cipher.solve','streak.checkin','youtube.redeem']});
+   return json({ok:true,service:'rewards',actions:['player','life.complete','rewards.verify','lives.spend','referrals.claim','referrals.stats','daily.status','cipher.solve','streak.checkin','youtube.redeem']});
   }
   if(request.method!=='POST')return json({ok:false,error:'method'},405);
   if(!url||!key)return json({ok:false,error:'unavailable'},503);
@@ -217,6 +261,7 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
     const result=await spendLife(player,body.event_key);
     return json({ok:true,...result,player:publicPlayer(result.player)});
    }
+   if(action==='referrals.stats')return json({ok:true,referrals:await referralStats(player),player:publicPlayer(player)});
    if(action==='referrals.claim'){
     const result=await claimReferral(player,body.referral_id,body.source_event_key);
     return json({ok:true,...result,player:publicPlayer(result.player)});

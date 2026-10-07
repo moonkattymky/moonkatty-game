@@ -30,6 +30,8 @@ jobs:
         run: node tests/field-rules.cjs
       - name: detail-rules
         run: node tests/detail-rules.cjs
+      - name: referrals-server
+        run: node tests/referrals-server.cjs
       - name: rewards-server
         run: node tests/rewards-server.cjs
       - name: daily-server

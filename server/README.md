@@ -94,3 +94,10 @@ Rewards Edge Function was **not** deployed: no `SUPABASE_URL` / `SUPABASE_SERVIC
   Admin guide: `server/youtube-codes.md`. Seed `MOONTEST` is a TEST code.
 - Migration: `server/migrations/20261007_daily_retention.sql` (additive, RLS on, no anon access).
 - Tests: `node tests/daily-server.cjs`.
+
+## Referrals (2026-10-07)
+- Invite link: `https://t.me/<bot>?startapp=ref_<telegram_id>` (bot username in `<meta name="mkty-bot">`, index.html).
+- `start_param` is read only from Ed25519-verified initData. `players.referred_by` is set once, only while the invitee has `story_life=0`; self-invites, unknown inviters and A↔B loops are ignored.
+- When the invitee's first `life.complete` for LIFE #1 is recorded, the invitee gets +200 (`referral:invitee:life1`) and the inviter +200 (`referral_events` source `life1`, reward key `referral:<invitee>:life1`). Inviter payouts share the `REFERRAL_DAILY_CAP` (rows/day, default 40); locked (LIFE #9) balances are not credited.
+- `referrals.stats` → `{invited, activated, earned, today, daily_cap}`. `referrals.claim` now requires the referral to actually be referred by the caller.
+- Tests: `node tests/referrals-server.cjs`.
