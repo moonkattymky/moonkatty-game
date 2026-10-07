@@ -1,0 +1,32 @@
+/* Chapter pacing countdown, life-risk warning and life toast */
+.pace-dialog{width:min(380px,calc(100vw - 28px));max-height:calc(100dvh - 28px);overflow:auto;padding:26px 22px 18px;border:1px solid #9fd8ff3d;border-radius:24px;color:#eef6ff;text-align:center;background:radial-gradient(120% 70% at 50% 0%,#2a3f78 0%,#121a3a 55%,#090d20 100%);box-shadow:0 30px 80px #000a,inset 0 1px 0 #ffffff1f}
+.pace-dialog::backdrop{background:#030612cc;backdrop-filter:blur(4px)}
+.pace-moon{position:relative;width:88px;height:88px;margin:8px auto 24px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff7d6,#f3c969 45%,#b8862f 100%);box-shadow:0 0 40px #f3c96977,0 0 0 10px #f3c96912}
+.pace-moon i{position:absolute;inset:-14px;border-radius:50%;border:2px dashed #9fd8ff66;animation:pace-orbit 14s linear infinite}
+.pace-moon i::after{content:'🐾';position:absolute;top:-10px;left:50%;font-size:16px;transform:translateX(-50%)}
+@keyframes pace-orbit{to{transform:rotate(360deg)}}
+.pace-kicker{display:block;letter-spacing:.18em;font-size:11px;color:#9fd8ff;opacity:.9}
+.pace-dialog h2{margin:6px 0 2px;font-size:20px;line-height:1.25}
+.pace-clock{display:block;margin:4px 0 10px;font:800 54px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.04em;color:#ffe08a;text-shadow:0 0 24px #f3c96988}
+.pace-dialog p{margin:0 0 10px;font-size:14px;line-height:1.45;color:#cfdcf2}
+.pace-lives{font-weight:700;color:#ff9db0!important}
+.pace-actions{display:grid;gap:8px;margin-top:12px}
+.pace-actions button{min-height:46px;border-radius:14px;font-weight:700;font-size:14px;cursor:pointer}
+.pace-actions .primary{border:0;color:#10142b;background:linear-gradient(180deg,#ffe08a,#f3b94a)}
+.pace-actions .pace-skip{border:1px solid #9fffc5;color:#bfffd8;background:#1b4a3a}
+.pace-actions .ghost{border:1px solid #ffffff2e;color:#e6eefc;background:#ffffff0d}
+.pace-strip{display:flex;align-items:center;gap:12px;width:100%;margin:0 0 12px;padding:12px 14px;border:1px solid #f3c96955;border-radius:16px;color:#eef6ff;text-align:left;background:linear-gradient(90deg,#2a2f62,#18203f);cursor:pointer}
+.pace-strip[hidden]{display:none}
+.pace-strip>b{font-size:26px}
+.pace-strip span{display:grid;gap:2px;flex:1;min-width:0}
+.pace-strip strong{font-size:14px}.pace-strip strong em{font-style:normal;color:#ffe08a;font-family:ui-monospace,Menlo,monospace}
+.pace-strip small{font-size:12px;color:#b9c6e4}
+.pace-strip i{font-style:normal;font-weight:700;color:#ff9db0;white-space:nowrap}
+.chapter-card.pace-locked{filter:saturate(.55)}
+.chapter-card.pace-locked small:first-of-type{color:#ffe08a}
+.story-risk{margin:6px 0 10px;padding:9px 12px;border-radius:12px;font-size:13px;line-height:1.4;color:#ffd6de;background:#5a1f2e66;border:1px solid #ff9db044}
+.story-risk.free{color:#d6ffe6;background:#1f5a3a55;border-color:#9fffc544}
+.story-risk[hidden]{display:none}
+.pace-toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));z-index:9999;max-width:calc(100vw - 32px);padding:10px 16px;border-radius:999px;color:#fff;font-weight:700;font-size:14px;background:#2b1530ee;border:1px solid #ff9db066;box-shadow:0 10px 30px #0008;opacity:0;pointer-events:none;transform:translate(-50%,12px);transition:.25s}
+.pace-toast.on{opacity:1;transform:translate(-50%,0)}
+[dir=rtl] .pace-strip{text-align:right}

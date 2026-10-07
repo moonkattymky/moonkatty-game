@@ -1,4 +1,4 @@
-const {chromium}=require('playwright'),assert=require('assert/strict'),fs=require('fs'),path=require('path'),http=require('http'),R=require('../field-model.js'),P=require('../story-plan.js'),solve=require('./field-browser-helper.cjs');
+const {chromium}=require('./pace-hook.cjs'),assert=require('assert/strict'),fs=require('fs'),path=require('path'),http=require('http'),R=require('../field-model.js'),P=require('../story-plan.js'),solve=require('./field-browser-helper.cjs');
 const root=path.resolve(__dirname,'..'),out=process.env.MKTY_TEST_OUTPUT||'/tmp/worlds-edges';fs.mkdirSync(out,{recursive:true});let browser,p;const report={errors:[],checks:[]};
 const server=http.createServer((req,res)=>{const pathname=new URL(req.url,'http://a').pathname,f=path.join(root,pathname==='/'?'index.html':pathname);fs.readFile(f,(e,b)=>{res.writeHead(e?404:200,{'Content-Type':({'.html':'text/html','.js':'application/javascript','.css':'text/css'})[path.extname(f)]||'application/octet-stream'});res.end(e?'':b);});});
 (async()=>{

@@ -10,6 +10,7 @@ const ENV=k=>(typeof Deno!=='undefined'&&Deno.env?.get?.(k))||'';
 // PUBLIC_KEY is Telegram's published production Ed25519 key for third-party initData validation (public, not a secret).
 // Bot id is taken from the TELEGRAM_BOT_TOKEN secret prefix when present.
 const BOT_ID=(/^(\d{5,15}):/.exec((typeof Deno!=='undefined'&&Deno.env?.get?.('TELEGRAM_BOT_TOKEN'))||'')||[])[1]||'8659740610',PUBLIC_KEY='e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
+import {createPace} from './pace.mjs';
 const LIFE_RESTORE_MS=12*60*60*1000, MAX_LIVES=9;
 const REFERRAL_BONUS=200, REFERRAL_INVITEE_BONUS=200; // paid once, only after the invitee completes LIFE #1
 export function parseReferrer(start_param){const m=/^ref_([1-9][0-9]{0,15})$/.exec(start_param||'');const id=m?Number(m[1]):0;return Number.isSafeInteger(id)&&id>0?id:null;}
@@ -152,7 +153,10 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
   life=Number(life);
   if(!Number.isInteger(life)||life<1||life>9)throw Error('life');
   const points=LIFE_REWARDS[life];
-  const key=event_key||('life:'+life+':complete');
+  // Canonical key only: pacing reads the LIFE #N completion time from it, and it blocks double awards.
+  const key='life:'+life+':complete';
+  // One new chapter per UTC day (completed chapters are never relocked).
+  if(Number(player.story_life||0)<life)await pace.assertUnlocked(player,life);
   const {inserted}=await insertReward(player,key,'life.complete',points);
   let next=player,referral=null;
   if(inserted){
@@ -175,6 +179,7 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
  }
 
  async function spendLife(player,event_key){
+  if(event_key!=null&&(typeof event_key!=='string'||event_key.length<3||event_key.length>200||/^(chapter:|life:[1-9]:complete$|referral:|daily:|cipher:|streak:|youtube:|creator:)/.test(event_key)))throw Error('event_key');
   const key=event_key||('life:spend:'+clock().toISOString());
   // Idempotent spend marker (0 points) so retries don't double-charge lives
   const existing=await rest('/rest/v1/reward_events',{params:{select:'id',telegram_id:'eq.'+player.telegram_id,event_key:'eq.'+key,limit:1}});
@@ -203,6 +208,8 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
   // Social / daily / creator rewards are paid only by their own server verification paths.
   if(player.balance_locked_at)throw Error('locked');
   if(/^(daily|social|creator)([._]|$)/.test(event_type))throw Error('unverified');
+  // Reserved server-only events (chapter pacing / life completion / life spends).
+  if(event_type==='chapter.skip'||event_type==='life.spend'||/^(chapter:|life:)/.test(event_key))throw Error('event_key');
   const {inserted}=await insertReward(player,event_key,event_type,points);
   let next=player;
   if(inserted && points>0) next=await applyPoints(player,points);
@@ -241,13 +248,14 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
  }
 
  const daily=createDaily({rest,clock,insertReward,applyPoints,secret:cipherSecret});
+ const pace=createPace({rest,clock,insertReward});
  const creator=createCreator({rest,clock,insertReward,applyPoints,adminIds:adminIds instanceof Set?adminIds:parseAdminIds(adminIds)});
  const social=createSocial({rest,clock,insertReward,applyPoints,isAdmin:creator.isAdmin,secret:cipherSecret,botToken,channel:telegramChannel,fetcher:tgFetcher,youtube});
  return async request=>{
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
   if(request.method==='GET'){
    // Health / contract probe — no secrets leaked
-   return json({ok:true,service:'rewards',actions:['player','life.complete','rewards.verify','lives.spend','referrals.claim','referrals.stats','daily.status','cipher.solve','streak.checkin','youtube.redeem','creator.status','creator.submit','admin.creator.list','admin.creator.review','admin.creator.tier','social.status','social.telegram.verify','social.submit','social.youtube.verify','admin.social.list','admin.social.review']});
+   return json({ok:true,service:'rewards',actions:['player','life.complete','rewards.verify','lives.spend','referrals.claim','referrals.stats','daily.status','cipher.solve','streak.checkin','youtube.redeem','chapter.status','chapter.skip','creator.status','creator.submit','admin.creator.list','admin.creator.review','admin.creator.tier','social.status','social.telegram.verify','social.submit','social.youtube.verify','admin.social.list','admin.social.review']});
   }
   if(request.method!=='POST')return json({ok:false,error:'method'},405);
   if(!url||!key)return json({ok:false,error:'unavailable'},503);
@@ -263,10 +271,12 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
   try{
    let player=await ensurePlayer(user);
    const action=body.action||'player';
-   if(action==='player')return json({ok:true,player:publicPlayer(player)});
+   if(action==='player')return json({ok:true,player:publicPlayer(player),pace:await pace.status(player)});
+   if(action==='chapter.status')return json({ok:true,pace:await pace.status(player),player:publicPlayer(player)});
+   if(action==='chapter.skip'){const r=await pace.skip(player,body.life);return json({ok:true,...r,pace:await pace.status(player),player:publicPlayer(player)});}
    if(action==='life.complete'){
     const result=await lifeComplete(player,body.life,body.event_key);
-    return json({ok:true,...result,player:publicPlayer(result.player)});
+    return json({ok:true,...result,player:publicPlayer(result.player),pace:await pace.status(result.player)});
    }
    if(action==='rewards.verify'){
     const result=await verifyReward(player,body.event_key,body.event_type,body.points);
@@ -310,6 +320,8 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
    const msg=String(e.message||e);
    if(msg==='locked')return json({ok:false,error:'locked'},409);
    if(msg==='no_lives')return json({ok:false,error:'no_lives'},409);
+   if(msg==='chapter_locked')return json({ok:false,error:'chapter_locked',unlock_at:e.unlock_at||null},409);
+   if(msg==='no_skips')return json({ok:false,error:'no_skips'},409);
    if(msg==='no_attempts')return json({ok:false,error:'no_attempts'},429);
    if(msg==='answer'||msg==='code')return json({ok:false,error:msg},400);
    if(msg==='forbidden')return json({ok:false,error:'forbidden'},403);

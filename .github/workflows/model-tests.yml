@@ -42,3 +42,5 @@ jobs:
         run: node tests/creator-server.cjs
       - name: social-server
         run: node tests/social-server.cjs
+      - name: pace-server
+        run: node tests/pace-server.cjs

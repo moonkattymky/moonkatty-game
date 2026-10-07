@@ -43,7 +43,7 @@ const Liftoff6=(()=>{
  function signal(kind){s.flash=kind==='error'?-1:1;window.MKTYExperience?.signal(kind);tg?.HapticFeedback?.notificationOccurred?.(kind==='error'?'error':'success');}
  function notice(message){s.notice=message;s.noticeFor=3;text('lfStatus6',message);}
  function enter(phase){release();s.phase=phase;s.phaseTime=0;s.hold=0;render();save();}
- function abort(reason){s.failedStage=s.phase==='preflight'?'preflight':'flight';s.reason=reason;signal('error');enter('abort');}
+ function abort(reason){window.MKTYPace?.fail(6,'core','c6:abort:'+Date.now());s.failedStage=s.phase==='preflight'?'preflight':'flight';s.reason=reason;signal('error');enter('abort');}
  function begin(){if(!s||s.paused||s.phase!=='briefing')return;enter('preflight');}
  function arm(system){
   if(!active()||!s||s.paused||s.phase!=='preflight'||s.faultActive||s.order.slice(0,s.armed).includes(system))return;

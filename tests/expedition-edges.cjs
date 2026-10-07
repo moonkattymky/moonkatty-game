@@ -1,4 +1,4 @@
-const {chromium}=require('playwright'),assert=require('node:assert/strict'),R=require('../expedition-model.js'),fs=require('fs'),http=require('http'),path=require('path');
+const {chromium}=require('./pace-hook.cjs'),assert=require('node:assert/strict'),R=require('../expedition-model.js'),fs=require('fs'),http=require('http'),path=require('path');
 const root=path.resolve(__dirname,'..'),out=process.env.MKTY_TEST_OUTPUT||'/tmp/mkty-exp-edges';fs.mkdirSync(out,{recursive:true});
 const server=http.createServer((req,res)=>{const name=new URL(req.url,'http://local').pathname,f=path.join(root,name==='/'?'index.html':name);fs.readFile(f,(e,b)=>{res.writeHead(e?404:200,{'Content-Type':({'.html':'text/html','.css':'text/css','.js':'application/javascript'})[path.extname(f)]||'application/octet-stream'});res.end(e?'':b);});});
 let browser,p;const report={errors:[],checks:[]};

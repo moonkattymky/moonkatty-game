@@ -43,7 +43,7 @@ window.MKTYExperience=(()=>{
  function closeFlightReview(){if(flightReview.open)flightReview.close();retryFlight=null;paused=false;document.body.classList.remove('experience-paused');}
  $('flightRetry').onclick=()=>{const retry=retryFlight;closeFlightReview();retry?.();};$('flightMissions').onclick=()=>{closeFlightReview();show('chapters');};flightReview.addEventListener('cancel',e=>e.preventDefault());
  function flightFailed(chapter,data,retry){
-  if(current!==chapter)return;
+  if(current!==chapter)return;window.MKTYPace?.fail(chapter,'core','c'+chapter+':flight:'+Date.now());
   paused=true;nav2Control=0;releaseDescentControls();document.body.classList.add('experience-paused');MKTYCampaign.save();retryFlight=retry;
   $('flightReviewTitle').textContent=chapter===2?'CORRIDOR MISSED':'LANDING ABORTED';
   $('flightReviewReason').textContent=chapter===2?'Pass through each highlighted gate in order.':data.velocity>14&&Math.abs(data.drift)>42?'Speed and alignment were outside the safe limits.':data.velocity>14?'Touchdown speed was too high.':'The ship landed outside the safe zone.';
