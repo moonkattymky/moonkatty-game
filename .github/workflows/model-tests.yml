@@ -44,3 +44,5 @@ jobs:
         run: node tests/social-server.cjs
       - name: pace-server
         run: node tests/pace-server.cjs
+      - name: i18n-ar
+        run: node tests/i18n-ar.cjs

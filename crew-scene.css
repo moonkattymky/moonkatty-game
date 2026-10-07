@@ -35,7 +35,7 @@
 #mission2.crew-deck2 .crew-role-label2 {
   position:absolute;top:0;left:0;display:grid;grid-template-columns:23px 1fr;column-gap:5px;row-gap:3px;
   box-sizing:border-box;min-height:48px;width:max-content;max-width:100%;padding:9px 10px 8px;
-  text-align:left;border:1px solid var(--crew-edge);border-radius:5px 12px 5px 12px;
+  text-align:start;border:1px solid var(--crew-edge);border-radius:5px 12px 5px 12px;
   background:linear-gradient(120deg,#0c2034ec,#11283cdf);backdrop-filter:blur(8px);
   box-shadow:0 4px 16px #0006,inset 0 0 14px #ffdd8912;transition:background .2s,border-color .2s,box-shadow .2s;
 }

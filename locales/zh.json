@@ -1435,7 +1435,7 @@
     "What counts as fair play?": "什么是公平游戏？",
     "One player, one account. Duplicate activity, self-referrals, bots and manipulation may be excluded from rewards.": "一名玩家一个账号。重复活动、自我邀请、机器人和操纵行为可能被排除在奖励之外。",
     "How do I change the language?": "如何切换语言？",
-    "Open Settings → Interface language. The game is available in 12 languages.": "打开“设置”→“界面语言”。游戏支持 12 种语言。",
+    "Open Settings → Interface language. The game is available in 13 languages.": "打开“设置”→“界面语言”。游戏支持 13 种语言。",
     "Privacy": "隐私",
     "What we store: your Telegram ID and username, game progress and reward events. This data is kept in Supabase and used only to run the game and its rewards.": "我们存储的内容：你的 Telegram ID 和用户名、游戏进度以及奖励记录。这些数据保存在 Supabase 中，仅用于运行游戏及其奖励。",
     "We do not sell your data.": "我们不会出售你的数据。",

@@ -52,7 +52,7 @@
   "What counts as fair play?":"Adil oyun nedir?",
   "One player, one account. Duplicate activity, self-referrals, bots and manipulation may be excluded from rewards.":"Bir oyuncu, bir hesap. Tekrarlanan etkinlik, kendini davet, botlar ve manipülasyon ödüllerden hariç tutulabilir.",
   "How do I change the language?":"Dili nasıl değiştiririm?",
-  "Open Settings → Interface language. The game is available in 12 languages.":"Ayarlar → Arayüz dili bölümünü aç. Oyun 12 dilde mevcuttur.",
+  "Open Settings → Interface language. The game is available in 13 languages.":"Ayarlar → Arayüz dili bölümünü aç. Oyun 13 dilde mevcuttur.",
   "Privacy":"Gizlilik",
   "What we store: your Telegram ID and username, game progress and reward events. This data is kept in Supabase and used only to run the game and its rewards.":"Sakladıklarımız: Telegram kimliğin ve kullanıcı adın, oyun ilerlemen ve ödül olayları. Bu veriler Supabase’de tutulur ve yalnızca oyunun ve ödüllerin işleyişi için kullanılır.",
   "We do not sell your data.":"Verilerini satmayız.",

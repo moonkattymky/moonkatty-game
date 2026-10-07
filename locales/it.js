@@ -52,7 +52,7 @@
   "What counts as fair play?":"Cosa si intende per fair play?",
   "One player, one account. Duplicate activity, self-referrals, bots and manipulation may be excluded from rewards.":"Un giocatore, un account. Attività duplicate, auto-referral, bot e manipolazioni possono essere esclusi dalle ricompense.",
   "How do I change the language?":"Come cambio la lingua?",
-  "Open Settings → Interface language. The game is available in 12 languages.":"Apri Impostazioni → Lingua dell’interfaccia. Il gioco è disponibile in 12 lingue.",
+  "Open Settings → Interface language. The game is available in 13 languages.":"Apri Impostazioni → Lingua dell’interfaccia. Il gioco è disponibile in 13 lingue.",
   "Privacy":"Privacy",
   "What we store: your Telegram ID and username, game progress and reward events. This data is kept in Supabase and used only to run the game and its rewards.":"Cosa conserviamo: ID e nome utente Telegram, progressi di gioco ed eventi di ricompensa. Questi dati sono archiviati su Supabase e usati solo per il funzionamento del gioco e delle ricompense.",
   "We do not sell your data.":"Non vendiamo i tuoi dati.",

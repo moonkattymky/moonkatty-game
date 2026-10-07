@@ -52,7 +52,7 @@
   "What counts as fair play?":"공정한 플레이란 무엇인가요?",
   "One player, one account. Duplicate activity, self-referrals, bots and manipulation may be excluded from rewards.":"플레이어 1명당 계정 1개입니다. 중복 활동, 자기 추천, 봇, 조작은 보상에서 제외될 수 있습니다.",
   "How do I change the language?":"언어는 어떻게 바꾸나요?",
-  "Open Settings → Interface language. The game is available in 12 languages.":"설정 → 인터페이스 언어를 여세요. 게임은 12개 언어로 제공됩니다.",
+  "Open Settings → Interface language. The game is available in 13 languages.":"설정 → 인터페이스 언어를 여세요. 게임은 13개 언어로 제공됩니다.",
   "Privacy":"개인정보 보호",
   "What we store: your Telegram ID and username, game progress and reward events. This data is kept in Supabase and used only to run the game and its rewards.":"저장하는 정보: Telegram ID와 사용자 이름, 게임 진행 상황, 보상 이벤트입니다. 이 데이터는 Supabase에 보관되며 게임과 보상 운영에만 사용됩니다.",
   "We do not sell your data.":"데이터를 판매하지 않습니다.",

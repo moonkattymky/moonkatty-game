@@ -139,7 +139,7 @@
 #mission9 .corridor-meter9{margin:10px 0 2px}
 #mission9 :is(.sync-nodes,.final-keys){gap:7px;margin:9px 0}
 #mission9 :is(.sync-nodes,.final-keys) button{height:48px;background:linear-gradient(#3b6073,#1d4056)!important;border-color:#b8d8e380!important;color:#ffe4a6!important;font-size:24px}
-#mission9 .sync-cycle9{font-size:9px!important;color:#eed69d!important;text-align:left!important;letter-spacing:1px!important;margin:8px 0!important}
+#mission9 .sync-cycle9{font-size:9px!important;color:#eed69d!important;text-align:start!important;letter-spacing:1px!important;margin:8px 0!important}
 #mission9 #syncHint9{display:block;font-size:10px;color:#cbe5ec;margin-top:8px;text-align:center;line-height:1.4}
 #mission9 .final-power9{margin:10px 0 0;height:7px}
 #mission9 .final-message{font-size:12px!important;line-height:1.7;color:#d4e3e5!important}
