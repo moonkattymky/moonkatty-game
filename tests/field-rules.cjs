@@ -25,4 +25,21 @@ if(require.main===module){ // Chapter 6: the hull can reach 0 and the attempt fa
  // A careful pilot (gentle scrape each port) still finishes: three slow contacts cost 18% and docking repairs it.
  const careful=R.create(6,2,5);for(let i=0;i<3;i++){careful.ship={x:228,y:200,vx:5,vy:0};R.tick(careful,.02,{});}assert(!careful.failed&&careful.integrity>=75);
  console.log('docking failure OK: breach after '+ram.impacts+' rams');}
-module.exports={route,solve,crewOrder,convoyPlan};
+// Finale 8 (decode) and finale 9 climax (gate): deterministic optimal play and fairness margins.
+function decodeStep(s){const b=R.layout(s);if(s.event)return ['answer'];const c=b.carrier(s.turn),j=b.jam(s.turn);if(c===j&&s.charges>0&&!s.filter)return ['tune',c,'filter'];return ['tune',c];}
+function playDecode(s,choice='answer'){let guard=0;while(!s.complete&&!s.failed&&guard++<100){if(s.event){assert(R.act(s,choice));continue;}const [,c,f]=decodeStep(s);R.act(s,'tune',c);if(f)R.act(s,'filter');assert(R.act(s,'listen'));}return s;}
+function gateStep(s){const b=R.layout(s);return b.aligned(s.turn)?'launch':s.charges>0?'boost':'wait';}
+function playGate(s){let guard=0;while(!s.complete&&!s.failed&&guard++<100)assert(R.act(s,gateStep(s)));return s;}
+if(require.main===module){let minNoise=0,minStab=999;for(let seed=1;seed<=400;seed++){for(const choice of ['answer','silent']){const d=playDecode(R.create(10,4,seed),choice);assert(d.complete&&R.won(d)&&!d.failed,'decode '+seed);assert.equal(d.choice,choice);minNoise=Math.max(minNoise,d.noise);assert(R.restore(JSON.parse(JSON.stringify(d)),10,4,seed));}
+  const g=playGate(R.create(11,4,seed));assert(g.complete&&R.won(g),'gate '+seed);minStab=Math.min(minStab,g.stability);assert(R.restore(JSON.parse(JSON.stringify(g)),11,4,seed));
+  // Blind play (always listening in the middle band / launching immediately) must fail: the mechanics are not free wins.
+  const blind=R.create(10,4,seed);let k=0;while(!blind.complete&&!blind.failed&&k++<200){if(blind.event)R.act(blind,'silent');R.act(blind,'listen');}assert(blind.failed&&!R.won(blind),'blind decoding must lose the signal '+seed);
+  const rush=R.create(11,4,seed);k=0;while(!rush.complete&&!rush.failed&&k++<200)R.act(rush,'launch');assert(rush.failed&&!R.won(rush),'rushing the gate must collapse it '+seed);}
+ assert(minNoise<=85,'decode margin '+minNoise);assert(minStab>=10,'gate margin '+minStab);
+ const e=R.create(10,4,7);assert.equal(R.act(e,'answer'),false);const forged={...playDecode(R.create(10,4,9)),fragments:2};assert.equal(R.restore(forged,10,4,9),null);
+ // Legacy modifiers are bounded and survive checkpoints; forged modifiers are rejected.
+ const m=R.create(11,4,3,{stability:25,charges:2,bogus:9});assert.deepEqual(m.mods,{stability:25,charges:2});assert.equal(m.stability,R.GATE_BASE+25);assert.equal(R.restore({...m,mods:{stability:99}},11,4,3),null);
+ const crew=R.create(2,1,4,{role:1});assert(R.layout(crew).jobs.filter(j=>j.role===1).every((j,i)=>j.cost<=R.layout(R.create(2,1,4)).jobs.filter(x=>x.role===1)[i].cost));
+ const conv=R.create(9,2,4,{cells:1});assert.equal(conv.cells,4);const dk=R.create(6,1,2,{repair:6});assert.equal(dk.mods.repair,6);
+ console.log('finale mechanics OK: decode worst noise '+minNoise+'%, gate worst remaining stability '+minStab);}
+module.exports={route,solve,crewOrder,convoyPlan,decodeStep,gateStep};
