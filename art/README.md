@@ -124,4 +124,4 @@ Prompt: Create a 2 × 2 transparent atlas of four separate production space-game
 
 ## Language-screen hero — 7 October 2026
 
-- `moonkatty-hero.webp` / `moonkatty-bust.webp`: cropped from root `moonkatty.png` for the language screen (replaces emoji cat). CSS class `.cat-face-art`.
+- `moonkatty-hero.webp` / `moonkatty-bust.webp`: cropped from root `moonkatty.png` (bust used on crew cards; hero currently unused — language intro uses the original emoji helmet).
