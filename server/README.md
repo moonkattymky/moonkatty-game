@@ -101,3 +101,21 @@ Rewards Edge Function was **not** deployed: no `SUPABASE_URL` / `SUPABASE_SERVIC
 - When the invitee's first `life.complete` for LIFE #1 is recorded, the invitee gets +200 (`referral:invitee:life1`) and the inviter +200 (`referral_events` source `life1`, reward key `referral:<invitee>:life1`). Inviter payouts share the `REFERRAL_DAILY_CAP` (rows/day, default 40); locked (LIFE #9) balances are not credited.
 - `referrals.stats` → `{invited, activated, earned, today, daily_cap}`. `referrals.claim` now requires the referral to actually be referred by the caller.
 - Tests: `node tests/referrals-server.cjs`.
+## Creator rewards (2026-10-07)
+
+Actions on the `rewards` function (`server/rewards/creator.mjs`, table `creator_submissions`, migration `server/migrations/20261007_creator_rewards.sql`):
+
+| action | who | purpose |
+|--------|-----|---------|
+| `creator.status` | player | own submissions, next allowed time, `is_admin` |
+| `creator.submit` | player | `{url, caption, own:true}` → pending; caption must contain `#MOONKATTY`; 1 per rolling 7 days; URL canonicalised (TikTok/YouTube/X/Instagram) and globally unique |
+| `admin.creator.list` | admin | `{status}` pending/approved/rejected |
+| `admin.creator.review` | admin | `{id, decision:'approve'|'reject'}`; approve pays base points once |
+| `admin.creator.tier` | admin | `{id, tier:'1k'|'10k'}`; approved only, each tier once |
+
+Points (server constants): base 250, 1k views +250, 10k views +500; paid via `reward_events` keys `creator:<id>:base|tier_1k|tier_10k` (idempotent), never after balance lock.
+
+Admins: function secret `ADMIN_TG_IDS` (comma-separated Telegram user ids), e.g.
+`supabase secrets set ADMIN_TG_IDS=1264735363 --project-ref lswbmgoeinblzuqzakvi`.
+Admin UI: `admin.html` (no secrets; every call is checked server-side). Open inside Telegram via `https://t.me/<bot>?startapp=admin`, or More → Creator rewards → “Open admin review” (visible to admins only). Non-admins see 403 and their own Telegram ID.
+Tests: `node tests/creator-server.cjs`.
