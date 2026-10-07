@@ -1,5 +1,5 @@
 /* New multi-step objectives must survive real browser pause/reload. */
-const {chromium}=require('playwright'),assert=require('assert/strict'),fs=require('fs'),path=require('path'),http=require('http'),R=require('../field-model.js'),solve=require('./field-browser-helper.cjs');
+const {chromium}=require('./pace-hook.cjs'),assert=require('assert/strict'),fs=require('fs'),path=require('path'),http=require('http'),R=require('../field-model.js'),solve=require('./field-browser-helper.cjs');
 const root=path.resolve(__dirname,'..'),out=process.env.MKTY_TEST_OUTPUT||'/tmp/detail-ui';fs.mkdirSync(out,{recursive:true});let browser,p;
 const report={errors:[],checkpoints:[],layouts:[],legacy:[]};
 const server=http.createServer((req,res)=>{const u=new URL(req.url,'http://a'),f=path.join(root,u.pathname==='/'?'index.html':u.pathname);fs.readFile(f,(e,b)=>{res.writeHead(e?404:200,{'Content-Type':({'.html':'text/html','.css':'text/css','.js':'application/javascript'})[path.extname(f)]||'application/octet-stream'});res.end(e?'':b);});});

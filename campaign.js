@@ -76,21 +76,24 @@ window.MKTYCampaign=(()=>{
  }
  function openChapter(n,cinematic=false){
   if(!Number.isInteger(n)||n<1||n>9||!unlocked(n))return;
+  if(window.MKTYPace&&!MKTYPace.gate(n))return;
   if(n>1&&needsCode())n=1;
   const open=[null,openMission,openMission2,openLife3MemoryGate,openMission4,openMission5,openMission6,openMission7,openMission8,openMission9];
   const intro=[null,startLife1,startLife2,startLife3,startLife4,startLife5,startLife6,startLife7,startLife8,startLife9];
   if(cinematic&&!done(n))intro[n]();else open[n]();
  }
  function render(){
-  const n=destination();
+  const n=destination(),wait=window.MKTYPace?.nextLocked?.();
+  if(wait&&(!n||n===wait.n)){$('enterBtn').textContent=(window.MKTYI18n?.t?MKTYI18n.t('🌙 CHAPTER {n} IN {t}'):'🌙 CHAPTER {n} IN {t}').replace('{n}',wait.n).replace('{t}',MKTYPace.Rules.clock(wait.at-Date.now()));$('enterBtn').onclick=()=>MKTYPace.open('chapter',wait.n);}else{
   $('enterBtn').textContent=n?(n===1&&!done(1)&&!read(1)&&!window.MKTYStory?.pending(1)?tr('НАЧАТЬ КАМПАНИЮ · 9 ГЛАВ','START CAMPAIGN · 9 CHAPTERS'):tr('ПРОДОЛЖИТЬ ГЛАВУ ','CONTINUE CHAPTER ')+n):tr('ВЫБРАТЬ ГЛАВУ','CHOOSE A CHAPTER');
-  $('enterBtn').onclick=()=>n?openChapter(n,!localStorage.getItem('mkty_current_chapter')):show('chapters');
+  $('enterBtn').onclick=()=>n?openChapter(n,!localStorage.getItem('mkty_current_chapter')):show('chapters');}
   const list=$('chapterList');list.replaceChildren(...titles.map((title,i)=>{
    const n=i+1;const b=document.createElement('button');b.className='chapter-card';b.dataset.chapter=String(n);b.style.setProperty('--chapter-art',"url('art/"+['life1-base.webp','crew-bridge-v3.webp','launch-bridge-v3.webp','life4-landing.webp','life5-reactor-v2.webp','life6-launchpad.webp','life7-void.webp','life1-base.webp','orbit-v2.webp'][i]+"')");b.disabled=!unlocked(n);
    const number=document.createElement('b');number.textContent=String(n).padStart(2,'0');
    const body=document.createElement('span'),name=document.createElement('strong'),status=document.createElement('small');name.textContent=title;
    status.textContent=window.MKTYStory&&!window.MKTYStory.read(n)&&done(n)?tr('ДОСТУПЕН НОВЫЙ ПЛАН','NEW CHAPTER PLAN'):window.MKTYStory?.pending(n)?tr('ПРОДОЛЖИТЬ ПЛАН ГЛАВЫ','CONTINUE CHAPTER PLAN'):window.MKTYOps?.pending(n)?tr('ПРОДОЛЖИТЬ','CONTINUE'):done(n)?(n>=4?tr('ЗАВЕРШЕНО • ПОВТОР','COMPLETE • REPLAY'):tr('ЗАВЕРШЕНО • ПРОСМОТР','COMPLETE • VIEW')):unlocked(n)?tr('ПРОДОЛЖИТЬ','CONTINUE'):tr('ЗАВЕРШИТЕ ПРЕДЫДУЩУЮ ГЛАВУ','COMPLETE THE PREVIOUS CHAPTER');body.append(name,status);if(window.StoryPlan){const pacing=document.createElement('small');pacing.className='story-card-pacing';pacing.setAttribute('translate','no');pacing.textContent=tr('8 этапов + финал','8 stages + finale');body.append(pacing);}b.append(number,body);b.onclick=()=>openChapter(n);return b;
   }).filter(Boolean));
+  window.MKTYPace?.refresh();
  }
  function onScreen(id){
   const n=Number(id.match(/^(?:mission|life)([1-9])$/)?.[1]||0);

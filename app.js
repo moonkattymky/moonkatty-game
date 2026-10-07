@@ -385,15 +385,15 @@ function getLifeBank(){
  if(stamp)localStorage.setItem('mkty_life_restore_at',String(stamp));else localStorage.removeItem('mkty_life_restore_at');
  return lives;
 }
-function spendGlobalLife(){
+function spendGlobalLife(eventKey){
  let lives=getLifeBank(); if(lives<=0)return false;
  lives--; localStorage.setItem('mkty_global_lives',String(lives));
  if(!localStorage.getItem('mkty_life_restore_at'))localStorage.setItem('mkty_life_restore_at',String(Date.now()));
  // Fire-and-forget server spend (idempotent event_key). Local cache remains provisional until deploy.
  try{
-  const event_key='life:spend:'+Date.now()+':'+Math.random().toString(36).slice(2,8);
+  const event_key=eventKey||('life:spend:'+Date.now()+':'+Math.random().toString(36).slice(2,8));
   window.MKTYRewards?.spendLife?.(event_key)?.then?.(res=>{
-   if(res&&typeof res.lives==='number'){localStorage.setItem('mkty_global_lives',String(res.lives));renderLife3Gate();}
+   if(res&&typeof res.lives==='number'){localStorage.setItem('mkty_global_lives',String(res.lives));renderLife3Gate();renderGlobalLivesHome?.();window.MKTYPace?.refresh();}
   });
  }catch(_){ }
  renderLife3Gate(); return true;
@@ -470,6 +470,7 @@ $('journalCodeBtn')?.addEventListener('click',()=>{
 });
 
 function awardLifePoints(n,amount){
+ window.MKTYPace?.onRecorded(n);
  window.MKTYOps?.complete(n);
  window.MKTYStory?.complete(n);
  const key='mkty_life'+n,awardKey=key+'_awarded';
@@ -725,7 +726,7 @@ function resetIgnition3(msg='Awaiting launch order.'){stopLaunchTimer3();ignitio
 $('showIgnition3')?.addEventListener('click',()=>{
  if($('mission3').dataset.phase!=='ignition')return;
  resetIgnition3('Memorize the ignition order…');ignitionOrder3=['NAV','CORE','COMMS'].sort(()=>Math.random()-.5);paintLaunchSlots3('ignitionOrder3',ignitionOrder3,3);$('showIgnition3').disabled=true;
- ignitionRevealTimer3=missionTimeout(3,()=>{ignitionRevealTimer3=null;if($('mission3').dataset.phase!=='ignition')return;paintLaunchSlots3('ignitionOrder3',[],3);$('showIgnition3').disabled=false;document.querySelectorAll('[data-ignite3]').forEach(b=>b.disabled=false);$('ignitionHint3').textContent='GO — arm all systems before time expires!';launchTimer3=setInterval(()=>{if(document.hidden||window.MKTYExperience?.paused)return;launchTime3-=2;renderLaunchTime3();if(launchTime3<=0){resetIgnition3('Launch window missed. Receive a new order.');tg?.HapticFeedback?.notificationOccurred?.('error');}},100);},1800);
+ ignitionRevealTimer3=missionTimeout(3,()=>{ignitionRevealTimer3=null;if($('mission3').dataset.phase!=='ignition')return;paintLaunchSlots3('ignitionOrder3',[],3);$('showIgnition3').disabled=false;document.querySelectorAll('[data-ignite3]').forEach(b=>b.disabled=false);$('ignitionHint3').textContent='GO — arm all systems before time expires!';launchTimer3=setInterval(()=>{if(document.hidden||window.MKTYExperience?.paused)return;launchTime3-=2;renderLaunchTime3();if(launchTime3<=0){window.MKTYPace?.fail(3,'core','c3:ignition:'+Date.now());resetIgnition3('Launch window missed. Receive a new order.');tg?.HapticFeedback?.notificationOccurred?.('error');}},100);},1800);
 });
 document.querySelectorAll('[data-ignite3]').forEach(b=>b.onclick=()=>{
  if(!launchTimer3||!ignitionOrder3.length||$('mission3').dataset.phase!=='ignition')return;const v=b.dataset.ignite3;
@@ -886,7 +887,7 @@ function showFinalCode9(){
  paintLaunchSlots3('finalCode9',finalSeq9.map(n=>['▲','●','◆','■'][n]),6);$('replayFinal9').disabled=true;document.querySelectorAll('[data-final9]').forEach(b=>b.disabled=true);
  laterInMission(9,()=>{paintLaunchSlots3('finalCode9',[],6);finalReady9=true;$('replayFinal9').disabled=false;document.querySelectorAll('[data-final9]').forEach(b=>b.disabled=false);},2600);
 }
-function startFinalTransmit9(){setFinalStage9('transmit');$('sync9').hidden=true;$('transmit9').hidden=false;$('phase9b').className='done';$('phase9c').className='active';$('finalStatus9').textContent='FINAL PHASE — transmit before core power collapses.';finalPower9=100;$('finalPowerFill9').style.width='100%';showFinalCode9();clearInterval(finalTimer9);finalTimer9=setInterval(()=>{if(document.hidden||window.MKTYExperience?.paused)return;finalPower9-=1;$('finalPowerFill9').style.width=Math.max(0,finalPower9)+'%';$('core9').textContent=Math.max(0,Math.round(finalPower9));if(finalPower9<=0){finalReady9=false;clearMissionDelays(9);document.querySelectorAll('[data-final9]').forEach(b=>b.disabled=true);$('replayFinal9').disabled=true;clearInterval(finalTimer9);finalTimer9=null;$('finalStatus9').textContent='POWER LOST — final transmission failed.';laterInMission(9,openMission9,1400);}},120);}
+function startFinalTransmit9(){setFinalStage9('transmit');$('sync9').hidden=true;$('transmit9').hidden=false;$('phase9b').className='done';$('phase9c').className='active';$('finalStatus9').textContent='FINAL PHASE — transmit before core power collapses.';finalPower9=100;$('finalPowerFill9').style.width='100%';showFinalCode9();clearInterval(finalTimer9);finalTimer9=setInterval(()=>{if(document.hidden||window.MKTYExperience?.paused)return;finalPower9-=1;$('finalPowerFill9').style.width=Math.max(0,finalPower9)+'%';$('core9').textContent=Math.max(0,Math.round(finalPower9));if(finalPower9<=0){finalReady9=false;clearMissionDelays(9);document.querySelectorAll('[data-final9]').forEach(b=>b.disabled=true);$('replayFinal9').disabled=true;clearInterval(finalTimer9);finalTimer9=null;$('finalStatus9').textContent='POWER LOST — final transmission failed.';window.MKTYPace?.fail(9,'core','c9:transmit:'+Date.now());laterInMission(9,openMission9,1400);}},120);}
 $('replayFinal9').onclick=()=>{if(finalReady9&&finalPower9>20){finalPower9-=15;showFinalCode9();$('finalStatus9').textContent='Code replay costs 15% core power.';}};
 document.querySelectorAll('[data-final9]').forEach(b=>b.onclick=()=>{if($('transmit9').hidden||!finalSeq9.length||!finalReady9||finalPower9<=0)return;const v=Number(b.dataset.final9);if(v!==finalSeq9[finalInput9.length]){finalPower9=Math.max(0,finalPower9-18);$('finalPowerFill9').style.width=finalPower9+'%';$('finalStatus9').textContent='Transmission rejected — 18% power lost.';showFinalCode9();tg?.HapticFeedback?.notificationOccurred?.('error');return;}finalInput9.push(v);$('finalStatus9').textContent='Return code: '+finalInput9.length+' / 6';paintLaunchSlots3('finalCode9',finalInput9.map(n=>['▲','●','◆','■'][n]),6);if(finalInput9.length===6){finalReady9=false;clearMissionDelays(9);document.querySelectorAll('[data-final9]').forEach(b=>b.disabled=true);$('replayFinal9').disabled=true;clearInterval(finalTimer9);finalTimer9=null;awardLifePoints(9,3000);if($('storyProgress'))$('storyProgress').style.width='100%';$('phase9c').className='done';$('core9').textContent=Math.round(finalPower9);$('finalGate').classList.add('open');$('finalShip').classList.add('returned');$('finalStatus9').textContent='RETURN TRANSMISSION ACCEPTED ✓';laterInMission(9,()=>{setFinalStage9('complete');$('life9Complete').hidden=false;},900);tg?.HapticFeedback?.notificationOccurred?.('success');}});
 $('life9ReturnBtn').onclick=()=>show('home');

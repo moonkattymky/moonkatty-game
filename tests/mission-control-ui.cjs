@@ -1,4 +1,4 @@
-const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),http=require('node:http'),solve=require('./field-browser-helper.cjs');
+const {chromium}=require('./pace-hook.cjs'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),http=require('node:http'),solve=require('./field-browser-helper.cjs');
 const root=path.resolve(__dirname,'..'),out=process.env.MKTY_TEST_OUTPUT||'/tmp/mission-control-ui';fs.mkdirSync(out,{recursive:true});let browser,p;
 const report={errors:[],navigation:[],layouts:[],daily:[]};
 const server=http.createServer((req,res)=>{const file=path.join(root,new URL(req.url,'http://a').pathname.replace(/^\/$/,'/index.html'));fs.readFile(file,(err,b)=>{res.writeHead(err?404:200,{'Content-Type':({'.html':'text/html','.js':'application/javascript','.css':'text/css','.webp':'image/webp','.mp4':'video/mp4'})[path.extname(file)]||'application/octet-stream'});res.end(err?'':b);});});

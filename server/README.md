@@ -4,7 +4,8 @@ The browser/localStorage is UI cache only. Real rewards must be authorized by a 
 
 Core rules:
 - Telegram ID is the player identity.
-- 9 global lives; one spent life restores every 12 hours.
+- 9 global lives; one spent life restores every 12 hours. Every failed board / flight / chapter finale costs 1 life (training and the first LIFE #1 run are free); at 0 lives missions are paused.
+- Chapter pacing: after LIFE #N is completed, LIFE #N+1 unlocks at the next 00:00 UTC. `life.complete` for a chapter that is not unlocked yet returns `409 chapter_locked` with `unlock_at`. Completed chapters and completions before `PACING_SINCE` are grandfathered.
 - Reward events are idempotent: the same event_key can pay once.
 - Referral count is unlimited. Eligible verified referral mission/video events can pay the inviter +1 Moon Point.
 - Referral reward emission has a configurable daily cap. Initial product setting is 40/day; keep this server-side and changeable.
@@ -68,7 +69,9 @@ Contract (POST JSON, Telegram `initData` required except GET probe):
 | `player` | upsert/read profile; applies 12h life restore |
 | `life.complete` | idempotent chapter reward via `event_key` (default `life:N:complete`) |
 | `rewards.verify` | generic verified reward ledger insert + points |
-| `lives.spend` | idempotent life spend (`event_key`) |
+| `lives.spend` | idempotent life spend (`event_key`, e.g. `life:fail:c4:board:…`) |
+| `chapter.status` | `{next_life, unlock_at, locked, skips}` (also returned as `pace` by `player` / `life.complete`) |
+| `chapter.skip` | spend one referral pass (friend completed LIFE #1) to open the next chapter early |
 | `referrals.claim` | inviter +1 with daily cap; rejects self-referral / duplicates |
 
 Rules enforced server-side: initData Ed25519 verify (10 min), unique `(telegram_id, event_key)`, LIFE #9 sets `final_balance` + `balance_locked_at`, no further point increases after lock.

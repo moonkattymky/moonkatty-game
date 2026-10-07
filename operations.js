@@ -124,7 +124,7 @@ window.MKTYOps=(()=>{
    const f=R.feedback(p.guess,b.secret);message=tr('На своих местах: ','Correct positions: ')+f.exact+tr('. На других местах: ','. Other positions: ')+f.near+'.';
    if(f.exact!==b.size){save();render();$('opsExtras').querySelector('.ops-history')?.lastElementChild?.scrollIntoView({block:'nearest'});return;}
   }
-  if(!R.solved(b,s.input)){reject('Задача ещё не решена. Проверь цели и ограничения.','Not solved yet. Check the goals and constraints.');return;}
+  if(!R.solved(b,s.input)){window.MKTYPace?.fail(s.n,'board','c'+s.n+':board:r'+s.round+':'+s.seed+':'+s.errors);reject('Задача ещё не решена. Проверь цели и ограничения.','Not solved yet. Check the goals and constraints.');return;}
   s.confirmed=true;save();render();tg?.HapticFeedback?.notificationOccurred?.('success');
  }
  function undo(){if(paused||s.confirmed)return;const p=s.input;if(b.type==='route'&&p.path.length>1)p.path.pop();else if(b.type==='shield'&&p.history.length)R.toggle(p.lamps,p.history.pop(),b.n);else if(b.type==='systems')p.order.pop();changed();}

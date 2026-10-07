@@ -54,7 +54,7 @@ window.Void7=(()=>{
   s.nextWave=[4.5,4.25,4][n];
  }
  function checkpoint(){clearRocks();s.hull=Math.min(100,s.hull+12);s.shields=Math.min(3,s.shields+1);s.nextWave=2.1;s.checkpointFor=2;s.grace=.8;notice('Sector saved. Hull repaired; one shield charge restored.');feedback('success');save();}
- function fail(){s.hull=0;clearRocks();s.shieldActive=false;notice('Flight interrupted. Your last sector is preserved.');feedback('error');enter('abort');}
+ function fail(){window.MKTYPace?.fail(7,'core','c7:hull:'+Date.now());s.hull=0;clearRocks();s.shieldActive=false;notice('Flight interrupted. Your last sector is preserved.');feedback('error');enter('abort');}
  function retry(){if(!active()||!s||paused()||s.phase!=='abort')return;Object.assign(s,{distance:sector(s.distance)*100/3,lane:1,x:.5,hull:100,shields:3,shieldActive:false,nextWave:1.8,grace:1,attempts:s.attempts+1,checkpointFor:0,flash:0,noticeFor:0});clearRocks();enter('flight');notice('Supplies restored. Resume from the last sector.');startLoop();}
  function finish(){
   s.report={time:s.timeKnown?s.elapsed:null,hull:s.hull,shields:s.shields,evaded:s.evaded,blocked:s.blocked,attempts:s.attempts};

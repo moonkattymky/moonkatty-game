@@ -22,9 +22,10 @@
    });
    if(r.status===503){ serverReady = false; return null; }
    const body = await r.json().catch(()=>({}));
-   if(!r.ok || !body?.ok){ console.warn('MOONKATTY rewards:', body?.error || r.status); return body; }
+   if(!r.ok || !body?.ok){ console.warn('MOONKATTY rewards:', body?.error || r.status); if(body?.error==='chapter_locked') window.MKTYPace?.refresh?.(); return body; }
    serverReady = true;
    if(body.player){ lastPlayer = body.player; applyCache(body.player); }
+   if(body.pace){ try{ localStorage.setItem('mkty_pace_server', JSON.stringify(body.pace)); }catch(_){ } window.MKTYPace?.setServer?.(body.pace); }
    return body;
   }catch(e){
    console.info('MOONKATTY rewards offline/cache:', e?.message || e);
@@ -53,6 +54,12 @@
 
  async function syncPlayer(){
   const body = await call('player');
+  // A chapter finished while the server still had it paced (or offline) is submitted again once it opens.
+  const p = body?.player;
+  if(p && typeof p.story_life === 'number' && p.story_life < 9 && localStorage.getItem('mkty_life'+(p.story_life+1)) === 'complete' && !(body.pace?.locked)){
+   const again = await call('life.complete', {life:p.story_life+1, event_key:'life:'+(p.story_life+1)+':complete'});
+   if(again?.player) return again.player;
+  }
   return body?.player || lastPlayer;
  }
 

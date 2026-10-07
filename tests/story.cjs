@@ -1,5 +1,5 @@
 /* All 72 chapter stages, driven through visible controls. Old finale flags isolate the new arcs. */
-const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=require('fs'),path=require('path'),http=require('http'),R=require('../mission-rules.js'),P=require('../story-plan.js'),E=require('../expedition-model.js');
+const {chromium}=require('./pace-hook.cjs'),assert=require('node:assert/strict'),fs=require('fs'),path=require('path'),http=require('http'),R=require('../mission-rules.js'),P=require('../story-plan.js'),E=require('../expedition-model.js');
 const root=path.resolve(__dirname,'..'),out=process.env.MKTY_TEST_OUTPUT||'/tmp/mkty-story';fs.mkdirSync(out,{recursive:true});
 const server=http.createServer((req,res)=>{const name=new URL(req.url,'http://local').pathname,f=path.join(root,name==='/'?'index.html':name);fs.readFile(f,(e,b)=>{res.writeHead(e?404:200,{'Content-Type':({'.html':'text/html','.css':'text/css','.js':'application/javascript'})[path.extname(f)]||'application/octet-stream'});res.end(e?'':b);});});
 let browser,p;const report={errors:[],chapters:[],layouts:[]},distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
