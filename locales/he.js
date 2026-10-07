@@ -1485,7 +1485,15 @@
   "🌙 MOON POINTS":"🌙 נקודות ירח",
   "🚀 MKTY · SOON":"🚀 MKTY · בקרוב",
   "Global standings show only your Telegram display name and photo, points and chapters. Your Telegram ID, @username and other data are never published. You can hide yourself — a callsign is shown instead.":"בדירוג הכללי מוצגים רק השם והתמונה שלך מטלגרם, הנקודות ומספר הפרקים. מזהה הטלגרם, ה-@username ונתונים אחרים לעולם אינם מתפרסמים. אפשר להסתיר את עצמך — ואז יוצג אות קריאה.",
-  "Available when opened in Telegram.":"זמין בפתיחה בטלגרם."
+  "Available when opened in Telegram.":"זמין בפתיחה בטלגרם.",
+  "HULL BREACHED":"הגוף נהרס",
+  "Mission failed: the hull reached 0%. Every impact costs 6–18% depending on speed; each docking repairs 12%. Brake early and give the module a wide berth.":"המשימה נכשלה: הגוף הגיע ל־0%. כל פגיעה עולה 6–18% לפי המהירות; כל עגינה מתקנת 12%. בלמו מוקדם והקיפו את המודול במרחק.",
+  "1 ❤️ lost.":"אבדה ❤️ 1.",
+  "Training: no lives are spent.":"אימון: לא מאבדים חיים.",
+  "RETRY DOCKING":"נסו לעגון שוב",
+  "Hull destroyed. Mission failed.":"הגוף נהרס. המשימה נכשלה.",
+  "New attempt: hull 100%. Brake before contact.":"ניסיון חדש: הגוף ב־100%. בלמו לפני מגע.",
+  "Impacts wear down the hull: at 0% the mission fails.":"פגיעות שוחקות את הגוף: ב־0% המשימה נכשלת."
 };
  locales["he"].prefixes={
   "Energy collected • ":"אנרגיה נאספה • ",
@@ -1498,14 +1506,6 @@
   "Repeat core pulse • cycle ":"חזור על פעימת הליבה • מחזור ",
   "Synchronized ":"מסונכרן ",
   "Return code: ":"קוד חזרה: ",
-  "RESET ":"איפוס ",
-  "HULL BREACHED":"הגוף נהרס",
-  "Mission failed: the hull reached 0%. Every impact costs 6–18% depending on speed; each docking repairs 12%. Brake early and give the module a wide berth.":"המשימה נכשלה: הגוף הגיע ל־0%. כל פגיעה עולה 6–18% לפי המהירות; כל עגינה מתקנת 12%. בלמו מוקדם והקיפו את המודול במרחק.",
-  "1 ❤️ lost.":"אבדה ❤️ 1.",
-  "Training: no lives are spent.":"אימון: לא מאבדים חיים.",
-  "RETRY DOCKING":"נסו לעגון שוב",
-  "Hull destroyed. Mission failed.":"הגוף נהרס. המשימה נכשלה.",
-  "New attempt: hull 100%. Brake before contact.":"ניסיון חדש: הגוף ב־100%. בלמו לפני מגע.",
-  "Impacts wear down the hull: at 0% the mission fails.":"פגיעות שוחקות את הגוף: ב־0% המשימה נכשלת."
+  "RESET ":"איפוס "
  };
 })(typeof globalThis!=="undefined"?globalThis:window);

@@ -1485,7 +1485,15 @@
   "🌙 MOON POINTS":"🌙 PUNTI LUNARI",
   "🚀 MKTY · SOON":"🚀 MKTY · PRESTO",
   "Global standings show only your Telegram display name and photo, points and chapters. Your Telegram ID, @username and other data are never published. You can hide yourself — a callsign is shown instead.":"La classifica globale mostra solo il tuo nome e la foto di Telegram, i punti e i capitoli. Il tuo ID Telegram, @username e altri dati non vengono mai pubblicati. Puoi nasconderti: verrà mostrato un nominativo.",
-  "Available when opened in Telegram.":"Disponibile aprendo in Telegram."
+  "Available when opened in Telegram.":"Disponibile aprendo in Telegram.",
+  "HULL BREACHED":"SCAFO DISTRUTTO",
+  "Mission failed: the hull reached 0%. Every impact costs 6–18% depending on speed; each docking repairs 12%. Brake early and give the module a wide berth.":"Missione fallita: lo scafo è arrivato a 0%. Ogni urto costa il 6–18% in base alla velocità; ogni aggancio ripara il 12%. Frena in anticipo e gira largo attorno al modulo.",
+  "1 ❤️ lost.":"Persa 1 ❤️.",
+  "Training: no lives are spent.":"Allenamento: nessuna vita consumata.",
+  "RETRY DOCKING":"RIPROVA AGGANCIO",
+  "Hull destroyed. Mission failed.":"Scafo distrutto. Missione fallita.",
+  "New attempt: hull 100%. Brake before contact.":"Nuovo tentativo: scafo al 100%. Frena prima del contatto.",
+  "Impacts wear down the hull: at 0% the mission fails.":"Gli urti consumano lo scafo: a 0% la missione fallisce."
 };
  locales["it"].prefixes={
   "Energy collected • ":"Energia raccolta • ",
@@ -1498,14 +1506,6 @@
   "Repeat core pulse • cycle ":"Ripeti impulso del nucleo • ciclo ",
   "Synchronized ":"Sincronizzato ",
   "Return code: ":"Codice di ritorno: ",
-  "RESET ":"RESET ",
-  "HULL BREACHED":"SCAFO DISTRUTTO",
-  "Mission failed: the hull reached 0%. Every impact costs 6–18% depending on speed; each docking repairs 12%. Brake early and give the module a wide berth.":"Missione fallita: lo scafo è arrivato a 0%. Ogni urto costa il 6–18% in base alla velocità; ogni aggancio ripara il 12%. Frena in anticipo e gira largo attorno al modulo.",
-  "1 ❤️ lost.":"Persa 1 ❤️.",
-  "Training: no lives are spent.":"Allenamento: nessuna vita consumata.",
-  "RETRY DOCKING":"RIPROVA AGGANCIO",
-  "Hull destroyed. Mission failed.":"Scafo distrutto. Missione fallita.",
-  "New attempt: hull 100%. Brake before contact.":"Nuovo tentativo: scafo al 100%. Frena prima del contatto.",
-  "Impacts wear down the hull: at 0% the mission fails.":"Gli urti consumano lo scafo: a 0% la missione fallisce."
+  "RESET ":"RESET "
  };
 })(typeof globalThis!=="undefined"?globalThis:window);

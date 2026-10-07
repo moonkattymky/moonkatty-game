@@ -1485,7 +1485,15 @@
   "🌙 MOON POINTS":"🌙 月亮积分",
   "🚀 MKTY · SOON":"🚀 MKTY · 即将推出",
   "Global standings show only your Telegram display name and photo, points and chapters. Your Telegram ID, @username and other data are never published. You can hide yourself — a callsign is shown instead.":"全球排行榜仅显示你的 Telegram 名称和头像、积分与章节数。你的 Telegram ID、@用户名及其他数据绝不会公开。你可以隐藏自己——届时将显示呼号。",
-  "Available when opened in Telegram.":"在 Telegram 中打开时可用。"
+  "Available when opened in Telegram.":"在 Telegram 中打开时可用。",
+  "HULL BREACHED":"船体损毁",
+  "Mission failed: the hull reached 0%. Every impact costs 6–18% depending on speed; each docking repairs 12%. Brake early and give the module a wide berth.":"任务失败：船体降至 0%。每次撞击按速度损失 6–18%，每次对接修复 12%。请提前减速，并绕开模块留足距离。",
+  "1 ❤️ lost.":"失去 1 ❤️。",
+  "Training: no lives are spent.":"训练：不消耗生命。",
+  "RETRY DOCKING":"重新对接",
+  "Hull destroyed. Mission failed.":"船体损毁。任务失败。",
+  "New attempt: hull 100%. Brake before contact.":"新的尝试：船体 100%。接触前请减速。",
+  "Impacts wear down the hull: at 0% the mission fails.":"撞击会损耗船体：降至 0% 即任务失败。"
 };
  locales["zh"].prefixes={
   "Energy collected • ":"已收集能量 • ",
@@ -1498,14 +1506,6 @@
   "Repeat core pulse • cycle ":"重复核心脉冲 • 周期 ",
   "Synchronized ":"已同步 ",
   "Return code: ":"返回代码：",
-  "RESET ":"重置 ",
-  "HULL BREACHED":"船体损毁",
-  "Mission failed: the hull reached 0%. Every impact costs 6–18% depending on speed; each docking repairs 12%. Brake early and give the module a wide berth.":"任务失败：船体降至 0%。每次撞击按速度损失 6–18%，每次对接修复 12%。请提前减速，并绕开模块留足距离。",
-  "1 ❤️ lost.":"失去 1 ❤️。",
-  "Training: no lives are spent.":"训练：不消耗生命。",
-  "RETRY DOCKING":"重新对接",
-  "Hull destroyed. Mission failed.":"船体损毁。任务失败。",
-  "New attempt: hull 100%. Brake before contact.":"新的尝试：船体 100%。接触前请减速。",
-  "Impacts wear down the hull: at 0% the mission fails.":"撞击会损耗船体：降至 0% 即任务失败。"
+  "RESET ":"重置 "
  };
 })(typeof globalThis!=="undefined"?globalThis:window);
