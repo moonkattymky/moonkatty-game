@@ -24,7 +24,7 @@ const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
   if(!rows)return new Response('no',{status:404});
   if(m==='GET')return new Response(JSON.stringify(rows.filter(r=>match(r,u))));
   if(m==='POST'){if(rows.some(r=>uniq[t].every(k=>r[k]===body[k])))return new Response('{}',{status:409});
-   const row={referred_by:null,next_life_at:null,final_balance:null,balance_locked_at:null,...body,created_at:new Date(fakeTime).toISOString()};rows.push(row);return new Response(JSON.stringify([row]));}
+   const row={referred_by:null,next_life_at:null,final_balance:null,balance_locked_at:null,...body,created_at:new Date(fakeTime-600000).toISOString()};rows.push(row);return new Response(JSON.stringify([row]));}
   if(m==='PATCH'){const hit=rows.filter(r=>match(r,u));hit.forEach(r=>Object.assign(r,body));return new Response(JSON.stringify(hit));}
  };
  const handler=createHandler({url:'https://example.supabase.co',key:'k',verify:x=>verifyTelegram(x,now,pub),fetcher:atomicFixture(fetcher),clock:()=>new Date(fakeTime),referralDailyCap:2});

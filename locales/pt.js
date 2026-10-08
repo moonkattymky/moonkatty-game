@@ -527,7 +527,7 @@
   "FLIGHT COMPUTER ALERT":"ALERTA DE COMPUTADOR DE VOO",
   "FLIGHT CONTROL":"CONTROLO DE VOO",
   "Flight control is securing the signal corridor.":"O controlo de voo está a proteger o corredor do sinal.",
-  "Flight control is standing by.":"- de de, de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de de",
+  "Flight control is standing by.":"O controle de voo está a postos.",
   "Flight controls restored. Expedition resumed.":"Controlos de voo restaurados. Expedição retomada.",
   "Flight could not be saved: device storage is unavailable.":"Não foi possível salvar o voo: o armazenamento do dispositivo não está disponível.",
   "Flight ended":"O voo terminou",

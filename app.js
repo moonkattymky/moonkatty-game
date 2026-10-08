@@ -3,7 +3,6 @@ const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
 // Server-verified Telegram identity. initDataUnsafe is display-only; rewards must trust the server.
-const MKTY_AUTH_URL='https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/telegram-auth';
 let mktyServerPlayer=null;
 let mktyAuthPromise=null;
 
@@ -97,7 +96,10 @@ function show(id){
  window.MKTYCampaign?.save();
  window.MKTYExpedition?.onScreen(id);window.MKTYField?.onScreen(id);
  document.querySelectorAll('.mission-screen.active').forEach(s=>{if(s.id!==id)leaveMission(s.id);});
+ const previous=document.querySelector('.screen.active');
  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+ // #app is the scroll container: a new screen must start at its top, not inherit the previous screen's scroll offset.
+ if(previous!==$(id)&&$('app'))$('app').scrollTop=0;
  $(id).querySelectorAll('[data-mkty-src]').forEach(el=>{el.setAttribute('href',el.dataset.mktySrc);el.removeAttribute('data-mkty-src');});
  $(id).classList.add('active');window.scrollTo(0,0);window.MKTYCampaign?.onScreen(id);window.MKTYExperience?.onScreen(id);window.MKTYHub?.onScreen(id);
  if(id==='mission1'){refreshLife1Geometry();l1LastFrame=0;cancelAnimationFrame(l1MoveFrame);l1MoveFrame=requestAnimationFrame(life1MoveLoop);}

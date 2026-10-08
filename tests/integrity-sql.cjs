@@ -31,7 +31,9 @@ const {PGlite}=require('@electric-sql/pglite');
  await call(101,'player');
  for(let i=0;i<2;i++){const r=await call(101,'rewards.verify',{event_key:'invented:'+i,event_type:'game.win',points:5000});assert.equal(r.error,'unverified');}
  assert.equal((await call(101,'life.complete',{life:9})).error,'life');
- assert.equal((await call(101,'life.complete',{life:1})).player.moon_points,500);
+ assert.equal((await call(101,'life.complete',{life:1})).error,'too_fast','LIFE #1 cannot be claimed seconds after the first launch');
+await db.exec("update public.players set created_at='2026-10-01T00:00Z';alter table public.players alter column created_at set default '2026-10-01T00:00Z'");
+assert.equal((await call(101,'life.complete',{life:1})).player.moon_points,500);
  assert.equal((await call(101,'life.complete',{life:1})).awarded,false);
  assert.equal((await call(101,'life.complete',{life:2})).error,'chapter_locked');
  clock=new Date(clock.getTime()+86400000);assert.equal((await call(101,'life.complete',{life:2})).player.story_life,2);
