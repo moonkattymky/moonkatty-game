@@ -108,5 +108,6 @@ window.MKTYCampaign=(()=>{
  document.querySelector('.mk-life-teaser').onclick=()=>show('chapters');
  window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});
  setInterval(()=>{if(!document.hidden)save();},1000);
+ window.addEventListener('mkty:language',()=>render());
  render();return {save,restore,onScreen,render,openChapter};
 })();
