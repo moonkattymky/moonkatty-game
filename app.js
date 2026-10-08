@@ -359,8 +359,12 @@ $('returnBtn').onclick=()=>show('home');
 const MKTY_MAX_LIVES=9, MKTY_LIFE_RESTORE_MS=12*60*60*1000, MKTY_CODE_LOCK_MS=60*60*1000;
 function getLifeBank(){
  let lives=Number(localStorage.getItem('mkty_global_lives')??MKTY_MAX_LIVES);
+ if(!Number.isFinite(lives))lives=MKTY_MAX_LIVES;lives=Math.max(0,Math.min(MKTY_MAX_LIVES,Math.floor(lives)));
  let stamp=Number(localStorage.getItem('mkty_life_restore_at')||0);
  const now=Date.now();
+ if(!Number.isFinite(stamp))stamp=0;
+ // Older server caches stored the due time here; the local format is interval start.
+ if(stamp>now)stamp-=MKTY_LIFE_RESTORE_MS;
  if(lives<MKTY_MAX_LIVES && stamp){
   const gained=Math.floor((now-stamp)/MKTY_LIFE_RESTORE_MS);
   if(gained>0){lives=Math.min(MKTY_MAX_LIVES,lives+gained);stamp=lives<MKTY_MAX_LIVES?stamp+gained*MKTY_LIFE_RESTORE_MS:0;}
@@ -629,7 +633,7 @@ function playLifeCinematic(n,onDone){
  if(!screen||!video){onDone();return;}
  if(activeCinematic?.id===id)return;
  show(id);let finished=false,last=performance.now(),remaining=n===1?8000:n===2?10000:20000,watchdog;
- const cleanup=()=>{finished=true;clearInterval(watchdog);video.pause();video.removeEventListener('ended',finish);video.removeEventListener('error',finish);document.removeEventListener('visibilitychange',visibility);if(skip?.onclick===finish)skip.onclick=null;if(activeCinematic?.cleanup===cleanup)activeCinematic=null;};
+ const cleanup=()=>{finished=true;clearInterval(watchdog);video.pause();video.removeEventListener('ended',finish);video.removeEventListener('error',finish);video.load();document.removeEventListener('visibilitychange',visibility);if(skip?.onclick===finish)skip.onclick=null;if(activeCinematic?.cleanup===cleanup)activeCinematic=null;};
  const finish=()=>{if(finished)return;const visible=screen.classList.contains('active');cleanup();if(visible)onDone();};
  const visibility=()=>{last=performance.now();if(finished||!screen.classList.contains('active'))return;if(bar)bar.style.animationPlayState=document.hidden?'paused':'running';if(document.hidden)video.pause();else video.play().catch(()=>{});};
  activeCinematic={id,cleanup};video.addEventListener('ended',finish);video.addEventListener('error',finish);document.addEventListener('visibilitychange',visibility);if(skip)skip.onclick=finish;

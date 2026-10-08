@@ -22,6 +22,17 @@ exports.atomicFixture=fetcher=>async function call(url,opts={}){
   if(type==='daily.streak')await rest('login_streaks','POST',{},meta);
   return {inserted:true,row,player:p};
  }
+
+ // These reward-focused fixtures represent gameplay already verified by the campaign
+ // service. The real campaign boundary is exercised by campaign-security/integrity SQL.
+ if(name==='mkty_campaign_route')return res({life:b.p_life,route:'00000000-0000-4000-8000-000000000001',seed:1,edition:2,started_at:'2026-01-01T00:00Z',verified_at:b.p_now});
+ if(name==='mkty_youtube'){
+  const day=b.p_now.slice(0,10),p=await player(b.p_id),fails=await rest('reward_events','GET',{telegram_id:'eq.'+b.p_id,event_type:'eq.daily.youtube_fail',event_key:'like.ytfail:'+day+':*'});
+  if(fails.length>=10)return res({error:'no_attempts'});
+  const row=(await rest('youtube_codes','GET',{code:'eq.'+b.p_code,active:'is.true',limit:1}))[0];
+  if(!row||(row.starts_at&&row.starts_at>b.p_now)||(row.expires_at&&row.expires_at<=b.p_now)){await reward(b.p_id,'ytfail:'+day+':'+crypto.randomUUID(),'daily.youtube_fail',0);return res({valid:false,awarded:false,attempts_left:9-fails.length,player:p});}
+  const pts=Math.max(0,Math.min(50,Number(row.points)||0)),r=await reward(b.p_id,'yt:'+row.id,'daily.youtube_code',pts);if(r.error)return res(r);return res({valid:true,awarded:r.inserted,duplicate:!r.inserted,points:r.inserted?pts:0,player:r.player});
+ }
  if(name==='mkty_restore_lives')return res(await restore(b.p_id));
  if(name==='mkty_reward')return res(await reward(b.p_id,b.p_key,b.p_type,b.p_points,b.p_meta));
  if(name==='mkty_review'){

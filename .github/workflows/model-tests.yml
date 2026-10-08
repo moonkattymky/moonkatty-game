@@ -1,66 +1,23 @@
-# Copy to .github/workflows/model-tests.yml when a token with `workflow` scope is available.
-name: Model tests
-
+name: Full game tests
 on:
-  push:
-    branches: [main]
   pull_request:
   workflow_dispatch:
-
+  workflow_call:
 permissions:
   contents: read
-
 jobs:
   model:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - name: Setup Node
-        uses: actions/setup-node@v5
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v5
         with:
           node-version: '22'
-      - name: Install pinned test dependencies
-        run: npm ci --ignore-scripts
-      - name: No merge conflict markers
-        run: node tests/no-conflict-markers.cjs
-      - name: Atomic rewards and session security
-        run: node tests/integrity-sql.cjs
-      - name: story-plan
-        run: node tests/story-plan.cjs
-      - name: mission-rules
-        run: node tests/mission-rules.cjs
-      - name: expedition-model
-        run: node tests/expedition-model.cjs
-      - name: field-rules
-        run: node tests/field-rules.cjs
-      - name: detail-rules
-        run: node tests/detail-rules.cjs
-      - name: referrals-server
-        run: node tests/referrals-server.cjs
-      - name: rewards-server
-        run: node tests/rewards-server.cjs
-      - name: leaderboard-server
-        run: node tests/leaderboard-server.cjs
-      - name: daily-server
-        run: node tests/daily-server.cjs
-      - name: creator-server
-        run: node tests/creator-server.cjs
-      - name: social-server
-        run: node tests/social-server.cjs
-      - name: pace-server
-        run: node tests/pace-server.cjs
-      - name: i18n-ar
-        run: node tests/i18n-ar.cjs
-      - name: i18n-coverage
-        run: node tests/i18n-coverage.cjs
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-      - name: Browser release and pending rewards
-        run: |
-          node tests/rewards-client-ui.cjs
-          node tests/worlds-release.cjs
-          node tests/lives.cjs
-          node tests/first-language-pick.cjs
-      - name: Accessibility floor (text >= 11px, tap targets >= 44px)
-        run: node tests/a11y-floor.cjs
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - name: Every model, browser, campaign and security regression
+        run: npm test

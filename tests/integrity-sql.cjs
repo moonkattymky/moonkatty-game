@@ -7,6 +7,7 @@ const {PGlite}=require('@electric-sql/pglite');
  await db.exec(fs.readFileSync(path.join(__dirname,'../server/schema.sql'),'utf8'));
  await db.exec(fs.readFileSync(path.join(__dirname,'../server/migrations/20261007_social_verify.sql'),'utf8'));
  await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20261007200800_reward_integrity_sessions.sql'),'utf8'));
+ await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20261008201825_launch_campaign_integrity.sql'),'utf8'));
  const {createHandler}=await import('../server/rewards/core.mjs');
  const {issueSession,verifySession}=await import('../server/rewards/session.mjs');
  let clock=new Date('2026-10-08T12:00Z');
@@ -25,7 +26,7 @@ const {PGlite}=require('@electric-sql/pglite');
   }catch(e){return Response.json({error:e.message},{status:500});}
  };
  const handler=createHandler({url:'https://db.test',key:'test-key',fetcher,verify:async data=>{if(!/^user:\d+$/.test(data))throw Error('auth');return {id:Number(data.slice(5))};},clock:()=>clock});
- const call=async(id,action,extra={})=>{const r=await handler(new Request('https://api.test',{method:'POST',body:JSON.stringify({initData:'user:'+id,action,...extra})}));return {status:r.status,...await r.json()};};
+ const call=async(id,action,extra={})=>{if(action==='life.complete'&&Number.isInteger(extra.life)&&extra.life>=1&&extra.life<=9)await db.query("insert into public.mkty_campaign_routes(telegram_id,life,seed,edition,verified_at) select telegram_id,$2,1,2,$3 from public.players where telegram_id=$1 on conflict do nothing",[id,extra.life,clock.toISOString()]);const r=await handler(new Request('https://api.test',{method:'POST',body:JSON.stringify({initData:'user:'+id,action,...extra})}));return {status:r.status,...await r.json()};};
  const sql=q=>db.query(q);
  const rpc=(id,key,type,points,meta={})=>db.query('select public.mkty_reward($1,$2,$3,$4,$5,$6) as r',[id,key,type,points,JSON.stringify(meta),clock.toISOString()]).then(r=>r.rows[0].r);
  await call(101,'player');

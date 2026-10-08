@@ -78,20 +78,8 @@ export function createDaily({rest,clock,insertReward,applyPoints,secret}){
  async function redeemCode(p,code){
   const c=normalizeCode(code);
   if(!/^[A-Z0-9]{3,32}$/.test(c))throw Error('code');
-  const now=clock().toISOString(),today=utcDay(clock());
-  // Brute-force guard: after 10 wrong code words in a UTC day, stop checking codes until 00:00 UTC.
-  const fails=await rest('/rest/v1/reward_events',{params:{select:'id',telegram_id:tid(p),event_type:'eq.daily.youtube_fail',event_key:'like.ytfail:'+today+':*'}});
-  if((fails||[]).length>=YT_MAX_FAILS_PER_DAY)throw Error('no_attempts');
-  const rows=await rest('/rest/v1/youtube_codes',{params:{select:'id,points,starts_at,expires_at,video_url',code:'eq.'+c,active:'is.true',limit:1}});
-  const row=rows?.[0];
-  if(!row||(row.starts_at&&row.starts_at>now)||(row.expires_at&&row.expires_at<=now)){
-   await insertReward(p,'ytfail:'+today+':'+crypto.randomUUID(),'daily.youtube_fail',0);
-   return {valid:false,awarded:false,attempts_left:Math.max(0,YT_MAX_FAILS_PER_DAY-(fails||[]).length-1),player:p};
-  }
-  const points=Math.max(0,Math.min(YT_MAX_POINTS,Number(row.points)||0));
-  const {inserted}=await insertReward(p,'yt:'+row.id,'daily.youtube_code',points);
-  const player=inserted?await applyPoints(p,points):p;
-  return {valid:true,awarded:inserted,duplicate:!inserted,points:inserted?points:0,player};
+  const result=await rest('/rest/v1/rpc/mkty_youtube',{method:'POST',body:JSON.stringify({p_id:p.telegram_id,p_code:c,p_now:clock().toISOString()})});
+  if(result?.error)throw Error(result.error);return result;
  }
  return {status,solveCipher,checkin,redeemCode};
 }
