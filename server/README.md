@@ -53,7 +53,7 @@ privilege on `rls_auto_enable()`; this release does not use that function. See
 [Supabase's SECURITY DEFINER guidance](https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable).
 
 
-## Rewards / lives Edge Function (2026-10-07)
+## Rewards / lives Edge Function (current release)
 
 `server/rewards/` is the mutating counterpart to read-only `mission-control`.
 
@@ -67,8 +67,10 @@ Contract (POST JSON, Telegram `initData` required except GET probe):
 | action | purpose |
 |--------|---------|
 | `player` | upsert/read profile; applies 12h life restore |
-| `life.complete` | idempotent chapter reward via `event_key` (default `life:N:complete`) |
-| `rewards.verify` | generic verified reward ledger insert + points |
+| `life.complete` | canonical, idempotent chapter reward; new completions require the account-bound route and verified results of all eight stages |
+| `rewards.verify` | rejects client-invented rewards; rewards are issued only through dedicated verified actions |
+| `campaign.open` | issue/resume account-bound route challenge; seed hint preserves an existing local route |
+| `campaign.cloud` | versioned snapshot load/save with compare-and-swap conflict protection |
 | `lives.spend` | idempotent life spend (`event_key`, e.g. `life:fail:c4:board:…`) |
 | `chapter.status` | `{next_life, unlock_at, locked, skips}` (also returned as `pace` by `player` / `life.complete`) |
 | `chapter.skip` | spend one referral pass (friend completed LIFE #1) to open the next chapter early |
@@ -76,13 +78,9 @@ Contract (POST JSON, Telegram `initData` required except GET probe):
 
 Rules enforced server-side: initData Ed25519 verify (10 min), unique `(telegram_id, event_key)`, LIFE #9 sets `final_balance` + `balance_locked_at`, no further point increases after lock.
 
-Client: `rewards-client.js` treats `localStorage` as cache. Without deploy / without Telegram initData the game keeps provisional local awards (unchanged UX).
+Client: `rewards-client.js` uses per-account storage. Authenticated balances change only after server confirmation; pending operations retry idempotently. Guest play is a local demo. Cloud snapshots exclude wallet and identity keys.
 
 Tests: `node tests/rewards-server.cjs` (no live secrets).
-
-## Overnight note (2026-10-07)
-
-Rewards Edge Function was **not** deployed: no `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` available in the agent environment. Client daily missions prepare a `rewards.verify` payload and stay in DEMO local-claim mode until the owner deploys.
 
 ## Daily retention (2026-10-07)
 
@@ -140,3 +138,13 @@ Opening a link never pays. `rewards.verify` now rejects `daily.*`, `social.*`, `
 - `social.youtube.verify` — Google OAuth subscription check, disabled until `YOUTUBE_OAUTH_ENABLED=true`
   plus GOOGLE_CLIENT_ID/SECRET, YOUTUBE_CHANNEL_ID, YOUTUBE_REDIRECT_URI. See `youtube-oauth.md`.
 Tests: `node tests/social-server.cjs`.
+
+## Launch integrity release
+
+Apply `supabase/migrations/20261008201825_launch_campaign_integrity.sql` before deploying the new rewards engine. It is additive: cloud saves, route challenges, service-role-only RPCs and an atomic YouTube code transaction. Deploy both `rewards` and the `telegram-progress` compatibility wrapper from the same revision. Include `campaign.mjs` and every generated `models/*.mjs` dependency.
+
+The canonical models remain at the repository root. Run `node tools/build-server-models.cjs` after editing them; CI rejects stale generated copies. Campaign validation replays field actions and fixed-step flight physics and solves board predicates server-side. This blocks a bare completion claim or forged terminal flags; it does not claim to distinguish a human from a solver that supplies a valid action history.
+
+Previously confirmed chapter rewards remain valid and idempotent. Old unconfirmed local routes without action histories may require a new route for reward verification; no confirmed achievement or balance is deleted. A legacy local save is adopted into an account namespace only when an existing single-account session identifies its owner. Unattributed guest data stays on the device.
+
+Use `npm test` before publishing. Pages now depends on the reusable full test workflow, stamps `build.json`, then verifies live bytes and APIs. `tools/verify-live.cjs` checks the published SHA and critical files with cache bypass.

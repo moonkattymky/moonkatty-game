@@ -150,3 +150,10 @@
 /* Short landscape result (e.g. 568×320): both result actions share one row so long locales never overflow the screen. */
 @media(orientation:landscape) and (max-height:420px){#mission7[data-phase="complete"] .v7-complete:not([hidden]){display:grid;grid-template-columns:1fr 1fr;column-gap:8px;align-content:center}#mission7[data-phase="complete"] .v7-complete>:not(button){grid-column:1/-1}#mission7[data-phase="complete"] .v7-complete>button{margin:4px 0 0!important;min-height:44px;padding-inline:6px;font-size:11px;line-height:1.15}}
 @media(orientation:portrait) and (max-height:700px){#mission7[data-phase="complete"] .v7-status{display:none}#mission7[data-phase="complete"] .v7-complete>strong{margin:4px 0}}
+
+/* Results may grow with translated labels and replay/share controls. Keep gameplay
+   clipped, but allow the result to scroll inside the bounded Telegram viewport. */
+#mission7[data-phase="complete"]{overflow-y:auto;overscroll-behavior:contain;padding-bottom:max(12px,env(safe-area-inset-bottom))}
+@media(orientation:portrait) and (max-height:700px){#mission7[data-phase="complete"] .v7-world{min-height:100px;flex-shrink:1}#mission7[data-phase="complete"] .v7-console{gap:5px}#mission7[data-phase="complete"] .v7-report{margin:4px 0}}
+
+#mission7[data-phase="complete"]{gap:5px}

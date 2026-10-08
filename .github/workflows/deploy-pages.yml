@@ -16,7 +16,10 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  verify:
+    uses: ./.github/workflows/model-tests.yml
   deploy:
+    needs: verify
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -24,6 +27,8 @@ jobs:
     steps:
       - name: Checkout current main
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Prepare client site
@@ -36,6 +41,8 @@ jobs:
             esac
             cp -a "$item" _site/
           done
+      - name: Stamp verified artifact
+        run: node tools/stamp-release.cjs _site
       - name: Upload site
         uses: actions/upload-pages-artifact@v4
         with:
@@ -43,3 +50,6 @@ jobs:
       - name: Deploy current main
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify published files and API
+        run: node tools/verify-live.cjs

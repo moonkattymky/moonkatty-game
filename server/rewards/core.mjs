@@ -3,6 +3,7 @@
    Telegram initData verified with Ed25519 (same contract as mission-control). */
 import {issueSession,verifySession} from './session.mjs';
 import {profileFields} from './profile.mjs';
+import {createCampaign} from './campaign.mjs';
 import {createDaily} from './daily.mjs';
 import {createCreator,parseAdminIds} from './creator.mjs';
 import {createSocial,channelFromUrl,TELEGRAM_CHANNEL_URL} from './social.mjs';
@@ -108,7 +109,7 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
  }
  // The RPC already writes the ledger and balance atomically. Refresh, never add again.
  async function applyPoints(player){return (await rest('/rest/v1/players',{params:{select:'*',telegram_id:'eq.'+player.telegram_id,limit:1}}))?.[0]||player;}
- async function lifeComplete(player,life){
+ async function lifeComplete(player,life,proof){
   life=Number(life);if(!Number.isInteger(life)||life<1||life>9)throw Error('life');
   if(life>Number(player.story_life||0)+1)throw Error('life');
   const event_key='life:'+life+':complete';
@@ -116,6 +117,7 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
   // Anti-bot floor: LIFE #1 (video + several tasks) cannot honestly be finished within 90 s of the first launch.
   // The client keeps the completion queued and retries, so a real player never loses the reward.
   if(life===1&&!Number(player.story_life||0)){const born=Date.parse(player.created_at||'');if(Number.isFinite(born)&&clock().getTime()-born<LIFE1_MIN_MS)throw Error('too_fast');}
+  if(life>Number(player.story_life||0))await campaign.verify(player,life,proof);
   const result=await insertReward(player,event_key,'life.complete',LIFE_REWARDS[life]);
   let next=result.player,referral=null;
   // Retry a missed referral transaction even if the chapter was already recorded.
@@ -140,23 +142,25 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
   return {player:r.player,awarded:r.awarded,duplicate:!r.awarded};
  }
 
- const daily=createDaily({rest,clock,insertReward,applyPoints,secret:cipherSecret});
  const pace=createPace({rest,clock,insertReward});
+ const campaign=createCampaign({rpc,pace,clock});
+ const daily=createDaily({rest,clock,insertReward,applyPoints,secret:cipherSecret});
+
  const creator=createCreator({rest,clock,insertReward,applyPoints,adminIds:adminIds instanceof Set?adminIds:parseAdminIds(adminIds)});
  const social=createSocial({rest,clock,insertReward,applyPoints,isAdmin:creator.isAdmin,secret:cipherSecret,botToken,channel:telegramChannel,fetcher:tgFetcher,youtube});
  return async request=>{
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
   if(request.method==='GET'){
    // Health / contract probe — no secrets leaked
-   return json({ok:true,service:'rewards',version:'20261008-anticheat-1'});
+   return json({ok:true,service:'rewards',version:'20261008-integrity-1'});
   }
   if(request.method!=='POST')return json({ok:false,error:'method'},405);
   if(!url||!key)return json({ok:false,error:'unavailable'},503);
   let body;
   try{
-   if(Number(request.headers.get('Content-Length'))>12000)return json({ok:false,error:'body'},413);
+   if(Number(request.headers.get('Content-Length'))>400000)return json({ok:false,error:'body'},413);
    const raw=await request.text();
-   if(raw.length>12000)return json({ok:false,error:'body'},413);
+   if(raw.length>400000)return json({ok:false,error:'body'},413);
    body=JSON.parse(raw);if(!body||typeof body!=='object'||Array.isArray(body))throw Error('body');
   }catch{return json({ok:false,error:'body'},400);}
   let user;
@@ -168,8 +172,10 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
    if(action==='player')return json({ok:true,player:publicPlayer(player),pace:await pace.status(player)});
    if(action==='chapter.status')return json({ok:true,pace:await pace.status(player),player:publicPlayer(player)});
    if(action==='chapter.skip'){const r=await pace.skip(player,body.life);return json({ok:true,...r,pace:await pace.status(player),player:publicPlayer(player)});}
+   if(action==='campaign.open')return json({ok:true,route:await campaign.open(player,body)});
+   if(action==='campaign.cloud')return json({ok:true,...await campaign.cloud(player,body)});
    if(action==='life.complete'){
-    const result=await lifeComplete(player,body.life,body.event_key);
+    const result=await lifeComplete(player,body.life,body.proof);
     return json({ok:true,...result,player:publicPlayer(result.player),pace:await pace.status(result.player)});
    }
    if(action==='rewards.verify'){
@@ -225,6 +231,8 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
    if(msg==='url'||msg==='hashtag'||msg==='own'||msg==='submission'||msg==='decision'||msg==='tier')return json({ok:false,error:msg},400);
    if(msg==='already'||msg==='duplicate_proof')return json({ok:false,error:msg},409);
    if(msg==='daily_limit'||msg==='pending_limit')return json({ok:false,error:msg},429);
+   if(msg==='proof_required')return json({ok:false,error:msg},409);
+   if(msg==='snapshot')return json({ok:false,error:msg},400);
    if(msg==='proof'||msg==='platform'||msg==='kind'||msg==='unverified')return json({ok:false,error:msg},400);
    if(msg==='cap')return json({ok:false,error:'cap'},429);
    if(msg==='life'||msg==='event_key'||msg==='event_type'||msg==='points'||msg==='referral'||msg==='source'||msg==='use_life_complete')return json({ok:false,error:msg},400);

@@ -359,8 +359,12 @@ $('returnBtn').onclick=()=>show('home');
 const MKTY_MAX_LIVES=9, MKTY_LIFE_RESTORE_MS=12*60*60*1000, MKTY_CODE_LOCK_MS=60*60*1000;
 function getLifeBank(){
  let lives=Number(localStorage.getItem('mkty_global_lives')??MKTY_MAX_LIVES);
+ if(!Number.isFinite(lives))lives=MKTY_MAX_LIVES;lives=Math.max(0,Math.min(MKTY_MAX_LIVES,Math.floor(lives)));
  let stamp=Number(localStorage.getItem('mkty_life_restore_at')||0);
  const now=Date.now();
+ if(!Number.isFinite(stamp))stamp=0;
+ // Older server caches stored the due time here; the local format is interval start.
+ if(stamp>now)stamp-=MKTY_LIFE_RESTORE_MS;
  if(lives<MKTY_MAX_LIVES && stamp){
   const gained=Math.floor((now-stamp)/MKTY_LIFE_RESTORE_MS);
   if(gained>0){lives=Math.min(MKTY_MAX_LIVES,lives+gained);stamp=lives<MKTY_MAX_LIVES?stamp+gained*MKTY_LIFE_RESTORE_MS:0;}
