@@ -6,7 +6,7 @@ export const MORSE={A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'.
 export const CIPHER_WORDS=['SIGNAL','MOON','ORBIT','BEACON','REACTOR','VOID','RETURN','CREW','LIFTOFF','DESCENT','RELAY','ANTENNA','KATTY','ALPHA','LIVES','CORE','GATE','PROBE','HOME','ECHO','LANDER','RADAR','SHIELD','CONVOY','IGNITION','CORRIDOR','ARCHIVE','AWAKENING','STATION','NAVIGATOR'];
 export const CIPHER_POINTS=15, CIPHER_MAX_ATTEMPTS=5;
 export const STREAK_SCALE=[3,5,7,10,12,15,25]; // day 1..7, then capped at 25
-export const YT_MAX_POINTS=50;
+export const YT_MAX_POINTS=50, YT_MAX_FAILS_PER_DAY=10; // anti brute-force for code words
 const DAY=86400000;
 export const utcDay=d=>new Date(d).toISOString().slice(0,10);
 export const dayNum=s=>Math.floor(Date.parse(s+'T00:00:00Z')/DAY);
@@ -78,10 +78,16 @@ export function createDaily({rest,clock,insertReward,applyPoints,secret}){
  async function redeemCode(p,code){
   const c=normalizeCode(code);
   if(!/^[A-Z0-9]{3,32}$/.test(c))throw Error('code');
-  const now=clock().toISOString();
+  const now=clock().toISOString(),today=utcDay(clock());
+  // Brute-force guard: after 10 wrong code words in a UTC day, stop checking codes until 00:00 UTC.
+  const fails=await rest('/rest/v1/reward_events',{params:{select:'id',telegram_id:tid(p),event_type:'eq.daily.youtube_fail',event_key:'like.ytfail:'+today+':*'}});
+  if((fails||[]).length>=YT_MAX_FAILS_PER_DAY)throw Error('no_attempts');
   const rows=await rest('/rest/v1/youtube_codes',{params:{select:'id,points,starts_at,expires_at,video_url',code:'eq.'+c,active:'is.true',limit:1}});
   const row=rows?.[0];
-  if(!row||(row.starts_at&&row.starts_at>now)||(row.expires_at&&row.expires_at<=now))return {valid:false,awarded:false,player:p};
+  if(!row||(row.starts_at&&row.starts_at>now)||(row.expires_at&&row.expires_at<=now)){
+   await insertReward(p,'ytfail:'+today+':'+crypto.randomUUID(),'daily.youtube_fail',0);
+   return {valid:false,awarded:false,attempts_left:Math.max(0,YT_MAX_FAILS_PER_DAY-(fails||[]).length-1),player:p};
+  }
   const points=Math.max(0,Math.min(YT_MAX_POINTS,Number(row.points)||0));
   const {inserted}=await insertReward(p,'yt:'+row.id,'daily.youtube_code',points);
   const player=inserted?await applyPoints(p,points):p;

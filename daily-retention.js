@@ -136,7 +136,7 @@
   $('ytBtn').disabled = true;
   const r = state?.demo && !online() ? demoRedeem(code) : await api('youtube.redeem', { code });
   $('ytBtn').disabled = false;
-  setText(msg, r?.awarded ? T('Code accepted! +{n} ⭐', { n: r.points }) : r?.duplicate ? T('You already used this code') : r && r.valid === false ? T('Unknown or expired code') : r?.error === 'locked' ? T('BALANCE LOCKED') : T('Connection lost — try again'));
+  setText(msg, r?.awarded ? T('Code accepted! +{n} ⭐', { n: r.points }) : r?.duplicate ? T('You already used this code') : r && r.valid === false ? T('Unknown or expired code') : r?.error === 'locked' ? T('BALANCE LOCKED') : r?.error === 'no_attempts' ? T('No attempts left today') : T('Connection lost — try again'));
   $('ytMsg').classList.toggle('ok', !!r?.awarded);
   if (r?.awarded) $('ytCode').value = '';
  }

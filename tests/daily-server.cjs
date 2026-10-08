@@ -33,7 +33,7 @@ const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
    if(m==='POST'){const r={...b,moon_points:0,lives:9,story_life:0,balance_locked_at:null};db.players.set(r.telegram_id,r);return res([r]);}
    if(m==='PATCH'){Object.assign(db.players.get(id),b);return res([db.players.get(id)]);}}
   if(path.endsWith('/reward_events')){
-   if(m==='GET')return res(db.rewards.filter(r=>r.telegram_id===Number(q(u,'telegram_id'))&&r.event_key===q(u,'event_key')));
+   if(m==='GET'){const ek=u.searchParams.get('event_key')||'',like=ek.startsWith('like.')?new RegExp('^'+ek.slice(5).replace(/[.+?^${}()|[\]\\]/g,'\\$&').replace(/\*/g,'.*')+'$'):null;return res(db.rewards.filter(r=>r.telegram_id===Number(q(u,'telegram_id'))&&(like?like.test(r.event_key):r.event_key===q(u,'event_key'))));}
    if(db.rewards.some(r=>r.telegram_id===b.telegram_id&&r.event_key===b.event_key))return new Response('{}',{status:409});
    db.rewards.push(b);return res([b]);}
   if(path.endsWith('/rpc/cipher_attempt')){const k=b.p_telegram_id+':'+b.p_day;const c=db.cipher.get(k)||{telegram_id:b.p_telegram_id,day:b.p_day,attempts:0,solved:false};
@@ -98,6 +98,10 @@ const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
  r=await call(A,'youtube.redeem',{code:'GREEDY'});assert.equal(r.body.points,50,'server caps code points');
  assert.equal((await call(A,'youtube.redeem',{code:'<x>'})).status,400);
  r=await call(B,'youtube.redeem',{code:'MOONTEST'});assert.equal(r.body.awarded,true);
+ // brute-force guard: 10 wrong code words per UTC day, then even a valid code is refused until 00:00 UTC
+ const C=await signed(44);
+ for(let i=0;i<10;i++){const w=await call(C,'youtube.redeem',{code:'GUESS'+i});assert.equal(w.body.valid,false);}
+ assert.equal((await call(C,'youtube.redeem',{code:'MOONTEST'})).status,429,'code guessing is rate limited');
  // locked balance cannot grow
  db.players.get(43).balance_locked_at='2026-10-01T00:00:00Z';
  assert.equal((await call(B,'streak.checkin')).status,409);

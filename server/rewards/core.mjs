@@ -12,7 +12,7 @@ const ENV=k=>(typeof Deno!=='undefined'&&Deno.env?.get?.(k))||'';
 // Bot id is taken from the TELEGRAM_BOT_TOKEN secret prefix when present.
 const BOT_ID=(/^(\d{5,15}):/.exec((typeof Deno!=='undefined'&&Deno.env?.get?.('TELEGRAM_BOT_TOKEN'))||'')||[])[1]||'8659740610',PUBLIC_KEY='e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
 import {createPace} from './pace.mjs';
-const LIFE_RESTORE_MS=12*60*60*1000, MAX_LIVES=9;
+const LIFE_RESTORE_MS=12*60*60*1000, MAX_LIVES=9, LIFE1_MIN_MS=90*1000;
 const REFERRAL_BONUS=200, REFERRAL_INVITEE_BONUS=200; // paid once, only after the invitee completes LIFE #1
 export function parseReferrer(start_param){const m=/^ref_([1-9][0-9]{0,15})$/.exec(start_param||'');const id=m?Number(m[1]):0;return Number.isSafeInteger(id)&&id>0?id:null;}
 const REFERRAL_DAILY_CAP=Number((typeof Deno!=='undefined'&&Deno.env?.get?.('REFERRAL_DAILY_CAP'))||40);
@@ -113,6 +113,9 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
   if(life>Number(player.story_life||0)+1)throw Error('life');
   const event_key='life:'+life+':complete';
   if(life>Number(player.story_life||0))await pace.assertUnlocked(player,life);
+  // Anti-bot floor: LIFE #1 (video + several tasks) cannot honestly be finished within 90 s of the first launch.
+  // The client keeps the completion queued and retries, so a real player never loses the reward.
+  if(life===1&&!Number(player.story_life||0)){const born=Date.parse(player.created_at||'');if(Number.isFinite(born)&&clock().getTime()-born<LIFE1_MIN_MS)throw Error('too_fast');}
   const result=await insertReward(player,event_key,'life.complete',LIFE_REWARDS[life]);
   let next=result.player,referral=null;
   // Retry a missed referral transaction even if the chapter was already recorded.
@@ -145,7 +148,7 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
   if(request.method==='GET'){
    // Health / contract probe — no secrets leaked
-   return json({ok:true,service:'rewards',version:'20261007-integrity-1'});
+   return json({ok:true,service:'rewards',version:'20261008-anticheat-1'});
   }
   if(request.method!=='POST')return json({ok:false,error:'method'},405);
   if(!url||!key)return json({ok:false,error:'unavailable'},503);
@@ -212,6 +215,7 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
    if(msg==='locked')return json({ok:false,error:'locked'},409);
    if(msg==='no_lives')return json({ok:false,error:'no_lives'},409);
    if(msg==='chapter_locked')return json({ok:false,error:'chapter_locked',unlock_at:e.unlock_at||null},409);
+   if(msg==='too_fast')return json({ok:false,error:'too_fast'},409);
    if(msg==='no_skips')return json({ok:false,error:'no_skips'},409);
    if(msg==='no_attempts')return json({ok:false,error:'no_attempts'},429);
    if(msg==='answer'||msg==='code')return json({ok:false,error:msg},400);
