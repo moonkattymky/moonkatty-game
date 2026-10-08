@@ -20,14 +20,14 @@ html[data-light-fx="true"] :is(#mission1,#mission2,#mission3,#mission4,#mission5
 #chapterGuide {box-sizing:border-box;width:min(430px,calc(100% - 24px));max-height:calc(var(--mk-vh,100dvh) - 24px);padding:24px 20px;border:1px solid #d3e5dda1;border-radius:22px;background:linear-gradient(145deg,#254e63,#102638);color:#f1f8fa;overflow:auto;box-shadow:0 18px 60px #0008}
 #chapterGuide::backdrop {background:#041320c9;backdrop-filter:blur(7px)}
 #chapterGuide h2 {font-size:23px;line-height:1.15;color:#ffe7b0;margin:8px 0 12px}
-#chapterGuide .eyebrow {font-size:9px;letter-spacing:1.7px;color:#a4d9e8}
+#chapterGuide .eyebrow {font-size:11px;letter-spacing:1.7px;color:#a4d9e8}
 .guide-note {font-size:12px;line-height:1.5;color:#c2deea}
 #guideSteps {list-style:none;padding:0;margin:20px 0;display:grid;gap:17px}
 #guideSteps li {display:flex;align-items:flex-start;gap:12px}
 #guideSteps b {flex:none;display:grid;place-items:center;width:30px;height:30px;border:1px solid #eccf9680;border-radius:9px;color:#f7dfa8;font:700 12px monospace}
 #guideSteps p {font-size:12px;line-height:1.5;margin:0;color:#d6e9f1}
 .experience-options {display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
-.experience-options button {min-height:44px;border:1px solid #b6d5dd6b;border-radius:10px;background:#163448;color:#d9edf3;font-family:inherit;font-weight:600;font-size:10px;line-height:1.35;padding:8px 6px;cursor:pointer}
+.experience-options button {min-height:44px;border:1px solid #b6d5dd6b;border-radius:10px;background:#163448;color:#d9edf3;font-family:inherit;font-weight:600;font-size:11px;line-height:1.35;padding:8px 6px;cursor:pointer}
 .experience-options button[aria-pressed="true"] {border-color:#c6e6bc;color:#f5e2b7;background:#2a4d58}
 .guide-actions {display:grid;gap:9px;margin-top:16px}
 .guide-actions button {min-height:48px;border-radius:12px;font-size:12px}
@@ -55,7 +55,7 @@ html[data-light-fx="true"] :is(#mission1,#mission2,#mission3,#mission4,#mission5
 #mission2 #engineerTask .power-route2 {position:relative;display:block!important;flex:1 1 auto;min-height:150px!important;max-height:300px;padding:8px 34px!important;margin:0;overflow:visible!important}
 #mission2 .power-route2 .route-end2 {position:absolute;top:50%;transform:translateY(-50%);font-size:0;width:28px;height:32px;padding:0;background:linear-gradient(#f4d797,#ba9858);border:1px solid #fff1c4;border-radius:6px}
 #mission2 .core-end2 {left:2px}#mission2 .comms-end2 {right:2px}
-#mission2 .power-route2 .route-end2::after {font:700 7px monospace;position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);color:#e4d5b1}
+#mission2 .power-route2 .route-end2::after {font:700 11px monospace;position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);color:#e4d5b1}
 #mission2 .core-end2::after {content:'IN'}#mission2 .comms-end2::after {content:'OUT'}
 #mission2 #circuit2 {height:100%;width:100%;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(3,minmax(0,1fr));gap:3px;margin:0}
 #mission2 #circuit2 button {position:relative;display:grid;place-items:center;min-width:0;min-height:44px;padding:0;border:1px solid #80aab462;background:linear-gradient(145deg,#315567,#193b4e);border-radius:9px;transform:none;box-shadow:inset 0 2px #ffffff09;overflow:hidden}
@@ -65,7 +65,7 @@ html[data-light-fx="true"] :is(#mission1,#mission2,#mission3,#mission4,#mission5
 #mission2 #circuit2 circle {fill:#31556a;stroke:#d5e3e263;stroke-width:1}
 #mission2 #circuit2 .live .pipe-flow {stroke:#efd08b;filter:drop-shadow(0 0 3px #ffe5a278)}
 #mission2 #circuit2 .live circle {fill:#ffe7a6}
-#mission2 #circuit2 button>span {position:absolute;left:5px;top:4px;font:7px monospace;color:#d8ebed99}
+#mission2 #circuit2 button>span {position:absolute;left:5px;top:4px;font:11px monospace;color:#d8ebed99}
 #mission2 #circuit2.connected {filter:drop-shadow(0 0 5px #ffe3a260)}
 #mission2 .route-progress2 i {background:linear-gradient(90deg,#9cdee2,#ffe3a1);transition:width .22s}
 #mission2 .scout-grid2 {border-radius:16px;padding:7px;background:radial-gradient(ellipse,#36798355,transparent),#0b2638;border:1px solid #b0e3d67a;box-shadow:inset 0 0 25px #0003}
@@ -78,7 +78,7 @@ html[data-light-fx="true"] :is(#mission1,#mission2,#mission3,#mission4,#mission5
 #mission3 .code-pad button.entered,#mission3 .ignition-keys3 button.armed {box-shadow:0 0 14px #acf2d650!important;border-color:#c8eed2!important}
 #mission4 #lander {transition:none!important;will-change:top,transform}
 #mission4 .landing-telemetry4 {position:absolute;left:10px;right:10px;top:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;z-index:12;pointer-events:none}
-#landingPhase4 {padding:6px 8px;border:1px solid #c7e4df80;border-radius:7px;background:#112e43de;color:#e2f4f4;font:700 8px/1.2 monospace;letter-spacing:1px}
+#landingPhase4 {padding:6px 8px;border:1px solid #c7e4df80;border-radius:7px;background:#112e43de;color:#e2f4f4;font:700 11px/1.2 monospace;letter-spacing:1px}
 #landingVector4 {position:relative;width:74px;height:17px;border:1px solid #a4d7dc8a;border-radius:5px;background:#0b273acc}
 #landingVector4 b {position:absolute;left:36%;right:36%;top:0;bottom:0;background:#8ceac330;border-inline:1px solid #abf5d170}
 #landingVector4 i {position:absolute;left:calc(50% + var(--vector,0%));top:3px;bottom:3px;width:3px;border-radius:2px;background:#ffe7ad;transform:translateX(-50%)}
@@ -91,7 +91,7 @@ html[data-light-fx="true"] :is(#mission1,#mission2,#mission3,#mission4,#mission5
 @media(max-height:640px) {
  #mission2.crew-deck2 .crew-task>p {display:none}
  #mission2.crew-deck2:has(.crew-task:not([hidden])) header {margin-bottom:7px}
- #mission2.crew-deck2 .crew-task>small {font-size:10px;line-height:1.25}
+ #mission2.crew-deck2 .crew-task>small {font-size:11px;line-height:1.25}
  #mission2.crew-deck2 .crew-back2 {margin-bottom:5px}
  #mission2.crew-deck2 #crewStatus {display:none!important}
  #mission2 #engineerTask .power-route2 {max-height:220px}
@@ -143,7 +143,7 @@ html[data-light-fx="true"] :is(#mission1,#mission2,#mission3,#mission4,#mission5
 #mission4 #thrustDial,#mission1 #frequencyDial {height:44px;min-height:44px;touch-action:none}
 #mission3 #journalCodeBtn {min-height:44px!important}
 #mission3 .fuel-matrix3 input {min-height:44px;touch-action:none}
-#mission3 .fuel-matrix3 .mix-advice3 {display:block;min-height:12px;font-size:8px;font-weight:700;letter-spacing:.2px;line-height:1.4;color:#ffe0a3;text-align:center}
+#mission3 .fuel-matrix3 .mix-advice3 {display:block;min-height:12px;font-size:11px;font-weight:700;letter-spacing:.2px;line-height:1.4;color:#ffe0a3;text-align:center}
 #mission3 .fuel-matrix3 label.stable .mix-advice3 {color:#b6f4ce}
 #mission3 .mix-fine3 {display:grid;grid-template-columns:1fr 1fr;gap:4px;width:100%}
 #mission3 .mix-fine3 button {padding:0;min-width:0;min-height:44px;border:1px solid #b5dbe45c;border-radius:8px;background:#143448;color:#e9f5f1;font:500 23px/1 system-ui;touch-action:manipulation}
@@ -171,16 +171,16 @@ html[data-light-fx="true"] :is(#mission1,#mission2,#mission3,#mission4,#mission5
 #flightReview {box-sizing:border-box;width:min(420px,calc(100% - 24px));max-height:calc(var(--mk-vh,100dvh) - 24px);padding:0;border:1px solid #efd9a78f;border-radius:22px;background:linear-gradient(145deg,#254e63,#102638);color:#edf7f8;overflow:hidden;box-shadow:0 18px 60px #0008}
 #flightReview::backdrop {background:#071825bf;backdrop-filter:blur(7px)}
 .flight-review-copy {flex:1 1 auto;min-height:0;overflow:auto;padding:24px 20px 10px}
-#flightReview .eyebrow {font-size:9px;color:#acdce5;letter-spacing:1.8px}
+#flightReview .eyebrow {font-size:11px;color:#acdce5;letter-spacing:1.8px}
 #flightReview h2 {color:#ffe5ad;font-size:23px;line-height:1.15;margin:9px 0 12px}
 #flightReview p {font-size:12px;line-height:1.5;color:#c9e1e9}
 #flightReviewMetrics {display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:18px 0}
 #flightReviewMetrics>div {border:1px solid #b8d9dc59;border-radius:11px;background:#102f43;padding:11px 9px}
-#flightReviewMetrics span {display:block;color:#9ecbd8;font-size:8px;letter-spacing:.5px}
+#flightReviewMetrics span {display:block;color:#9ecbd8;font-size:11px;letter-spacing:.5px}
 #flightReviewMetrics b {display:block;color:#ffe8b2;font:700 clamp(18px,5vw,23px)/1.5 monospace;white-space:nowrap;margin-top:6px}
 #mission5.engineering5 .reactor-dialog5 {display:flex;flex-direction:column;padding:0;overflow:hidden}
 #mission5.engineering5 .reactor-guide-copy5 {flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;padding:22px 18px 12px}
-#mission5.engineering5 .reactor-guide-copy5>.eyebrow {color:#a7dbe7;font-size:9px;letter-spacing:2px}
+#mission5.engineering5 .reactor-guide-copy5>.eyebrow {color:#a7dbe7;font-size:11px;letter-spacing:2px}
 #mission5.engineering5 .reactor-guide-copy5>p {font-size:12px;line-height:1.4;color:#c2dce8;margin:9px 0 18px}
 #mission5.engineering5 .reactor-dialog-actions5 {flex:none;padding:12px 18px 16px;background:#143246;border-top:1px solid #a7d7df29}
 @media(max-height:500px) {
@@ -204,7 +204,7 @@ html[data-light-fx="true"] :is(#mission1,#mission2,#mission3,#mission4,#mission5
 
 :is(#mission7,#mission8,#mission9) .chapter-menu{flex:none;min-width:44px;height:44px;border:1px solid #c2e9ec75;border-radius:11px;background:linear-gradient(145deg,#3a6575,#1d3d51);color:#fff0c3;font-size:19px;touch-action:manipulation}
 :is(#mission7,#mission8,#mission9)>header>div:first-child{flex:1;min-width:0}
-:is(#mission7,#mission8,#mission9)>header .crew-badge{max-width:29%;font-size:8px;padding:5px}
+:is(#mission7,#mission8,#mission9)>header .crew-badge{max-width:29%;font-size:11px;padding:5px}
 
 /* Reduced effects preserve asteroid motion because it is part of the challenge. */
 html[data-light-fx="true"] :is(#mission8 .signal-orbit,#mission8 .signal-pulse,#mission9 .final-gate::after){animation:none!important}

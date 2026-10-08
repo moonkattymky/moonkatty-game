@@ -6,17 +6,17 @@
 #mission3.launch-bridge3 header>div:first-child {display:flex;flex-wrap:wrap;column-gap:6px;row-gap:4px;align-items:baseline}
 #mission3.launch-bridge3 .launch-brand3 {flex-basis:100%;font-size:22px;line-height:1.2;font-weight:900;letter-spacing:2px;color:#fff8e9}
 #mission3.launch-bridge3 .launch-brand3 i {font-style:normal;color:var(--console-gold);font-size:26px}
-#mission3.launch-bridge3 header .eyebrow,#mission3.launch-bridge3 header h2 {font-size:9px;line-height:1.4;letter-spacing:1px;margin:0;color:#fce4b3}
+#mission3.launch-bridge3 header .eyebrow,#mission3.launch-bridge3 header h2 {font-size:11px;line-height:1.4;letter-spacing:1px;margin:0;color:#fce4b3}
 #mission3.launch-bridge3 .launch-count3 {flex:none;display:grid;justify-items:center;gap:5px;padding:10px 8px;border:1px solid #c8deeba0;border-radius:12px;background:#102437cc;backdrop-filter:blur(8px)}
 #mission3.launch-bridge3 .launch-count3 strong {font:700 17px/1 monospace;color:#fff4d8}
-#mission3.launch-bridge3 .launch-count3 span {font-size:6px;letter-spacing:.8px;color:#b7d4e3}
+#mission3.launch-bridge3 .launch-count3 span {font-size:11px;letter-spacing:.8px;color:#b7d4e3}
 #mission3.launch-bridge3 .command-scene3 {position:relative;flex:1 1 auto;min-height:30px;height:auto;margin:0;border:0;border-radius:0;background:none;box-shadow:none;overflow:hidden}
 #mission3.launch-bridge3 .bridge-glow3 {position:absolute;left:0;bottom:0;width:100%;height:50%;pointer-events:none;background:radial-gradient(ellipse at 12% 90%,#56ccff26,transparent 42%);animation:bridge-light3 4s ease-in-out infinite}
 @keyframes bridge-light3 {0%,100%{opacity:.25}50%{opacity:1}}
 #mission3.launch-bridge3 .launch-steps3 {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));flex:none;gap:4px;list-style:none;padding:6px;margin:8px 0;border:1px solid #e8cb865c;border-radius:10px;background:#0d2436df;backdrop-filter:blur(12px)}
 #mission3.launch-bridge3 .launch-steps3 li {display:flex;align-items:center;justify-content:center;gap:4px;color:#91aabc;min-height:25px}
-#mission3.launch-bridge3 .launch-steps3 b {font:600 9px/1 monospace;border:1px solid #abc5d544;border-radius:50%;padding:4px}
-#mission3.launch-bridge3 .launch-steps3 span {font-size:8px;letter-spacing:.3px;font-weight:700;white-space:nowrap}
+#mission3.launch-bridge3 .launch-steps3 b {font:600 11px/1 monospace;border:1px solid #abc5d544;border-radius:50%;padding:4px}
+#mission3.launch-bridge3 .launch-steps3 span {font-size:11px;letter-spacing:.3px;font-weight:700;white-space:nowrap}
 #mission3.launch-bridge3 .launch-steps3 .current {color:#fff0c6}
 #mission3.launch-bridge3 .launch-steps3 .current b {background:#e4c070;color:#16283a;border-color:#ffe5a6;box-shadow:0 0 11px #ffd78244}
 #mission3.launch-bridge3 .launch-steps3 .done {color:#a1efd0}
@@ -25,7 +25,7 @@
 #mission3.launch-bridge3 :is(#life3MemoryGate,.launch-signal3,.launch-stage3)>:first-child {margin-top:0}
 #mission3.launch-bridge3 :is(#life3MemoryGate,.launch-signal3,.launch-stage3)>h3 {font-size:20px;line-height:1.15;letter-spacing:.1px;color:#fff0c8;margin:6px 0 8px}
 #mission3.launch-bridge3 :is(#life3MemoryGate,.launch-signal3,.launch-stage3)>p:not(.eyebrow):not(.mission-status) {font-size:12px;line-height:1.45;color:#d4e4ed;margin:0 0 10px}
-#mission3.launch-bridge3 .eyebrow {font-size:9px;letter-spacing:1.2px;color:#91dceb;margin:0 0 6px}
+#mission3.launch-bridge3 .eyebrow {font-size:11px;letter-spacing:1.2px;color:#91dceb;margin:0 0 6px}
 #mission3.launch-bridge3 .primary,#mission3.launch-bridge3 .ghost {min-height:44px;margin-top:10px;padding:10px 8px;font-size:11px;line-height:1.2;border-radius:10px;touch-action:manipulation}
 #mission3.launch-bridge3 .primary {color:#202817;background:linear-gradient(110deg,#f9e4a2,#d9b263)!important;border:1px solid #ffe9b099}
 #mission3.launch-bridge3 button:disabled {opacity:.5;cursor:default}
@@ -35,14 +35,14 @@
 #mission3.launch-bridge3 #life3MemoryInput:focus {outline:2px solid #abe5ef;outline-offset:2px}
 #mission3.launch-bridge3 .mission-status {font-size:11px;line-height:1.35;color:#b7dce8;background:#c0e5ee0b;border:0;border-radius:7px;padding:7px 6px;min-height:28px;margin:8px 0 0}
 #mission3.launch-bridge3 .launch-help-actions3 {display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
-#mission3.launch-bridge3 .launch-help-actions3 button {width:100%;margin:0!important;min-height:38px;font-size:9px;padding:7px 3px;border-radius:8px}
+#mission3.launch-bridge3 .launch-help-actions3 button {width:100%;margin:0!important;min-height:38px;font-size:11px;padding:7px 3px;border-radius:8px}
 #mission3.launch-bridge3 .launch-help-actions3:has(#buyCodeHintBtn[hidden]) {grid-template-columns:1fr}
-#mission3.launch-bridge3 .life-bank {font-size:9px;line-height:1.4;letter-spacing:0;color:#a8c8d8;margin:10px 0 0}
+#mission3.launch-bridge3 .life-bank {font-size:11px;line-height:1.4;letter-spacing:0;color:#a8c8d8;margin:10px 0 0}
 #mission3.launch-bridge3 .cooldown-box {padding:8px;margin:8px 0 0;border-radius:9px}
 #mission3.launch-bridge3 .cooldown-box strong {font-size:20px}
 #mission3.launch-bridge3 .journal-code3 {margin:8px 0 0;padding:9px;background:#16483d;border:1px solid #87d6b4;border-radius:10px}
 #mission3.launch-bridge3 .journal-code3 strong {font:700 20px/1.3 monospace;letter-spacing:2px;margin:5px 0}
-#mission3.launch-bridge3 .journal-code3 small {font-size:9px;line-height:1.3}
+#mission3.launch-bridge3 .journal-code3 small {font-size:11px;line-height:1.3}
 #mission3.launch-bridge3 .launch-stage3 {margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important}
 #mission3.launch-bridge3 .code-sequence {display:grid;grid-template-columns:repeat(4,1fr);gap:7px;min-height:0;padding:0;margin:14px 0 12px;border:0;background:none;font:700 30px/1 monospace!important;letter-spacing:0;box-shadow:none}
 #mission3.launch-bridge3 .code-sequence>span {display:grid;place-items:center;width:100%;height:72px;border:1px solid #8abacb6b;border-radius:9px;background:linear-gradient(#092133,#0b1a27);color:#7393a4;box-shadow:inset 0 0 12px #0007}
@@ -52,20 +52,20 @@
 #mission3.launch-bridge3 .code-pad button {height:56px;min-height:48px;background:linear-gradient(#294c60,#163044)!important;border:1px solid #bfdde185!important;border-bottom:4px solid #091b29!important;box-shadow:0 3px 7px #0004;border-radius:10px!important;color:#ffe9b7!important;font-size:25px!important}
 #mission3.launch-bridge3 .code-pad button:disabled {opacity:.4}
 #mission3.launch-bridge3 .fuel-matrix3 {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
-#mission3.launch-bridge3 .fuel-matrix3 label {--mix-color:#9bdef6;--mix-level:30%;display:flex;flex-direction:column;gap:7px;align-items:center;min-width:0;padding:10px 5px 6px;background:linear-gradient(#1e3c4f,#0b2437);border:1px solid #8dbac765;border-radius:11px;color:#e6f1f1;font-size:9px;letter-spacing:.4px}
+#mission3.launch-bridge3 .fuel-matrix3 label {--mix-color:#9bdef6;--mix-level:30%;display:flex;flex-direction:column;gap:7px;align-items:center;min-width:0;padding:10px 5px 6px;background:linear-gradient(#1e3c4f,#0b2437);border:1px solid #8dbac765;border-radius:11px;color:#e6f1f1;font-size:11px;letter-spacing:.4px}
 #mission3.launch-bridge3 .fuel-matrix3 .mix-fuel3 {--mix-color:#f2d080;--mix-level:40%}
 #mission3.launch-bridge3 .fuel-matrix3 .mix-cool3 {--mix-color:#93e8c7}
 #mission3.launch-bridge3 .fuel-matrix3 b {font:700 24px/1 monospace;color:var(--mix-color)}
-#mission3.launch-bridge3 .fuel-matrix3 b::after {content:'%';font-size:10px;margin-left:2px}
+#mission3.launch-bridge3 .fuel-matrix3 b::after {content:'%';font-size:11px;margin-left:2px}
 #mission3.launch-bridge3 .mix-tank3 {position:relative;display:block;width:36px;height:70px;flex:none;border:1px solid #badde277;border-radius:7px;background:repeating-linear-gradient(0deg,transparent 0 13px,#e7f7ff2b 14px 15px),#091b29;overflow:hidden;box-shadow:inset 4px 0 8px #0005}
 #mission3.launch-bridge3 .mix-tank3 i {position:absolute;inset:auto 0 0;height:var(--mix-level);border-top:2px solid #fff9;background:linear-gradient(90deg,transparent,var(--mix-color),transparent);opacity:.85;box-shadow:0 -2px 13px var(--mix-color);transition:height .12s}
 #mission3.launch-bridge3 .fuel-matrix3 input {width:100%;height:26px;margin:0;accent-color:var(--mix-color);touch-action:pan-x;cursor:ew-resize}
 #mission3.launch-bridge3 .fuel-matrix3 label.stable {border-color:#a8e7c590}
 #mission3.launch-bridge3 .mix-total3 {display:flex;justify-content:center;align-items:center;gap:6px;padding:7px;border:1px solid #8cb6c660;border-radius:9px;background:#0b2536}
-#mission3.launch-bridge3 .mix-total3>span {font-size:9px;color:#bad1dc;margin-right:auto}
+#mission3.launch-bridge3 .mix-total3>span {font-size:11px;color:#bad1dc;margin-right:auto}
 #mission3.launch-bridge3 .mix-total3 strong {font:700 23px/1 monospace;margin:0;color:#f5d18a}
 #mission3.launch-bridge3 .mix-total3 small {font-size:11px;color:#94b0c2}
-#mission3.launch-bridge3 .mix-total3 i {font-style:normal;font-size:8px;letter-spacing:.4px;color:#f1bd83;margin-left:auto}
+#mission3.launch-bridge3 .mix-total3 i {font-style:normal;font-size:11px;letter-spacing:.4px;color:#f1bd83;margin-left:auto}
 #mission3.launch-bridge3 .mix-total3.stable {border-color:#85e0bd99}
 #mission3.launch-bridge3 .mix-total3.stable :is(strong,i) {color:#aaf6cb}
 #mission3.launch-bridge3 .launch-stage3>small {display:block;font-size:11px;line-height:1.4;color:#b7d6e1;margin:10px 0 0;min-height:30px}
@@ -77,9 +77,9 @@
 #mission3.launch-bridge3 .ignition-keys3 button.armed {opacity:1;border-color:#98e7b9;background:#16483e}
 #mission3.launch-bridge3 .ignition-keys3 button.armed i {background:#aaffc5;box-shadow:0 0 9px #aaffc5}
 #mission3.launch-bridge3 .launch-countdown3 {display:flex;align-items:baseline;justify-content:center;gap:6px;color:#acd5e5;margin:12px 0 0}
-#mission3.launch-bridge3 .launch-countdown3 span:first-child {font-size:9px;letter-spacing:1px;margin-right:auto}
+#mission3.launch-bridge3 .launch-countdown3 span:first-child {font-size:11px;letter-spacing:1px;margin-right:auto}
 #mission3.launch-bridge3 .launch-countdown3 strong {font:700 26px/1 monospace;color:#f7d991}
-#mission3.launch-bridge3 .launch-countdown3 span:last-child {font-size:10px}
+#mission3.launch-bridge3 .launch-countdown3 span:last-child {font-size:11px}
 #mission3.launch-bridge3 .launch-timer3 {height:7px;margin:7px 0 0;border:1px solid #aac9d02a;border-radius:5px;background:#081b2a}
 #mission3.launch-bridge3 .launch-timer3 i {background:linear-gradient(90deg,#ffdc8c,#a5e8ee);transition:width .09s linear}
 #mission3.launch-bridge3[data-time-low="true"] .launch-countdown3 strong {color:#ffa28c}
@@ -110,8 +110,8 @@
  #mission3.launch-bridge3 .ignition-order3 {margin:10px 0 6px}
  #mission3.launch-bridge3 .ignition-order3>span {height:50px}
  #mission3.launch-bridge3 .ignition-keys3 button {min-height:46px}
- #mission3.launch-bridge3 .launch-stage3>small {font-size:10px;min-height:26px;margin-top:8px}
- #mission3.launch-bridge3 .life-bank {font-size:8px;margin-top:8px}
+ #mission3.launch-bridge3 .launch-stage3>small {font-size:11px;min-height:26px;margin-top:8px}
+ #mission3.launch-bridge3 .life-bank {font-size:11px;margin-top:8px}
 }
-@media(max-width:350px) {#mission3.launch-bridge3 .launch-steps3 span {font-size:7px}#mission3.launch-bridge3 .launch-steps3 b {font-size:8px;padding:3px}#mission3.launch-bridge3 header .eyebrow,#mission3.launch-bridge3 header h2 {font-size:8px}}
+@media(max-width:350px) {#mission3.launch-bridge3 .launch-steps3 span {font-size:11px}#mission3.launch-bridge3 .launch-steps3 b {font-size:11px;padding:3px}#mission3.launch-bridge3 header .eyebrow,#mission3.launch-bridge3 header h2 {font-size:11px}}
 @media(prefers-reduced-motion:reduce) {#mission3.launch-bridge3 .bridge-glow3 {animation:none}#mission3.launch-bridge3 :is(.launch-timer3 i,.mix-tank3 i) {transition:none}}

@@ -29,42 +29,42 @@ button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible {
 #home .mk-topbar {padding:calc(20px + env(safe-area-inset-top)) 22px 0;gap:10px;align-items:center}
 #home .mk-topbar h2 {font-size:21px!important;letter-spacing:2px!important;font-weight:850;color:#f5eee0;line-height:1.1}
 #home .mk-topbar>div:first-child {min-width:0}
-#home .mk-topbar>div>span {display:block;max-width:225px;font-size:8px;line-height:1.45;letter-spacing:1.2px;color:#b5c9d0;margin-top:7px}
+#home .mk-topbar>div>span {display:block;max-width:225px;font-size:11px;line-height:1.45;letter-spacing:1.2px;color:#b5c9d0;margin-top:7px}
 #home .header-actions {gap:6px;flex-shrink:0}
 #home .header-actions .icon-btn {width:40px;height:44px;border-radius:10px;background:#102b3ba6!important;border-color:#afcbd340!important}
 #home .mk-mission-wordmark {position:absolute;z-index:3;left:22px;top:105px;display:flex;flex-direction:column;align-items:flex-start;pointer-events:none;color:#f5eddb}
 .mk-mission-wordmark>span {font-size:130px;line-height:.84;font-weight:300;letter-spacing:-8px;font-variant-numeric:lining-nums}
 .mk-mission-wordmark>strong {font-size:34px;line-height:1;letter-spacing:6px;font-weight:650;margin:12px 0 0 4px}
 #home .mk-home-character {top:95px;left:auto;right:-25px;transform:none;width:310px;height:325px;filter:drop-shadow(0 20px 18px #04131ab0)}
-#home .mk-hero-copy {top:282px;left:26px;right:auto;text-align:start;max-width:136px;font-size:8px;line-height:1.65;letter-spacing:1.1px;color:#bdcbd0;text-shadow:none}
-#home .mk-hero-copy strong {font-size:10px;font-weight:650;color:var(--mk-gold);margin-top:2px;letter-spacing:.8px}
+#home .mk-hero-copy {top:282px;left:26px;right:auto;text-align:start;max-width:136px;font-size:11px;line-height:1.65;letter-spacing:1.1px;color:#bdcbd0;text-shadow:none}
+#home .mk-hero-copy strong {font-size:11px;font-weight:650;color:var(--mk-gold);margin-top:2px;letter-spacing:.8px}
 .mk-orbit-trace {position:absolute;pointer-events:none;top:116px;left:14%;width:90%;height:208px;border:1px solid #edce913b;border-radius:50%;transform:rotate(-27deg);z-index:1}
 .mk-orbit-trace:before {content:'';position:absolute;width:5px;height:5px;top:18%;left:12%;border-radius:50%;background:#efcd90;box-shadow:0 0 10px #f1cf9244}
 #home .mk-home-bottom {left:20px;right:20px;bottom:18px}
 #home .mk-home-bottom .stats {gap:0;margin-bottom:14px!important;background:var(--mk-metal);border-radius:var(--mk-radius);border:1px solid #eff5f080;box-shadow:0 12px 30px #020d1940;overflow:hidden}
 #home .mk-home-bottom .stats article {background:none!important;backdrop-filter:none;border:0!important;border-inline-end:1px solid #1f475429!important;box-shadow:none;border-radius:0;min-height:69px!important;padding:11px 5px 9px}
 #home .mk-home-bottom .stats article:last-child {border-inline-end:0!important}
-#home .stats small {font-size:8px;letter-spacing:.8px;color:#4c6773;line-height:1.3}
+#home .stats small {font-size:11px;letter-spacing:.8px;color:#4c6773;line-height:1.3}
 #home .mk-home-bottom .stats strong {font:700 18px/1.2 ui-monospace,SFMono-Regular,monospace!important;color:var(--mk-ink);margin-top:7px}
-#home .stats em {color:#607882;letter-spacing:.7px;font-size:7px}
-#home .mk-home-bottom #welcome {font-size:10px;font-weight:500;letter-spacing:1.8px;color:#b8cdd1;margin:10px 0}
+#home .stats em {color:#607882;letter-spacing:.7px;font-size:11px}
+#home .mk-home-bottom #welcome {font-size:11px;font-weight:500;letter-spacing:1.8px;color:#b8cdd1;margin:10px 0}
 #home #enterBtn {position:relative;max-width:none;height:auto;min-height:56px!important;margin:0 0 10px!important;padding:17px 34px 17px 17px!important;text-align:start;line-height:1.3;background:var(--mk-key)!important;color:var(--mk-ink)!important;border:1px solid #ffeac1!important;border-radius:9px!important;font-size:13px!important;letter-spacing:.55px;box-shadow:inset 0 1px #fff9,0 5px 18px #d9b16d18!important}
 #home #enterBtn:after {content:'↗';position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:23px;font-weight:400}
 #home .mk-growth-row {gap:7px;margin:0 0 9px}
 #home :is(.mk-invite-btn,.mk-share-btn) {min-height:53px;border-radius:9px;background:#173647d9;border:1px solid var(--mk-line);box-shadow:inset 0 1px #def0ef0a;color:#e4eded}
 #home .mk-invite-btn {padding:9px 12px;gap:10px}
 #home .mk-invite-btn b {font-size:12px;letter-spacing:.1px;font-weight:600}
-#home .mk-invite-btn small {font-size:10px;letter-spacing:.2px;font-weight:500;color:var(--mk-gold);margin-top:3px}
+#home .mk-invite-btn small {font-size:11px;letter-spacing:.2px;font-weight:500;color:var(--mk-gold);margin-top:3px}
 #home .mk-share-btn {min-width:76px;padding:6px 10px;gap:3px}
-#home .mk-share-btn b {font-size:9px;font-weight:500;letter-spacing:.1px}
+#home .mk-share-btn b {font-size:11px;font-weight:500;letter-spacing:.1px}
 #home .exp-entry {position:relative;min-height:66px;border-radius:9px!important;background:linear-gradient(110deg,#174257,#102d40)!important;border:1px solid #759daa55!important;border-inline-start:3px solid #bdd5d5!important;box-shadow:none;padding:10px 13px!important}
-#home .exp-entry small {font-size:7px;letter-spacing:1.3px;color:#a9c9d1}
+#home .exp-entry small {font-size:11px;letter-spacing:1.3px;color:#a9c9d1}
 #home .exp-entry strong {font-size:11px;line-height:1.5;letter-spacing:.6px;color:#edf3ef}
-#home .exp-entry em {font-size:9px;color:#a2bcc8;line-height:1.4}
+#home .exp-entry em {font-size:11px;color:#a2bcc8;line-height:1.4}
 #home .exp-entry>b {color:var(--mk-gold);font-size:25px;font-weight:300}
 #home button.mk-life-teaser {border:0;border-radius:0!important;background:transparent;backdrop-filter:none;margin-top:9px;padding:7px 3px!important;min-height:46px!important;grid-template-columns:32px 1fr 18px!important}
 #home .mk-life-teaser .mk-play {width:30px;height:30px;border:1px solid var(--mk-line);border-radius:50%!important;background:#183342;font-size:11px}
-#home .mk-life-teaser strong {font-size:10px!important;font-weight:600;letter-spacing:.65px}
+#home .mk-life-teaser strong {font-size:11px!important;font-weight:600;letter-spacing:.65px}
 #home .mk-life-teaser span {color:#9bb3c0}
 
 /* One set of scalable outline symbols. No font downloads or emoji dependency. */
@@ -88,7 +88,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible {
 #home .mk-bottom-nav {height:82px;padding-top:9px}
 #home .mk-bottom-nav button,.hub-nav button {position:relative;color:#8da9b9;gap:5px;justify-content:center;font-weight:550}
 #home .mk-bottom-nav button>b,.hub-nav button>b {font-size:0!important;line-height:1!important;width:22px;height:22px;display:block}
-#home .mk-bottom-nav button>span,.hub-nav button>span {font-size:9px;letter-spacing:.15px;line-height:1.25}
+#home .mk-bottom-nav button>span,.hub-nav button>span {font-size:11px;letter-spacing:.15px;line-height:1.25}
 #home .mk-bottom-nav button.active,.hub-nav button[aria-current=page] {color:var(--mk-gold)}
 #home .mk-bottom-nav button.active:after,.hub-nav button[aria-current=page]:after {content:'';width:18px;height:2px;background:var(--mk-gold);position:absolute;top:-9px;left:calc(50% - 9px);border-radius:2px}
 
@@ -96,14 +96,14 @@ button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible {
 #chapters {background:radial-gradient(ellipse at 90% 0,#1c435b88,transparent 55%),var(--mk-night)!important;padding-top:20px}
 #chapters>header {background:linear-gradient(#071722f7,#071722ed,transparent);padding-bottom:20px}
 #chapters h2 {font-size:31px;font-weight:700;letter-spacing:-.7px}
-#chapters .eyebrow {font:9px ui-monospace,monospace;letter-spacing:2px;color:var(--mk-gold)}
+#chapters .eyebrow {font:11px ui-monospace,monospace;letter-spacing:2px;color:var(--mk-gold)}
 #chapters>p {color:#a6beca;font-size:12px;line-height:1.7}
 #chapters .chapter-list {gap:10px;margin:22px 0}
 #chapters .chapter-card {min-height:116px;gap:15px;padding:20px 16px;border:1px solid #7896a644!important;border-radius:11px!important;background:var(--mk-navy)!important;box-shadow:none!important}
 #chapters .chapter-card:before {background:linear-gradient(90deg,#0e293bf7 13%,#0e293bda 42%,#0e293b30 100%),var(--chapter-art) 80% 45%/cover;opacity:1}
 #chapters .chapter-card>b {align-self:flex-start;font:300 35px/.95 ui-monospace,monospace;letter-spacing:-3px;color:#f0d297;padding-top:2px;min-width:42px}
 #chapters .chapter-card strong {font-size:14px;line-height:1.35;letter-spacing:.65px;color:#eff3ea}
-#chapters .chapter-card small {font-size:10px;color:#b3c9d1;line-height:1.5}
+#chapters .chapter-card small {font-size:11px;color:#b3c9d1;line-height:1.5}
 #chapters .chapter-card:not(:disabled) {border-color:#d9bd7d8a!important;box-shadow:inset 3px 0 #e5c88c!important}
 #chapters .chapter-card:disabled {opacity:.68!important}
 #chapters .chapter-card:disabled>b {color:#a3b9c4}
@@ -126,7 +126,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible {
 #storyPlan .story-step.done {background:#153d3e!important;border-color:#98cebb50!important}
 #storyPlan .story-step-number {color:var(--mk-gold);font-weight:500;font-size:17px!important}
 #storyPlan .story-step-copy strong {font-weight:650;color:#eef2e9}
-#storyPlan .story-step-copy small {color:#b5d0d7!important;font-size:8px!important}
+#storyPlan .story-step-copy small {color:#b5d0d7!important;font-size:11px!important}
 #storyPlan .story-step-copy em {color:#acc4cf!important}
 #storyPlan .story-secondary,#storyBack {border-radius:9px!important;background:#163648;border-color:var(--mk-line)!important;color:#cbdee3}
 .story-campaign-summary {background:var(--mk-surface);border:1px solid var(--mk-line);border-radius:10px;box-shadow:inset 3px 0 #e3c78b}
@@ -136,11 +136,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible {
 .hub-cover {border-radius:12px;border-color:var(--mk-line);box-shadow:0 14px 30px #0002}
 .hub-cover:before {inset:10px;border-radius:5px;border-color:#e8dbb32b}
 .hub-cover h2 {font-weight:550;font-size:30px;letter-spacing:-.6px}
-.hub-cover>span {font-size:9px;letter-spacing:1.8px}
+.hub-cover>span {font-size:11px;letter-spacing:1.8px}
 .hub-metrics {background:var(--mk-metal);border-radius:10px;padding:9px 12px;gap:0}
 .hub-metrics>div {border-color:#2c51632b;padding:7px 10px!important}
 .hub-metrics strong {font:650 25px/1.2 ui-monospace,monospace;color:var(--mk-ink)}
-.hub-metrics small {color:#506c79;font-size:8px;margin-top:6px;letter-spacing:.65px}
+.hub-metrics small {color:#506c79;font-size:11px;margin-top:6px;letter-spacing:.65px}
 .hub-section-title {color:#e5ece8;font-weight:600;font-size:17px;letter-spacing:-.2px}
 .hub-panel,.hub-role,.hub-rank-privacy {border-radius:11px;background:var(--mk-surface);border-color:var(--mk-line);box-shadow:inset 0 1px #eff7f20d}
 .hub-panel h2,.hub-panel h3 {font-weight:600}
@@ -178,13 +178,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible {
 .field-mission .field-head {background:linear-gradient(120deg,#12384b,#0a2132);border-bottom:1px solid var(--mk-line)}
 .field-mission .field-head h1 {font-weight:650;letter-spacing:-.5px}
 .field-head button {border-radius:9px;background:#284b5b;border-color:#b0cbd145;box-shadow:inset 0 1px #ecf5f116}
-.field-mission .field-route {background:#0d283a;color:#b5cbd2;border-color:#b3d0d22b;font-family:ui-monospace,monospace;font-size:9px;letter-spacing:.5px}
+.field-mission .field-route {background:#0d283a;color:#b5cbd2;border-color:#b3d0d22b;font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.5px}
 .field-route strong {color:var(--mk-gold)}
 .field-world {border-bottom:2px solid #d5bc82;box-shadow:inset 0 0 0 1px #bfd9de3b}
 .field-world:after {content:'';position:absolute;inset:9px;z-index:2;pointer-events:none;background:linear-gradient(#e9ddba,#e9ddba) top left/15px 1px no-repeat,linear-gradient(#e9ddba,#e9ddba) top left/1px 15px no-repeat,linear-gradient(#e9ddba,#e9ddba) bottom right/15px 1px no-repeat,linear-gradient(#e9ddba,#e9ddba) bottom right/1px 15px no-repeat;opacity:.42}
 .field-mission .field-telemetry {background:var(--mk-metal);color:var(--mk-ink);box-shadow:inset 0 1px #fff8;border-bottom:1px solid #3658682e}
 .field-telemetry>div {border-color:#25465729}
-.field-telemetry small {font:8px/1.25 ui-monospace,monospace;color:#506974;letter-spacing:.5px}
+.field-telemetry small {font:11px/1.25 ui-monospace,monospace;color:#506974;letter-spacing:.5px}
 .field-telemetry strong {font-weight:700;letter-spacing:-.4px}
 .field-mission .field-deck {background:#e6eceb;color:var(--mk-ink)}
 .field-mission .field-objective {border-color:#42667430}
@@ -260,7 +260,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible {
 @media(max-width:359px) {
   #home .mk-topbar {padding-inline:16px}
   #home .mk-topbar h2 {font-size:18px!important;letter-spacing:1.4px!important}
-  #home .mk-topbar>div>span {font-size:7px!important;letter-spacing:.6px!important;max-width:190px}
+  #home .mk-topbar>div>span {font-size:11px!important;letter-spacing:.6px!important;max-width:190px}
   #home .header-actions {gap:3px}
   #home .header-actions .icon-btn {width:44px;min-width:44px}
   #home .mk-home-character {right:-38px;width:265px;height:290px;top:102px}
@@ -271,7 +271,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible {
   #home .mk-home-bottom {left:14px;right:14px}
   #home #enterBtn {font-size:12px!important}
   #home .mk-invite-btn b {font-size:11px}
-  #home .mk-bottom-nav button>span {font-size:8px}
+  #home .mk-bottom-nav button>span {font-size:11px}
   #chapters .chapter-card {padding:18px 13px;gap:12px}
   #chapters .chapter-card>b {font-size:30px;min-width:35px}
   #chapters .chapter-card strong {font-size:12px}
@@ -281,7 +281,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible {
 }
 @media(orientation:landscape) and (max-height:600px) {
   .field-mission .field-head h1 {font-size:17px}
-  .field-mission .field-footer p {font-size:10px}
+  .field-mission .field-footer p {font-size:11px}
   #storyPlan .story-head h1 {font-size:23px}
   #home .mk-home-hero {min-height:360px}
   #home .mk-topbar {padding-top:14px}
@@ -303,8 +303,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible {
   #home .mk-mission-wordmark {top:98px}
   #home .mk-mission-wordmark>span {font-size:94px}
   #home .mk-mission-wordmark>strong {font-size:26px;margin-top:8px}
-  #home .mk-hero-copy {top:219px;max-width:135px;font-size:7px;line-height:1.4}
-  #home .mk-hero-copy strong {font-size:9px;line-height:1.45}
+  #home .mk-hero-copy {top:219px;max-width:135px;font-size:11px;line-height:1.4}
+  #home .mk-hero-copy strong {font-size:11px;line-height:1.45}
   #home .mk-home-character {top:83px;width:263px;height:272px;right:-32px}
 }
 [dir=rtl] #home #enterBtn {padding-left:34px!important;padding-right:17px!important}
