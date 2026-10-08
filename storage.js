@@ -12,6 +12,7 @@
  function fail(){const changed=persistent;persistent=false;if(changed)queueMicrotask(notice);}
  function physical(k){k=String(k);return !k.startsWith('mkty_')||shared.has(k)||/^mkty_pending_v2_/.test(k)||identity()==='guest'?k:'mkty_account_v3_'+identity()+':'+k;}
  function keys(){const all=new Set(memory.keys());try{for(let i=0;i<native.length;i++)all.add(native.key(i));}catch{fail();}return [...all].filter(k=>rawGet(k)!==null);}
+ function logicalKeys(){const prefix='mkty_account_v3_'+identity()+':';return keys().filter(k=>identity()==='guest'?!k.startsWith('mkty_account_v3_'):k.startsWith(prefix)||shared.has(k)).map(k=>k.startsWith(prefix)?k.slice(prefix.length):k);}
  // Only migrate an old save whose existing session already identifies its owner.
  // Unattributed guest saves stay intact; a new account restores achievements from the server.
  const owner=identity();
@@ -21,9 +22,9 @@
  }
  const api={
   getItem:k=>rawGet(physical(k)),setItem:(k,v)=>{const old=rawGet(physical(k));rawSet(physical(k),String(v));if(old!==String(v))window.dispatchEvent(new CustomEvent('mkty:storage',{detail:{key:String(k)}}));},removeItem:k=>{const old=rawGet(physical(k));rawSet(physical(k),null);if(old!==null)window.dispatchEvent(new CustomEvent('mkty:storage',{detail:{key:String(k)}}));},
-  key:i=>{const prefix='mkty_account_v3_'+identity()+':';return keys().filter(k=>identity()==='guest'?!k.startsWith('mkty_account_v3_'):k.startsWith(prefix)||shared.has(k)).map(k=>k.startsWith(prefix)?k.slice(prefix.length):k)[i]??null;},
+  key:i=>logicalKeys()[i]??null,keys:logicalKeys,
   clear(){const all=[];for(let i=0;i<this.length;i++)all.push(this.key(i));all.forEach(k=>this.removeItem(k));},
-  get length(){let n=0;while(this.key(n)!==null)n++;return n;},
+  get length(){return logicalKeys().length;},
   get persistent(){return persistent;},identity,
   retry(){try{if(!native)native=Object.getOwnPropertyDescriptor(Window.prototype,'localStorage')?.get?.call(window);native.setItem('mkty_storage_probe','1');native.removeItem('mkty_storage_probe');for(const [k,v] of memory)v===null?native.removeItem(k):native.setItem(k,v);memory.clear();persistent=true;}catch{persistent=false;}notice();return persistent;}
  };

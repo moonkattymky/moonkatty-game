@@ -5,7 +5,7 @@
  let loaded=false,loading=null,busy=false,timer=null,applying=false,conflict=null,generation=0,owner='';
  const enabled=()=>!!window.Telegram?.WebApp?.initData,ru=()=>localStorage.getItem('mkty_lang')==='ru';
  function scope(){const current=window.MKTYStorage?.identity()||'guest';if(owner!==current){owner=current;loaded=false;loading=null;conflict=null;generation++;}return current;}
- function snapshot(){const out={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(allowed.test(k))out[k]=localStorage.getItem(k);}return out;}
+ function snapshot(){const out={},keys=window.MKTYStorage?.keys?.()||Array.from({length:localStorage.length},(_,i)=>localStorage.key(i));for(const k of keys)if(allowed.test(k))out[k]=localStorage.getItem(k);return out;}
  function dirty(){return localStorage.getItem('mkty_cloud_dirty')==='yes';}
  function revision(){return Number(localStorage.getItem('mkty_cloud_revision')||0);}
  function status(text,action){let box=document.getElementById('cloudSaveStatus');if(!text){box?.remove();return;}if(!box){box=document.createElement('div');box.id='cloudSaveStatus';box.setAttribute('role','status');box.style.cssText='position:fixed;bottom:calc(10px + env(safe-area-inset-bottom));left:12px;right:12px;max-width:520px;margin:auto;z-index:18000;padding:12px;background:#e6f0f3;color:#183c4b;border:1px solid #6d919e;border-radius:10px;font:13px/1.45 system-ui';document.body.append(box);}box.replaceChildren(document.createTextNode(text));if(action){const b=document.createElement('button');b.type='button';b.style.cssText='display:block;min-height:44px;margin-top:8px';b.textContent=ru()?'Открыть облачное сохранение':'Open cloud save';b.onclick=()=>{apply(conflict);location.reload();};box.append(b);}}
