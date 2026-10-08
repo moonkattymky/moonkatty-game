@@ -1,7 +1,7 @@
 /* Observatory and return deck share the machined instrument language. */
 :is(#mission8,#mission9).mission-polished{background:radial-gradient(ellipse at 90% 0,#3e5e6a55,transparent 65%),linear-gradient(145deg,#203541,#142733 65%,#10202d)!important;color:#e4edf0!important}
 :is(#mission8,#mission9).mission-polished>header h2{font-size:clamp(20px,5.4vw,26px)!important;font-weight:500;letter-spacing:.035em!important}
-:is(#mission8,#mission9).mission-polished>header .eyebrow{font-family:monospace;font-size:8px;color:#cfba91;letter-spacing:.15em}
+:is(#mission8,#mission9).mission-polished>header .eyebrow{font-family:monospace;font-size:11px;color:#cfba91;letter-spacing:.15em}
 :is(#mission8,#mission9) :is(.crew-badge,.chapter-menu){border-radius:3px!important;background:linear-gradient(#314b5b,#203747)!important;border-color:#829da86b!important;color:#c7d9df!important}
 :is(#mission8,#mission9).mission-polished :is(.signal-world,.final-world){border-radius:5px!important;border-color:#91a6b77c!important;box-shadow:inset 0 0 0 4px #213c4855,0 4px 12px #0003!important}
 :is(#mission8,#mission9).mission-polished :is(.signal-world,.final-world)::before{border-radius:2px!important;font-weight:400;background:#102736b8;border-color:#a2b5bd3d;color:#c6d9df!important}
@@ -18,7 +18,7 @@
 :is(#mission8,#mission9).mission-polished .primary{background:linear-gradient(#ddcda7,#bbab84)!important;color:#21313b!important;border-color:#edddba!important;box-shadow:inset 0 1px #fff4d666,0 3px 6px #07182755!important}
 :is(#mission8,#mission9).mission-polished .ghost{background:linear-gradient(#3c5666,#294454);border:1px solid #8fa7b773;color:#d2e0e6;box-shadow:inset 0 1px #dce5ef20}
 :is(#mission8,#mission9).mission-polished>.mission-status{border-radius:3px;background:#8ea6b00a!important;border-color:#8ea6b02f!important;color:#bbced9!important}
-#mission8 .signal-stage>span,#mission9 #corridor9>span{font-family:monospace;font-weight:400;font-size:9px;letter-spacing:.13em;color:#bad0dd}
+#mission8 .signal-stage>span,#mission9 #corridor9>span{font-family:monospace;font-weight:400;font-size:11px;letter-spacing:.13em;color:#bad0dd}
 #mission8 :is(.signal-strength8,.phase-scope8),#mission9 :is(.corridor-meter9,.core-health9,.final-power9){border-radius:2px;box-shadow:inset 0 2px 5px #08192755}
 #mission8 .pulse-keys button,#mission9 :is(.sync-nodes,.final-keys) button{border-radius:3px!important;border:1px solid #9aaeb977!important;border-bottom:3px solid #142b3b!important;background:linear-gradient(#4a6573,#2c495b)!important;color:#d6e2e5!important;box-shadow:inset 0 1px #deedf02e;line-height:1;font-family:monospace;font-weight:400}
 #mission8 .pulse-display span,#mission9 :is(.sync-sequence9,.final-code) span{border-radius:2px;background:linear-gradient(#102838,#203b4c);border-color:#9ab2be58;box-shadow:inset 0 2px 5px #07182688;font-weight:400}

@@ -11,8 +11,8 @@
 #mission5.engineering5 .reactor-brand5{display:block;font-size:20px;line-height:1.2;letter-spacing:1.6px;font-weight:850;color:#fff4d9}
 #mission5.engineering5 .reactor-brand5 i{font-style:normal;color:#eed7a3;font-size:22px}
 #mission5.engineering5 .reactor-heading5{display:flex;gap:7px;align-items:baseline;margin-top:4px}
-#mission5.engineering5 header h2{font-size:10px!important;line-height:1.3;letter-spacing:1.5px!important;margin:0;text-shadow:none;color:#f3d8a2}
-#mission5.engineering5 header .eyebrow{font-size:9px;line-height:1.3;letter-spacing:1.5px;color:#a6d0df}
+#mission5.engineering5 header h2{font-size:11px!important;line-height:1.3;letter-spacing:1.5px!important;margin:0;text-shadow:none;color:#f3d8a2}
+#mission5.engineering5 header .eyebrow{font-size:11px;line-height:1.3;letter-spacing:1.5px;color:#a6d0df}
 #mission5.engineering5 .reactor-header-actions5{display:flex;align-items:center;gap:9px}
 #mission5.engineering5 .reactor-stage-count5{font:700 13px/1 monospace;color:#dceaf0;white-space:nowrap}
 #mission5.engineering5 .reactor-help5{display:grid;place-items:center;width:44px;height:44px;min-height:44px;padding:0;flex:none;border:1px solid #e7d19b80;border-radius:12px;background:linear-gradient(#375466,#1c374b);color:#ffe9b4;font:700 20px/1 monospace;box-shadow:inset 0 1px 0 #e7edd622}
@@ -33,31 +33,31 @@
 #mission5.engineering5[data-reactor-phase=fault] .reactor-art5{filter:saturate(.65)}
 @keyframes energyOrbit5{to{transform:rotate(360deg)}}
 @keyframes plasmaBreath5{50%{opacity:calc(var(--core-light) * .64)}}
-#mission5.engineering5 .reactor-bay5{position:absolute;left:12px;top:12px;display:flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid #cadde966;border-radius:6px;background:#112b3cbd;backdrop-filter:blur(6px);color:#d8edf6;font:600 7px/1 monospace;letter-spacing:1.1px}
+#mission5.engineering5 .reactor-bay5{position:absolute;left:12px;top:12px;display:flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid #cadde966;border-radius:6px;background:#112b3cbd;backdrop-filter:blur(6px);color:#d8edf6;font:600 11px/1 monospace;letter-spacing:1.1px}
 #mission5.engineering5 .reactor-bay5 i{width:4px;height:4px;background:#9df2d1;border-radius:50%;box-shadow:0 0 7px #97e6c8}
 #mission5.engineering5 .reactor-bay5 span{color:#f5d699;border-inline-start:1px solid #b6ccd666;padding-inline-start:6px}
 #mission5.engineering5 .reactor-scene-status5{position:absolute;inset:auto 12px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid #afcfdd77;border-radius:10px;background:linear-gradient(110deg,#102b3cda,#163446c2);backdrop-filter:blur(8px)}
-#mission5.engineering5 .reactor-scene-status5>span{color:#d4e6e8;font-size:9px;line-height:1.3;letter-spacing:1.1px}
+#mission5.engineering5 .reactor-scene-status5>span{color:#d4e6e8;font-size:11px;line-height:1.3;letter-spacing:1.1px}
 #mission5.engineering5 .reactor-scene-status5 strong{font:700 22px/1 monospace;color:#fce0a4;letter-spacing:1px}
-#mission5.engineering5 .reactor-scene-status5 strong::after{content:'%';font-size:10px;margin-inline-start:3px;color:#b7d5df}
+#mission5.engineering5 .reactor-scene-status5 strong::after{content:'%';font-size:11px;margin-inline-start:3px;color:#b7d5df}
 #mission5.engineering5 .reactor-edge5{position:absolute;inset:4px;border:1px solid #ffffff15;border-radius:4px 17px 4px 17px;pointer-events:none}
 #mission5.engineering5 .reactor-steps5{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;list-style:none;margin:0;padding:5px;border:1px solid #d6c39a50;border-radius:10px;background:#0d283bc4}
 #mission5.engineering5 .reactor-steps5 li{display:flex;align-items:center;justify-content:center;gap:5px;min-height:26px;color:#87a9bb}
-#mission5.engineering5 .reactor-steps5 b{display:grid;place-items:center;flex:none;width:21px;height:21px;border:1px solid #a1c5d34d;border-radius:50%;font:600 8px/1 monospace}
-#mission5.engineering5 .reactor-steps5 span{font-size:9px;font-weight:700;letter-spacing:.3px}
+#mission5.engineering5 .reactor-steps5 b{display:grid;place-items:center;flex:none;width:21px;height:21px;border:1px solid #a1c5d34d;border-radius:50%;font:600 11px/1 monospace}
+#mission5.engineering5 .reactor-steps5 span{font-size:11px;font-weight:700;letter-spacing:.3px}
 #mission5.engineering5 .reactor-steps5 .current{color:#fce9bc}
 #mission5.engineering5 .reactor-steps5 .current b{background:#f0d18d;color:#1b3648;border-color:#fff1c0}
 #mission5.engineering5 .reactor-steps5 .done{color:#c1f5d9}
 #mission5.engineering5 .reactor-steps5 .done b{border-color:#abeac8;background:#2c584b}
 #mission5.engineering5 .reactor-console5{flex:none;min-height:0;padding:14px;border:1px solid #e8d19a8f;border-radius:17px 7px 17px 7px;background:linear-gradient(140deg,#23485b,#102d42);box-shadow:inset 0 1px 0 #fff2c419,0 6px 16px #0002}
-#mission5.engineering5 .reactor-console-heading5 .eyebrow{display:block;margin:0 0 5px;font-size:8px;line-height:1.2;letter-spacing:1.4px;color:#9bdde7}
+#mission5.engineering5 .reactor-console-heading5 .eyebrow{display:block;margin:0 0 5px;font-size:11px;line-height:1.2;letter-spacing:1.4px;color:#9bdde7}
 #mission5.engineering5 .reactor-console-heading5 h3{color:#fce9bd;font-size:19px;line-height:1.2;letter-spacing:0;margin:0 0 6px}
 #mission5.engineering5 .reactor-console-heading5 p{font-size:11px;line-height:1.45;color:#c7e0e9;margin:0 0 11px}
 #mission5.engineering5 .reactor-cells5{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0 0 12px}
 #mission5.engineering5 .reactor-cells5 button{position:relative;display:grid;grid-template-columns:1fr 23px;grid-template-rows:1fr 1fr;column-gap:5px;align-items:center;padding:9px;height:78px;border:1px solid #a3c7d471;border-bottom:3px solid #081e2d;border-radius:10px;background:linear-gradient(#284d62,#132f45);color:#b3cedc;text-align:start;box-shadow:inset 0 1px 0 #d5e5e524}
 #mission5.engineering5 .reactor-cells5 button.selected{border-color:#f4d294;border-bottom-color:#be9654;box-shadow:inset 0 0 20px #ffda9021,0 0 0 1px #ecd29218;background:linear-gradient(#3d565d,#223c4b);color:#ffe7af}
 #mission5.engineering5 .reactor-cells5 button.charged{opacity:1;border-color:#9ae0bf;background:linear-gradient(#28564e,#153b3d);color:#c5fbdc}
-#mission5.engineering5 .cell-name5{font-size:8px;line-height:1.2;letter-spacing:.5px;white-space:nowrap}
+#mission5.engineering5 .cell-name5{font-size:11px;line-height:1.2;letter-spacing:.5px;white-space:nowrap}
 #mission5.engineering5 .cell-name5 b{font-size:15px;margin-inline-start:2px}
 #mission5.engineering5 .reactor-cells5 output{grid-column:1;grid-row:2;font:700 20px/1 monospace;color:inherit}
 #mission5.engineering5 .cell-vessel5{position:relative;display:block;grid-column:2;grid-row:1/3;width:21px;height:51px;align-self:center;border:1px solid #bfe1e797;border-top:3px solid #a2c1c7;border-bottom:3px solid #829ea5;border-radius:5px;background:repeating-linear-gradient(0deg,transparent 0 8px,#d9faff1b 9px 10px),#081e2e;box-shadow:inset 3px 0 5px #0004;overflow:hidden}
@@ -66,10 +66,10 @@
 #mission5.engineering5 .charged .cell-indicator5{background:#c8f9d9;box-shadow:0 0 8px #c8f9d9;opacity:1}
 #mission5.engineering5 .reactor-thermal5{padding:0 1px;margin:0 0 11px}
 #mission5.engineering5 .reactor-thermal5>div:first-child{display:flex;align-items:baseline;gap:8px;margin-bottom:5px}
-#mission5.engineering5 .reactor-thermal5 span{font-size:8px;line-height:1.2;letter-spacing:.6px;color:#b8d4e1}
+#mission5.engineering5 .reactor-thermal5 span{font-size:11px;line-height:1.2;letter-spacing:.6px;color:#b8d4e1}
 #mission5.engineering5 .reactor-thermal5 strong{margin-inline-start:auto;font:700 19px/1 monospace;color:#f7dda9}
-#mission5.engineering5 .reactor-thermal5 small{font-size:10px;font-weight:400;margin-inline-start:2px}
-#mission5.engineering5 #reactorThermalState5{min-width:60px;text-align:right;color:#b2eccd;font-size:8px}
+#mission5.engineering5 .reactor-thermal5 small{font-size:11px;font-weight:400;margin-inline-start:2px}
+#mission5.engineering5 #reactorThermalState5{min-width:60px;text-align:right;color:#b2eccd;font-size:11px}
 #mission5.engineering5 .reactor-thermal-track5{height:7px;position:relative;border:1px solid #9ac4d140;border-radius:6px;background:#092233;overflow:hidden}
 #mission5.engineering5 .reactor-thermal-track5 i{display:block;height:100%;background:linear-gradient(90deg,#91dfe3,#f1d290,#f49e7b);transition:width .05s linear}
 #mission5.engineering5 .reactor-thermal-track5 b{position:absolute;left:78%;top:0;bottom:0;width:1px;background:#ffe7be}
@@ -79,15 +79,15 @@
 #mission5.engineering5 #coolCore5{border-color:#add8e2;border-bottom-color:#527f94;background:linear-gradient(#49758a,#295468);color:#daf7fa!important}
 #mission5.engineering5 .reactor-hold-controls5 svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 #mission5.engineering5 #chargeCore5 svg{fill:currentColor;stroke-width:.7}
-#mission5.engineering5 #reactorSelectedCell5{font:700 10px/1 monospace;border:1px solid #17324650;border-radius:4px;padding:4px;margin-inline-start:1px}
+#mission5.engineering5 #reactorSelectedCell5{font:700 11px/1 monospace;border:1px solid #17324650;border-radius:4px;padding:4px;margin-inline-start:1px}
 #mission5.engineering5 .reactor-hold-controls5 button.held{box-shadow:inset 0 3px 8px #09273755,0 0 18px #d7eece40;filter:brightness(1.15);border-bottom-width:1px}
 #mission5.engineering5 .reactor-dials5{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 10px}
 #mission5.engineering5 .reactor-dial5{display:flex;flex-direction:column;align-items:stretch;gap:4px;min-width:0;margin:0;padding:9px 10px 3px;border:1px solid #a4c9d169;border-radius:11px;background:linear-gradient(#24495a,#102e43)}
-#mission5.engineering5 .reactor-dial5>span:first-child{display:flex;justify-content:space-between;align-items:center;gap:3px;font-size:8px;line-height:1.3;letter-spacing:.3px;color:#bdd9e4}
-#mission5.engineering5 .reactor-dial5 output{font:600 9px/1 monospace;white-space:nowrap;color:#e1d49e}
+#mission5.engineering5 .reactor-dial5>span:first-child{display:flex;justify-content:space-between;align-items:center;gap:3px;font-size:11px;line-height:1.3;letter-spacing:.3px;color:#bdd9e4}
+#mission5.engineering5 .reactor-dial5 output{font:600 11px/1 monospace;white-space:nowrap;color:#e1d49e}
 #mission5.engineering5 .reactor-dial5>strong{text-align:center;margin:2px 0 0;font:700 27px/1 monospace;color:#f9d79b}
 #mission5.engineering5 .reactor-dial5>strong small{font-size:11px;font-weight:400;margin-inline-start:2px}
-#mission5.engineering5 .reactor-target5{font:9px/1.3 monospace;text-align:center;color:#c5decf}
+#mission5.engineering5 .reactor-target5{font:11px/1.3 monospace;text-align:center;color:#c5decf}
 #mission5.engineering5 .reactor-reading5{position:relative;height:8px;margin:4px 0 0;flex:none;border:1px solid #9ebfca30;background:#0a2131;border-radius:5px}
 #mission5.engineering5 .reactor-reading5 b{position:absolute;top:0;bottom:0;background:#9ef4c970}
 #mission5.engineering5 .temperature-window5{left:45%;width:23%}#mission5.engineering5 .field-window5{left:45%;width:10%}
@@ -95,7 +95,7 @@
 #mission5.engineering5 .reactor-dial5 input{display:block;width:100%;min-width:0;min-height:30px;height:30px;margin:0;accent-color:#e4cb92;cursor:ew-resize;touch-action:pan-x}
 #mission5.engineering5 .reactor-dial5.safe{border-color:#a1e9c29e;background:linear-gradient(#28534f,#183d40)}
 #mission5.engineering5 .reactor-dial5.safe>strong{color:#c0f6d8}
-#mission5.engineering5 .reactor-lock5{display:grid;grid-template-columns:1fr auto;align-items:center;gap:5px;margin:0 0 11px;font-size:8px;letter-spacing:.8px;color:#c0dae5}
+#mission5.engineering5 .reactor-lock5{display:grid;grid-template-columns:1fr auto;align-items:center;gap:5px;margin:0 0 11px;font-size:11px;letter-spacing:.8px;color:#c0dae5}
 #mission5.engineering5 .reactor-lock5 strong{font:600 11px/1 monospace;color:#c3f5d8}
 #mission5.engineering5 .reactor-lock5>div{height:6px;grid-column:1/-1;overflow:hidden;border-radius:6px;background:#082032;border:1px solid #96bec933}
 #mission5.engineering5 .reactor-lock5 i{display:block;height:100%;width:0;background:linear-gradient(90deg,#6bcac7,#bcf2ce)}
@@ -111,32 +111,32 @@
 #mission5.engineering5 .reactor-pulses5 .done{color:#b5f6d2;border-color:#9be1bf;background:#235249}
 #mission5.engineering5 .reactor-pulses5 .done i{background:#b9f3d2;border-color:#c9ffe5;box-shadow:0 0 10px #b9f3d29c}
 #mission5.engineering5 .reactor-pulse-instrument5{padding:10px;margin:0 0 12px;border:1px solid #afd0d750;border-radius:10px;background:#0e2b3d}
-#mission5.engineering5 .reactor-pulse-label5{display:flex;justify-content:space-between;gap:5px;font-size:8px;letter-spacing:.7px;color:#b9d7e4}
-#mission5.engineering5 .reactor-pulse-label5 strong{font:600 10px/1 monospace;color:#eddaa4}
+#mission5.engineering5 .reactor-pulse-label5{display:flex;justify-content:space-between;gap:5px;font-size:11px;letter-spacing:.7px;color:#b9d7e4}
+#mission5.engineering5 .reactor-pulse-label5 strong{font:600 11px/1 monospace;color:#eddaa4}
 #mission5.engineering5 .reactor-pulse-track5{position:relative;height:28px;margin:14px 0 6px;border:1px solid #8cacba88;border-radius:6px;background:repeating-linear-gradient(90deg,transparent 0 calc(25% - 1px),#b4dbe72b calc(25% - 1px) 25%),#092233}
 #mission5.engineering5 .reactor-pulse-track5 b{position:absolute;left:22%;width:20%;top:0;bottom:0;border-left:1px solid #baffd2;border-right:1px solid #baffd2;background:linear-gradient(#77ccaa80,#88ebba44);box-shadow:0 0 16px #86e0b325}
 #mission5.engineering5 .reactor-pulse-track5 i{position:absolute;left:0;top:-5px;bottom:-5px;width:3px;border-radius:2px;background:#ffdfa1;box-shadow:0 0 6px #ffd78d99;transform:translateX(-50%);transition:left .045s linear}
 #mission5.engineering5 .reactor-pulse-track5 i::before{content:'';position:absolute;top:-4px;left:-3px;width:9px;height:7px;background:#ffe7b0;clip-path:polygon(0 0,100% 0,50% 100%)}
-#mission5.engineering5 .reactor-pulse-scale5{display:flex;justify-content:space-between;color:#789eb3;font:8px/1 monospace}
+#mission5.engineering5 .reactor-pulse-scale5{display:flex;justify-content:space-between;color:#789eb3;font:11px/1 monospace}
 #mission5.engineering5[data-pulse-result=miss] .reactor-pulse-track5{border-color:#eeaa8c}
 #mission5.engineering5[data-pulse-result=hit] .reactor-pulse-track5{border-color:#b1f0ce}
-#mission5.engineering5 .reactor-status5{flex:none;display:flex;align-items:center;justify-content:center;min-height:32px;font-size:10px;line-height:1.4;text-align:center;letter-spacing:0;padding:5px 9px;margin:0;border:1px solid #bad7df26;border-radius:9px;background:#abc8df08;color:#bfdae7}
+#mission5.engineering5 .reactor-status5{flex:none;display:flex;align-items:center;justify-content:center;min-height:32px;font-size:11px;line-height:1.4;text-align:center;letter-spacing:0;padding:5px 9px;margin:0;border:1px solid #bad7df26;border-radius:9px;background:#abc8df08;color:#bfdae7}
 #mission5.engineering5 .reactor-fault-symbol5{display:grid;place-items:center;width:39px;height:39px;margin:0 auto 10px;border:1px solid #eeba91;border-radius:50%;background:#73504155;color:#ffcda9;font:600 23px/1 monospace}
 #mission5.engineering5 #reactorFaultPanel5{text-align:center;padding:7px 0}
 #mission5.engineering5 .reactor-complete5{position:static;flex:none;inset:auto;display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:7px;overflow:visible;padding:17px;margin:0;border:1px solid #b5e4c696;border-radius:17px;background:linear-gradient(130deg,#254f50,#153749);box-shadow:inset 0 1px 0 #d1f2d122;text-align:center;animation:none}
 #mission5.engineering5 .reactor-complete-check5{display:grid;place-items:center;flex:none;width:38px;height:38px;margin:0 auto 2px;border:1px solid #b9ebcaaa;border-radius:50%;background:#a8e3bc1c;color:#c9f5d6;font-size:23px}
-#mission5.engineering5 .reactor-complete5 .eyebrow{font-size:8px;letter-spacing:1.5px;color:#b2dddc;margin:0}
+#mission5.engineering5 .reactor-complete5 .eyebrow{font-size:11px;letter-spacing:1.5px;color:#b2dddc;margin:0}
 #mission5.engineering5 .reactor-complete5 h3{font-size:23px;line-height:1.2;letter-spacing:.2px;color:#f7e5b3;margin:0}
 #mission5.engineering5 .reactor-complete5 p:not(.eyebrow){font-size:11px;line-height:1.4;color:#d0e5e4;margin:0}
 #mission5.engineering5 .reactor-complete5 strong{font:700 15px/1.3 monospace;color:#c9f1d2;margin:3px 0 7px}
 #mission5.engineering5 .reactor-overlay5{position:absolute;z-index:80;inset:0;display:grid;place-items:center;padding:15px;background:#081d32bf;backdrop-filter:blur(9px)}
 #mission5.engineering5 .reactor-dialog5{width:100%;max-height:100%;overflow:auto;padding:23px 18px;border:1px solid #e3cb99b0;border-radius:18px;background:linear-gradient(145deg,#294f61,#102d43);box-shadow:0 15px 45px #0005}
-#mission5.engineering5 .reactor-dialog5>.eyebrow{color:#a7dbe7;font-size:9px;letter-spacing:2px}
+#mission5.engineering5 .reactor-dialog5>.eyebrow{color:#a7dbe7;font-size:11px;letter-spacing:2px}
 #mission5.engineering5 .reactor-dialog5 h3{color:#ffe8b3;font-size:24px;line-height:1.1;margin:8px 0}
 #mission5.engineering5 .reactor-dialog5>p{font-size:12px;line-height:1.4;color:#c2dce8;margin:9px 0 18px}
 #mission5.engineering5 .reactor-dialog5 ol{list-style:none;margin:0 0 20px;padding:0;display:grid;gap:15px}
 #mission5.engineering5 .reactor-dialog5 li{display:flex;gap:10px}
-#mission5.engineering5 .reactor-dialog5 li>b{display:grid;place-items:center;flex:none;width:27px;height:27px;border:1px solid #dcc58c88;border-radius:50%;color:#edcf91;font:600 10px/1 monospace}
+#mission5.engineering5 .reactor-dialog5 li>b{display:grid;place-items:center;flex:none;width:27px;height:27px;border:1px solid #dcc58c88;border-radius:50%;color:#edcf91;font:600 11px/1 monospace}
 #mission5.engineering5 .reactor-dialog5 li strong{color:#f5ddac;font-size:12px}
 #mission5.engineering5 .reactor-dialog5 li p{color:#c3dce7;font-size:11px;line-height:1.5;margin:4px 0 0}
 #mission5.engineering5 .reactor-dialog-actions5{display:grid;gap:9px}
@@ -149,31 +149,31 @@
  #mission5.engineering5 .reactor-brand5 i{font-size:18px}
  #mission5.engineering5 .reactor-workspace5{gap:6px}
  #mission5.engineering5 .reactor-gallery5{min-height:104px}
- #mission5.engineering5 .reactor-bay5{top:8px;left:8px;font-size:6px;padding:5px 6px}
+ #mission5.engineering5 .reactor-bay5{top:8px;left:8px;font-size:11px;padding:5px 6px}
  #mission5.engineering5 .reactor-scene-status5{inset:auto 8px 7px;padding:5px 7px;gap:5px}
- #mission5.engineering5 .reactor-scene-status5>span{font-size:7px;letter-spacing:.6px}
+ #mission5.engineering5 .reactor-scene-status5>span{font-size:11px;letter-spacing:.6px}
  #mission5.engineering5 .reactor-scene-status5 strong{font-size:18px}
  #mission5.engineering5 .reactor-steps5{padding:4px}
  #mission5.engineering5 .reactor-steps5 li{min-height:23px;gap:4px}
- #mission5.engineering5 .reactor-steps5 span{font-size:8px;letter-spacing:0}
- #mission5.engineering5 .reactor-steps5 b{width:19px;height:19px;font-size:7px}
+ #mission5.engineering5 .reactor-steps5 span{font-size:11px;letter-spacing:0}
+ #mission5.engineering5 .reactor-steps5 b{width:19px;height:19px;font-size:11px}
  #mission5.engineering5 .reactor-console5{padding:11px}
  #mission5.engineering5 .reactor-console-heading5 .eyebrow{display:none}
  #mission5.engineering5 .reactor-console-heading5 h3{font-size:16px;margin-bottom:5px}
- #mission5.engineering5 .reactor-console-heading5 p{font-size:10px;line-height:1.35;margin-bottom:8px}
+ #mission5.engineering5 .reactor-console-heading5 p{font-size:11px;line-height:1.35;margin-bottom:8px}
  #mission5.engineering5 .reactor-cells5{gap:6px;margin-bottom:8px}
  #mission5.engineering5 .reactor-cells5 button{height:61px;padding:7px;grid-template-columns:1fr 19px}
  #mission5.engineering5 .reactor-cells5 output{font-size:17px}
- #mission5.engineering5 .cell-name5{font-size:7px}#mission5.engineering5 .cell-name5 b{font-size:12px}
+ #mission5.engineering5 .cell-name5{font-size:11px}#mission5.engineering5 .cell-name5 b{font-size:12px}
  #mission5.engineering5 .cell-vessel5{height:40px;width:17px}
  #mission5.engineering5 .reactor-thermal5{margin-bottom:8px}
  #mission5.engineering5 .reactor-thermal5 strong{font-size:17px}
- #mission5.engineering5 .reactor-thermal5 span{font-size:7px}
+ #mission5.engineering5 .reactor-thermal5 span{font-size:11px}
  #mission5.engineering5 .reactor-hold-controls5 button{min-height:44px;font-size:11px;gap:5px;padding:7px 4px}
  #mission5.engineering5 .reactor-primary5,#mission5.engineering5 .reactor-secondary5{min-height:44px;font-size:11px}
  #mission5.engineering5 .reactor-dials5{gap:6px;margin-bottom:8px}
  #mission5.engineering5 .reactor-dial5{padding:7px 8px 1px;gap:3px}
- #mission5.engineering5 .reactor-dial5>span:first-child{font-size:7px;letter-spacing:0}
+ #mission5.engineering5 .reactor-dial5>span:first-child{font-size:11px;letter-spacing:0}
  #mission5.engineering5 .reactor-dial5>strong{font-size:23px}
  #mission5.engineering5 .reactor-reading5{margin-top:2px;height:6px}
  #mission5.engineering5 .reactor-lock5{margin-bottom:8px}
@@ -181,11 +181,11 @@
  #mission5.engineering5 .reactor-pulses5>span{height:41px}
  #mission5.engineering5 .reactor-pulse-instrument5{padding:8px;margin-bottom:10px}
  #mission5.engineering5 .reactor-pulse-track5{height:24px;margin-top:11px}
- #mission5.engineering5 .reactor-status5{font-size:9px;min-height:29px;padding:5px 6px}
+ #mission5.engineering5 .reactor-status5{font-size:11px;min-height:29px;padding:5px 6px}
  #mission5.engineering5 .reactor-complete5{gap:5px;padding:12px}
  #mission5.engineering5 .reactor-complete5 h3{font-size:20px}
 }
-@media(max-width:350px){#mission5.engineering5 .reactor-stage-count5{font-size:11px}#mission5.engineering5 .reactor-header-actions5{gap:6px}#mission5.engineering5 .reactor-heading5{gap:5px}#mission5.engineering5 header h2,#mission5.engineering5 header .eyebrow{font-size:8px;letter-spacing:.8px}}
+@media(max-width:350px){#mission5.engineering5 .reactor-stage-count5{font-size:11px}#mission5.engineering5 .reactor-header-actions5{gap:6px}#mission5.engineering5 .reactor-heading5{gap:5px}#mission5.engineering5 header h2,#mission5.engineering5 header .eyebrow{font-size:11px;letter-spacing:.8px}}
 @media(orientation:landscape) and (max-height:550px) and (min-width:500px){
  #mission5.engineering5{padding:7px 10px}
  #mission5.engineering5.active{gap:5px}
@@ -197,7 +197,7 @@
  #mission5.engineering5 .reactor-steps5{grid-column:2;grid-row:1;padding:2px}
  #mission5.engineering5 .reactor-steps5 li{min-height:19px}#mission5.engineering5 .reactor-steps5 b{width:17px;height:17px}
  #mission5.engineering5 .reactor-console5{grid-column:2;grid-row:2;padding:8px;align-self:stretch}
- #mission5.engineering5 .reactor-status5{grid-column:2;grid-row:3;font-size:8px;min-height:24px;padding:3px 5px}
+ #mission5.engineering5 .reactor-status5{grid-column:2;grid-row:3;font-size:11px;min-height:24px;padding:3px 5px}
  #mission5.engineering5 .reactor-console-heading5 p{display:none}
  #mission5.engineering5 .reactor-console-heading5 h3{font-size:13px;margin-bottom:7px}
  #mission5.engineering5 .reactor-cells5 button{height:47px;padding:4px 7px}
@@ -216,19 +216,19 @@
  #mission5.engineering5 .reactor-complete5{grid-column:2;grid-row:2/4;padding:9px;gap:5px}
  #mission5.engineering5 .reactor-complete-check5{display:none}
  #mission5.engineering5 .reactor-complete5 h3{font-size:18px}
- #mission5.engineering5 .reactor-complete5 p:not(.eyebrow){font-size:10px}
+ #mission5.engineering5 .reactor-complete5 p:not(.eyebrow){font-size:11px}
  #mission5.engineering5 .reactor-dialog5{padding:12px}
- #mission5.engineering5 .reactor-dialog5>.eyebrow{font-size:8px}
+ #mission5.engineering5 .reactor-dialog5>.eyebrow{font-size:11px}
  #mission5.engineering5 .reactor-dialog5 h3{font-size:18px;margin:5px 0}
- #mission5.engineering5 .reactor-dialog5>p{font-size:10px;margin:5px 0 10px}
+ #mission5.engineering5 .reactor-dialog5>p{font-size:11px;margin:5px 0 10px}
  #mission5.engineering5 .reactor-dialog5 ol{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px}
  #mission5.engineering5 .reactor-dialog5 li{display:block}
- #mission5.engineering5 .reactor-dialog5 li>b{width:20px;height:20px;margin-bottom:5px;font-size:8px}
- #mission5.engineering5 .reactor-dialog5 li strong{font-size:10px}
- #mission5.engineering5 .reactor-dialog5 li p{font-size:9px;line-height:1.35}
+ #mission5.engineering5 .reactor-dialog5 li>b{width:20px;height:20px;margin-bottom:5px;font-size:11px}
+ #mission5.engineering5 .reactor-dialog5 li strong{font-size:11px}
+ #mission5.engineering5 .reactor-dialog5 li p{font-size:11px;line-height:1.35}
  #mission5.engineering5 .reactor-dialog-actions5{grid-template-columns:1fr 1fr;gap:8px}
  #mission5.engineering5 .reactor-fault-symbol5{display:none}
- #mission5.engineering5 #reactorFaultPanel5 .reactor-console-heading5 p{display:block;font-size:10px}
+ #mission5.engineering5 #reactorFaultPanel5 .reactor-console-heading5 p{display:block;font-size:11px}
 }
 @media(prefers-reduced-motion:reduce){#mission5.engineering5 :is(.reactor-orbit5,.reactor-plasma5){animation:none}#mission5.engineering5 :is(#reactorChargeArc5,#reactorCoreShade5,.cell-vessel5 i,.reactor-pulse-track5 i){transition:none}}
 
@@ -249,7 +249,7 @@
 #mission5.engineering5 .reactor-feed-rings5{filter:drop-shadow(0 0 4px #beefd94a)}
 #mission5.engineering5 .reactor-bay5{border-color:#d1e2db75;background:#112e3ed9;box-shadow:0 2px 8px #061a2936}
 #mission5.engineering5 .reactor-bay5 .reactor-bay-label5{padding:0;border:0;color:#d8edf6}
-#mission5.engineering5 .reactor-live5{position:absolute;top:12px;right:12px;display:flex;align-items:center;gap:5px;padding:6px 7px;border:1px solid #abcfc357;border-radius:5px;background:#102e3ecc;color:#c4e6d5;font:600 7px/1.2 monospace;letter-spacing:.5px;max-width:44%}
+#mission5.engineering5 .reactor-live5{position:absolute;top:12px;right:12px;display:flex;align-items:center;gap:5px;padding:6px 7px;border:1px solid #abcfc357;border-radius:5px;background:#102e3ecc;color:#c4e6d5;font:600 11px/1.2 monospace;letter-spacing:.5px;max-width:44%}
 #mission5.engineering5 .reactor-live5 i{flex:none;width:4px;height:4px;border-radius:50%;background:#b8d5d2;box-shadow:0 0 6px #c4e7df66}
 #mission5.engineering5[data-charging=true] .reactor-live5 i{background:#ffe4a5;box-shadow:0 0 8px #ffdc8b}
 #mission5.engineering5[data-cooling=true] .reactor-live5{color:#bdedfc}
@@ -257,7 +257,7 @@
 #mission5.engineering5[data-reactor-phase=online] .reactor-live5 i{background:#b3ffd0;box-shadow:0 0 8px #99ffc2}
 #mission5.engineering5 .reactor-scene-status5{padding:8px 11px;background:linear-gradient(100deg,#112f42ed,#234e5dda);border-color:#d8e1c36e;box-shadow:inset 0 1px 0 #f7eacd21,0 3px 12px #0515263d}
 #mission5.engineering5 .reactor-scene-caption5{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
-#mission5.engineering5 #reactorState5{font-size:8px;line-height:1.25;letter-spacing:1px;color:#d6e9e3}
+#mission5.engineering5 #reactorState5{font-size:11px;line-height:1.25;letter-spacing:1px;color:#d6e9e3}
 #mission5.engineering5 .reactor-wave5{display:block;width:100%;max-width:154px;height:12px;overflow:hidden;fill:none;stroke:#9ae9dd;stroke-width:1.2;stroke-linecap:round;opacity:.85}
 #mission5.engineering5 .reactor-wave5 .wave-grid5{stroke:#b4ded329;stroke-width:.5}
 #mission5.engineering5 .reactor-scene-status5 strong{flex:none;font-variant-numeric:tabular-nums;font-size:27px;color:#fce4b4;text-shadow:0 0 12px #f6d39433}
@@ -305,8 +305,8 @@
 #mission5.engineering5 .reactor-secondary5{background:linear-gradient(145deg,#315469,#1b3c51);box-shadow:inset 0 1px 0 #cfe6e324}
 @media(max-height:700px){
  #mission5.engineering5{padding-top:max(8px,env(safe-area-inset-top))}
- #mission5.engineering5 .reactor-live5{top:8px;right:8px;font-size:6px;padding:5px}
- #mission5.engineering5 #reactorState5{font-size:7px;letter-spacing:.5px}
+ #mission5.engineering5 .reactor-live5{top:8px;right:8px;font-size:11px;padding:5px}
+ #mission5.engineering5 #reactorState5{font-size:11px;letter-spacing:.5px}
  #mission5.engineering5 .reactor-scene-status5{padding:5px 7px}
  #mission5.engineering5 .reactor-scene-status5 strong{font-size:21px}
  #mission5.engineering5 .reactor-wave5{height:8px;max-width:100px}
@@ -315,7 +315,7 @@
  #mission5.engineering5{padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
  #mission5.engineering5 .reactor-live5{top:34px;left:8px;right:auto;max-width:80%}
  #mission5.engineering5 .reactor-wave5{height:7px}
- #mission5.engineering5 #reactorState5{font-size:6px;letter-spacing:.4px}
+ #mission5.engineering5 #reactorState5{font-size:11px;letter-spacing:.4px}
 }
 @media(prefers-reduced-motion:reduce){
  #mission5.engineering5 *,#mission5.engineering5 *::before,#mission5.engineering5 *::after{animation:none!important;transition:none!important}

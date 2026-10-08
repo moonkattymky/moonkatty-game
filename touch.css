@@ -1,0 +1,4 @@
+/* Launch accessibility floor (loaded last): every HTML control is at least 44×44 CSS px.
+   SVG controls scale with their viewBox and are checked separately by tests/a11y-floor.cjs. */
+button,[role="button"]:not(svg *),a.sv-link{min-height:44px!important;min-width:44px!important}
+a.sv-link{display:inline-flex;align-items:center;justify-content:center}
