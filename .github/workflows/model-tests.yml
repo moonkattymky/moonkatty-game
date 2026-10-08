@@ -61,5 +61,6 @@ jobs:
           node tests/rewards-client-ui.cjs
           node tests/worlds-release.cjs
           node tests/lives.cjs
+          node tests/first-language-pick.cjs
       - name: Accessibility floor (text >= 11px, tap targets >= 44px)
         run: node tests/a11y-floor.cjs

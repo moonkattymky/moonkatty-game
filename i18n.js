@@ -333,6 +333,8 @@
   const app = document.getElementById('app');
   if (app) visit(app);
   observe();
+  // Modules that compose strings with t()/tr() at render time re-render once the pack is active.
+  window.dispatchEvent(new Event('mkty:language'));
  }
 
  window.MKTYI18n = {
