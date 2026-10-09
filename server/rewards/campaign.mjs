@@ -16,6 +16,7 @@ export function cleanSnapshot(value){
  if(JSON.stringify(out).length>350000)throw Error('snapshot_too_large');return out;
 }
 export function validateProof(run,proof){
+ if(run&&(run.challenge_version!==2||run.edition!==2))throw Error('route_upgrade_required');
  if(!run||!proof||proof.route!==run.route||!Array.isArray(proof.tasks)||proof.tasks.length!==8)throw Error('proof_required');
  const p=Plan.fresh(run.life,Number(run.seed),run.edition),plan=Plan.plan(run.life,run.edition),seen=new Set();
  for(const item of proof.tasks){
@@ -56,19 +57,25 @@ export function createCampaign({rpc,pace,clock}){
   async open(player,body){
    const life=Number(body.life);if(!Number.isInteger(life)||life<1||life>9)throw Error('life');
    if(life>player.story_life)await pace.assertUnlocked(player,life);
-   // A seed hint preserves an existing on-device route during the upgrade. Once
-   // issued, the route/seed is immutable until that chapter has a confirmed reward.
-   const seed=Number.isInteger(body.seed)&&body.seed>=0&&body.seed<=0xffffffff?body.seed:crypto.getRandomValues(new Uint32Array(1))[0];
-   return rpc('mkty_campaign_route',{p_id:player.telegram_id,p_life:life,p_seed:seed,p_edition:body.edition===1?1:2,p_reset:body.reset===true});
+   // Clients never choose their challenge, including on explicit restarts.
+   // The RPC also generates its own random seed, so an older handler cannot
+   // accidentally bless a caller-selected challenge after the migration.
+   if(body.reset===true){
+    if(typeof body.previous_route!=='string'||! /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body.previous_route))throw Error('route_changed');
+    return rpc('mkty_campaign_restart',{p_id:player.telegram_id,p_life:life,p_previous_route:body.previous_route});
+   }
+   return rpc('mkty_campaign_route',{p_id:player.telegram_id,p_life:life,p_seed:crypto.getRandomValues(new Uint32Array(1))[0],p_edition:2});
   },
   async verify(player,life,proof){
    const run=await rpc('mkty_campaign_route',{p_id:player.telegram_id,p_life:life});
-   if(run?.verified_at)return; // Retrying a previously verified completion is safe.
+   if(run&&(run.challenge_version!==2||run.edition!==2))throw Error('route_upgrade_required');
+   if(run?.verified_at)return run.route; // Retrying a previously verified completion is safe.
    validateProof(run,proof);
    // Server time is only an additional bound, not proof of human play. Model
    // validation is mandatory even when this elapsed-time check has passed.
    if(clock().getTime()-Date.parse(run.started_at)<30000)throw Error('too_fast');
    await rpc('mkty_campaign_verified',{p_id:player.telegram_id,p_life:life,p_route:run.route});
+   return run.route;
   },
   async cloud(player,body){
    if(body.snapshot===undefined)return rpc('mkty_cloud',{p_id:player.telegram_id});

@@ -25,7 +25,7 @@ exports.atomicFixture=fetcher=>async function call(url,opts={}){
 
  // These reward-focused fixtures represent gameplay already verified by the campaign
  // service. The real campaign boundary is exercised by campaign-security/integrity SQL.
- if(name==='mkty_campaign_route')return res({life:b.p_life,route:'00000000-0000-4000-8000-000000000001',seed:1,edition:2,started_at:'2026-01-01T00:00Z',verified_at:b.p_now});
+ if(name==='mkty_campaign_route')return res({challenge_version:2,life:b.p_life,route:'00000000-0000-4000-8000-000000000001',seed:1,edition:2,started_at:'2026-01-01T00:00Z',verified_at:b.p_now});
  if(name==='mkty_youtube'){
   const day=b.p_now.slice(0,10),p=await player(b.p_id),fails=await rest('reward_events','GET',{telegram_id:'eq.'+b.p_id,event_type:'eq.daily.youtube_fail',event_key:'like.ytfail:'+day+':*'});
   if(fails.length>=10)return res({error:'no_attempts'});

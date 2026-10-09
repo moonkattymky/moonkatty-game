@@ -18,7 +18,7 @@
   const ru=(localStorage.getItem('mkty_lang')||'en')==='ru';
   el.hidden=!items.length&&!lastError;
   const msg=lastError==='auth'?(ru?'Сессия истекла. Закройте и снова откройте игру — прогресс сохранён.':'Session expired. Reopen the game — progress is saved.'):
-   lastError==='proof_required'||lastError==='proof'?(ru?'Для подтверждения награды повторите этапы через «Новый маршрут главы». Подтверждённые достижения сохранены.':'Replay the chapter route to verify its reward. Confirmed achievements are preserved.'):
+   lastError==='route_upgrade_required'||lastError==='proof_required'||lastError==='proof'?(ru?'Для подтверждения награды повторите этапы через «Новый маршрут главы». Подтверждённые достижения сохранены.':'Replay the chapter route to verify its reward. Confirmed achievements are preserved.'):
    lastError==='chapter_locked'?(ru?'Глава пройдена. Награда ожидает открытия по расписанию.':'Chapter completed. Reward awaits the scheduled unlock.'):
    (ru?'Прогресс сохранён · награда ожидает синхронизации. Нажмите для повтора.':'Progress saved · reward awaiting sync. Tap to retry.');
   el.textContent=msg;
@@ -124,22 +124,65 @@
   return {ok:true,source:'pending',pending:true};
  }
 
- const routeJobs=new Map();
+ const routeJobs=new Map(),trustedRoutes=new Map();
+ const routeKey=n=>scope()+':'+n;
+ function validRoute(route,n,account){return route?.challenge_version===2&&route.edition===2&&Number(route.life)===n&&String(route.telegram_id)===account&&Number.isInteger(Number(route.seed))&&Number(route.seed)>=0&&Number(route.seed)<=0xffffffff&&typeof route.route==='string';}
+ function routeReady(n,p=window.MKTYStory?.read(n)){
+  if(!initData())return true;
+  if(window.MKTYStorage?.persistent===false)return false;
+  const route=trustedRoutes.get(routeKey(n));return !!p&&validRoute(route,n,scope())&&Number(route.seed)===p.seed&&p.edition===2;
+ }
  async function prepareRoute(n,reset=false){
-  const p=window.MKTYStory?.read(n);if(!initData()||!p)return null;
-  const key='mkty_proof_route_'+n;let route;try{route=JSON.parse(localStorage.getItem(key)||'null');}catch{}
-  if(!reset&&route&&Number(route.seed)===p.seed&&route.edition===(p.edition||1))return route;
-  const jobKey=scope()+':'+n+':'+p.seed;if(routeJobs.has(jobKey))return routeJobs.get(jobKey);
-  const job=(async()=>{const body=await call('campaign.open',{life:n,seed:p.seed,edition:p.edition||1,reset});if(body?.ok&&body.route){route=body.route;if(Number(route.seed)!==p.seed||route.edition!==(p.edition||1))return null;localStorage.setItem(key,JSON.stringify(route));return route;}return null;})().finally(()=>routeJobs.delete(jobKey));
+  if(!initData())return null;
+  const account=scope(),key=account+':'+n,jobKey=key+':'+reset;
+  if(!reset&&routeJobs.has(key+':true'))return routeJobs.get(key+':true');
+  if(routeJobs.has(jobKey))return routeJobs.get(jobKey);
+  const job=(async()=>{
+   if(reset){const earlier=routeJobs.get(key+':false');if(earlier)await earlier.catch(()=>{});}
+   if(account!==scope())throw Error('account_changed');
+   if(reset)trustedRoutes.delete(key);
+   let payload={life:n};
+   if(reset){
+    // Fetch the current UUID; the restart RPC treats retries of this exact UUID
+    // idempotently. Never send a seed, edition or guessed route to the server.
+    const restartKey='mkty_route_restart_'+n;
+    let previous=localStorage.getItem(restartKey);
+    if(!previous){const prior=await call('campaign.open',payload);
+     if(account!==scope())throw Error('account_changed');
+     if(!prior?.ok||!prior.route)throw Error(prior?.error||'unavailable');
+     previous=prior.route.route;localStorage.setItem(restartKey,previous);
+     if(window.MKTYStorage?.persistent===false)throw Error('storage');
+    }
+    payload={life:n,reset:true,previous_route:previous};
+   }
+   const body=await call('campaign.open',payload);
+   if(account!==scope())throw Error('account_changed');
+   if(reset&&body?.error==='route_changed'){
+    // A different device advanced beyond this pending restart. Forget only the
+    // obsolete request, refresh its receipt, and require another explicit choice.
+    localStorage.removeItem('mkty_route_restart_'+n);
+    const latest=await call('campaign.open',{life:n});
+    if(account!==scope())throw Error('account_changed');
+    if(latest?.ok&&validRoute(latest.route,n,account))localStorage.setItem('mkty_proof_route_'+n,JSON.stringify(latest.route));
+    throw Error('route_changed');
+   }
+   if(!body?.ok||!body.route)throw Error(body?.error||'unavailable');
+   const route=body.route;
+   if(!validRoute(route,n,account))throw Error(route.challenge_version!==2?'route_upgrade_required':'proof_required');
+   localStorage.setItem('mkty_proof_route_'+n,JSON.stringify(route));
+   if(window.MKTYStorage?.persistent===false)throw Error('storage');
+   trustedRoutes.set(key,route);if(reset)localStorage.removeItem('mkty_route_restart_'+n);return route;
+  })().finally(()=>{if(routeJobs.get(jobKey)===job)routeJobs.delete(jobKey);});
   routeJobs.set(jobKey,job);return job;
  }
  async function proofFor(n){
-  try{const p=window.MKTYStory?.read(n);if(!p||p.done.length!==8)return undefined;const route=await prepareRoute(n);if(!route)return undefined;
+  try{const account=scope(),p=window.MKTYStory?.read(n);if(!p||p.done.length!==8)return undefined;const route=await prepareRoute(n);
+   if(account!==scope()||!route||!routeReady(n,p))return undefined;
    const tasks=p.done.slice().sort((a,b)=>a-b).map(id=>({id,attempt:p.tasks[id]?.attempt||0,state:p.tasks[id]?.proof}));
    if(tasks.some(t=>!t.state))return undefined;return {route:route.route,tasks};
   }catch{return undefined;}
  }
- window.MKTYRewards={prepareRoute,proofFor,endpoint:ENDPOINT,syncPlayer,completeLife,spendLife,call,authPayload,authenticatedFetch,getLastPlayer:()=>lastPlayer,isServerReady:()=>serverReady,LIFE_REWARDS};
+ window.MKTYRewards={prepareRoute,proofFor,routeReady,accountScope:scope,requiresRoute:()=>!!initData(),endpoint:ENDPOINT,syncPlayer,completeLife,spendLife,call,authPayload,authenticatedFetch,getLastPlayer:()=>lastPlayer,isServerReady:()=>serverReady,LIFE_REWARDS};
  window.addEventListener('online',()=>syncPlayer());
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncPlayer();});
  window.addEventListener('mkty:language',renderStatus);

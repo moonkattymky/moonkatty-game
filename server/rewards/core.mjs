@@ -117,8 +117,8 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
   // Anti-bot floor: LIFE #1 (video + several tasks) cannot honestly be finished within 90 s of the first launch.
   // The client keeps the completion queued and retries, so a real player never loses the reward.
   if(life===1&&!Number(player.story_life||0)){const born=Date.parse(player.created_at||'');if(Number.isFinite(born)&&clock().getTime()-born<LIFE1_MIN_MS)throw Error('too_fast');}
-  if(life>Number(player.story_life||0))await campaign.verify(player,life,proof);
-  const result=await insertReward(player,event_key,'life.complete',LIFE_REWARDS[life]);
+  const route=life>Number(player.story_life||0)?await campaign.verify(player,life,proof):null;
+  const result=await insertReward(player,event_key,'life.complete',LIFE_REWARDS[life],{route});
   let next=result.player,referral=null;
   // Retry a missed referral transaction even if the chapter was already recorded.
   if(life===1&&next.referred_by){const r=await payReferralBonus(next);next=r.invitee;referral={invitee_points:r.invitee_points||0,inviter_paid:r.inviter_paid};}
@@ -231,7 +231,7 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
    if(msg==='url'||msg==='hashtag'||msg==='own'||msg==='submission'||msg==='decision'||msg==='tier')return json({ok:false,error:msg},400);
    if(msg==='already'||msg==='duplicate_proof')return json({ok:false,error:msg},409);
    if(msg==='daily_limit'||msg==='pending_limit')return json({ok:false,error:msg},429);
-   if(msg==='proof_required')return json({ok:false,error:msg},409);
+   if(['proof_required','route_upgrade_required','route_changed','route_restart_required'].includes(msg))return json({ok:false,error:msg},409);
    if(msg==='snapshot')return json({ok:false,error:msg},400);
    if(msg==='snapshot_too_large')return json({ok:false,error:msg},413);
    if(msg==='proof'||msg==='platform'||msg==='kind'||msg==='unverified')return json({ok:false,error:msg},400);

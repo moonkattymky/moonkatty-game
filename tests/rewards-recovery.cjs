@@ -31,7 +31,7 @@ const plan={seed:123,edition:2,done:[0,1,2,3,4,5,6,7],tasks:Object.fromEntries(A
  assert.equal(pending(first.storage)[0]?.payload.life,1,'completion must be durable before any await');
  await started;assert.equal(pending(first.storage).length,1);releaseRoute();await completing;assert.equal(first.timers.size,0);
  let settlements=0;
- const reopened=client(async(_url,opt)=>{const b=JSON.parse(opt.body);if(b.action==='session')return response(session);if(b.action==='campaign.open')return response({ok:true,route:{seed:123,edition:2,route:'route-101'}});if(b.action==='life.complete'){assert.equal(b.proof.tasks.length,8);settlements++;return response({ok:true,awarded:true,player:{...player,story_life:1,moon_points:500}});}return response({ok:true,player});},first.storage);
+ const reopened=client(async(_url,opt)=>{const b=JSON.parse(opt.body);if(b.action==='session')return response(session);if(b.action==='campaign.open')return response({ok:true,route:{life:1,telegram_id:101,challenge_version:2,seed:123,edition:2,route:'route-101'}});if(b.action==='life.complete'){assert.equal(b.proof.tasks.length,8);settlements++;return response({ok:true,awarded:true,player:{...player,story_life:1,moon_points:500}});}return response({ok:true,player});},first.storage);
  reopened.window.MKTYStory={read:()=>plan};await reopened.api.syncPlayer();assert.equal(settlements,1);assert.equal(pending(first.storage).length,0);assert.equal(first.storage.getItem('mkty_points'),'500');
  // A rejected offline life charge must not trap an earned reward behind it.
  const stored=store(),proof={route:'saved-route',tasks:[{id:0,state:{trace:[]}}]};
