@@ -101,6 +101,11 @@ JavaScript syntax and whitespace checks. This is not a full browser-suite pass.
 - Existing creator/social HTTP server, reward, referral, campaign, model and SQL
   integrity suites remain applicable. The integrity suite now includes this
   migration when testing moderation and transactional reward rollback.
+- A separate [PostgreSQL contention workflow](POSTGRES_ADMISSION_CONTENTION.md)
+  now provides a bounded two-backend harness for 32 quota/duplicate commit and
+  rollback cases. It requires observed PostgreSQL lock waits, including mixed
+  direct INSERT/RPC writers. Its real PostgreSQL execution is not yet verified;
+  local PGlite fixture and pipe-driver checks do not count as contention evidence.
 - PGlite has one backend connection. Promise.all provides overlapping caller
   requests but is not proof of independent PostgreSQL-session lock contention or
   production load capacity. Rehearse two-session contention in authorized staging
