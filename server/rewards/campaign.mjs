@@ -2,6 +2,7 @@ import Plan from './models/story-plan.mjs';
 import Field from './models/field-model.mjs';
 import Board from './models/mission-rules.mjs';
 import Flight from './models/expedition-model.mjs';
+import Codec from './models/trace-codec.mjs';
 
 // Saves are untrusted resume data, never evidence for rewards. Wallet/identity/pending
 // operations cannot be written through this API. Revisions prevent silent lost updates.
@@ -10,12 +11,23 @@ export function cleanSnapshot(value){
  if(!value||typeof value!=='object'||Array.isArray(value))throw Error('snapshot');
  const out={};for(const [k,v] of Object.entries(value))if(saveKey.test(k)){
   if(typeof v!=='string')throw Error('snapshot');
-  // Never acknowledge a partial save: valid flight traces can cross this limit.
-  if(v.length>=180000)throw Error('snapshot_too_large');out[k]=v;
+  out[k]=v;
  }
- if(JSON.stringify(out).length>350000)throw Error('snapshot_too_large');return out;
+ // Decode and canonicalize before the compare-and-swap. Never acknowledge a
+ // partial save, strip replay evidence, or store expanded traces by accident.
+ return snapshotTransport(out,true);
+}
+function snapshotTransport(snapshot,packed){
+ try{return packed?Codec.packSnapshot(snapshot):Codec.unpackSnapshot(snapshot);}
+ catch(e){throw Error(/too_large/.test(String(e?.message))?'snapshot_too_large':'snapshot_transport_invalid');}
 }
 export function validateProof(run,proof){
+ // Packing is transport only. Every replay below still uses all original rows,
+ // with decoded budgets checked before any physics/action replay can begin.
+ if(proof!==undefined&&proof!==null){
+  try{proof=Codec.unpackProof(proof);}
+  catch(e){throw Error(/too_large/.test(String(e?.message))?'proof_too_large':'proof_transport_invalid');}
+ }
  if(run&&(run.challenge_version!==2||run.edition!==2))throw Error('route_upgrade_required');
  if(!run||!proof||proof.route!==run.route||!Array.isArray(proof.tasks)||proof.tasks.length!==8)throw Error('proof_required');
  const p=Plan.fresh(run.life,Number(run.seed),run.edition),plan=Plan.plan(run.life,run.edition),seen=new Set();
@@ -77,10 +89,20 @@ export function createCampaign({rpc,pace,clock}){
    await rpc('mkty_campaign_verified',{p_id:player.telegram_id,p_life:life,p_route:run.route});
    return run.route;
   },
-  async cloud(player,body){
-   if(body.snapshot===undefined)return rpc('mkty_cloud',{p_id:player.telegram_id});
-   if(!Number.isSafeInteger(body.revision)||body.revision<0)throw Error('snapshot');
-   return rpc('mkty_cloud',{p_id:player.telegram_id,p_expected:body.revision,p_snapshot:cleanSnapshot(body.snapshot)});
+  async cloud(player,body,{packed=false}={}){
+   let result;
+   if(body.snapshot===undefined)result=await rpc('mkty_cloud',{p_id:player.telegram_id});
+   else{
+    if(!Number.isSafeInteger(body.revision)||body.revision<0)throw Error('snapshot');
+    const snapshot=cleanSnapshot(body.snapshot);
+    result=await rpc('mkty_cloud',{p_id:player.telegram_id,p_expected:body.revision,p_snapshot:snapshot});
+   }
+   if(!Number.isSafeInteger(result?.revision)||result.revision<0||
+      (body.snapshot!==undefined&&!result.conflict&&result.revision<=body.revision))throw Error('snapshot');
+   // Old clients must never download a packed trace they cannot replay. This
+   // also applies to the authoritative snapshot returned by a CAS conflict.
+   if(result.snapshot!==undefined)return {...result,snapshot:snapshotTransport(result.snapshot,packed)};
+   return result;
   }
  };
 }

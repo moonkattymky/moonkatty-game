@@ -5,7 +5,7 @@ const store=()=>{const data=new Map();return {getItem:k=>data.get(k)??null,setIt
 function client(fetcher,storage=store()){
  const elements=new Map(),sessionStorage=store(),timers=new Set();
  const document={getElementById:id=>elements.get(id),createElement:()=>({setAttribute(){}}),body:{appendChild(el){elements.set(el.id,el);}},addEventListener(){}};
- const window={Telegram:{WebApp:{initData:'user='+encodeURIComponent(JSON.stringify({id:101}))}},addEventListener(){},dispatchEvent(){}};
+ const window={MKTYTraceCodec:require('../trace-codec.js'),Telegram:{WebApp:{initData:'user='+encodeURIComponent(JSON.stringify({id:101}))}},addEventListener(){},dispatchEvent(){}};
  const context={window,document,localStorage:storage,sessionStorage,URLSearchParams,AbortController,AbortSignal:{},CustomEvent:class{},fetch:fetcher,console,
   setTimeout(fn,ms){const timer=setTimeout(fn,ms);timers.add(timer);return timer;},clearTimeout(timer){timers.delete(timer);clearTimeout(timer);}};
  vm.runInNewContext(source,context,{filename:'rewards-client.js'});

@@ -3,7 +3,9 @@
 (() => {
  const ENDPOINT='https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/rewards';
  const LIFE_REWARDS={1:500,2:500,3:750,4:1000,5:1250,6:1500,7:1750,8:2000,9:3000};
- let lastPlayer=null,serverReady=null,session=null,opening=null,syncing=null,lastError='',sessionScope='',syncScope='';
+ let lastPlayer=null,serverReady=null,session=null,opening=null,syncing=null,lastError='',sessionScope='',syncScope='',capabilityScope='',traceCapability;
+ const codec=()=>window.MKTYTraceCodec;
+ function learnCapabilities(body,account){if(body?.ok&&account===scope()){capabilityScope=account;traceCapability=body.capabilities?.trace_codec===codec().PROTOCOL;}}
  const initData=()=>window.Telegram?.WebApp?.initData||'';
  const scope=()=>{try{return String(JSON.parse(new URLSearchParams(initData()).get('user')).id);}catch{return 'telegram';}};
  const pendingKey=()=> 'mkty_pending_v2_'+scope();
@@ -19,6 +21,8 @@
   el.hidden=!items.length&&!lastError;
   const msg=lastError==='auth'?(ru?'Сессия истекла. Закройте и снова откройте игру — прогресс сохранён.':'Session expired. Reopen the game — progress is saved.'):
    lastError==='route_upgrade_required'||lastError==='proof_required'||lastError==='proof'?(ru?'Для подтверждения награды повторите этапы через «Новый маршрут главы». Подтверждённые достижения сохранены.':'Replay the chapter route to verify its reward. Confirmed achievements are preserved.'):
+   ['transport_unsupported','proof_too_large','trace_too_large','body_too_large'].includes(lastError)?(ru?'Доказательство прохождения сохранено на устройстве. Сервер пока не может принять его размер или формат; сохраните данные игры и повторите позже.':'Completion evidence is saved on this device. The server cannot currently accept its size or format; keep the game data and retry later.'):
+   lastError==='trace_invalid'||lastError==='proof_transport_invalid'?(ru?'Доказательство прохождения сохранено, но его формат не удалось проверить. Не очищайте данные игры.':'Completion evidence is saved, but its format could not be verified. Keep the game data.'):
    lastError==='chapter_locked'?(ru?'Глава пройдена. Награда ожидает открытия по расписанию.':'Chapter completed. Reward awaits the scheduled unlock.'):
    (ru?'Прогресс сохранён · награда ожидает синхронизации. Нажмите для повтора.':'Progress saved · reward awaiting sync. Tap to retry.');
   el.textContent=msg;
@@ -26,24 +30,32 @@
  async function post(url,payload,signal){
   // Older Telegram WebViews support AbortController but not AbortSignal.timeout.
   // Keep the timeout active until the response body has also finished downloading.
+  let serialized;
+  if((payload.action==='life.complete'||payload.action==='life.complete.v2')&&payload.proof!==undefined){
+   // A short trace can stay raw when packing is larger. Ordinary JSON.stringify
+   // would erase its negative-zero axes/action values; keep those exact as well.
+   const envelope={...payload};delete envelope.proof;const head=JSON.stringify(envelope);
+   serialized=head.slice(0,-1)+(head.length>2?',':'')+'"proof":'+codec().stringify(payload.proof,codec().LIMITS.proofBytes,'proof_too_large')+'}';
+  }else serialized=JSON.stringify(payload);
+  if(codec().utf8Bytes(serialized)>codec().LIMITS.transportBytes)return {ok:false,error:'body_too_large'};
   const controller=signal?null:new AbortController();
   const timeout=controller?setTimeout(()=>controller.abort(),12000):null;
   try{
-   const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:signal||controller.signal,cache:'no-store'});
+   const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:serialized,signal:signal||controller.signal,cache:'no-store'});
    const body=await r.json().catch(()=>({ok:false,error:'unavailable'}));
    if(!r.ok&&!body.error)body.error=r.status===401?'auth':'unavailable';return body;
   }finally{if(timeout!==null)clearTimeout(timeout);}
  }
  async function authPayload(){
   const data=initData();if(!data)return {};
-  const currentScope=scope();if(sessionScope!==currentScope){session=null;opening=null;lastPlayer=null;serverReady=null;sessionScope=currentScope;}
+  const currentScope=scope();if(sessionScope!==currentScope){session=null;opening=null;lastPlayer=null;serverReady=null;sessionScope=currentScope;capabilityScope='';traceCapability=undefined;}
   if(!session){try{session=JSON.parse(sessionStorage.getItem('mkty_session_v1_'+currentScope)||'null');}catch{}}
   if(session?.token&&session.expires_at>Date.now()+30000)return {session:session.token};
   if(!opening){
    const job=(async()=>{
     const r=await post(ENDPOINT,{initData:data,action:'session'});
     if(currentScope!==scope())return {};
-    if(r.ok&&r.session){session=r.session;try{sessionStorage.setItem('mkty_session_v1_'+currentScope,JSON.stringify(session));}catch{}return {session:session.token};}
+    if(r.ok&&r.session){learnCapabilities(r,currentScope);session=r.session;try{sessionStorage.setItem('mkty_session_v1_'+currentScope,JSON.stringify(session));}catch{}return {session:session.token};}
     return {initData:data};
    })().finally(()=>{if(opening===job)opening=null;});opening=job;
   }
@@ -54,20 +66,35 @@
   if(currentScope!==scope())return {ok:false,error:'account_changed'};
   const result=await post(url,{...payload,...auth},signal);
   if(currentScope!==scope()||(result?.player?.telegram_id!=null&&String(result.player.telegram_id)!==currentScope))return {ok:false,error:'account_changed'};
+  if(url===ENDPOINT&&payload.action==='player')learnCapabilities(result,currentScope);
+  if(payload.action==='campaign.cloud.v2'||payload.action==='life.complete.v2'){
+   if(result?.error==='action'||result?.error==='protocol'||(result?.ok&&result.protocol!==codec().PROTOCOL)){capabilityScope=currentScope;traceCapability=false;return {ok:false,error:'transport_unsupported'};}
+  }
   if(result?.error==='auth'){session=null;try{sessionStorage.removeItem('mkty_session_v1_'+currentScope);}catch{}}
   return result;
+ }
+ async function traceProtocol(){
+  const account=scope();await authPayload();if(account!==scope())return null;
+  if(capabilityScope!==account||traceCapability===undefined){const result=await authenticatedFetch(ENDPOINT,{action:'player'});if(!result?.ok)return null;}
+  return account===scope()&&capabilityScope===account&&traceCapability===true?codec().PROTOCOL:null;
  }
  async function call(action,payload={}){
   if(!initData()){serverReady=false;return null;}
   try{
-   const requestedScope=scope();const body=await authenticatedFetch(ENDPOINT,{...payload,action});
+   const requestedScope=scope();
+   if(action==='life.complete'){
+    const protocol=await traceProtocol();if(requestedScope!==scope())return {ok:false,error:'account_changed'};
+    payload={...payload,...(payload.proof?{proof:protocol?codec().packProof(payload.proof):codec().unpackProof(payload.proof)}:{})};
+    if(protocol){action='life.complete.v2';payload.protocol=protocol;}
+   }
+   const body=await authenticatedFetch(ENDPOINT,{...payload,action});
    if(requestedScope!==scope()||(body?.player?.telegram_id!=null&&String(body.player.telegram_id)!==requestedScope))return {ok:false,error:'account_changed'};
    if(!body?.ok){lastError=body?.error||'unavailable';serverReady=false;renderStatus();return body;}
    serverReady=true;lastError='';
    if(body.player){lastPlayer=body.player;applyCache(body.player);}
    if(body.pace){localStorage.setItem('mkty_pace_server',JSON.stringify(body.pace));window.MKTYPace?.setServer?.(body.pace);}
    renderStatus();return body;
-  }catch{serverReady=false;lastError='unavailable';renderStatus();return {ok:false,error:'unavailable'};}
+  }catch(error){serverReady=false;lastError=['trace_invalid','trace_too_large','proof_too_large'].includes(error?.message)?error.message:'unavailable';renderStatus();return {ok:false,error:lastError};}
  }
  function applyCache(p){
   if(!p)return;
@@ -182,7 +209,7 @@
    if(tasks.some(t=>!t.state))return undefined;return {route:route.route,tasks};
   }catch{return undefined;}
  }
- window.MKTYRewards={prepareRoute,proofFor,routeReady,accountScope:scope,requiresRoute:()=>!!initData(),endpoint:ENDPOINT,syncPlayer,completeLife,spendLife,call,authPayload,authenticatedFetch,getLastPlayer:()=>lastPlayer,isServerReady:()=>serverReady,LIFE_REWARDS};
+ window.MKTYRewards={prepareRoute,proofFor,routeReady,accountScope:scope,requiresRoute:()=>!!initData(),endpoint:ENDPOINT,traceProtocol,syncPlayer,completeLife,spendLife,call,authPayload,authenticatedFetch,getLastPlayer:()=>lastPlayer,isServerReady:()=>serverReady,LIFE_REWARDS};
  window.addEventListener('online',()=>syncPlayer());
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncPlayer();});
  window.addEventListener('mkty:language',renderStatus);
