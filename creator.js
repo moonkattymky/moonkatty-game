@@ -50,7 +50,7 @@ ${next?`<p class="cr-note">${t('Next submission available')}: <b>${fmt(next)}</b
    state.loading=true;state.error='';draw();
    const r=await call('creator.submit',{url,caption,own});
    state.loading=false;
-   if(r.ok){state.data={...state.data,...r};state.error='';draw();const m=host.querySelector('#crMsg');if(m)m.textContent=t('Sent! Your video is on review.');}
+   if(r.ok){state.data={...state.data,...r};state.error='';draw();const m=host.querySelector('#crMsg');if(m)m.textContent=r.duplicate?t(ERR.duplicate_url)+' '+statusLabel(r.submission?.status):t('Sent! Your video is on review.');}
    else{state.error=t(ERR[r.error]||ERR.unavailable);draw();const fu=host.querySelector('#crUrl');if(fu){fu.value=url;host.querySelector('#crCaption').value=caption;host.querySelector('#crOwn').checked=own;}}
   };
  }

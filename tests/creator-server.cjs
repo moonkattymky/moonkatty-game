@@ -47,6 +47,7 @@ const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
  assert.equal((await call(1,'creator.submit',{...ok,own:false})).body.error,'own');
  assert.equal((await call(1,'creator.submit',{...ok,url:'https://evil.example/v'})).body.error,'url');
  const s1=await call(1,'creator.submit',ok);assert.equal(s1.status,200);assert.equal(s1.body.submission.status,'pending');assert.ok(s1.body.next_submit_at);
+ const retry=await call(1,'creator.submit',{...ok,url:'https://youtu.be/dQw4w9WgXcQ?t=3'});assert.equal(retry.body.duplicate,true);assert.equal(retry.body.submission.id,s1.body.submission.id);assert.equal(db.subs.length,1);
  assert.equal(db.players.get(1).moon_points,0,'pending pays nothing');
  // weekly limit
  const w=await call(1,'creator.submit',{...ok,url:'https://youtu.be/aaaaaaaaaaa'});assert.equal(w.status,429);assert.equal(w.body.error,'weekly');
@@ -54,7 +55,7 @@ const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
  const d=await call(2,'creator.submit',{...ok,url:'https://youtu.be/dQw4w9WgXcQ?t=3'});assert.equal(d.status,409);assert.equal(d.body.error,'duplicate_url');
  // after a week, a new one is allowed but still deduped
  now+=7*24*3600*1000+1000;
- assert.equal((await call(1,'creator.submit',ok)).body.error,'duplicate_url');
+ assert.equal((await call(1,'creator.submit',ok)).body.duplicate,true);
  assert.equal((await call(1,'creator.submit',{...ok,url:'https://x.com/catfan/status/1840000000000000000'})).status,200);
  // non-admin rejected
  for(const a of ['admin.creator.list','admin.creator.review','admin.creator.tier']){const r=await call(1,a,{id:1,decision:'approve',tier:'1k'});assert.equal(r.status,403,a);}
