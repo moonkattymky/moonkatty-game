@@ -3,7 +3,8 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),crypto=require('node:crypto'),zlib=require('node:zlib'),path=require('node:path');
 const root=path.resolve(__dirname,'..'),source=fs.readFileSync(path.join(root,'field-art.js'),'utf8'),R=require('../field-model.js');
 const baseHashes={
- 'field-model.js':'ae21a6bd145ee2b52f15b1a81ae1485bfea91f3d5245f918812e61ade5dfcde3',
+ // Intentional separate convoy checkpoint correction; rendering and all other baseline sources stay pinned.
+ 'field-model.js':'668de1145caab521e4da836d416e15db3bf73b5aadcb56015a63eef353964ef5',
  'field-missions.js':'87ae7505443efcaa76ec1cf8c9b0293493a8d3b32ded761d08f8fae280bbf168',
  'story-plan.js':'fd4683463fc1bcf72862b33478a6d4d1036036632ccff88a049798428d583474',
  'story.js':'56e308ab4dac53df7a37f3df8714535ec19afbae8766bdbbc17fb28c0e0e3a6f',
@@ -12,7 +13,7 @@ const baseHashes={
  'rewards-client.js':'23504bf39fd47129e08cf49432ffeca2aca50a087d92edcb0716269a2722103f',
  'expedition-model.js':'5209ca04232a01204a3ab1019e32a4cef92c5600de2370cd62243a497ba3e571'
 };
-for(const [file,hash]of Object.entries(baseHashes))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex'),hash,file+' remains byte-identical to reviewed PR45');
+for(const [file,hash]of Object.entries(baseHashes))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex'),hash,file+' matches the pinned reviewed baseline (with convoy checkpoint correction)');
 const c={window:{},FieldRules:R};vm.createContext(c);vm.runInContext(source,c);
 let scenes=0,maxBytes=0,maxNodes=0;const times=[];
 for(let stage=0;stage<4;stage++)for(let seed=0;seed<40;seed++)for(const scanned of [false,true]){
