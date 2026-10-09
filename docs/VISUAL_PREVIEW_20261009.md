@@ -1,6 +1,6 @@
 # MOONKATTY: first-light visual preview
 
-Status: implemented in source, not deployed. Browser screenshots are pending an approved CI run.
+Status: draft PR45, not deployed. Initial CI produced 72 genuine screenshots with no harness failures. Visual review found the optional home teaser pushed the bottom navigation below the typical phone viewport; the revised stylesheet hides that teaser below 900px height and tightens spacing. Updated exact-head screenshots and full regression must pass before review is complete.
 
 ## Comparison base
 
@@ -41,7 +41,7 @@ Verification:
 
 ## Not verified yet
 
-Local Chromium launch was previously blocked. The supported cloud browser rejects file URLs and could not connect to this checkout's loopback HTTP preview. No new screenshots were produced and no mockup is being presented as a rendered result.
+Local Chromium launch was previously blocked. The supported cloud browser rejects file URLs and could not connect to this checkout's loopback HTTP preview. The approved CI run subsequently produced 72 real screenshots. No mockup is being presented as a rendered result; revised captures are pending the final spacing check.
 
 The CI workflow is read-only with respect to repository contents, bounded to 12 minutes, and has no deploy job. It serves only local fixtures, blocks external traffic and uses no real account. It is designed to capture 72 actual screenshots: before/after × Russian/English/Arabic × 390×844, 320×568, 568×320 × home, Chapter 1 plan, rover and power board. It also checks home/plan layout in all 13 languages at 320px. It verifies art decoding, portrait astronaut overlap/proportions, text/control horizontal bounds and HTML control sizes. The resulting HTML comparison index and JSON report are saved with the screenshots for 7 days.
 

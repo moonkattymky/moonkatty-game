@@ -9,7 +9,7 @@
   grid-template-columns:minmax(0,1fr);
   grid-template-rows:auto auto auto;
   min-height:0;
-  padding-block-end:18px;
+  padding-block-end:12px;
   isolation:isolate;
   background:#0b2232;
 }
@@ -68,7 +68,7 @@
   grid-column:1;
   align-self:center;
   justify-self:end;
-  margin:12px 6px 8px 0;
+  margin:8px 6px 6px 0;
   top:auto;
   left:auto;
   right:auto;
@@ -143,7 +143,7 @@
 #home .mk-home-bottom .stats strong {font-size:19px!important;font-weight:750!important;color:#123246}
 #home .stats em {color:#4a6674;font-size:11px;letter-spacing:.4px}
 #home .mk-home-bottom #welcome {
-  margin:10px 0 12px;
+  margin:8px 0 10px;
   color:#d0e0e6;
   font-size:11px;
   line-height:1.5;
@@ -272,6 +272,9 @@
 #fieldMission[data-kind=rover] .lunar-fracture {stroke:#0d2f42;stroke-width:8;stroke-linejoin:round;stroke-linecap:round}
 
 /* Small-screen copy may wrap; art keeps its native proportions. No new motion. */
+@media(max-height:899px) {
+  #home .mk-life-teaser {display:none!important}
+}
 @media(max-width:359px) {
   #home .mk-topbar {padding-inline:16px}
   #home .mk-topbar h2 {font-size:18px!important;letter-spacing:1.2px!important}

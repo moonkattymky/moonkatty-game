@@ -87,6 +87,7 @@ let origin;
         const art=await p.evaluate(()=>{const image=document.querySelector('.mk-home-character'),a=image.getBoundingClientRect(),b=document.querySelector('.mk-home-bottom .stats').getBoundingClientRect();return {ratio:a.width/a.height,naturalRatio:image.naturalWidth/image.naturalHeight,overlap:Math.min(a.right,b.right)>Math.max(a.left,b.left)&&Math.min(a.bottom,b.bottom)>Math.max(a.top,b.top)};});
         check(!art.overlap,label+' astronaut is not covered by the stats deck');
         check(Math.abs(art.ratio-art.naturalRatio)<.01,label+' astronaut keeps native proportions');
+        if(view[0]<view[1]&&view[1]>=840){const nav=await p.locator('#home .mk-bottom-nav').boundingBox();check(nav.y+nav.height<=view[1]+1,label+' primary navigation fits the first screen');}
       }
       await plan(p);await capture(p,variant,lang,view,'chapter1-plan');if(variant==='after')await metrics(p,label+'/plan');
       await p.locator('#storyNext').click();await p.locator('#fieldResume').click();
