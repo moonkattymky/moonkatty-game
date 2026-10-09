@@ -85,3 +85,7 @@
 #fieldMission #fieldPause:focus-visible,#fieldMission #fieldDialog button:focus-visible{outline-color:#ffe4a0}
 
 #fieldMission input[type=range]{min-height:44px}
+
+/* Leave room for the whole 44px target and its focus ring when the compact deck scrolls. */
+#fieldMission #fieldControls :is(button,input){scroll-margin-block:6px}
+@media(orientation:landscape) and (max-height:600px){#fieldMission .field-deck{padding-block-end:6px;scroll-padding-block:6px}}
