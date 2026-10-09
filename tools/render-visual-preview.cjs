@@ -112,6 +112,11 @@ let origin;
       }
       const cellSizes=await p.locator('.field-map-cell>rect:first-child').evaluateAll(es=>es.map(e=>{const r=e.getBoundingClientRect();return {width:r.width,height:r.height};}));
       const minimumCell=Math.min(...cellSizes.flatMap(c=>[c.width,c.height]));
+      if(variant==='after'){
+        const bounds=await p.locator('.field-map-cell').evaluateAll(es=>es.map(e=>{const a=e.getBoundingClientRect(),b=e.querySelector('.lunar-hit').getBoundingClientRect();return {w:a.width,h:a.height,rw:b.width,rh:b.height};}));
+        check(bounds.every(b=>Math.abs(b.w-b.rw)<1&&Math.abs(b.h-b.rh)<1),label+' every interactive group has exactly its intended cell bounds');
+      }
+
       report.svgTargetSizes.push({variant,lang,viewport:view,minimumCellPixels:minimumCell,meets44px:minimumCell>=44});
       if(variant==='after'&&view[0]<view[1])check(minimumCell>=44,label+' portrait rover cell target >=44px');
       // Existing short-landscape board scale is reported honestly, not certified as a 44px target.

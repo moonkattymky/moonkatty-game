@@ -28,6 +28,7 @@ for(let stage=0;stage<4;stage++)for(let seed=0;seed<40;seed++)for(const scanned 
  assert.equal((svg.match(/data-field-cell=/g)||[]).length,36);assert.equal((svg.match(/width="94" height="94"/g)||[]).length,36);
  const cells=[...svg.matchAll(/data-field-cell="(\d+)"[^>]*tabindex="(-?\d+)"/g)];
  assert.deepEqual(cells.map(m=>+m[1]),Array.from({length:36},(_,i)=>i));
+ for(const m of svg.matchAll(/<g data-field-cell=[\s\S]*?<\/g>/g))assert(!/<svg|<image|<use/.test(m[0]),'atlas artwork cannot enlarge interaction group bounds');
  for(const m of cells)assert.equal(+m[2],R.layout(s).walls.includes(+m[1])?-1:0,'wall keyboard semantics unchanged');
  assert.equal(new Set([...svg.matchAll(/data-prop="([^"]+)"/g)].map(m=>m[1])).size,8,'all eight obstacle silhouettes differ');
  assert.equal((svg.match(/class="lunar-objective"/g)||[]).length,3);assert.equal((svg.match(/class="lunar-hazard"/g)||[]).length,3);
