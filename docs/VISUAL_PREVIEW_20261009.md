@@ -1,6 +1,6 @@
 # MOONKATTY: first-light visual preview
 
-Status: draft PR45, not deployed. Initial CI produced 72 genuine screenshots with no harness failures. Visual review found the optional home teaser pushed the bottom navigation below the typical phone viewport; the revised stylesheet hides that teaser below 900px height and tightens spacing. Independent screenshot review also caught short-portrait Arabic telemetry touching the sticky footer. Compact header/HUD spacing and a dedicated overlap assertion address that without shrinking the enlarged cells. Updated exact-head screenshots and full regression must pass before review is complete.
+Status: draft PR45, not deployed. Initial CI produced 72 genuine screenshots with no harness failures. Visual review found the optional home teaser pushed the bottom navigation below the typical phone viewport; the revised stylesheet hides that teaser below 900px height and tightens spacing. Independent screenshot review also caught short-portrait Arabic telemetry touching the sticky footer. Compact header/HUD spacing and a dedicated overlap assertion address that without shrinking the enlarged cells. The inherited translucent sticky rover footer also obscured the scan button. Its footer now remains in document flow; the screenshot harness checks the real enabled scan button, computed gradient contrast and full target hit-testing. Updated exact-head screenshots and full regression must pass before review is complete.
 
 ## Comparison base
 

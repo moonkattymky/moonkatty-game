@@ -5,13 +5,14 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),http=require('node:http');
 const {chromium}=require('playwright');
+const assertFieldControlReachable=require('../tests/field-control-helper.cjs');
 const args=process.argv.slice(2),get=k=>args.find(a=>a.startsWith('--'+k+'='))?.slice(k.length+3);
 const after=path.resolve(__dirname,'..'),before=get('before'),out=path.resolve(get('out')||'/tmp/moonkatty-visual-preview');
 assert(before,'--before must identify the stable PR42 checkout');
 fs.mkdirSync(out,{recursive:true});
 const variants=[['before',path.resolve(before)],['after',after]],views=[[390,844],[320,568],[568,320]];
 const languages=['en','ru','uk','es','pt','de','fr','it','tr','he','ar','ko','zh'];
-const report={purpose:'Seeded, local source-build screenshots. No real account or reward traffic.',screenshots:[],checks:[],svgTargetSizes:[],failures:[],externalRequestsBlocked:0};
+const report={purpose:'Seeded, local source-build screenshots. No real account or reward traffic.',screenshots:[],checks:[],svgTargetSizes:[],scanControls:[],failures:[],externalRequestsBlocked:0};
 const types={'.html':'text/html','.js':'application/javascript','.css':'text/css','.webp':'image/webp','.png':'image/png','.svg':'image/svg+xml','.json':'application/json'};
 const server=http.createServer((req,res)=>{
   const u=new URL(req.url,'http://localhost'),match=u.pathname.match(/^\/(before|after)(\/.*)?$/),variant=variants.find(v=>v[0]===match?.[1]);
@@ -102,8 +103,22 @@ let origin;
       if(variant==='after'&&view[0]<view[1])check(minimumCell>=44,label+' portrait rover cell target >=44px');
       // Existing short-landscape board scale is reported honestly, not certified as a 44px target.
 
-      // One ordinary scanner action checks that the visual hooks survive a redraw.
-      await p.locator('[data-field-action="scan"]').click();
+      // Verify the real enabled scanner, not just its CSS box or a cropped screenshot.
+      const scanner=p.locator('[data-field-action="scan"]');
+      const scanPaint=await scanner.evaluate(e=>{const s=getComputedStyle(e),r=e.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return {enabled:!e.disabled,color:s.color,background:s.backgroundImage,coveredInInitialViewport:hit!==e&&!e.contains(hit),rect:{x:r.x,y:r.y,width:r.width,height:r.height},footerPosition:getComputedStyle(document.querySelector('#fieldMission .field-footer')).position};});
+      const rgb=s=>(s.match(/[\d.]+/g)||[]).map(Number),luma=a=>a.slice(0,3).map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0),contrast=(a,b)=>(Math.max(luma(a),luma(b))+.05)/(Math.min(luma(a),luma(b))+.05);
+      const stops=scanPaint.background.match(/rgba?\([^)]+\)/g)||[];
+      const minimumContrast=stops.length?Math.min(...stops.map(s=>contrast(rgb(scanPaint.color),rgb(s)))):null;
+      report.scanControls.push({variant,lang,viewport:view,...scanPaint,minimumContrast});
+      if(variant==='after'){
+        check(scanPaint.enabled,label+' scanner is enabled');
+        check(minimumContrast!==null&&minimumContrast>=4.5,label+' scanner text contrast >=4.5:1 across gradient');
+        if(view[0]===390&&view[1]===844)check(!scanPaint.coveredInInitialViewport,label+' scanner is uncovered on the initial phone screen');
+        await scanner.scrollIntoViewIfNeeded();
+        await assertFieldControlReachable(scanner,label+' scanner after scroll');
+        check(true,label+' full scanner target accepts center and edge hits after scroll');
+      }
+      await scanner.click();
       check(await p.locator('[data-field-cell]').count()===36,label+' rover redraw retains all 36 cells');
       if(variant==='after')check(await p.locator('.lunar-cell').count()===36,label+' paint hooks remain on the rover cells');
       await p.locator('#fieldPause').click();await p.locator('#fieldExit').click();

@@ -255,7 +255,7 @@
 #fieldMission[data-kind=rover] .field-control-hint {font-size:13px;line-height:1.5}
 #fieldMission[data-kind=rover] .field-guide summary {font-size:11px;letter-spacing:.6px}
 #fieldMission[data-kind=rover] #fieldControls>button {border-radius:12px;min-height:48px;font-size:12px;line-height:1.45;background:linear-gradient(#315e77,#1b4058)}
-#fieldMission[data-kind=rover] .field-footer {border-top-color:#7896a34d;box-shadow:0 -5px 16px #0f2b3c0a}
+#fieldMission[data-kind=rover] .field-footer {position:static;background:#e6eceb;border-top-color:#7896a34d;box-shadow:none}
 #fieldMission[data-kind=rover] .field-footer p {font-size:12px;line-height:1.5;color:#36586b}
 #fieldMission[data-kind=rover] .field-footer button {border-radius:13px!important;font-size:13px;min-height:51px;line-height:1.45}
 #fieldMission[data-kind=rover] #fieldPause {font-size:0;border-radius:13px;background:#2a5269}
