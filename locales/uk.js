@@ -35,13 +35,13 @@
   "🌙 Join my crew in MOONKATTY: 9 LIVES! Complete LIFE #1 and we both get +{n} Moon Points ⭐":"🌙 Приєднуйся до мого екіпажу в MOONKATTY: 9 LIVES! Пройди LIFE #1 — і ми обидва отримаємо +{n} Moon Points ⭐",
   "🚀 MOONKATTY: 9 LIVES — nine chapters of a lunar mission in Telegram. Play with me!":"🚀 MOONKATTY: 9 LIVES — дев'ять глав місячної місії в Telegram. Грай зі мною!",
   "🌙 I completed LIFE #{n} in MOONKATTY: 9 LIVES! Can you beat it? 🚀":"🌙 Я пройшов LIFE #{n} у MOONKATTY: 9 LIVES! Зможеш краще? 🚀",
-  "Invite friends with your personal link — no limit on invites. You and your friend each get +200 Moon Points only after your friend completes LIFE #1 (verified by the server). Self-referrals don't count; inviter rewards have a daily cap. Referral Moon Points count toward your FINAL MOON POINTS BALANCE, which may be used to determine the MKTY reward after launch. There is no fixed MKTY conversion rate or guaranteed value.":"Запрошуйте друзів за особистим посиланням — без обмеження кількості запрошень. Ви й друг отримуєте по +200 Moon Points лише після того, як друг пройде LIFE #1 (перевіряється сервером). Запрошення самого себе не зараховується; нагороди запрошувачу обмежені денним лімітом. Реферальні Moon Points входять до ПІДСУМКОВОГО БАЛАНСУ MOON POINTS, який може використовуватися для визначення нагороди MKTY після запуску. Фіксованого курсу MKTY і гарантованої вартості немає.",
-  "Referral Moon Points count toward your FINAL MOON POINTS BALANCE, which may be used to determine the MKTY reward after launch. No fixed MKTY conversion rate, no guaranteed value.":"Реферальні Moon Points входять до ПІДСУМКОВОГО БАЛАНСУ MOON POINTS, який може використовуватися для визначення нагороди MKTY після запуску. Фіксованого курсу MKTY і гарантованої вартості немає.",
+  "Invite friends with your personal link. You and your friend each receive +200 Moon Points only after your friend completes LIFE #1, verified by the server. Self-referrals do not count. Inviter rewards are limited to 10 verified events per UTC day and 100 in total.":"Запрошуйте друзів за особистим посиланням. Ви й друг отримуєте по +200 Moon Points після підтвердженого сервером проходження LIFE #1 другом. Самозапрошення не враховуються. Ліміт нагород: 10 підтверджених подій за добу UTC і 100 загалом.",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points — ігрові очки для рейтингу та ігрових нагород. Вони не мають грошової вартості й не гарантують призів або виплат.",
   "About MOONKATTY":"Про MOONKATTY",
   "THE PROJECT":"ПРО ПРОЄКТ",
   "A small cat for a big mission":"Маленька кішка для великої місії",
   "MOONKATTY is a story game about a cat-astronaut and her crew of specialists on a lunar expedition. The journey is told in 9 LIVES — nine chapters, each with its own trials, puzzles and flights.":"MOONKATTY — сюжетна гра про кішку-астронавтку та її екіпаж фахівців у місячній експедиції. Подорож поділено на 9 ЖИТТІВ — дев’ять глав із власними випробуваннями, головоломками й польотами.",
-  "MKTY is the project’s planned token; its launch is still ahead. After the launch, a locked Moon Points balance may be used to determine a reward under the official rules published at that time. Moon Points have no fixed MKTY rate and no guaranteed monetary value.":"MKTY — запланований токен проєкту; його запуск ще попереду. Після запуску зафіксований баланс місячних балів може враховуватися під час визначення нагороди за офіційними правилами, які буде опубліковано. Місячні бали не мають фіксованого курсу до MKTY і гарантованої грошової вартості.",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points — ігрові очки для рейтингу та ігрових нагород. Вони не мають грошової вартості й не гарантують призів або виплат.",
   "Community":"Спільнота",
   "Official MOONKATTY channels. News and launch announcements appear here first.":"Офіційні канали MOONKATTY. Новини й оголошення про запуск з’являються тут першими.",
   "Announcements & crew chat":"Оголошення та чат екіпажу",
@@ -59,8 +59,8 @@
   "Share your invite link. Eligible verified activity of invited players can earn Moon Points within daily limits. Self-referrals do not count.":"Поділіться своїм посиланням-запрошенням. Підтверджена активність запрошених гравців може приносити місячні бали в межах денних лімітів. Запрошення самого себе не зараховується.",
   "What is the final balance?":"Що таке підсумковий баланс?",
   "After you complete LIFE #9, earning stops and your Moon Points are locked as your FINAL MOON POINTS BALANCE.":"Після проходження 9-ї глави нарахування припиняється, а ваші місячні бали фіксуються як ПІДСУМКОВИЙ БАЛАНС.",
-  "Will I receive MKTY?":"Чи отримаю я MKTY?",
-  "After the MKTY launch, the locked balance may be used to determine a reward under the official distribution rules. There is no fixed rate and no guaranteed value.":"Після запуску MKTY зафіксований баланс може враховуватися під час визначення нагороди за офіційними правилами розподілу. Фіксованого курсу й гарантованої вартості немає.",
+  "Do Moon Points have monetary value?":"Чи мають Moon Points грошову вартість?",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points — ігрові очки для рейтингу та ігрових нагород. Вони не мають грошової вартості й не гарантують призів або виплат.",
   "What counts as fair play?":"Що вважається чесною грою?",
   "One player, one account. Duplicate activity, self-referrals, bots and manipulation may be excluded from rewards.":"Один гравець — один акаунт. Повторна активність, запрошення самого себе, боти й маніпуляції можуть бути виключені з нагород.",
   "How do I change the language?":"Як змінити мову?",
@@ -139,7 +139,6 @@
   "Adjust coolant and magnetic field. Keep both readings in green for 3 seconds.":"Налаштуйте охолодження й магнітне поле. Утримуйте обидва показники в зеленій зоні 3 секунди.",
   "After chapter ":"Після глави ",
   "After successful completion of LIFE #9, Moon Point earning ends. Your accumulated Moon Points are totaled and locked as your FINAL MOON POINTS BALANCE.":"Після завершення глави 9 нарахування очок припиняється. Накопичені очки фіксуються як підсумковий баланс.",
-  "After the MKTY launch, the locked balance may be used to determine a reward under the official distribution rules published for the launch. Moon Points do not represent a fixed MKTY conversion rate or guaranteed monetary value.":"Після запуску MKTY зафіксований баланс може використовуватися для розрахунку нагороди за офіційними правилами розподілу. Очки не означають фіксованого курсу обміну на MKTY чи гарантованої грошової вартості.",
   "Aim three arrays at peak signal and lock their bearings. Mark the beam intersection on the map, then confirm the source.":"Налаштуйте три антени на максимум сигналу й зафіксуйте пеленги. Потім позначте на карті перетин променів і підтвердіть джерело.",
   "Align the phase marker and hold a stable signal.":"Сумістіть маркер фази з ціллю й утримуйте стабільний сигнал.",
   "All cells online. Calibrate coolant and magnetic field.":"Усі комірки заряджено. Налаштуйте охолодження й магнітне поле.",
@@ -780,7 +779,7 @@
   "MISSIONS":"МІСІЇ",
   "MIXTURE":"СУМІШ",
   "MKTY // LUNAR CREW":"MKTY // МІСЯЧНИЙ ЕКІПАЖ",
-  "MKTY REWARD 🚀":"НАГОРОДА MKTY 🚀",
+  "GAME POINTS":"ІГРОВІ ОЧКИ",
   "MOON BASE ALPHA":"МІСЯЧНА БАЗА АЛЬФА",
   "MOON BASE ALPHA ONLINE":"БАЗУ АЛЬФА ВІДНОВЛЕНО",
   "MOON GATE":"МІСЯЧНІ ВОРОТА",
@@ -1641,3 +1640,5 @@
  };
  locales["uk"].dynamic=[];
 })(typeof globalThis!=='undefined'?globalThis:this);
+
+Object.assign(globalThis.MKTYLocales["uk"].strings,{"Terms of use": "Умови використання", "Privacy policy": "Політика конфіденційності"});

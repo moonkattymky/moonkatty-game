@@ -1,0 +1,23 @@
+const assert=require('node:assert/strict');
+(async()=>{
+ const {createBotHandler}=await import('../server/bot/core.mjs');const {verifySession}=await import('../server/rewards/session.mjs');
+ const sent=[];let reviews=0;
+ const rewardsHandler=async req=>{const b=await req.json(),u=await verifySession(b.session,'private-key');assert.equal(u.id,900);
+  if(b.action==='admin.social.list')return Response.json({ok:true,submissions:[{id:1,platform:'tiktok',kind:'daily',code:'MKTY-1234',proof:'https://www.tiktok.com/@test/video/123456789'}]});
+  reviews++;return Response.json(reviews===1?{ok:true}:{ok:false,error:'reviewed'},{status:reviews===1?200:409});};
+ const handler=createBotHandler({token:'TEST',webhookSecret:'private-webhook',serviceKey:'private-key',adminIds:'900',rewardsHandler,fetcher:async(url,opts)=>{sent.push({method:url.split('/').pop(),body:JSON.parse(opts.body)});return Response.json({ok:true,result:{}});}});
+ const call=(body,secret='private-webhook')=>handler(new Request('https://local',{method:'POST',headers:{'x-telegram-bot-api-secret-token':secret},body:JSON.stringify(body)}));
+ const message=(id,text)=>({message:{from:{id},chat:{id,type:'private'},text}});
+ assert.equal((await call(message(2,'/start'),'wrong')).status,401);assert.equal(sent.length,0);
+ await call(message(2,'/start'));assert(sent.at(-1).body.reply_markup.inline_keyboard[0][0].web_app.url.endsWith('/moonkatty-game/'));
+ await call(message(2,'/terms'));assert.match(sent.at(-1).body.text,/terms\.html/);
+ await call(message(2,'/privacy'));assert.match(sent.at(-1).body.text,/privacy\.html/);
+ await call(message(2,'/review'));assert.match(sent.at(-1).body.text,/модераторам/);
+ await call(message(900,'/review'));assert.equal(sent.at(-1).body.reply_markup.inline_keyboard[0][0].callback_data,'social:1:approve');
+ const callback=id=>({callback_query:{id:'query',from:{id},data:'social:1:approve',message:{message_id:5,chat:{id,type:'private'}}}});
+ await call(callback(2));assert.equal(reviews,0);
+ await call(callback(900));assert.equal(reviews,1);assert.equal(sent.at(-1).method,'editMessageReplyMarkup');
+ await call(callback(900));assert.equal(reviews,2);assert(sent.some(x=>/уже проверено/.test(x.body.text||'')));
+ const missing=createBotHandler({token:'TEST',serviceKey:'private-key',rewardsHandler});assert.equal((await missing(new Request('https://local',{method:'POST'}))).status,503);
+ console.log('PASS: bot webhook authentication, private commands, moderator allowlist, signed internal session and replay handling');
+})().catch(e=>{console.error(e);process.exitCode=1});

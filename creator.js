@@ -35,7 +35,7 @@ ${next?`<p class="cr-note">${t('Next submission available')}: <b>${fmt(next)}</b
 <p id="crMsg" class="cr-msg" role="status">${esc(state.error)}</p></form>`:`<p class="cr-note cr-warn">${t('Open the game inside Telegram to submit a video.')}</p>`}
 <h3 class="hub-section-title">${t('My submissions')}</h3>${d?list(d.submissions):`<p class="cr-empty">${inTg?t('Loading…'):t('No submissions yet.')}</p>`}
 <p class="cr-fine">${t('Creator points are added to your Moon Points and count toward your final balance. View tiers are checked manually by the team; each tier is granted once per video. Bought views, reuploads and other people’s videos are rejected.')}</p>
-${d?.is_admin?`<a class="hub-secondary" href="admin.html">${t('Open admin review')}</a>`:''}
+
 </section>`;
  }
  let host=null;
@@ -57,5 +57,4 @@ ${d?.is_admin?`<a class="hub-secondary" href="admin.html">${t('Open admin review
  async function mount(el){host=el;bind();if(!initData())return;const r=await call('creator.status');if(r.ok){state.data=r;draw();}}
  return {page,mount};
 })();
-// Deep link https://t.me/<bot>?startapp=admin opens the admin review page (server still checks ADMIN_TG_IDS).
-try{if(window.Telegram?.WebApp?.initDataUnsafe?.start_param==='admin'&&!sessionStorage.getItem('mkty_admin_redirected')){sessionStorage.setItem('mkty_admin_redirected','1');location.href='admin.html'+location.hash;}}catch{}
+// Administrative review is not linked from the public game.

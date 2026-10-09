@@ -35,13 +35,13 @@
   "🌙 Join my crew in MOONKATTY: 9 LIVES! Complete LIFE #1 and we both get +{n} Moon Points ⭐":"🌙 加入我在 MOONKATTY: 9 LIVES 的船员队伍！完成 LIFE #1，我们都能获得 +{n} Moon Points ⭐",
   "🚀 MOONKATTY: 9 LIVES — nine chapters of a lunar mission in Telegram. Play with me!":"🚀 MOONKATTY: 9 LIVES — Telegram 里的九章月球任务。来和我一起玩！",
   "🌙 I completed LIFE #{n} in MOONKATTY: 9 LIVES! Can you beat it? 🚀":"🌙 我在 MOONKATTY: 9 LIVES 完成了 LIFE #{n}！你能超过我吗？🚀",
-  "Invite friends with your personal link — no limit on invites. You and your friend each get +200 Moon Points only after your friend completes LIFE #1 (verified by the server). Self-referrals don't count; inviter rewards have a daily cap. Referral Moon Points count toward your FINAL MOON POINTS BALANCE, which may be used to determine the MKTY reward after launch. There is no fixed MKTY conversion rate or guaranteed value.":"用你的专属链接邀请好友——邀请人数不限。只有在好友完成 LIFE #1（由服务器验证）后，你和好友才会各获得 +200 Moon Points。邀请自己无效；邀请人奖励有每日上限。推荐获得的 Moon Points 计入你的最终 MOON POINTS 余额，该余额可能在上线后用于确定 MKTY 奖励。不存在固定的 MKTY 兑换比例，也不保证任何价值。",
-  "Referral Moon Points count toward your FINAL MOON POINTS BALANCE, which may be used to determine the MKTY reward after launch. No fixed MKTY conversion rate, no guaranteed value.":"推荐获得的 Moon Points 计入你的最终 MOON POINTS 余额，该余额可能在上线后用于确定 MKTY 奖励。无固定 MKTY 兑换比例，不保证价值。",
+  "Invite friends with your personal link. You and your friend each receive +200 Moon Points only after your friend completes LIFE #1, verified by the server. Self-referrals do not count. Inviter rewards are limited to 10 verified events per UTC day and 100 in total.":"通过个人链接邀请朋友。朋友完成 LIFE #1 并经服务器确认后，双方各获得 +200 Moon Points。自我邀请不计入。邀请奖励上限：每个 UTC 日 10 次已验证事件，累计 100 次。",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points 是用于排名和游戏奖励的游戏积分，没有货币价值，也不保证奖品或付款。",
   "About MOONKATTY":"关于 MOONKATTY",
   "THE PROJECT":"关于项目",
   "A small cat for a big mission":"小猫咪，大使命",
   "MOONKATTY is a story game about a cat-astronaut and her crew of specialists on a lunar expedition. The journey is told in 9 LIVES — nine chapters, each with its own trials, puzzles and flights.":"MOONKATTY 是一款剧情游戏，讲述猫咪宇航员与她的专家机组的登月远征。旅程分为 9 条命——九个章节，每章都有独特的考验、谜题和飞行。",
-  "MKTY is the project’s planned token; its launch is still ahead. After the launch, a locked Moon Points balance may be used to determine a reward under the official rules published at that time. Moon Points have no fixed MKTY rate and no guaranteed monetary value.":"MKTY 是本项目计划发行的代币，尚未上线。上线后，锁定的月球点数余额可能会依据届时公布的官方规则用于确定奖励。月球点数没有固定的 MKTY 兑换比例，也不具有任何保证的货币价值。",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points 是用于排名和游戏奖励的游戏积分，没有货币价值，也不保证奖品或付款。",
   "Community":"社区",
   "Official MOONKATTY channels. News and launch announcements appear here first.":"MOONKATTY 官方频道。新闻和上线公告将首先在这里发布。",
   "Announcements & crew chat":"公告与船员聊天",
@@ -59,8 +59,8 @@
   "Share your invite link. Eligible verified activity of invited players can earn Moon Points within daily limits. Self-referrals do not count.":"分享你的邀请链接。受邀玩家经验证的有效活动可在每日上限内为你赚取月球点数。自我邀请不计入。",
   "What is the final balance?":"什么是最终余额？",
   "After you complete LIFE #9, earning stops and your Moon Points are locked as your FINAL MOON POINTS BALANCE.":"完成第 9 章后将停止获得点数，你的月球点数会被锁定为最终余额。",
-  "Will I receive MKTY?":"我会获得 MKTY 吗？",
-  "After the MKTY launch, the locked balance may be used to determine a reward under the official distribution rules. There is no fixed rate and no guaranteed value.":"MKTY 上线后，锁定余额可能会依据官方分配规则用于确定奖励。没有固定比例，也没有保证价值。",
+  "Do Moon Points have monetary value?":"Moon Points 有货币价值吗？",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points 是用于排名和游戏奖励的游戏积分，没有货币价值，也不保证奖品或付款。",
   "What counts as fair play?":"什么算公平游戏？",
   "One player, one account. Duplicate activity, self-referrals, bots and manipulation may be excluded from rewards.":"一名玩家一个账号。重复活动、自我邀请、机器人和操纵行为可能被排除在奖励之外。",
   "How do I change the language?":"如何切换语言？",
@@ -139,7 +139,7 @@
   "Adjust coolant and magnetic field. Keep both readings in green for 3 seconds.":"调整冷却剂和磁场。 将两种读数都用绿色保持3秒.",
   "After chapter ":"章节之后 ",
   "After successful completion of LIFE #9, Moon Point earning ends. Your accumulated Moon Points are totaled and locked as your FINAL MOON POINTS BALANCE.":"成功完成 LIFE #9 后，Moon Points 的获取即告结束。你累计的 Moon Points 将被汇总并锁定为你的最终 MOON POINTS 余额。",
-  "After the MKTY launch, the locked balance may be used to determine a reward under the official distribution rules published for the launch. Moon Points do not represent a fixed MKTY conversion rate or guaranteed monetary value.":"MKTY 发行后，锁定的余额可能会根据发行时公布的官方分配规则用于确定奖励。Moon Points 不代表固定的 MKTY 兑换比例，也不代表任何保证的货币价值。",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points 是用于排名和游戏奖励的游戏积分，没有货币价值，也不保证奖品或付款。",
   "Aim three arrays at peak signal and lock their bearings. Mark the beam intersection on the map, then confirm the source.":"瞄准高峰信号的三个阵列并锁定其轴承. 在地图上标出横梁交叉点,然后确认来源.",
   "Align the phase marker and hold a stable signal.":"对齐相标并保持稳定信号.",
   "All cells online. Calibrate coolant and magnetic field.":"所有细胞在线。 校准冷却剂和磁场.",
@@ -775,7 +775,7 @@
   "MISSIONS":"任务",
   "MIXTURE":"混合比",
   "MKTY // LUNAR CREW":"MKTY // 月球船员",
-  "MKTY REWARD 🚀":"MKTY 奖励 🚀",
+  "GAME POINTS":"游戏积分",
   "MOON BASE ALPHA":"月球基地阿尔法",
   "MOON BASE ALPHA ONLINE":"月球基地阿尔法上线",
   "MOON GATE":"月之门",
@@ -1639,3 +1639,5 @@
   "RESET ":"重置 "
  };
 })(typeof globalThis!=="undefined"?globalThis:window);
+
+Object.assign(globalThis.MKTYLocales["zh"].strings,{"Terms of use": "使用条款", "Privacy policy": "隐私政策"});

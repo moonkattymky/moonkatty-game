@@ -29,12 +29,10 @@ export function nextStreak(row,today){
 }
 
 export async function cipherWord(day,secret){
- let idx;
- if(secret){
-  const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
-  const mac=new Uint8Array(await crypto.subtle.sign('HMAC',key,new TextEncoder().encode('cipher:'+day)));
-  idx=((mac[0]<<16)|(mac[1]<<8)|mac[2])%CIPHER_WORDS.length;
- }else idx=((dayNum(day)*7)%CIPHER_WORDS.length+CIPHER_WORDS.length)%CIPHER_WORDS.length;
+ if(typeof secret!=='string'||!secret.trim())throw Error('unavailable');
+ const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+ const mac=new Uint8Array(await crypto.subtle.sign('HMAC',key,new TextEncoder().encode('cipher:'+day)));
+ const idx=((mac[0]<<16)|(mac[1]<<8)|mac[2])%CIPHER_WORDS.length;
  return CIPHER_WORDS[idx];
 }
 

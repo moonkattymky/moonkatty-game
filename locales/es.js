@@ -35,13 +35,13 @@
   "🌙 Join my crew in MOONKATTY: 9 LIVES! Complete LIFE #1 and we both get +{n} Moon Points ⭐":"🌙 ¡Únete a mi tripulación en MOONKATTY: 9 LIVES! Completa LIFE #1 y ambos recibimos +{n} Moon Points ⭐",
   "🚀 MOONKATTY: 9 LIVES — nine chapters of a lunar mission in Telegram. Play with me!":"🚀 MOONKATTY: 9 LIVES — nueve capítulos de una misión lunar en Telegram. ¡Juega conmigo!",
   "🌙 I completed LIFE #{n} in MOONKATTY: 9 LIVES! Can you beat it? 🚀":"🌙 ¡Completé LIFE #{n} en MOONKATTY: 9 LIVES! ¿Puedes superarlo? 🚀",
-  "Invite friends with your personal link — no limit on invites. You and your friend each get +200 Moon Points only after your friend completes LIFE #1 (verified by the server). Self-referrals don't count; inviter rewards have a daily cap. Referral Moon Points count toward your FINAL MOON POINTS BALANCE, which may be used to determine the MKTY reward after launch. There is no fixed MKTY conversion rate or guaranteed value.":"Invita amigos con tu enlace personal, sin límite de invitaciones. Tú y tu amigo recibís +200 Moon Points cada uno solo después de que tu amigo complete LIFE #1 (verificado por el servidor). Las autoinvitaciones no cuentan; las recompensas del invitador tienen un límite diario. Los Moon Points de referidos cuentan para tu SALDO FINAL DE MOON POINTS, que puede usarse para determinar la recompensa MKTY tras el lanzamiento. No hay tasa de conversión fija a MKTY ni valor garantizado.",
-  "Referral Moon Points count toward your FINAL MOON POINTS BALANCE, which may be used to determine the MKTY reward after launch. No fixed MKTY conversion rate, no guaranteed value.":"Los Moon Points de referidos cuentan para tu SALDO FINAL DE MOON POINTS, que puede usarse para determinar la recompensa MKTY tras el lanzamiento. Sin tasa fija de conversión a MKTY ni valor garantizado.",
+  "Invite friends with your personal link. You and your friend each receive +200 Moon Points only after your friend completes LIFE #1, verified by the server. Self-referrals do not count. Inviter rewards are limited to 10 verified events per UTC day and 100 in total.":"Invita amigos con tu enlace. Ambos recibís +200 Moon Points cuando tu amigo completa LIFE #1 y el servidor lo verifica. No cuentan las autoinvitaciones. Límite de recompensas del invitador: 10 eventos verificados por día UTC y 100 en total.",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points son puntos del juego para la clasificación y las recompensas del juego. No tienen valor monetario ni garantizan premios o pagos.",
   "About MOONKATTY":"Acerca de MOONKATTY",
   "THE PROJECT":"EL PROYECTO",
   "A small cat for a big mission":"Una gata pequeña para una gran misión",
   "MOONKATTY is a story game about a cat-astronaut and her crew of specialists on a lunar expedition. The journey is told in 9 LIVES — nine chapters, each with its own trials, puzzles and flights.":"MOONKATTY es un juego narrativo sobre una gata astronauta y su tripulación de especialistas en una expedición lunar. El viaje se cuenta en 9 VIDAS: nueve capítulos con sus propias pruebas, acertijos y vuelos.",
-  "MKTY is the project’s planned token; its launch is still ahead. After the launch, a locked Moon Points balance may be used to determine a reward under the official rules published at that time. Moon Points have no fixed MKTY rate and no guaranteed monetary value.":"MKTY es el token previsto del proyecto; su lanzamiento aún está por llegar. Tras el lanzamiento, el saldo bloqueado de Moon Points podrá usarse para determinar una recompensa según las reglas oficiales que se publiquen entonces. Los Moon Points no tienen una tasa fija en MKTY ni un valor monetario garantizado.",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points son puntos del juego para la clasificación y las recompensas del juego. No tienen valor monetario ni garantizan premios o pagos.",
   "Community":"Comunidad",
   "Official MOONKATTY channels. News and launch announcements appear here first.":"Canales oficiales de MOONKATTY. Las noticias y anuncios del lanzamiento aparecen aquí primero.",
   "Announcements & crew chat":"Anuncios y chat de la tripulación",
@@ -59,8 +59,8 @@
   "Share your invite link. Eligible verified activity of invited players can earn Moon Points within daily limits. Self-referrals do not count.":"Comparte tu enlace de invitación. La actividad verificada de los jugadores invitados puede otorgar Moon Points dentro de los límites diarios. Las autorreferencias no cuentan.",
   "What is the final balance?":"¿Qué es el saldo final?",
   "After you complete LIFE #9, earning stops and your Moon Points are locked as your FINAL MOON POINTS BALANCE.":"Al completar el CAPÍTULO 9, la acumulación termina y tus Moon Points quedan bloqueados como tu SALDO FINAL.",
-  "Will I receive MKTY?":"¿Recibiré MKTY?",
-  "After the MKTY launch, the locked balance may be used to determine a reward under the official distribution rules. There is no fixed rate and no guaranteed value.":"Tras el lanzamiento de MKTY, el saldo bloqueado podrá usarse para determinar una recompensa según las reglas oficiales de distribución. No hay tasa fija ni valor garantizado.",
+  "Do Moon Points have monetary value?":"¿Tienen valor monetario los Moon Points?",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points son puntos del juego para la clasificación y las recompensas del juego. No tienen valor monetario ni garantizan premios o pagos.",
   "What counts as fair play?":"¿Qué se considera juego limpio?",
   "One player, one account. Duplicate activity, self-referrals, bots and manipulation may be excluded from rewards.":"Un jugador, una cuenta. La actividad duplicada, las autorreferencias, los bots y la manipulación pueden quedar excluidos de las recompensas.",
   "How do I change the language?":"¿Cómo cambio el idioma?",
@@ -139,7 +139,7 @@
   "Adjust coolant and magnetic field. Keep both readings in green for 3 seconds.":"Ajuste de refrigerante y campo magnético. Mantenga ambas lecturas en verde durante 3 segundos.",
   "After chapter ":"Tras el capítulo ",
   "After successful completion of LIFE #9, Moon Point earning ends. Your accumulated Moon Points are totaled and locked as your FINAL MOON POINTS BALANCE.":"Tras completar con éxito LIFE #9, termina la obtención de Moon Points. Tus Moon Points acumulados se suman y se bloquean como tu SALDO FINAL DE MOON POINTS.",
-  "After the MKTY launch, the locked balance may be used to determine a reward under the official distribution rules published for the launch. Moon Points do not represent a fixed MKTY conversion rate or guaranteed monetary value.":"Tras el lanzamiento de MKTY, el saldo bloqueado podrá usarse para determinar una recompensa según las reglas oficiales de distribución publicadas para el lanzamiento. Los Moon Points no representan una tasa de conversión fija a MKTY ni un valor monetario garantizado.",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points son puntos del juego para la clasificación y las recompensas del juego. No tienen valor monetario ni garantizan premios o pagos.",
   "Aim three arrays at peak signal and lock their bearings. Mark the beam intersection on the map, then confirm the source.":"Meta tres arrays en señal de pico y cierre sus rodamientos. Marca la intersección del haz en el mapa, y luego confirma la fuente.",
   "Align the phase marker and hold a stable signal.":"Alinear el marcador de fase y mantener una señal estable.",
   "All cells online. Calibrate coolant and magnetic field.":"Todas las celdas en línea. Calibrar el refrigerante y el campo magnético.",
@@ -775,7 +775,7 @@
   "MISSIONS":"MISIONES",
   "MIXTURE":"MEZCLA",
   "MKTY // LUNAR CREW":"MKTY // TRIPULACIÓN LUNAR",
-  "MKTY REWARD 🚀":"RECOMPENSA MKTY 🚀",
+  "GAME POINTS":"PUNTOS DEL JUEGO",
   "MOON BASE ALPHA":"BASE LUNAR ALFA",
   "MOON BASE ALPHA ONLINE":"BASE LUNAR ALFA OPERATIVA",
   "MOON GATE":"PUERTA LUNAR",
@@ -1639,3 +1639,5 @@
   "RESET ":"REINICIO "
  };
 })(typeof globalThis!=="undefined"?globalThis:window);
+
+Object.assign(globalThis.MKTYLocales["es"].strings,{"Terms of use": "Condiciones de uso", "Privacy policy": "Política de privacidad"});
