@@ -102,12 +102,15 @@ let origin;
         await metrics(p,label+'/rover');
         const overlaps=await p.evaluate(()=>{const a=document.querySelector('#fieldTelemetry').getBoundingClientRect(),b=document.querySelector('#fieldMission .field-footer').getBoundingClientRect();return Math.min(a.right,b.right)>Math.max(a.left,b.left)&&Math.min(a.bottom,b.bottom)>Math.max(a.top,b.top);});
         check(!overlaps,label+' rover telemetry is not covered by its sticky footer');
-        const graphics=await p.evaluate(()=>{const svg=document.querySelector('.lunar-worksite'),state=MKTYField.snapshot(),before=JSON.stringify(state),times=[];for(let i=0;i<80;i++){const t=performance.now();FieldArt.scene(state,1);times.push(performance.now()-t);}const ids=[...svg.querySelectorAll('[id]')].map(e=>e.id);return {renderer:svg.dataset.renderer,nodes:svg.querySelectorAll('*').length,images:[...svg.querySelectorAll('image')].map(e=>e.getAttribute('href')),props:new Set([...svg.querySelectorAll('[data-prop]')].map(e=>e.dataset.prop)).size,objectives:svg.querySelectorAll('.lunar-objective').length,clippedSprites:svg.querySelectorAll('.lunar-sprite>g[clip-path]').length,filters:svg.querySelectorAll('filter').length,idsUnique:new Set(ids).size===ids.length,stateUnchanged:before===JSON.stringify(state),renderP95ms:times.sort((a,b)=>a-b)[76]};});
+        const batchStarted=performance.now();
+        const graphics=await p.evaluate(()=>{const svg=document.querySelector('.lunar-worksite'),state=MKTYField.snapshot(),before=JSON.stringify(state);for(let i=0;i<80;i++)FieldArt.scene(state,1);const ids=[...svg.querySelectorAll('[id]')].map(e=>e.id);return {renderer:svg.dataset.renderer,nodes:svg.querySelectorAll('*').length,images:[...svg.querySelectorAll('image')].map(e=>e.getAttribute('href')),props:new Set([...svg.querySelectorAll('[data-prop]')].map(e=>e.dataset.prop)).size,objectives:svg.querySelectorAll('.lunar-objective').length,clippedSprites:svg.querySelectorAll('.lunar-sprite>g[clip-path]').length,filters:svg.querySelectorAll('filter').length,idsUnique:new Set(ids).size===ids.length,stateUnchanged:before===JSON.stringify(state),renderIterations:80};});
+        graphics.sourceBatchWallMs=+(performance.now()-batchStarted).toFixed(2);
+        graphics.timingNote='80 source renders plus browser protocol overhead, measured by unmocked Node clock; no GPU/phone paint benchmark';
         report.sceneGraphics.push({lang,viewport:view,...graphics});
         check(graphics.renderer==='lunar-worksite-v2',label+' uses the replacement playable scene');
         check(graphics.images.length===2&&graphics.props===8&&graphics.objectives===3,label+' uses two shared textures, eight distinct modules and three data instruments');
         check(graphics.idsUnique&&graphics.filters===0&&graphics.nodes<650&&graphics.clippedSprites===16,label+' bounded SVG scene has unique IDs, clipped sprites and no image filters');
-        check(graphics.stateUnchanged&&graphics.renderP95ms<15,label+' draw does not mutate state and source generation p95 <15ms (CI runner)');
+        check(graphics.stateUnchanged&&graphics.sourceBatchWallMs<1000,label+' draw is immutable and 80-render batch stays within 1s including protocol overhead');
 
       }
       const cellSizes=await p.locator('.field-map-cell>rect:first-child').evaluateAll(es=>es.map(e=>{const r=e.getBoundingClientRect();return {width:r.width,height:r.height};}));
