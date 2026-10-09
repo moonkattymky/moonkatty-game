@@ -43,7 +43,7 @@
   el = document.createElement('div'); el.id = 'mkInviteSheet'; el.className = 'mk-invite-sheet'; el.hidden = true;
   el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Invite friends');
   el.innerHTML = '<div class="mk-invite-card"><button type="button" class="mk-invite-close" aria-label="Close">✕</button>' +
-   '<img src="art/moonkatty-logo.webp" alt="" width="88" height="88" class="mk-invite-logo">' +
+   '<img src="art/moonkatty-game-mark.webp" alt="" width="88" height="88" class="mk-invite-logo">' +
    '<p class="eyebrow">CREW RECRUITMENT</p><h2>Invite friends</h2>' +
    '<div class="mk-invite-bonus"><strong>+' + BONUS + ' ⭐</strong><span>for you and your friend</span></div>' +
    '<p class="mk-invite-rule">Both of you get Moon Points after your friend completes LIFE #1.</p>' +
