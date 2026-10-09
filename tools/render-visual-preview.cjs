@@ -49,6 +49,10 @@ async function capture(p,variant,lang,view,screen){
     return Promise.all([...urls].map(async url=>{const image=new Image();image.src=url;try{await image.decode();return {url,ok:true};}catch{return {url,ok:false};}}));
   });
   check(artwork.every(i=>i.ok),`${variant}/${lang}/${screen} background, SVG and HTML art decoded before capture`);
+  // Nested SVG image patterns need a paint turn after their shared asset decodes.
+  // Advance only 64ms of the fixture clock; no gameplay action or second tick occurs.
+  await p.clock.runFor(64);
+  await p.waitForLoadState('networkidle');
   const name=`${variant}-${lang}-${view[0]}x${view[1]}-${screen}.png`;
   await p.screenshot({path:path.join(out,name),animations:'disabled'});
   report.screenshots.push({variant,lang,width:view[0],height:view[1],screen,file:name});
@@ -74,6 +78,8 @@ async function pageFor(variant,lang,view){
   await p.waitForFunction(()=>window.MKTYStory&&window.MKTYField&&window.MKTYI18n);
   await p.evaluate(l=>setLang(l),lang);
   await p.waitForFunction(l=>MKTYI18n.getLanguage()===l&&(l==='en'||!!window.MKTYLocales?.[l]),lang);
+  // Prewarm the existing chapter artwork before dynamic SVG pattern insertion.
+  await p.evaluate(async()=>Promise.all(['art/station-details-v2.webp','art/world-rover.webp','art/world-surface.webp','art/life1-base.webp'].map(async src=>{const image=new Image();image.src=src;await image.decode();})));
   return {ctx,p};
 }
 let origin;
