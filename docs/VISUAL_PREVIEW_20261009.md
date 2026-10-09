@@ -1,6 +1,6 @@
 # MOONKATTY: first-light visual preview
 
-Status: draft PR45, not deployed. Initial CI produced 72 genuine screenshots with no harness failures. Visual review found the optional home teaser pushed the bottom navigation below the typical phone viewport; the revised stylesheet hides that teaser below 900px height and tightens spacing. Updated exact-head screenshots and full regression must pass before review is complete.
+Status: draft PR45, not deployed. Initial CI produced 72 genuine screenshots with no harness failures. Visual review found the optional home teaser pushed the bottom navigation below the typical phone viewport; the revised stylesheet hides that teaser below 900px height and tightens spacing. Independent screenshot review also caught short-portrait Arabic telemetry touching the sticky footer. Compact header/HUD spacing and a dedicated overlap assertion address that without shrinking the enlarged cells. Updated exact-head screenshots and full regression must pass before review is complete.
 
 ## Comparison base
 
@@ -15,7 +15,7 @@ The local baseline uses synthetic commit e8a2946 with that identical tree. Do no
 - Vector arrow icons and a CSS pause symbol replace decorative glyphs that were missing in some browser screenshots.
 - Chapter briefing: stronger title/next-objective hierarchy and a more readable, cohesive stage list.
 - Rover: clearer telemetry and controls, more distinct selected/recovery/exit cells, and a high-contrast EXIT label. Tile coordinates, rules, state, checkpoints, progression and rewards are unchanged.
-- No new image files, paid assets, third-party libraries, font requests or repeating animation. The stylesheet is about 14.3 KB raw / 4.2 KB gzip.
+- No new image files, paid assets, third-party libraries, font requests or repeating animation. The stylesheet is about 14.8 KB raw / 4.3 KB gzip.
 
 ## Changed files
 

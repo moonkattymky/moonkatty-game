@@ -91,7 +91,11 @@ let origin;
       }
       await plan(p);await capture(p,variant,lang,view,'chapter1-plan');if(variant==='after')await metrics(p,label+'/plan');
       await p.locator('#storyNext').click();await p.locator('#fieldResume').click();
-      await capture(p,variant,lang,view,'chapter1-rover');if(variant==='after')await metrics(p,label+'/rover');
+      await capture(p,variant,lang,view,'chapter1-rover');if(variant==='after'){
+        await metrics(p,label+'/rover');
+        const overlaps=await p.evaluate(()=>{const a=document.querySelector('#fieldTelemetry').getBoundingClientRect(),b=document.querySelector('#fieldMission .field-footer').getBoundingClientRect();return Math.min(a.right,b.right)>Math.max(a.left,b.left)&&Math.min(a.bottom,b.bottom)>Math.max(a.top,b.top);});
+        check(!overlaps,label+' rover telemetry is not covered by its sticky footer');
+      }
       const cellSizes=await p.locator('.field-map-cell>rect:first-child').evaluateAll(es=>es.map(e=>{const r=e.getBoundingClientRect();return {width:r.width,height:r.height};}));
       const minimumCell=Math.min(...cellSizes.flatMap(c=>[c.width,c.height]));
       report.svgTargetSizes.push({variant,lang,viewport:view,minimumCellPixels:minimumCell,meets44px:minimumCell>=44});

@@ -291,6 +291,11 @@
 }
 @media(orientation:portrait) and (max-height:700px) {
   #fieldMission[data-kind=rover] .field-world {width:min(100%,max(284px,calc(var(--mk-vh,100dvh)*.46)))}
+  #fieldMission[data-kind=rover] .field-head {padding-block:calc(8px + env(safe-area-inset-top)) 8px}
+  #fieldMission[data-kind=rover] .field-head h1 {font-size:19px;margin-top:3px}
+  #fieldMission[data-kind=rover] .field-route {padding-block:6px}
+  #fieldMission[data-kind=rover] .field-telemetry {padding-block:8px}
+  #fieldMission[data-kind=rover] .field-telemetry strong {font-size:18px}
 }
 @media(orientation:landscape) and (max-height:600px) {
   #home .mk-home-hero {grid-template-columns:42% minmax(0,1fr);padding-block-end:16px;direction:ltr}
