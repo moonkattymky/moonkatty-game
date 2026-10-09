@@ -211,3 +211,14 @@ full reload/reset/resume specification and tests; persisted bounded transport;
 route-owner binding and stale/replayed-route policy; Edge/runtime resource
 validation; separate integration/receipt/settlement review and authorization.
 None of those changes is included in this slice.
+
+
+## Native v2 research continuation
+
+A separately and explicitly selected native v2 geometry ABI is now authored.
+See [the browser parity gate](life1-browser-parity.md#explicit-native-v2-abi-and-limits)
+for its schema, supported rendering lane, historical failures and pending gates.
+The original ideal v1 model, fixtures and benchmark above remain frozen research
+context. No runtime, route issuance, reward policy, receipt service or settlement
+integration is included. Do not treat v1 benchmark figures or retained geometry
+observations as v2 production validation.

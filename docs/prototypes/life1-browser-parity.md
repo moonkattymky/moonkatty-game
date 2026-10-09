@@ -16,17 +16,19 @@ layout parity; no threshold or boolean assertion is relaxed to obtain a pass.
 Local browser/socket execution is not used; the independent diagnostic and
 full workflows provide actual Chromium evidence.
 
-## First CI result and diagnostic follow-up
+## Historical CI evidence and explicit v2 continuation
 
 The first full run, `37977916761` / job `113980757948`, on PR47 head
 `e5d741d4005f2a1e2352cb0104b2d359f988d2f3` finished with 71/73 suites passing.
 The Chapter 1 browser suite passed 19/23 cases: all 15 frame/layout scenarios,
 all three earned quests, and puzzles/lifecycle. Each compact/large/fractional
 strict-boundary case reported 36 decision mismatches. The ordinary-motion
-entry-cache case also failed its cached-width assertion. The model boundary failures remain unresolved. The independently fixed runtime
-entrance-cache case is now retested against PR49. This diagnostic follow-up does
-not change the candidate model, production files, tolerances, boolean assertions
-or expected results.
+entry-cache case also failed its cached-width assertion. The next diagnostic head, `3e63fdca200ad6111e663e4ed6661c89684681d8`,
+finished 77/78 full suites in run `38000639057`; only the prototype parity
+suite failed. Its focused run `38000641665` passed 20/23 browser cases: the
+entrance-cache case passed, and the same three strict cases still failed.
+The following v2 candidate addresses those model failures without changing
+production files, numerical tolerances or strict boolean assertions.
 
 The CI log previously kept only the first mismatch from three failed cases,
 so it omitted the animation measurements and most independent native edges.
@@ -41,11 +43,11 @@ and hotspot rectangles at each strict proximity probe. These observations
 never become model input.
 
 A path-filtered `Chapter 1 prototype parity diagnostics` workflow runs these
-four non-browser suites and the real Chromium parity suite directly, providing
+eight non-browser suites and the real Chromium parity suite directly, providing
 shorter feedback on prototype changes. It does not replace or modify the full
-aggregate workflow. No CI rerun has yet verified this follow-up. The source
-fingerprint checks and eight-group non-browser harness contract pass locally;
-no local browser/socket process was launched.
+aggregate workflow. The v2 candidate below still needs its own exact-head native run. Source
+fingerprint and harness checks pass locally; no local browser/socket process
+was launched.
 
 ## Run in an authorized browser-capable environment
 
@@ -72,9 +74,9 @@ the original source fingerprints. It does not listen on a port or import
 Playwright. Do not use `npm test` in an environment where browser execution is
 prohibited; it includes the browser suite.
 
-## Coverage authored (not yet browser-verified)
+## Current v2 coverage authored (fresh native validation pending)
 
-23 independent cases run in fresh browser contexts:
+27 independent cases run in fresh browser contexts:
 
 - 15 reduced-motion geometry/movement cases: 30, 60 and 120 explicit frames/sec
   for 320×568, 360×640, 390×844, 520×1000, and a fractional containing-block case
@@ -83,12 +85,19 @@ prohibited; it includes the browser suite.
   captured release outside the pad, and subsequent stopped frames
 - A real viewport resize in each case, with the original ResizeObserver doing
   cached-geometry refresh and walkable-position recovery
-- Separate compact, large and fractional strict-boundary cases, using identical
+- Separate strict-boundary cases at all five layouts, using identical
   query coordinates for candidate/oracle collision decisions and actual DOM
-  player placement around the strict proximity threshold
+  player placement around the strict proximity threshold for all five targets;
+  earned quests also
+  probe the real nearby (1.08) and collected (0.25) hotspot transforms
+- Two explicitly constrained 200px/64px square containing blocks check reset
+  ordering: a logical nearby energy may remain selected after its visual class
+  is cleared. These are boundary fixtures, not claimed phone layouts.
 - Three earned full quests with seeds 0, 571 and uint32 maximum: real energy
   collection, repair sequence, tuning, exactly 25 active interval callbacks,
-  delayed completion, paused completion delay, and frozen completed movement
+  delayed completion, paused completion delay, and frozen completed movement.
+  Each complete recorded event stream is also passed unfiltered to the pure v2
+  verifier and its full final state must match the recorder model state
 - A puzzle/lifecycle case: wrong repair, watch timing, hidden auto-pause,
   explicit resume, terminal-close regeneration, disabled-cell screen return,
   ±3/±4 tuning, signal loss, antenna close, paused hold, and leaving before the
@@ -103,10 +112,11 @@ not a claim about a physical device or a particular phone's achievable layout.
 ## Independence and test-only setup
 
 The suite loads the full unchanged `index.html` and normal script/CSS order.
-`life1-model.js` is added through Playwright only; the game loader still does not
-import it. No DOMRect getter, obstacle, player size, or source physics is mocked.
-The model retains its own ideal layout calculation. Measured browser rectangles
-are never substituted into the candidate's obstacle or hotspot geometry.
+`life1-native-geometry.js` and `life1-model.js` are added through Playwright
+only; the game loader imports neither. No DOMRect getter, obstacle, player size,
+or source physics is mocked. The explicitly selected v2 profile independently
+computes layout from width, height and absolute left/top primitives. Measured
+obstacle, player and hotspot rectangles never become model geometry inputs.
 
 The test-only adapter:
 
@@ -121,7 +131,9 @@ The test-only adapter:
    function, and their observed timestamps feed the model. It never injects a
    hold/delay callback, rounds its recorded timestamp, or changes its due time.
 4. Registers a second ResizeObserver after production's. It records actual
-   dimension changes, including flex changes caused by mission-status text.
+   source cache replacement and primitive envelope changes, including flex changes
+   caused by mission-status text. A separate position-only view event updates live
+   geometry without refreshing cached collision edges or running nearby logic.
    Geometry/nearest-target assertions defer only until the native observer
    transition settles; no source geometry refresh is called by the adapter.
    Each action drains that bounded observation before further navigation.
@@ -173,13 +185,16 @@ Coordinate tolerance converts that same CSS-pixel budget to percentages;
 normalized distance tolerance is at most twice it over the smaller dimension.
 Other scalar controller values are compared to 1e-8. Discrete states, each
 repair button's disabled state, nearest target, strict collision results, and
-strict proximity reachability have no epsilon allowance. A tiny geometry
-residual that changes an actual decision is a failure, not a tolerated pass.
+strict proximity reachability have no epsilon allowance. The v2 lane additionally requires exact raw world, obstacle, player and all-target
+rectangle fields, exact cached/live collision edges, and exact strict-probe
+distances. The legacy numerical checks remain as extra diagnostics; they do
+not forgive a raw-field mismatch. A tiny geometry residual that changes an
+actual decision is a failure, not a tolerated pass.
 
-Near-threshold probes include ideal model edges and measured browser edges
+Near-threshold probes include independently computed model edges and measured browser edges
 with ±1e-7 percentage offsets, plus proximity positions at −0.125, 0 and +0.125
 CSS px from the mathematical boundary. Those deliberate adversarial cases can
-expose the model's current lack of subpixel quantization. Do not weaken their
+expose any remaining mismatch in rounding or expression order. Do not weaken their
 booleans or import oracle rectangles to make them pass.
 
 ## Isolation and remaining gates
@@ -190,12 +205,55 @@ URL, API paths and mutation requests are rejected. Page routing aborts every
 nonlocal request, service workers are blocked, and WebSockets are closed.
 Nothing calls a live API or uses an authenticated player. All data and report
 values are synthetic. Authored isolation is covered by non-browser tests;
-actual browser routing still awaits CI.
+the historical native runs used this isolation; the changed v2 lane needs its
+own exact-head run.
 
 This gate does not establish native timer jitter or recovery cadence. Native
 setInterval may deliver a late callback followed by a shorter recovery interval,
 where the current prototype's minimum-spacing admission could reject legitimate
 source behavior. That remains a separate recorded-timing/ingestion design gate.
-Likewise, entrance-transform cache drift is a source-grounded hypothesis until
-the ordinary-motion case runs. No result from this unexecuted fixture authorizes
+The entrance-cache regression passed on the reviewed runtime, including the
+prototype diagnostic head. No prototype result authorizes
 runtime adoption, receipt issuance, transport, account binding or settlement.
+
+
+## Explicit native v2 ABI and limits
+
+The trusted synthetic route must select
+`life1-css-3b1f9f8b-chromium145-settled-v2`. This selects proof version 2 and
+`life1-variable-dt-prototype-2`; absent selection retains the frozen ideal v1
+research profile. Unknown, inherited or mismatched selectors fail closed. There
+is no automatic upgrade, downgrade, fallback or interpretation of old proofs as
+v2. The production route schema and controllers remain untouched.
+
+V2 models the pinned Chromium 145.0.7632.6 settled CSS lane: percentage float32
+arithmetic, truncation to 1/64 CSS px, separately resolved right/bottom anchors,
+transformed float rectangles and unchanged absolute-coordinate expression order.
+Collision geometry remains frozen until the original controller refreshes it;
+live proximity uses the current view origin. Nearby/collected transforms derive
+from model state, never from submitted matrices or rectangles. The logical near
+target and displayed nearby class are tracked separately because the unchanged
+initial reset clears energy classes after computing its selected target.
+
+Only `[width, height, left, top]` is declared initially or at a real cache refresh.
+A view event carries only new left/top. Sizes are 64..4096 CSS px, origins
+-4096..4096, all on a 1/64 grid. This is a bounded consistency declaration, not
+attestation that a client actually had that screen. Existing movement, semantic,
+byte and replay caps are unchanged; layout and view declarations share the
+128-entry budget, including the initial envelope. The verifier preflights the
+whole trace before replay. No checkpoint, claimed completion, caller obstacle
+geometry or transform is accepted.
+
+The browser lane explicitly rejects unsupported DPR, zoom, ancestor transforms
+and scroll instead of silently approximating them. The initial profile covers
+DPR 1, unit zoom, zero scroll and reduced-motion settled geometry. A separate
+ordinary-motion regression tests the real controller cache, without claiming
+full animation replay parity. Other engines, real phones, native timer jitter,
+scroll/zoom, persistence and production recorder/receipt integration remain open.
+
+Local independent evidence includes 10,007 C++ float/layout arithmetic cases
+(compiled without fast-math or contraction), retained Chromium obstacle/player/
+hotspot observations, exact neighboring-number collision tests, 12 complete
+synthetic v2 quests and verifier admission/resource cases. These do not replace
+the fresh 27-case browser gate. The initial v1 benchmark remains historical;
+its throughput must not be attributed to v2 or production Edge capacity.

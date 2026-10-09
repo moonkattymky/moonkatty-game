@@ -11,22 +11,23 @@ function exactKeys(o,keys){return o!==null&&typeof o==='object'&&!Array.isArray(
 function replayLife1(trustedRoute,body){
  let work={events:0,replayed:0,movement:0,semantic:0,layouts:0,bytes:0};
  try{
-  Model.routeKey(trustedRoute);
+  const challenge=Model.routeKey(trustedRoute),profile=Model.profileForRoute(trustedRoute);
   // No object input, compressed codecs, counts, claimed results or checkpoints.
   // String length check precedes UTF-8 allocation and JSON.parse.
   if(typeof body!=='string')fail('body-must-be-json-string');
   if(body.length>LIMITS.decodedBytes)fail('decoded-byte-limit');
   work.bytes=utf8Bytes(body);if(work.bytes>LIMITS.decodedBytes)fail('decoded-byte-limit');
-  // Prototype v1 is uncompressed JSON, so encoded and decoded bytes are identical.
+  // Both explicitly selected prototypes use uncompressed JSON with the same caps.
   if(work.bytes>LIMITS.encodedBytes)fail('encoded-byte-limit');
   let proof;try{proof=JSON.parse(body);}catch{fail('invalid-json');}
   if(!exactKeys(proof,['version','route','challenge','rules','layout','initial','events']))fail('invalid-proof-shape');
-  if(proof.version!==1||proof.route!==trustedRoute.route||proof.challenge!==Model.routeKey(trustedRoute)||proof.rules!==Model.RULES||proof.layout!==Model.LAYOUT)fail('identity-mismatch');
-  if(!Array.isArray(proof.initial)||proof.initial.length!==2)fail('invalid-initial-layout');
+  if(proof.version!==profile.version||proof.route!==trustedRoute.route||proof.challenge!==challenge||proof.rules!==profile.rules||proof.layout!==profile.layout)fail('identity-mismatch');
+  Model.validateInitial(proof.initial,profile.layout);
   if(!Array.isArray(proof.events)||proof.events.length>LIMITS.movement+LIMITS.semantic+LIMITS.layouts)fail('event-limit');
-  let state=Model.create(trustedRoute,...proof.initial);work.layouts=1;
+  work.layouts=1;let lastTime=0;
   // Validate the entire trace and all work budgets BEFORE replay. No truncation.
-  for(const e of proof.events){Model.validateEvent(e);work.events++;if(e[0]==='frame'){if(++work.movement>LIMITS.movement)fail('movement-limit');}else if(e[0]==='layout'){if(++work.layouts>LIMITS.layouts)fail('layout-limit');}else if(++work.semantic>LIMITS.semantic)fail('semantic-limit');}
+  for(const e of proof.events){Model.validateEvent(e,profile.layout);work.events++;if(e[1]<lastTime)fail('time-reordered');lastTime=e[1];if(e[0]==='frame'){if(++work.movement>LIMITS.movement)fail('movement-limit');}else if(e[0]==='layout'||e[0]==='view'){if(++work.layouts>LIMITS.layouts)fail('layout-limit');}else if(++work.semantic>LIMITS.semantic)fail('semantic-limit');}
+  let state=Model.create(trustedRoute,...proof.initial);
   for(const e of proof.events){const reason=Model.admissible(state,e);if(reason)fail(reason);state=Model.transition(state,e);work.replayed++;}
   return {ok:true,complete:Model.won(state),state,work};
  }catch(e){return {ok:false,complete:false,error:e.code||'invalid-proof',work};}

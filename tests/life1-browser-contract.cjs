@@ -18,7 +18,7 @@ test('Frame matrix is explicitly 30/60/120Hz and includes compact/large/fraction
 test('Only local static GET/HEAD assets can be served',()=>{
   for(const file of ['/','/app.js?v=1','/chapters-1-4.css','/art/moonkatty-walk.webp','/locales/runtime/en.json'])assert(runner.localAsset(file),file);
   assert(runner.localAsset('/index.html','HEAD'));
-  for(const file of ['/.git/config','/%2eenv','/server/rewards/index.ts','/tests/first-three.cjs','/node_modules/playwright/index.js','/api/rewards','/life1-model.js','/docs/prototypes/life1-replay.md','/%zz'])assert.equal(runner.localAsset(file),null,file);
+  for(const file of ['/.git/config','/%2eenv','/server/rewards/index.ts','/tests/first-three.cjs','/node_modules/playwright/index.js','/api/rewards','/life1-model.js','/life1-native-geometry.js','/docs/prototypes/life1-replay.md','/%zz'])assert.equal(runner.localAsset(file),null,file);
   assert.equal(runner.localAsset('/app.js','POST'),null);
 });
 test('Network boundary rejects live hosts, alternate ports and API mutations',()=>{
@@ -49,9 +49,11 @@ test('Source prototype production contract is unchanged',()=>{
   for(const [file,want]of Object.entries(manifest.sha256))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex'),want,file);
 });
 test('Candidate model is injected only by tests, never the runtime loader',()=>{
-  const html=fs.readFileSync(path.join(root,'index.html'),'utf8');assert(!html.includes('life1-model.js'));
+  const html=fs.readFileSync(path.join(root,'index.html'),'utf8');assert(!html.includes('life1-model.js'));assert(!html.includes('life1-native-geometry.js'));
   const driver=fs.readFileSync(path.join(__dirname,'life1-browser-parity.cjs'),'utf8');
   assert(driver.includes("addScriptTag({path:path.join(ROOT,'life1-model.js')})"));
+  assert(driver.includes("addScriptTag({path:path.join(ROOT,'life1-native-geometry.js')})"));
+  assert(driver.includes('life1_profile:Model.NATIVE_PROFILE'),'native profile is explicitly selected by the synthetic trusted route');
   assert(driver.includes("server.listen(0,'127.0.0.1'"));assert(driver.includes("serviceWorkers:'block'"));assert(driver.includes('routeWebSocket'));
 });
 test('Adapter does not manufacture rectangles, repair outcomes or source geometry refresh',()=>{
@@ -60,5 +62,9 @@ test('Adapter does not manufacture rectangles, repair outcomes or source geometr
   assert(!/(?:life1Stage|repairCells|targetFrequency|signalHoldProgress)\s*=(?!=)/.test(code));
   assert(code.includes("eq(M.blocked(state,call.x,call.y),call.blocked"));assert(code.includes('candidate<.24'));
   assert(code.includes("if(typeof life1MoveFrame!=='undefined')cancelAnimationFrame(life1MoveFrame)"));
+  assert(code.includes('exactRect(N.playerRect')&&code.includes('exactRect(N.spotRect'),'raw native rectangles have exact checks');
+  assert(code.includes('every target has strict proximity coverage'));
+  assert(code.includes('displayed nearby classes')&&code.includes('logical near'));
+  assert(code.includes('assertNativeLane()')&&code.includes('Unsupported native v2 ancestor'),'unsupported rendering contexts fail instead of silently approximating');
 });
 console.log(JSON.stringify({suite:'life1-browser-contract',passed:checks,browserRun:false,socketRun:false}));

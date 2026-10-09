@@ -1,0 +1,800 @@
+{
+  "provenance": {
+    "artifact": "moonkatty-native-parity-3e63fdca.json",
+    "sha256": "b2dad066816162750ff81109fd5d902ddcf0668a474815b61efbe1767a473f40",
+    "publishedPrototypeHead": "3e63fdca",
+    "browserVersion": "145.0.7632.6",
+    "coverage": "Three settled untransformed layouts; nine unscaled energy-1 proximity queries. Observations are expected outputs only, not replay geometry. Additional transforms need native evidence."
+  },
+  "rows": [
+    {
+      "scenario": "compact-strict-boundaries",
+      "browserVersion": "145.0.7632.6",
+      "world": {
+        "left": 10,
+        "top": 92.1875,
+        "right": 310,
+        "bottom": 323.40625,
+        "width": 300,
+        "height": 231.21875
+      },
+      "browserPosition": [
+        50,
+        68
+      ],
+      "player": {
+        "left": 121,
+        "top": 182.7468719482422,
+        "right": 199,
+        "bottom": 260.74688720703125,
+        "width": 78,
+        "height": 78.00001525878906
+      },
+      "spots": [
+        {
+          "id": "1",
+          "left": 40.796875,
+          "top": 214.5625,
+          "right": 92.796875,
+          "bottom": 276.5625,
+          "width": 52,
+          "height": 62
+        },
+        {
+          "id": "2",
+          "left": 97.40625,
+          "top": 141.21875,
+          "right": 149.40625,
+          "bottom": 203.21875,
+          "width": 52,
+          "height": 62
+        },
+        {
+          "id": "3",
+          "left": 239.125,
+          "top": 166.4375,
+          "right": 291.125,
+          "bottom": 228.4375,
+          "width": 52,
+          "height": 62
+        },
+        {
+          "id": "repair",
+          "left": 199.25,
+          "top": 228.25,
+          "right": 273.25,
+          "bottom": 313.25,
+          "width": 74,
+          "height": 85
+        },
+        {
+          "id": "antenna",
+          "left": 225.09375,
+          "top": 129.859375,
+          "right": 297.09375,
+          "bottom": 223.859375,
+          "width": 72,
+          "height": 94
+        }
+      ],
+      "obstacles": [
+        {
+          "i": 0,
+          "raw": {
+            "left": 88.46875,
+            "top": 210.078125,
+            "right": 139.125,
+            "bottom": 260.734375,
+            "width": 50.65625,
+            "height": 50.65625
+          },
+          "model": {
+            "left": 27.16,
+            "right": 42.046666666666674,
+            "top": 58.87894580348696,
+            "bottom": 72.03635626436005
+          },
+          "cached": {
+            "left": 27.15625,
+            "right": 42.041666666666664,
+            "top": 58.873631571834025,
+            "bottom": 72.03000405460197
+          },
+          "native": {
+            "left": 27.15625,
+            "right": 42.041666666666664,
+            "top": 58.873631571834025,
+            "bottom": 72.03000405460197
+          }
+        },
+        {
+          "i": 1,
+          "raw": {
+            "left": 231.515625,
+            "top": 237.59375,
+            "right": 273.234375,
+            "bottom": 279.3125,
+            "width": 41.71875,
+            "height": 41.71875
+          },
+          "model": {
+            "left": 74.84,
+            "right": 86.74666666666667,
+            "top": 69.38321935396677,
+            "bottom": 80.0660900121638
+          },
+          "cached": {
+            "left": 74.83854166666667,
+            "right": 86.74479166666667,
+            "top": 69.3823489660765,
+            "bottom": 80.06487363157183
+          },
+          "native": {
+            "left": 74.83854166666667,
+            "right": 86.74479166666667,
+            "top": 69.3823489660765,
+            "bottom": 80.06487363157183
+          }
+        },
+        {
+          "i": 2,
+          "raw": {
+            "left": 177.875,
+            "top": 187.15625,
+            "right": 216.609375,
+            "bottom": 225.890625,
+            "width": 38.734375,
+            "height": 38.734375
+          },
+          "model": {
+            "left": 56.96000000000001,
+            "right": 67.87333333333333,
+            "top": 47.10953912690904,
+            "bottom": 56.96756318421408
+          },
+          "cached": {
+            "left": 56.958333333333336,
+            "right": 67.86979166666667,
+            "top": 47.10393296391405,
+            "bottom": 56.96040005406135
+          },
+          "native": {
+            "left": 56.958333333333336,
+            "right": 67.86979166666667,
+            "top": 47.10393296391405,
+            "bottom": 56.96040005406135
+          }
+        }
+      ],
+      "proximity": [
+        {
+          "kind": "strict-proximity",
+          "offset": -0.125,
+          "x": 37.30453020134228,
+          "y": 78.38582140422632,
+          "candidate": 0.239459386403568,
+          "browser": 0.2394242469001492,
+          "candidateReach": true,
+          "browserReach": true,
+          "player": {
+            "left": 83.15625,
+            "top": 206.5593719482422,
+            "right": 161.15625,
+            "bottom": 284.55938720703125,
+            "width": 78,
+            "height": 78.00001525878906
+          },
+          "spot": {
+            "left": 40.796875,
+            "top": 214.5625,
+            "right": 92.796875,
+            "bottom": 276.5625,
+            "width": 52,
+            "height": 62
+          },
+          "style": {
+            "left": "37.3045%",
+            "top": "78.3858%"
+          }
+        },
+        {
+          "kind": "strict-proximity",
+          "offset": 0,
+          "x": 37.34647651006711,
+          "y": 78.38582140422632,
+          "candidate": 0.23999999999999996,
+          "browser": 0.23996486049572427,
+          "candidateReach": true,
+          "browserReach": true,
+          "player": {
+            "left": 83.28125,
+            "top": 206.5593719482422,
+            "right": 161.28125,
+            "bottom": 284.55938720703125,
+            "width": 78,
+            "height": 78.00001525878906
+          },
+          "spot": {
+            "left": 40.796875,
+            "top": 214.5625,
+            "right": 92.796875,
+            "bottom": 276.5625,
+            "width": 52,
+            "height": 62
+          },
+          "style": {
+            "left": "37.3465%",
+            "top": "78.3858%"
+          }
+        },
+        {
+          "kind": "strict-proximity",
+          "offset": 0.125,
+          "x": 37.388422818791945,
+          "y": 78.38582140422632,
+          "candidate": 0.24054061359643192,
+          "browser": 0.24050547409130318,
+          "candidateReach": false,
+          "browserReach": false,
+          "player": {
+            "left": 83.40625,
+            "top": 206.5593719482422,
+            "right": 161.40625,
+            "bottom": 284.55938720703125,
+            "width": 78,
+            "height": 78.00001525878906
+          },
+          "spot": {
+            "left": 40.796875,
+            "top": 214.5625,
+            "right": 92.796875,
+            "bottom": 276.5625,
+            "width": 52,
+            "height": 62
+          },
+          "style": {
+            "left": "37.3884%",
+            "top": "78.3858%"
+          }
+        }
+      ],
+      "boundary": {
+        "kind": "strict-collision",
+        "source": "model",
+        "i": 0,
+        "edge": "left",
+        "delta": -1e-07,
+        "x": 27.1599999,
+        "y": 65.4576510339235,
+        "candidate": false,
+        "browser": true
+      }
+    },
+    {
+      "scenario": "large-strict-boundaries",
+      "browserVersion": "145.0.7632.6",
+      "world": {
+        "left": 14,
+        "top": 90.234375,
+        "right": 506,
+        "bottom": 735,
+        "width": 492,
+        "height": 644.765625
+      },
+      "browserPosition": [
+        50,
+        68
+      ],
+      "player": {
+        "left": 221,
+        "top": 462.01251220703125,
+        "right": 299,
+        "bottom": 540.0125122070312,
+        "width": 78,
+        "height": 78
+      },
+      "spots": [
+        {
+          "id": "1",
+          "left": 64,
+          "top": 543.453125,
+          "right": 116,
+          "bottom": 605.453125,
+          "width": 52,
+          "height": 62
+        },
+        {
+          "id": "2",
+          "left": 157.09375,
+          "top": 337.765625,
+          "right": 209.09375,
+          "bottom": 399.765625,
+          "width": 52,
+          "height": 62
+        },
+        {
+          "id": "3",
+          "left": 423.609375,
+          "top": 408.46875,
+          "right": 475.609375,
+          "bottom": 470.46875,
+          "width": 52,
+          "height": 62
+        },
+        {
+          "id": "repair",
+          "left": 372.203125,
+          "top": 623.296875,
+          "right": 446.203125,
+          "bottom": 708.296875,
+          "width": 74,
+          "height": 85
+        },
+        {
+          "id": "antenna",
+          "left": 413.40625,
+          "top": 194.0625,
+          "right": 485.40625,
+          "bottom": 288.0625,
+          "width": 72,
+          "height": 94
+        }
+      ],
+      "obstacles": [
+        {
+          "i": 0,
+          "raw": {
+            "left": 142.390625,
+            "top": 419.03125,
+            "right": 225.6875,
+            "bottom": 502.328125,
+            "width": 83.296875,
+            "height": 83.296875
+          },
+          "model": {
+            "left": 26.707317073170735,
+            "right": 42.41869918699187,
+            "top": 55.64789046407367,
+            "bottom": 63.60613110384102
+          },
+          "cached": {
+            "left": 26.70541158536585,
+            "right": 42.416158536585364,
+            "top": 55.645607657821394,
+            "bottom": 63.60353810735491
+          },
+          "native": {
+            "left": 26.70541158536585,
+            "right": 42.416158536585364,
+            "top": 55.645607657821394,
+            "bottom": 63.60353810735491
+          }
+        },
+        {
+          "i": 1,
+          "raw": {
+            "left": 377.59375,
+            "top": 496.171875,
+            "right": 446.1875,
+            "bottom": 564.765625,
+            "width": 68.59375,
+            "height": 68.59375
+          },
+          "model": {
+            "left": 74.51219512195122,
+            "right": 87.23577235772359,
+            "top": 66.78990427723252,
+            "bottom": 73.289010056949
+          },
+          "cached": {
+            "left": 74.51092479674797,
+            "right": 87.23323170731707,
+            "top": 66.78880407124682,
+            "bottom": 73.28728947049558
+          },
+          "native": {
+            "left": 74.51092479674797,
+            "right": 87.23323170731707,
+            "top": 66.78880407124682,
+            "bottom": 73.28728947049558
+          }
+        },
+        {
+          "i": 2,
+          "raw": {
+            "left": 289.390625,
+            "top": 354.765625,
+            "right": 353.078125,
+            "bottom": 418.453125,
+            "width": 63.6875,
+            "height": 63.6875
+          },
+          "model": {
+            "left": 56.585365853658544,
+            "right": 68.31300813008131,
+            "top": 44.58455834242094,
+            "bottom": 50.59728583545377
+          },
+          "cached": {
+            "left": 56.583460365853654,
+            "right": 68.30856199186992,
+            "top": 44.58344844299043,
+            "bottom": 50.594935175087855
+          },
+          "native": {
+            "left": 56.583460365853654,
+            "right": 68.30856199186992,
+            "top": 44.58344844299043,
+            "bottom": 50.594935175087855
+          }
+        }
+      ],
+      "proximity": [
+        {
+          "kind": "strict-proximity",
+          "offset": -0.125,
+          "x": 39.378571428571426,
+          "y": 79.42436249604978,
+          "candidate": 0.23974593495934957,
+          "browser": 0.23974212700878816,
+          "candidateReach": true,
+          "browserReach": true,
+          "player": {
+            "left": 168.953125,
+            "top": 535.4343872070312,
+            "right": 246.953125,
+            "bottom": 613.4343872070312,
+            "width": 78,
+            "height": 78
+          },
+          "spot": {
+            "left": 64,
+            "top": 543.453125,
+            "right": 116,
+            "bottom": 605.453125,
+            "width": 52,
+            "height": 62
+          },
+          "style": {
+            "left": "39.3786%",
+            "top": "79.4244%"
+          }
+        },
+        {
+          "kind": "strict-proximity",
+          "offset": 0,
+          "x": 39.40408163265306,
+          "y": 79.42436249604978,
+          "candidate": 0.23999999999999996,
+          "browser": 0.23999619204623618,
+          "candidateReach": true,
+          "browserReach": true,
+          "player": {
+            "left": 169.078125,
+            "top": 535.4343872070312,
+            "right": 247.078125,
+            "bottom": 613.4343872070312,
+            "width": 78,
+            "height": 78
+          },
+          "spot": {
+            "left": 64,
+            "top": 543.453125,
+            "right": 116,
+            "bottom": 605.453125,
+            "width": 52,
+            "height": 62
+          },
+          "style": {
+            "left": "39.4041%",
+            "top": "79.4244%"
+          }
+        },
+        {
+          "kind": "strict-proximity",
+          "offset": 0.125,
+          "x": 39.42959183673469,
+          "y": 79.42436249604978,
+          "candidate": 0.24025406504065036,
+          "browser": 0.24025025708369102,
+          "candidateReach": false,
+          "browserReach": false,
+          "player": {
+            "left": 169.203125,
+            "top": 535.4343872070312,
+            "right": 247.203125,
+            "bottom": 613.4343872070312,
+            "width": 78,
+            "height": 78
+          },
+          "spot": {
+            "left": 64,
+            "top": 543.453125,
+            "right": 116,
+            "bottom": 605.453125,
+            "width": 52,
+            "height": 62
+          },
+          "style": {
+            "left": "39.4296%",
+            "top": "79.4244%"
+          }
+        }
+      ],
+      "boundary": {
+        "kind": "strict-collision",
+        "source": "model",
+        "i": 0,
+        "edge": "left",
+        "delta": -1e-07,
+        "x": 26.707316973170734,
+        "y": 59.627010783957346,
+        "candidate": false,
+        "browser": true
+      }
+    },
+    {
+      "scenario": "fractional-strict-boundaries",
+      "browserVersion": "145.0.7632.6",
+      "world": {
+        "left": 35.3125,
+        "top": 85.546875,
+        "right": 394.6875,
+        "bottom": 655.125,
+        "width": 359.375,
+        "height": 569.578125
+      },
+      "browserPosition": [
+        50,
+        68
+      ],
+      "player": {
+        "left": 176,
+        "top": 406.20001220703125,
+        "right": 254,
+        "bottom": 484.20001220703125,
+        "width": 78,
+        "height": 78
+      },
+      "spots": [
+        {
+          "id": "1",
+          "left": 72.046875,
+          "top": 478.609375,
+          "right": 124.046875,
+          "bottom": 540.609375,
+          "width": 52,
+          "height": 62
+        },
+        {
+          "id": "2",
+          "left": 139.9375,
+          "top": 296.984375,
+          "right": 191.9375,
+          "bottom": 358.984375,
+          "width": 52,
+          "height": 62
+        },
+        {
+          "id": "3",
+          "left": 320.25,
+          "top": 359.421875,
+          "right": 372.25,
+          "bottom": 421.421875,
+          "width": 52,
+          "height": 62
+        },
+        {
+          "id": "repair",
+          "left": 276.8125,
+          "top": 546.421875,
+          "right": 350.8125,
+          "bottom": 631.421875,
+          "width": 74,
+          "height": 85
+        },
+        {
+          "id": "antenna",
+          "left": 307.40625,
+          "top": 177.359375,
+          "right": 379.40625,
+          "bottom": 271.359375,
+          "width": 72,
+          "height": 94
+        }
+      ],
+      "obstacles": [
+        {
+          "i": 0,
+          "raw": {
+            "left": 129.21875,
+            "top": 376,
+            "right": 189.96875,
+            "bottom": 436.75,
+            "width": 60.75,
+            "height": 60.75
+          },
+          "model": {
+            "left": 26.96834782608696,
+            "right": 42.20417391304348,
+            "top": 54.83640962335061,
+            "bottom": 61.31179875456068
+          },
+          "cached": {
+            "left": 26.965217391304346,
+            "right": 42.199999999999996,
+            "top": 54.834115161989416,
+            "bottom": 61.30908292870272
+          },
+          "native": {
+            "left": 26.965217391304346,
+            "right": 42.199999999999996,
+            "top": 54.834115161989416,
+            "bottom": 61.30908292870272
+          }
+        },
+        {
+          "i": 1,
+          "raw": {
+            "left": 300.765625,
+            "top": 444.109375,
+            "right": 350.796875,
+            "bottom": 494.140625,
+            "width": 50.03125,
+            "height": 50.03125
+          },
+          "model": {
+            "left": 74.70121739130434,
+            "right": 86.95373913043478,
+            "top": 66.11664005705978,
+            "bottom": 71.38734809206376
+          },
+          "cached": {
+            "left": 74.7,
+            "right": 86.95217391304347,
+            "top": 66.11450360738486,
+            "bottom": 71.38507118755658
+          },
+          "native": {
+            "left": 74.7,
+            "right": 86.95217391304347,
+            "top": 66.11450360738486,
+            "bottom": 71.38507118755658
+          }
+        },
+        {
+          "i": 2,
+          "raw": {
+            "left": 236.4375,
+            "top": 319.25,
+            "right": 282.890625,
+            "bottom": 365.703125,
+            "width": 46.453125,
+            "height": 46.453125
+          },
+          "model": {
+            "left": 56.80139130434784,
+            "right": 68.05947826086958,
+            "top": 43.9680125092585,
+            "bottom": 48.83716017886045
+          },
+          "cached": {
+            "left": 56.8,
+            "right": 68.05652173913043,
+            "top": 43.966971168353766,
+            "bottom": 48.8354867912106
+          },
+          "native": {
+            "left": 56.8,
+            "right": 68.05652173913043,
+            "top": 43.966971168353766,
+            "bottom": 48.8354867912106
+          }
+        }
+      ],
+      "proximity": [
+        {
+          "kind": "strict-proximity",
+          "offset": -0.125,
+          "x": 41.37460650577125,
+          "y": 79.34810736407432,
+          "candidate": 0.23965217391304347,
+          "browser": 0.23965217406957198,
+          "candidateReach": true,
+          "browserReach": true,
+          "player": {
+            "left": 145.171875,
+            "top": 470.60626220703125,
+            "right": 223.171875,
+            "bottom": 548.6062622070312,
+            "width": 78,
+            "height": 78
+          },
+          "spot": {
+            "left": 72.046875,
+            "top": 478.609375,
+            "right": 124.046875,
+            "bottom": 540.609375,
+            "width": 52,
+            "height": 62
+          },
+          "style": {
+            "left": "41.3746%",
+            "top": "79.3481%"
+          }
+        },
+        {
+          "kind": "strict-proximity",
+          "offset": 0,
+          "x": 41.40958377054915,
+          "y": 79.34810736407432,
+          "candidate": 0.24,
+          "browser": 0.24000000015630166,
+          "candidateReach": false,
+          "browserReach": false,
+          "player": {
+            "left": 145.296875,
+            "top": 470.60626220703125,
+            "right": 223.296875,
+            "bottom": 548.6062622070312,
+            "width": 78,
+            "height": 78
+          },
+          "spot": {
+            "left": 72.046875,
+            "top": 478.609375,
+            "right": 124.046875,
+            "bottom": 540.609375,
+            "width": 52,
+            "height": 62
+          },
+          "style": {
+            "left": "41.4096%",
+            "top": "79.3481%"
+          }
+        },
+        {
+          "kind": "strict-proximity",
+          "offset": 0.125,
+          "x": 41.44456103532704,
+          "y": 79.34810736407432,
+          "candidate": 0.2403478260869565,
+          "browser": 0.24034782624303197,
+          "candidateReach": false,
+          "browserReach": false,
+          "player": {
+            "left": 145.421875,
+            "top": 470.60626220703125,
+            "right": 223.421875,
+            "bottom": 548.6062622070312,
+            "width": 78,
+            "height": 78
+          },
+          "spot": {
+            "left": 72.046875,
+            "top": 478.609375,
+            "right": 124.046875,
+            "bottom": 540.609375,
+            "width": 52,
+            "height": 62
+          },
+          "style": {
+            "left": "41.4446%",
+            "top": "79.3481%"
+          }
+        }
+      ],
+      "boundary": {
+        "kind": "strict-collision",
+        "source": "model",
+        "i": 0,
+        "edge": "left",
+        "delta": -1e-07,
+        "x": 26.968347726086957,
+        "y": 58.074104188955644,
+        "candidate": false,
+        "browser": true
+      }
+    }
+  ]
+}

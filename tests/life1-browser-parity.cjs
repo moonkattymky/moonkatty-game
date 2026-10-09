@@ -5,6 +5,8 @@
  * authoring where browser/socket execution is prohibited. */
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),http=require('node:http');
 const {DEFAULT_ROUTE}=require('./fixtures/life1-playthrough.cjs');
+const Model=require('../life1-model.js');
+const Verifier=require('../server/rewards/life1-verifier.cjs');
 const installAdapter=require('./fixtures/life1-browser-adapter.cjs');
 const ROOT=path.resolve(__dirname,'..');
 const VIEWPORTS=Object.freeze([
@@ -27,7 +29,7 @@ function localAsset(raw,method='GET') {
   const file=path.resolve(ROOT,'.'+name);
   if(!file.startsWith(ROOT+path.sep))return null;
   // Tests and server source are not served; the model is injected by Playwright.
-  if(/^\/(tests|server|tools|docs|supabase|node_modules)\//.test(name)||name==='/life1-model.js')return null;
+  if(/^\/(tests|server|tools|docs|supabase|node_modules)\//.test(name)||['/life1-model.js','/life1-native-geometry.js'].includes(name))return null;
   return file;
 }
 function allowedRequest(url,method,origin) {
@@ -51,7 +53,7 @@ function summarizeFailure(entry,browserVersion) {
 async function main() {
   const {chromium}=require('playwright');
   const output=process.env.MKTY_TEST_OUTPUT||fs.mkdtempSync('/tmp/mkty-life1-browser-');fs.mkdirSync(output,{recursive:true});
-  const report={suite:'life1-browser-parity',browserExecution:'started',clock:'Playwright virtual clock + explicit Chapter 1 frames',
+  const report={suite:'life1-browser-parity',profile:Model.NATIVE_PROFILE,browserExecution:'started',clock:'Playwright virtual clock + explicit Chapter 1 frames',
     physicalDeviceCoverage:false,productionFilesModified:false,scenarios:[],blockedRequests:[],failed:0};
   let browser;
   const server=http.createServer((req,res)=>{
@@ -79,9 +81,10 @@ async function main() {
       await page.addInitScript(require('./story-finale-fixture.cjs'));
       await page.addInitScript(()=>{localStorage.setItem('mkty_test_no_pacing','yes');localStorage.setItem('mkty_lang','en');});
       await page.goto(report.origin+'/',{waitUntil:'load',timeout:30000});
-      await page.evaluate(async width=>{
+      await page.evaluate(async fixture=>{
         await document.fonts.ready;
-        if(width)document.getElementById('app').style.width=width+'px';
+        if(fixture.containerWidth)document.getElementById('app').style.width=fixture.containerWidth+'px';
+        if(fixture.worldSize){const world=document.getElementById('life1World');Object.assign(world.style,{width:fixture.worldSize+'px',height:fixture.worldSize+'px',minHeight:'0px',flex:'none'});}
         // Seeded prerequisite records isolate the finale, just as first-three.cjs.
         // show() is screen-only entry; no checkpoint restore/reset is asserted.
         show('mission1');cancelAnimationFrame(l1MoveFrame);
@@ -89,16 +92,27 @@ async function main() {
         // queued registrations must be cancelled before controlled frames begin.
         if(typeof life1MoveFrame!=='undefined')cancelAnimationFrame(life1MoveFrame);
         await Promise.all([...document.querySelectorAll('link[rel="stylesheet"][href]')].map(link=>link.sheet?null:new Promise((resolve,reject)=>{link.addEventListener('load',resolve,{once:true});link.addEventListener('error',reject,{once:true});})));
-      },config.containerWidth||null);
+      },{containerWidth:config.containerWidth||null,worldSize:config.worldSize||null});
       if(ordinaryMotion) {
         await body(page,entry); // Dedicated observation, no forced refresh/adaptor.
       } else {
+        await page.addScriptTag({path:path.join(ROOT,'life1-native-geometry.js')});
         await page.addScriptTag({path:path.join(ROOT,'life1-model.js')});
-        entry.initial=await page.evaluate(installAdapter,{route:{...DEFAULT_ROUTE,seed:config.seed??571}});
+        entry.initial=await page.evaluate(installAdapter,{route:{...DEFAULT_ROUTE,seed:config.seed??571,life1_profile:Model.NATIVE_PROFILE}});
         await settle(page);
         await body(page,entry);
         await settle(page);await page.evaluate(()=>window.__life1Parity.check());
-        entry.adapter=await page.evaluate(()=>window.__life1Parity.report());
+        const recorded=await page.evaluate(()=>{const state=window.__life1Parity.snapshot().model;return {state,report:window.__life1Parity.report()};});
+        entry.adapter=recorded.report;
+        if(entry.complete){
+          // All observed full-quest events are verified, with no filtering of
+          // unknown observations, no supplied checkpoint and no state shortcut.
+          const a=entry.adapter,proof={version:a.profile.version,route:a.route.route,challenge:Model.routeKey(a.route),rules:a.profile.rules,layout:a.profile.layout,initial:a.initial,events:a.events};
+          const verified=Verifier.verifyLife1(a.route,JSON.stringify(proof));
+          assert.equal(verified.ok,true,'Native recorded quest must pass pure verifier: '+verified.error);
+          assert.equal(verified.complete,true);assert.deepEqual(verified.state,recorded.state);
+          entry.verifiedReplay={complete:verified.complete,work:verified.work};
+        }
         assert.equal(entry.adapter.failure,null,'Recorded asynchronous divergence');assert.equal(entry.adapter.pendingLayout,null,'Final layout must settle');
       }
       assert.deepEqual(entry.pageErrors,[],'Unhandled application/browser adapter errors');entry.passed=true;
@@ -155,7 +169,18 @@ async function main() {
     assert(distance<.24,'Candidate navigation must genuinely reach '+id);
   }
   async function earnRepair(page) {
-    for(const id of ['1','2','3']){await navigate(page,id);await action(page,'collect',id);}
+    for(const id of ['1','2','3']){
+      await navigate(page,id);
+      if(id==='1'){
+        // Real movement triggers the ordinary nearby refresh; no class or
+        // transform is forced by the fixture. Probe the native 1.08 state.
+        await frame(page,100,[.1,0]);await action(page,'stop');
+        assert.equal((await snap(page)).browser.near,'1','first target is genuinely nearby');
+        await page.evaluate(()=>window.__life1Parity.strictProbes());
+      }
+      await action(page,'collect',id);
+      if(id==='1')await page.evaluate(()=>window.__life1Parity.strictProbes()); // native collected .25 state
+    }
     await navigate(page,'repair');await action(page,'open','repair');
   }
   async function joystick(page,hz,entry) {
@@ -194,7 +219,7 @@ async function main() {
     await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});
     report.origin='http://127.0.0.1:'+server.address().port;
     browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH,args:['--no-sandbox']});
-    report.browserVersion=browser.version();
+    report.browserVersion=browser.version();assert.equal(report.browserVersion,'145.0.7632.6','Native profile requires its reviewed browser engine');
     for(const config of VIEWPORTS)for(const hz of RATES)await scenario(`${config.name}-${hz}hz`,{...config,hz},async(page,entry)=>{
       await frame(page,0,[0,0]);
       for(const [axes,count] of [[[1,0],30],[[0,-1],30],[[-1,-1],12],[[0,1],12],[[.08,0],2],[[.0800001,0],2]])
@@ -205,8 +230,17 @@ async function main() {
     });
     // Keep strict boundary failures separate, so a legitimate quantization
     // discrepancy does not prevent the movement/timer matrix from running.
-    for(const config of [VIEWPORTS[0],VIEWPORTS[3],VIEWPORTS[4]])await scenario(`${config.name}-strict-boundaries`,config,async page=>{
+    for(const config of VIEWPORTS)await scenario(`${config.name}-strict-boundaries`,config,async page=>{
       await page.evaluate(()=>window.__life1Parity.strictProbes());
+    });
+    // Deliberately constrained containing blocks exercise reset ordering, not
+    // phone layouts. All object CSS and the real reset remain unchanged.
+    for(const [size,target] of [[200,'2'],[64,'1']])await scenario(`reset-nearby-${size}`,{viewport:{width:390,height:844},worldSize:size},async page=>{
+      let current=await snap(page);assert.equal(current.model.near,target);assert.equal(current.browser.near,target);
+      assert.equal(current.model.highlightedNear,null);assert.deepEqual(current.browser.highlighted,[]);
+      await frame(page,100,[.1,0]);current=await snap(page);
+      assert.equal(current.model.near,target);assert.equal(current.model.highlightedNear,null);
+      assert.deepEqual(current.browser.highlighted,[],'same logical target does not restore a cleared visual class');
     });
     for(const [i,config] of [VIEWPORTS[0],VIEWPORTS[2],VIEWPORTS[4]].entries())await scenario(`${config.name}-full-quest`,{...config,seed:[0,571,0xffffffff][i]},async(page,entry)=>{
       await earnRepair(page);const s=await snap(page);

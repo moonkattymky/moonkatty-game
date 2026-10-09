@@ -4,15 +4,17 @@
  * Original controller functions run in full; wrappers observe timer/collision
  * calls. This is an experimental recorder, not production trace ingestion. */
 module.exports = function installLife1BrowserAdapter({route}) {
-  const M = window.Life1Prototype;
+  const M = window.Life1Prototype, N = window.Life1NativeGeometry;
   if (!M || window.__life1Parity) throw Error('Missing model or duplicate adapter');
+  if(route.life1_profile!==M.NATIVE_PROFILE)throw Error('Browser lane requires explicitly selected native v2 profile');
+  if(!N||N.ID!==M.NATIVE_PROFILE)throw Error('Native geometry dependency/profile mismatch');
   const PX = 1 / 16; // <= four Chromium 1/64px layout units; never used for booleans.
   const original = {interval: window.setInterval, timeout: window.missionTimeout,
     blocked: window.life1Blocked, frame: window.life1MoveLoop};
   const rng = M.random(M.challengeSeed(route));
   const report = {route, toleranceCssPx: PX, events: [], randomDraws: [], geometry: [],
     probes: [], input: [], collisions: 0, comparisons: 0, failure: null};
-  let state, timerKind = null, collisionCalls = null, lastPointer=null, beforeEvent=null;
+  let state, timerKind = null, collisionCalls = null, lastPointer=null, beforeEvent=null, observedCache=null;
   $('life1Joystick').addEventListener('pointermove',ev=>{
     const r=$('life1Joystick').getBoundingClientRect();
     lastPointer={trusted:ev.isTrusted,type:ev.pointerType,clientX:ev.clientX,clientY:ev.clientY,
@@ -22,6 +24,9 @@ module.exports = function installLife1BrowserAdapter({route}) {
   const eq = (a, b, label) => {if (JSON.stringify(a) !== JSON.stringify(b)) throw Error(`${label}: model=${JSON.stringify(a)} browser=${JSON.stringify(b)}`);};
   const close = (a, b, limit, label) => {if (!Number.isFinite(a) || !Number.isFinite(b) || Math.abs(a-b) > limit) throw Error(`${label}: model=${a} browser=${b} tolerance=${limit}`);};
   const rect = el => {const r = el.getBoundingClientRect(); return {left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height};};
+  const exact = (a,b,label) => {if(!Object.is(a,b))throw Error(`${label}: model=${a} browser=${b} (exact native field)`);};
+  const exactRect = (a,b,label) => {for(const k of ['left','top','right','bottom','width','height'])exact(a[k],b[k],label+'.'+k);};
+  const targetIds = ['1','2','3','repair','antenna'];
   const spot = id => document.querySelector(id==='repair' ? '#repairTerminal' : id==='antenna' ? '#antennaHotspot' : `.energy[data-energy="${id}"]`);
   function snapshot() {
     return {x:l1PX,y:l1PY,moveX:l1MoveX,moveY:l1MoveY,lastFrame:l1LastFrame,nearbyAt:l1NearbyAt,
@@ -34,6 +39,7 @@ module.exports = function installLife1BrowserAdapter({route}) {
       holding:signalHoldTimer!==null,repairOpen:!$('repairPanel').hidden,antennaOpen:!$('antennaPanel').hidden,
       completeVisible:!$('life1Complete').hidden,active:$('mission1').classList.contains('active'),
       paused:!!window.MKTYExperience.paused,hidden:document.hidden,
+      highlighted:targetIds.filter(id=>spot(id).classList.contains('nearby')).sort(),
       near:l1Near?.dataset.energy||(l1Near?.id==='repairTerminal'?'repair':l1Near?.id==='antennaHotspot'?'antenna':null),
       geometry:copy(l1Geometry),world:rect($('life1World')),player:rect($('life1Player')),
       spots:['1','2','3','repair','antenna'].map(id=>({id,...rect(spot(id))})),
@@ -41,14 +47,23 @@ module.exports = function installLife1BrowserAdapter({route}) {
   }
   function geometry(v, label) {
     const g = state.geometry, w = v.world;
+    exactRect(state.liveGeometry.world,w,label+'.live envelope');
+    exactRect(N.playerRect(state.liveGeometry,state.x,state.y),v.player,label+'.native player');
     close(g.width,w.width,PX,label+'.live width');close(g.height,w.height,PX,label+'.live height');
     close(v.geometry.width,w.width,PX,label+'.cached width');close(v.geometry.height,w.height,PX,label+'.cached height');
     for (let i=0;i<3;i++) {
       const raw=v.obstacles[i];
+      exactRect(state.liveGeometry.rawObstacles[i],raw,`${label}.native obstacle ${i}`);
       // Independently measured DOMRects, not the model's own computed rectangles.
       const native={left:(raw.left+3-w.left)/w.width*100,right:(raw.right-3-w.left)/w.width*100,
         top:(raw.top+raw.height*.36-w.top)/w.height*100,bottom:(raw.bottom-2-w.top)/w.height*100};
       for (const edge of ['left','right','top','bottom']) {
+        // Compare each cache to the matching source epoch, never rebase the
+        // cached edges onto an origin-only live move. A late observation of
+        // refresh followed by origin change must fail rather than inventing
+        // the missing refresh envelope.
+        exact(g.obstacles[i][edge],v.geometry.obstacles[i][edge],`${label}.exact cached obstacle ${i}.${edge}`);
+        exact(state.liveGeometry.obstacles[i][edge],native[edge],`${label}.exact live obstacle ${i}.${edge}`);
         const dimension=edge==='left'||edge==='right'?w.width:w.height;
         close(g.obstacles[i][edge],native[edge],PX/dimension*100,`${label}.obstacle ${i}.${edge}`);
         close(v.geometry.obstacles[i][edge],native[edge],PX/dimension*100,`${label}.cached obstacle ${i}.${edge}`);
@@ -58,6 +73,7 @@ module.exports = function installLife1BrowserAdapter({route}) {
     close(1+state.y/100*g.innerHeight-27.3,(v.player.top+v.player.bottom)/2-w.top,PX,label+'.player center y');
     for (const p of g.spots) {
       const actual=v.spots.find(v=>v.id===p.id);
+      exactRect(N.spotRect(state.liveGeometry,p.id,state.highlightedNear,state.collected.includes(p.id)),actual,label+'.native target '+p.id);
       close(p.x,(actual.left+actual.right)/2-w.left,PX,label+'.'+p.id+' center x');
       close(p.y,(actual.top+actual.bottom)/2-w.top,PX,label+'.'+p.id+' center y');
       close(M.distance(state,p.id),l1DistanceTo(spot(p.id)),2*PX/Math.min(w.width,w.height),label+'.'+p.id+' distance');
@@ -74,7 +90,11 @@ module.exports = function installLife1BrowserAdapter({route}) {
       'holding','repairOpen','antennaOpen','completeVisible','active','paused','hidden','sequence','repairInput']) eq(state[k],v[k],label+'.'+k);
     eq([state.repairDisabled,state.repairDisabled,state.repairDisabled],v.cellsDisabled,label+'.each repair cell disabled');
     eq([...state.collected].sort(),v.collected.sort(),label+'.collected');
-    if(!pending){eq(state.near,v.near,label+'.near');if(state.active)geometry(v,label);}
+    if(!pending){
+      eq(state.near,v.near,label+'.logical near');
+      eq(state.highlightedNear?[state.highlightedNear]:[],v.highlighted,label+'.displayed nearby classes');
+      if(state.active)geometry(v,label);
+    }
     for (const call of collisionCalls||[]) {
       // Exact decisions at IDENTICAL query coordinates. The geometry tolerance
       // above never forgives a collided/not-collided or proximity disagreement.
@@ -94,8 +114,30 @@ module.exports = function installLife1BrowserAdapter({route}) {
     report.failure ||= {message:error.message,event,previous:copy(beforeEvent),model:copy(state),browser:snapshot(),nativeDetails:nativeDetails()};
     throw error;
   }
+  // Observe primitive envelopes only. A source cache replacement means a real
+  // refresh; a position-only layout change updates live origin without cache.
+  // Defer state comparison until the enclosing native input has been modeled.
+  function assertNativeLane() {
+    if(devicePixelRatio!==1||scrollX!==0||scrollY!==0||(visualViewport&&(visualViewport.scale!==1||visualViewport.offsetLeft!==0||visualViewport.offsetTop!==0)))throw Error('Unsupported native v2 DPR, zoom or page scroll');
+    for(let el=$('life1World');el;el=el.parentElement){const c=getComputedStyle(el);if(el.scrollLeft!==0||el.scrollTop!==0||c.transform!=='none'||Number(c.zoom)!==1)throw Error('Unsupported native v2 ancestor transform, zoom or scroll: '+el.id);}
+  }
+  function observeEnvelope(time=performance.now()) {
+    if(!state||!state.active)return;
+    assertNativeLane();
+    const w=$('life1World').getBoundingClientRect();
+    if(!w.width||!w.height||l1Geometry.width!==w.width||l1Geometry.height!==w.height)return;
+    const record=e=>{if(report.events.length>=12000)throw Error('Browser recorder event budget exceeded');state=M.transition(state,e);report.events.push(e);};
+    time=Math.max(time,state.now);
+    if(observedCache!==l1Geometry){
+      record(['layout',time,w.width,w.height,w.left,w.top]);observedCache=l1Geometry;
+      report.geometry.push({label:'observed source cache replacement',...snapshot()});
+    }else if(state.view.left!==w.left||state.view.top!==w.top){
+      record(['view',time,w.left,w.top]);
+    }
+  }
   function event(e, execute) {
     if (report.failure) throw Error(report.failure.message);
+    observeEnvelope(e[1]);
     if (report.events.length>=12000)throw Error('Browser recorder event budget exceeded');
     beforeEvent=copy(state);let next, error;
     try {next=M.transition(state,e);} catch(e) {error=e;}
@@ -105,7 +147,7 @@ module.exports = function installLife1BrowserAdapter({route}) {
     try {execute?.();} catch(oracleError) {return rememberFailure(oracleError,e);}
     if (error) return rememberFailure(error,e);
     state=next;
-    try {return compare(e[0]);} catch(error) {return rememberFailure(error,e);}
+    try {observeEnvelope();return compare(e[0]);} catch(error) {return rememberFailure(error,e);}
   }
   function seededReset(label, expectedDraws, execute) {
     const prior=Math.random,draws=[];
@@ -131,7 +173,8 @@ module.exports = function installLife1BrowserAdapter({route}) {
   cancelAnimationFrame(l1MoveFrame);
   if(typeof life1MoveFrame!=='undefined')cancelAnimationFrame(life1MoveFrame);
   seededReset('initial Chapter 1 reset',5,()=>resetLife1Mission());
-  const w=$('life1World').getBoundingClientRect();state=M.create(route,w.width,w.height);
+  assertNativeLane();const w=$('life1World').getBoundingClientRect();state=M.createNative(route,w.width,w.height,w.left,w.top);observedCache=l1Geometry;
+  report.profile=M.profileForRoute(route);report.initial=[w.width,w.height,w.left,w.top];
   window.__life1Parity={report:()=>copy(report)};
   try {compare('initial');} catch(error) {rememberFailure(error,['initial',performance.now()]);}
   report.geometry.push({label:'initial',...snapshot()});
@@ -142,12 +185,9 @@ module.exports = function installLife1BrowserAdapter({route}) {
     if(report.failure)return;
     const w=$('life1World').getBoundingClientRect();
     if(!state.active||!w.width||!w.height)return;
-    if(Math.abs(l1Geometry.width-w.width)>PX||Math.abs(l1Geometry.height-w.height)>PX)return;
-    try {
-      if(Math.abs(state.geometry.width-w.width)>1e-8||Math.abs(state.geometry.height-w.height)>1e-8){
-        const v=event(['layout',performance.now(),w.width,w.height]);report.geometry.push({label:'native ResizeObserver',...v});
-      }else compare('native geometry settled');
-    }catch(error){if(!report.failure)rememberFailure(error,['layout-observation',performance.now()]);}
+    if(l1Geometry.width!==w.width||l1Geometry.height!==w.height)return;
+    try {observeEnvelope();compare('native geometry settled');}
+    catch(error){if(!report.failure)rememberFailure(error,['layout-observation',performance.now()]);}
   }).observe($('life1World'));
   function act(op,...args) {
     const e=[op,performance.now(),...args];
@@ -198,8 +238,7 @@ module.exports = function installLife1BrowserAdapter({route}) {
     layout(label) {
       // ResizeObserver must already have executed the real refresh/recovery.
       // No refreshLife1Geometry call is made by this adapter.
-      const w=$('life1World').getBoundingClientRect();
-      const v=event(['layout',performance.now(),w.width,w.height]);
+      observeEnvelope();const v=compare('observed settled layout');
       report.geometry.push({label,...v});return v;
     },
     pagehide() {
@@ -210,7 +249,7 @@ module.exports = function installLife1BrowserAdapter({route}) {
       report.events.push(['observation:pagehide',performance.now()]);
     },
     strictProbes() {
-      const failures=[];
+      observeEnvelope();const failures=[];
       for(let i=0;i<3;i++) for(const source of ['model','browser']) {
         const r=source==='model'?state.geometry.obstacles[i]:l1Geometry.obstacles[i];
         for(const edge of ['left','right','top','bottom']) for(const delta of [-1e-7,0,1e-7]) {
@@ -223,33 +262,59 @@ module.exports = function installLife1BrowserAdapter({route}) {
       }
       // Position assignment here is isolated boundary setup, never a completion
       // shortcut or an expected result. Restore both positions in finally.
-      const prior={x:l1PX,y:l1PY,status:$('missionStatus').textContent},p=state.geometry.spots[0],g=state.geometry;
+      const prior={x:l1PX,y:l1PY,status:$('missionStatus').textContent},g=state.geometry,covered=new Set();
+      const offsets=[-.125,0,.125],inBounds=p=>p.x>=7&&p.x<=90&&p.y>=18&&p.y<=88;
+      const position=(p,dx,dy,offset)=>({
+        x:(p.x+(.24*Math.min(g.width,g.height)+offset)*dx-1)/g.innerWidth*100,
+        y:(p.y+(.24*Math.min(g.width,g.height)+offset)*dy+27.3-1)/g.innerHeight*100
+      });
       try {
-        for(const offset of [-.125,0,.125]) {
-          const x=(p.x+.24*Math.min(g.width,g.height)+offset-1)/g.innerWidth*100,y=(p.y+27.3-1)/g.innerHeight*100;
-          l1PX=x;l1PY=y;renderLife1Player();
-          const candidate=M.distance({...state,x,y},'1'),browser=l1DistanceTo(spot('1'));
-          const reached=canReachLife1(spot('1'));
-          // canReach changes presentation copy on failure; restore immediately
-          // so this isolated predicate probe does not itself resize the world.
-          $('missionStatus').textContent=prior.status;
-          eq(reached,browser<.24,'controller strict proximity predicate');
-          const probe={kind:'strict-proximity',offset,x,y,candidate,browser,candidateReach:candidate<.24,browserReach:reached,player:rect($('life1Player')),spot:rect(spot('1')),style:{left:$('life1Player').style.left,top:$('life1Player').style.top}};report.probes.push(probe);
-          if((candidate<.24)!==reached)failures.push(probe);
+        for(const id of targetIds){
+          const p=g.spots.find(p=>p.id===id);
+          // Preserve the original energy-1 rightward three probes exactly.
+          // Other targets may need a left/down/up or diagonal radius to keep
+          // every query inside the controller's bounded player domain.
+          const directions=id==='1'?[[1,0]]:[[1,0],[-1,0],[0,1],[0,-1],[Math.SQRT1_2,Math.SQRT1_2],[-Math.SQRT1_2,Math.SQRT1_2],[Math.SQRT1_2,-Math.SQRT1_2],[-Math.SQRT1_2,-Math.SQRT1_2]];
+          const direction=directions.find(([dx,dy])=>offsets.every(offset=>inBounds(position(p,dx,dy,offset))));
+          if(!direction)throw Error('No in-bounds strict proximity probes for '+id);
+          for(const offset of offsets) {
+            const [dx,dy]=direction;
+            // Keep the old energy-1 operation order as well as its positions.
+            const {x,y}=id==='1'?{x:(p.x+.24*Math.min(g.width,g.height)+offset-1)/g.innerWidth*100,y:(p.y+27.3-1)/g.innerHeight*100}:position(p,dx,dy,offset);
+            l1PX=x;l1PY=y;renderLife1Player();
+            const candidate=M.distance({...state,x,y},id),browser=l1DistanceTo(spot(id));
+            const reached=canReachLife1(spot(id));
+            // canReach changes presentation copy on failure; restore immediately
+            // so this isolated predicate probe does not itself resize the world.
+            $('missionStatus').textContent=prior.status;
+            eq(reached,browser<.24,'controller strict proximity predicate');
+            const player=rect($('life1Player')),target=rect(spot(id));
+            const probe={kind:'strict-proximity',target:id,near:state.near,highlightedNear:state.highlightedNear,collected:state.collected.includes(id),transform:getComputedStyle(spot(id)).transform,direction,offset,x,y,candidate,browser,candidateReach:candidate<.24,browserReach:reached,player,spot:target,style:{left:$('life1Player').style.left,top:$('life1Player').style.top}};report.probes.push(probe);
+            // These independently observed rectangles remain expected outputs;
+            // neither the model nor any transcript accepts them as inputs.
+            exactRect(N.playerRect(state.liveGeometry,x,y),player,'strict player for '+id);
+            exactRect(N.spotRect(state.liveGeometry,id,state.highlightedNear,state.collected.includes(id)),target,'strict target '+id);
+            exact(candidate,browser,'strict native distance for '+id);
+            if((candidate<.24)!==reached)failures.push(probe);
+            covered.add(id);
+          }
         }
-      } finally {l1PX=prior.x;l1PY=prior.y;$('missionStatus').textContent=prior.status;renderLife1Player();}
+      } catch(error) {rememberFailure(error,['strict-probes',performance.now()]);}
+      finally {l1PX=prior.x;l1PY=prior.y;$('missionStatus').textContent=prior.status;renderLife1Player();}
+      eq([...covered],targetIds,'every target has strict proximity coverage');
       if(failures.length)rememberFailure(Error(`${failures.length} strict boundary decision mismatches; see probes`),['strict-probes',performance.now()]);
       compare('after strict probes');return report.probes;
     },
-    snapshot:()=>({model:copy(state),browser:snapshot(),lastPointer:copy(lastPointer)}),
+    snapshot:()=>{observeEnvelope();return {model:copy(state),browser:snapshot(),lastPointer:copy(lastPointer)};},
     layoutSettled:()=>{
       if(report.failure)throw Error(report.failure.message);
+      observeEnvelope();compare('observed layout poll');
       const w=$('life1World').getBoundingClientRect();
       const fresh=state.active&&(Math.abs(state.geometry.width-w.width)>1e-8||Math.abs(state.geometry.height-w.height)>1e-8||
         Math.abs(l1Geometry.width-w.width)>PX||Math.abs(l1Geometry.height-w.height)>PX);
       return !fresh&&!report.pendingLayout;
     },
-    check:()=>{const v=compare('explicit check');if(report.pendingLayout)throw Error('Unsettled observed layout: '+JSON.stringify(report.pendingLayout));return v;},
+    check:()=>{observeEnvelope();const v=compare('explicit check');if(report.pendingLayout)throw Error('Unsettled observed layout: '+JSON.stringify(report.pendingLayout));return v;},
     report:()=>copy(report)
   };
   return {world:rect($('life1World')),model:copy(state)};
