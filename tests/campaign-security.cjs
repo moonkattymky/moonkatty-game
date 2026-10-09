@@ -21,6 +21,9 @@ const omitted=structuredClone(proof);omitted.tasks.pop();assert.equal((await cal
 await call(302,'player');const other=await call(302,'campaign.open',{life:1,seed:golden.route.seed,edition:2});assert.notEqual(other.route.route,proof.route);assert.equal((await call(302,'life.complete',{life:1,proof})).error,'proof_required','another player cannot reuse a route receipt');
 const good=await call(301,'life.complete',{life:1,proof});assert.equal(good.player?.moon_points,500,JSON.stringify(good));assert.equal((await call(301,'life.complete',{life:1})).awarded,false);
 assert.deepEqual(cleanSnapshot({mkty_points:'9999',mkty_life1:'complete',mkty_life1_memory_code:'1234567890'}),{mkty_life1_memory_code:'1234567890'});
+const savedCloud=await call(302,'campaign.cloud',{revision:0,snapshot:{mkty_life1_memory_code:'1234567890'}});assert.equal(savedCloud.revision,1);
+const rejectedCloud=await call(302,'campaign.cloud',{revision:1,snapshot:{mkty_story_plan_1_v1:'x'.repeat(180000),mkty_current_chapter:'1'}});assert.equal(rejectedCloud.status,413);assert.equal(rejectedCloud.error,'snapshot_too_large');
+const unchangedCloud=await call(302,'campaign.cloud');assert.equal(unchangedCloud.revision,1);assert.deepEqual(unchangedCloud.snapshot,{mkty_life1_memory_code:'1234567890'},'rejected oversized upload never replaces the previous cloud save');
 const bad=structuredClone(golden);bad.proof.tasks[2].state.trace=[['tick',1e9,0,0,false,false]];assert.throws(()=>validateProof(bad.route,bad.proof),/proof/);
 assert.equal((await call(302,'life.complete',{life:1,proof:'x'.repeat(410000)})).status,413);
 await db.close();console.log('PASS: missing/forged/cross-account proofs rejected, actual UI action/physics replay accepted, atomic payout once, bounded input and protected cloud keys');})().catch(e=>{console.error(e);process.exit(1)});

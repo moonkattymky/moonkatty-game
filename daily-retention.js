@@ -19,7 +19,15 @@
  let state = null, input = [], letters = [], busy = false, flash = '';
 
  // ---------- DEMO (local only) ----------
- function demo() { try { return JSON.parse(localStorage.getItem('mkty_daily_demo') || '{}'); } catch { return {}; } }
+ function demo() {
+  let d;try{d=JSON.parse(localStorage.getItem('mkty_daily_demo')||'{}');}catch{}
+  if(!d||typeof d!=='object'||Array.isArray(d))d={};
+  d.attempts=Number.isInteger(d.attempts)?Math.max(0,Math.min(MAX_ATTEMPTS,d.attempts)):0;
+  d.streak=Number.isSafeInteger(d.streak)&&d.streak>=0?d.streak:0;
+  d.solved=d.solved===true;d.codes=Array.isArray(d.codes)?d.codes.filter(x=>typeof x==='string'):[];
+  if(typeof d.last_day!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(d.last_day)||!Number.isFinite(dayNum(d.last_day)))delete d.last_day;
+  return d;
+ }
  function saveDemo(d) { localStorage.setItem('mkty_daily_demo', JSON.stringify(d)); }
  function demoPoints(n) { if (locked() || n <= 0) return; const p = Number(localStorage.getItem('mkty_points') || 0) + n; localStorage.setItem('mkty_points', String(p)); if ($('points')) $('points').textContent = p + ' ⭐'; }
  function demoWord(day) { return DEMO_WORDS[((dayNum(day) % DEMO_WORDS.length) + DEMO_WORDS.length) % DEMO_WORDS.length]; }

@@ -17,7 +17,7 @@ window.MKTYHub=(()=>{
  const metric=(v,l)=>`<div><strong>${esc(v)}</strong><small>${l}</small></div>`;
  function nav(){root.querySelector('.hub-nav').innerHTML=navItems.map(([id,icon,label])=>`<button data-hub="${id}" ${id===(['crew','ranking'].includes(route)?route:'more')?'aria-current="page"':''}><b aria-hidden="true">${icon}</b><span>${tr(...label)}</span></button>`).join('');}
  function notice(text){$('hubNotice').textContent=text;}
- function open(next){if(next==='home'||next==='chapters'){show(next);return;}if(!routes[next])return;route=next;crewDetail='';journalChapter=0;show('missionControl');render();$('hubTitle').focus({preventScroll:true});}
+ function open(next){if(next==='home'||next==='chapters'){show(next);return;}if(!routes[next])return;route=next;crewDetail='';journalChapter=0;show('missionControl');render();$('app').scrollTop=0;$('hubBody').scrollTop=0;root.scrollTop=0;$('hubTitle').focus({preventScroll:true});}
  function onScreen(id){if(id!=='missionControl'){request?.abort();requestID++;root.querySelector('video')?.pause();}if(id==='home')homeLabels();}
  function totalStages(){return Array.from({length:9},(_,i)=>MKTYStory.read(i+1)?.done.length||0).reduce((a,b)=>a+b,0);}
  function profile(){return MKTYExpedition.snapshot().profile;}
