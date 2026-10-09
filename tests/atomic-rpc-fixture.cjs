@@ -35,6 +35,24 @@ exports.atomicFixture=fetcher=>async function call(url,opts={}){
  }
  if(name==='mkty_restore_lives')return res(await restore(b.p_id));
  if(name==='mkty_reward')return res(await reward(b.p_id,b.p_key,b.p_type,b.p_points,b.p_meta));
+ if(name==='mkty_creator_submit'||name==='mkty_social_submit'){
+  const creator=name==='mkty_creator_submit',table=creator?'creator_submissions':'social_submissions',p=await player(b.p_id);
+  if(p.balance_locked_at)return res({error:'locked'});
+  const key=creator?'url_norm':'proof_norm',value=creator?b.p_url_norm:b.p_proof_norm;
+  const existing=(await rest(table,'GET',{[key]:'eq.'+value}))[0];
+  if(existing)return res(existing.telegram_id===b.p_id?{submission:existing,duplicate:true}:{error:creator?'duplicate_url':'duplicate_proof'});
+  const rows=await rest(table,'GET',{telegram_id:'eq.'+b.p_id}),today=b.p_now.slice(0,10);
+  if(creator){if(rows.some(r=>Date.parse(r.created_at)>=now-7*86400000))return res({error:'weekly'});}
+  else{
+   if(rows.filter(r=>r.status==='pending').length>=3)return res({error:'pending_limit'});
+   const same=rows.filter(r=>r.platform===b.p_platform&&r.kind===b.p_kind&&r.status!=='rejected');
+   if(b.p_kind==='follow'&&same.length)return res({error:'already'});
+   if(b.p_kind==='daily'&&same.some(r=>r.day===today))return res({error:'daily_limit'});
+  }
+  const body=creator?{url:b.p_url,url_norm:b.p_url_norm,caption:b.p_caption}:{kind:b.p_kind,proof:b.p_proof,proof_norm:b.p_proof_norm,code:b.p_code,day:today};
+  const row=(await rest(table,'POST',{}, {telegram_id:b.p_id,platform:b.p_platform,...body,status:'pending',created_at:b.p_now}))[0];
+  return res({submission:row,duplicate:false});
+ }
  if(name==='mkty_review'){
   const table=b.p_entity+'_submissions',sub=(await rest(table,'GET',{id:'eq.'+b.p_id}))[0];
   if(!sub)return res({error:'submission'});

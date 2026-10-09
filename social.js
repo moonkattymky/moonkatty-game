@@ -68,7 +68,7 @@ ${codeCard('x')}${codeCard('tiktok')}
   const f=e.target.closest?.('.sv-form');if(!f)return;e.preventDefault();
   const pl=f.dataset.pl,proof=f.proof.value.trim();if(!proof){st.msg[pl]=t(ERR.proof);render();return;}
   st.busy=true;render();const r=await call('social.submit',{platform:pl,kind:f.dataset.kind,proof});st.busy=false;
-  if(r.ok){st.data={...st.data,...r};st.msg[pl]=t('Sent for review. Points arrive after approval.');}else st.msg[pl]=t(ERR[r.error]||ERR.unavailable);
+  if(r.ok){st.data={...st.data,...r};st.msg[pl]=r.duplicate?t(ERR.duplicate_proof)+' '+({pending:t('ON REVIEW'),approved:t('APPROVED'),rejected:t('REJECTED')}[r.submission?.status]||''):t('Sent for review. Points arrive after approval.');}else st.msg[pl]=t(ERR[r.error]||ERR.unavailable);
   render();
  });
  window.addEventListener('mkty:language',render);

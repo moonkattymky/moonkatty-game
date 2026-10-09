@@ -10,6 +10,7 @@ const {PGlite}=require('@electric-sql/pglite');
  await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20261008201825_launch_campaign_integrity.sql'),'utf8'));
  await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20261009120925_prelaunch_referral_caps.sql'),'utf8'));
  await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20261009151834_trusted_campaign_routes.sql'),'utf8'));
+ await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations/20261009153246_atomic_submission_admission.sql'),'utf8'));
  const {createHandler}=await import('../server/rewards/core.mjs');
  const {issueSession,verifySession}=await import('../server/rewards/session.mjs');
  let clock=new Date('2026-10-08T12:00Z');

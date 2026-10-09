@@ -64,17 +64,10 @@ export function createCreator({rest,clock,insertReward,applyPoints,adminIds}){
   const caption=typeof body.caption==='string'?body.caption.trim():'';
   if(caption.length>2000||!HASHTAG.test(caption))throw Error('hashtag');
   if(body.own!==true)throw Error('own');
-  const since=new Date(clock().getTime()-CREATOR_WEEK_MS).toISOString();
-  const recent=await rest('/rest/v1/creator_submissions',{params:{select:'id,created_at',telegram_id:'eq.'+player.telegram_id,created_at:'gte.'+since,limit:1}});
-  if(recent?.length)throw Error('weekly');
-  const dup=await rest('/rest/v1/creator_submissions',{params:{select:'id',url_norm:'eq.'+v.url_norm,limit:1}});
-  if(dup?.length)throw Error('duplicate_url');
-  let row;
-  try{
-   const rows=await rest('/rest/v1/creator_submissions',{method:'POST',body:JSON.stringify({telegram_id:player.telegram_id,platform:v.platform,url:v.url,url_norm:v.url_norm,caption:caption.slice(0,2000),status:'pending'})});
-   row=Array.isArray(rows)?rows[0]:rows;
-  }catch(e){const msg=String(e.message||e);if(msg==='duplicate'||msg.includes('23505'))throw Error('duplicate_url');throw e;}
-  return {submission:publicSub(row),...await mine(player)};
+  // Admission, quota checks and retries share one database transaction/player lock.
+  const r=await rest('/rest/v1/rpc/mkty_creator_submit',{method:'POST',body:JSON.stringify({p_id:player.telegram_id,p_platform:v.platform,p_url:v.url,p_url_norm:v.url_norm,p_caption:caption,p_now:clock().toISOString()})});
+  if(r.error)throw Error(r.error);
+  return {submission:publicSub(r.submission),duplicate:!!r.duplicate,...await mine(player)};
  }
 
  async function getSub(id){
