@@ -31,12 +31,16 @@ for(let stage=0;stage<4;stage++)for(let seed=0;seed<40;seed++)for(const scanned 
  for(const m of svg.matchAll(/<g data-field-cell=[\s\S]*?<\/g>/g))assert(!/<svg|<image|<use/.test(m[0]),'atlas artwork cannot enlarge interaction group bounds');
  for(const m of cells)assert.equal(+m[2],R.layout(s).walls.includes(+m[1])?-1:0,'wall keyboard semantics unchanged');
  assert.equal(new Set([...svg.matchAll(/data-prop="([^"]+)"/g)].map(m=>m[1])).size,8,'all eight obstacle silhouettes differ');
- assert.equal((svg.match(/class="lunar-objective"/g)||[]).length,3);assert.equal((svg.match(/class="lunar-hazard"/g)||[]).length,3);
+ assert.equal((svg.match(/class="lunar-objective"/g)||[]).length,3);assert(!/class="lunar-objective"[^>]+opacity=/.test(svg),'objective badge opacity never fades with collected art');assert.equal((svg.match(/class="lunar-hazard"/g)||[]).length,3);
  assert.equal((svg.match(/class="lunar-exit"/g)||[]).length,1);
  const bytes=Buffer.byteLength(svg),nodes=(svg.match(/<[a-zA-Z]/g)||[]).length;maxBytes=Math.max(maxBytes,bytes);maxNodes=Math.max(maxNodes,nodes);
  assert(bytes<48000,'SVG per-redraw source budget <48KB');assert(nodes<650,'SVG DOM budget <650 nodes');
  scenes++;
 }
+// A next-step cue must not invite the player into an unscanned hazardous tile.
+const cueState=R.create(1,0,0);for(const cell of [31,32,26])assert(R.act(cueState,'move',cell));
+let cueSvg=c.window.FieldArt.scene(cueState,1),hazardCell=cueSvg.match(/<g data-field-cell="27"[^>]*>/)[0];assert(!hazardCell.includes('reachable'),'unscanned hazard has no legal-next-step cue');
+assert(R.act(cueState,'scan'));cueSvg=c.window.FieldArt.scene(cueState,1);hazardCell=cueSvg.match(/<g data-field-cell="27"[^>]*>/)[0];assert(hazardCell.includes('reachable'),'scanned adjacent hazard gets a legal-next-step cue');
 const lum=h=>h.match(/../g).map(x=>parseInt(x,16)/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0),contrast=(a,b)=>(Math.max(lum(a),lum(b))+.05)/(Math.min(lum(a),lum(b))+.05);
 const pairs=[['objective','fff2cf','173e52'],['recovered','fff2cf','315b65'],['exit','eff6df','174959']];for(const [name,a,b]of pairs)assert(contrast(a,b)>=4.5,name+' label has >=4.5:1 opaque contrast');
 const p95=times.sort((a,b)=>a-b)[Math.floor(times.length*.95)];assert(p95<15,'source renderer p95 <15ms on test runner (not a physical phone benchmark)');

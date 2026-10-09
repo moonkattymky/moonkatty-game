@@ -172,7 +172,7 @@ let origin;
 })().catch(e=>{report.failures.push(e.message);process.exitCode=1;}).finally(async()=>{
   if(browser)await browser.close();server.close();
   fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2));
-  const pairs=report.screenshots.filter(s=>s.variant==='after');
+  const pairs=report.screenshots.filter(s=>s.variant==='after'&&report.screenshots.some(b=>b.variant==='before'&&b.lang===s.lang&&b.width===s.width&&b.height===s.height&&b.screen===s.screen));
   fs.writeFileSync(path.join(out,'index.html'),'<!doctype html><meta charset="utf-8"><title>MOONKATTY source preview</title><style>body{margin:30px;background:#091f30;color:#eef5f6;font:16px system-ui}h1{font-weight:600}section{margin-block:32px}div{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}figure{margin:0}img{max-width:min(100%,568px);border:1px solid #496579}figcaption{margin:8px 0;color:#eace9d}</style><h1>MOONKATTY · actual source-build previews</h1><p>Before: reviewed PR45. After: proposed visual-only branch. Seeded local fixtures, not production or authenticated gameplay.</p>'+pairs.map(s=>`<section><h2>${s.screen} · ${s.lang} · ${s.width}×${s.height}</h2><div><figure><figcaption>BEFORE · PR45</figcaption><img src="${s.file.replace(/^after/,'before')}"></figure><figure><figcaption>AFTER · visual preview</figcaption><img src="${s.file}"></figure></div></section>`).join(''));
   console.log(JSON.stringify({screenshots:report.screenshots.length,checks:report.checks.length,failures:report.failures,out},null,2));
   if(report.failures.length)process.exitCode=1;
