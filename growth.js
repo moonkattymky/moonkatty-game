@@ -51,7 +51,7 @@
    '<label class="mk-invite-label" for="mkInviteLink">Your invite link</label><input id="mkInviteLink" readonly dir="ltr" translate="no">' +
    '<p id="mkInviteHint" class="mk-invite-hint" hidden>Open the game in Telegram to get your personal invite link.</p>' +
    '<div class="mk-invite-actions"><button type="button" id="mkInviteSend" class="primary">Invite friends</button><button type="button" id="mkInviteCopy" class="ghost">Copy link</button></div>' +
-   '<p class="mk-invite-final">Referral Moon Points count toward your FINAL MOON POINTS BALANCE, which may be used to determine the MKTY reward after launch. No fixed MKTY conversion rate, no guaranteed value.</p><p class="mk-invite-fine">Verified by the server. Self-invites don\'t count. Daily limit applies.</p></div>';
+   '<p class="mk-invite-final">Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.</p><p class="mk-invite-fine">Verified by the server. Self-invites don\'t count. Daily limit applies.</p></div>';
   ($('app') || document.body).appendChild(el);
   el.addEventListener('click', e => { if (e.target === el || e.target.closest('.mk-invite-close')) el.hidden = true; });
   $('mkInviteSend').addEventListener('click', () => share(inviteText(), inviteLink()));

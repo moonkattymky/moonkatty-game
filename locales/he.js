@@ -35,13 +35,13 @@
   "🌙 Join my crew in MOONKATTY: 9 LIVES! Complete LIFE #1 and we both get +{n} Moon Points ⭐":"🌙 הצטרף לצוות שלי ב-MOONKATTY: 9 LIVES! השלם את LIFE #1 ושנינו נקבל +{n} Moon Points ⭐",
   "🚀 MOONKATTY: 9 LIVES — nine chapters of a lunar mission in Telegram. Play with me!":"🚀 MOONKATTY: 9 LIVES — תשעה פרקים של משימה לירח בטלגרם. שחק איתי!",
   "🌙 I completed LIFE #{n} in MOONKATTY: 9 LIVES! Can you beat it? 🚀":"🌙 השלמתי את LIFE #{n} ב-MOONKATTY: 9 LIVES! תצליח יותר? 🚀",
-  "Invite friends with your personal link — no limit on invites. You and your friend each get +200 Moon Points only after your friend completes LIFE #1 (verified by the server). Self-referrals don't count; inviter rewards have a daily cap. Referral Moon Points count toward your FINAL MOON POINTS BALANCE, which may be used to determine the MKTY reward after launch. There is no fixed MKTY conversion rate or guaranteed value.":"הזמינו חברים עם הקישור האישי שלכם — ללא הגבלה על מספר ההזמנות. אתם והחבר מקבלים כל אחד ‎+200 Moon Points רק אחרי שהחבר משלים את LIFE #1 (מאומת על ידי השרת). הזמנה עצמית לא נחשבת; לתגמולי המזמין יש מגבלה יומית. Moon Points מהפניות נכללים ביתרת MOON POINTS הסופית שלכם, שעשויה לשמש לקביעת תגמול MKTY לאחר ההשקה. אין שער המרה קבוע ל-MKTY ואין ערך מובטח.",
-  "Referral Moon Points count toward your FINAL MOON POINTS BALANCE, which may be used to determine the MKTY reward after launch. No fixed MKTY conversion rate, no guaranteed value.":"Moon Points מהפניות נכללים ביתרת MOON POINTS הסופית שלכם, שעשויה לשמש לקביעת תגמול MKTY לאחר ההשקה. אין שער המרה קבוע ל-MKTY ואין ערך מובטח.",
+  "Invite friends with your personal link. You and your friend each receive +200 Moon Points only after your friend completes LIFE #1, verified by the server. Self-referrals do not count. Inviter rewards are limited to 10 verified events per UTC day and 100 in total.":"הזמינו חברים בקישור האישי. שניכם מקבלים +200 Moon Points לאחר שהחבר מסיים את LIFE #1 והשרת מאמת זאת. הזמנות עצמיות אינן נחשבות. מגבלת תגמולים למזמין: 10 אירועים מאומתים ביום UTC ו-100 בסך הכול.",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points הן נקודות משחק לדירוג ולתגמולים במשחק. אין להן ערך כספי והן אינן מבטיחות פרסים או תשלומים.",
   "About MOONKATTY":"על MOONKATTY",
   "THE PROJECT":"על הפרויקט",
   "A small cat for a big mission":"חתולה קטנה למשימה גדולה",
   "MOONKATTY is a story game about a cat-astronaut and her crew of specialists on a lunar expedition. The journey is told in 9 LIVES — nine chapters, each with its own trials, puzzles and flights.":"MOONKATTY הוא משחק עלילתי על חתולה אסטרונאוטית וצוות המומחים שלה במסע לירח. המסע מסופר ב־9 חיים — תשעה פרקים, לכל אחד אתגרים, חידות וטיסות משלו.",
-  "MKTY is the project’s planned token; its launch is still ahead. After the launch, a locked Moon Points balance may be used to determine a reward under the official rules published at that time. Moon Points have no fixed MKTY rate and no guaranteed monetary value.":"MKTY הוא הטוקן המתוכנן של הפרויקט; ההשקה שלו עוד לפנינו. לאחר ההשקה, יתרת Moon Points הנעולה עשויה לשמש לקביעת תגמול לפי הכללים הרשמיים שיפורסמו אז. ל־Moon Points אין שער קבוע ל־MKTY ואין ערך כספי מובטח.",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points הן נקודות משחק לדירוג ולתגמולים במשחק. אין להן ערך כספי והן אינן מבטיחות פרסים או תשלומים.",
   "Community":"קהילה",
   "Official MOONKATTY channels. News and launch announcements appear here first.":"הערוצים הרשמיים של MOONKATTY. חדשות והודעות השקה מתפרסמות כאן ראשונות.",
   "Announcements & crew chat":"הודעות וצ׳אט הצוות",
@@ -59,8 +59,8 @@
   "Share your invite link. Eligible verified activity of invited players can earn Moon Points within daily limits. Self-referrals do not count.":"שתפו את קישור ההזמנה שלכם. פעילות מאומתת של שחקנים שהוזמנו יכולה להעניק Moon Points במסגרת המגבלות היומיות. הזמנה עצמית לא נספרת.",
   "What is the final balance?":"מהי היתרה הסופית?",
   "After you complete LIFE #9, earning stops and your Moon Points are locked as your FINAL MOON POINTS BALANCE.":"לאחר השלמת פרק 9 הצבירה נעצרת וה־Moon Points שלך ננעלים כיתרה הסופית.",
-  "Will I receive MKTY?":"האם אקבל MKTY?",
-  "After the MKTY launch, the locked balance may be used to determine a reward under the official distribution rules. There is no fixed rate and no guaranteed value.":"לאחר השקת MKTY, היתרה הנעולה עשויה לשמש לקביעת תגמול לפי כללי ההפצה הרשמיים. אין שער קבוע ואין ערך מובטח.",
+  "Do Moon Points have monetary value?":"האם ל-Moon Points יש ערך כספי?",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points הן נקודות משחק לדירוג ולתגמולים במשחק. אין להן ערך כספי והן אינן מבטיחות פרסים או תשלומים.",
   "What counts as fair play?":"מה נחשב משחק הוגן?",
   "One player, one account. Duplicate activity, self-referrals, bots and manipulation may be excluded from rewards.":"שחקן אחד, חשבון אחד. פעילות כפולה, הזמנה עצמית, בוטים ומניפולציות עלולים להיות מוחרגים מהתגמולים.",
   "How do I change the language?":"איך מחליפים שפה?",
@@ -139,7 +139,7 @@
   "Adjust coolant and magnetic field. Keep both readings in green for 3 seconds.":"התאמת שדה קריר ומגנטי. שמור את שתי הקריאות בירוק למשך 3 שניות.",
   "After chapter ":"אחרי פרק ",
   "After successful completion of LIFE #9, Moon Point earning ends. Your accumulated Moon Points are totaled and locked as your FINAL MOON POINTS BALANCE.":"לאחר השלמת LIFE #9 בהצלחה, צבירת Moon Points מסתיימת. ה-Moon Points שצברת מסוכמים וננעלים כיתרת MOON POINTS הסופית שלך.",
-  "After the MKTY launch, the locked balance may be used to determine a reward under the official distribution rules published for the launch. Moon Points do not represent a fixed MKTY conversion rate or guaranteed monetary value.":"לאחר השקת MKTY, ייתכן שהיתרה הנעולה תשמש לקביעת פרס לפי כללי החלוקה הרשמיים שיפורסמו להשקה. Moon Points אינם מייצגים שער המרה קבוע ל-MKTY או ערך כספי מובטח.",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points הן נקודות משחק לדירוג ולתגמולים במשחק. אין להן ערך כספי והן אינן מבטיחות פרסים או תשלומים.",
   "Aim three arrays at peak signal and lock their bearings. Mark the beam intersection on the map, then confirm the source.":"שלושה קשתות בסימן שיא וננעלו את נושאיהם. מארק הצומת beam על המפה, ולאחר מכן לאשר את המקור.",
   "Align the phase marker and hold a stable signal.":"אירגן את הסמן בשלב והחזקת אות יציב.",
   "All cells online. Calibrate coolant and magnetic field.":"כל התאים באינטרנט. שדה קריר ומגנטי.",
@@ -775,7 +775,7 @@
   "MISSIONS":"משימות",
   "MIXTURE":"תערובת",
   "MKTY // LUNAR CREW":"MKTY // צוות הירח",
-  "MKTY REWARD 🚀":"פרס MKTY 🚀",
+  "GAME POINTS":"נקודות משחק",
   "MOON BASE ALPHA":"בסיס הירח אלפא",
   "MOON BASE ALPHA ONLINE":"בסיס הירח אלפא פעיל",
   "MOON GATE":"שער הירח",
@@ -1639,3 +1639,5 @@
   "RESET ":"איפוס "
  };
 })(typeof globalThis!=="undefined"?globalThis:window);
+
+Object.assign(globalThis.MKTYLocales["he"].strings,{"Terms of use": "תנאי שימוש", "Privacy policy": "מדיניות פרטיות"});

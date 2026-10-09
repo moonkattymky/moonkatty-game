@@ -117,7 +117,7 @@ Actions on the `rewards` function (`server/rewards/creator.mjs`, table `creator_
 Points (server constants): base 250, 1k views +250, 10k views +500; paid via `reward_events` keys `creator:<id>:base|tier_1k|tier_10k` (idempotent), never after balance lock.
 
 Admins: function secret `ADMIN_TG_IDS` (comma-separated Telegram user ids), e.g.
-`supabase secrets set ADMIN_TG_IDS=1264735363 --project-ref lswbmgoeinblzuqzakvi`.
+`supabase secrets set ADMIN_TG_IDS=<YOUR_ADMIN_ID> --project-ref lswbmgoeinblzuqzakvi`.
 Admin UI: `admin.html` (no secrets; every call is checked server-side). Open inside Telegram via `https://t.me/<bot>?startapp=admin`, or More → Creator rewards → “Open admin review” (visible to admins only). Non-admins see 403 and their own Telegram ID.
 Tests: `node tests/creator-server.cjs`.
 

@@ -35,13 +35,13 @@
   "🌙 Join my crew in MOONKATTY: 9 LIVES! Complete LIFE #1 and we both get +{n} Moon Points ⭐":"🌙 Entre na minha tripulação em MOONKATTY: 9 LIVES! Conclua a LIFE #1 e nós dois ganhamos +{n} Moon Points ⭐",
   "🚀 MOONKATTY: 9 LIVES — nine chapters of a lunar mission in Telegram. Play with me!":"🚀 MOONKATTY: 9 LIVES — nove capítulos de uma missão lunar no Telegram. Jogue comigo!",
   "🌙 I completed LIFE #{n} in MOONKATTY: 9 LIVES! Can you beat it? 🚀":"🌙 Concluí a LIFE #{n} em MOONKATTY: 9 LIVES! Consegue superar? 🚀",
-  "Invite friends with your personal link — no limit on invites. You and your friend each get +200 Moon Points only after your friend completes LIFE #1 (verified by the server). Self-referrals don't count; inviter rewards have a daily cap. Referral Moon Points count toward your FINAL MOON POINTS BALANCE, which may be used to determine the MKTY reward after launch. There is no fixed MKTY conversion rate or guaranteed value.":"Convide amigos com seu link pessoal — sem limite de convites. Você e seu amigo ganham +200 Moon Points cada somente depois que o amigo concluir a LIFE #1 (verificado pelo servidor). Autoconvites não contam; as recompensas de quem convida têm limite diário. Os Moon Points de indicação contam para o seu SALDO FINAL DE MOON POINTS, que pode ser usado para determinar a recompensa MKTY após o lançamento. Não há taxa de conversão fixa para MKTY nem valor garantido.",
-  "Referral Moon Points count toward your FINAL MOON POINTS BALANCE, which may be used to determine the MKTY reward after launch. No fixed MKTY conversion rate, no guaranteed value.":"Os Moon Points de indicação contam para o seu SALDO FINAL DE MOON POINTS, que pode ser usado para determinar a recompensa MKTY após o lançamento. Sem taxa fixa de conversão para MKTY, sem valor garantido.",
+  "Invite friends with your personal link. You and your friend each receive +200 Moon Points only after your friend completes LIFE #1, verified by the server. Self-referrals do not count. Inviter rewards are limited to 10 verified events per UTC day and 100 in total.":"Convide amigos com seu link. Ambos recebem +200 Moon Points após seu amigo concluir LIFE #1 com verificação do servidor. Autoconvites não contam. Limite de recompensas de quem convida: 10 eventos verificados por dia UTC e 100 no total.",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points são pontos do jogo para a classificação e recompensas do jogo. Não têm valor monetário nem garantem prêmios ou pagamentos.",
   "About MOONKATTY":"Sobre o MOONKATTY",
   "THE PROJECT":"O PROJETO",
   "A small cat for a big mission":"Uma gatinha para uma grande missão",
   "MOONKATTY is a story game about a cat-astronaut and her crew of specialists on a lunar expedition. The journey is told in 9 LIVES — nine chapters, each with its own trials, puzzles and flights.":"MOONKATTY é um jogo narrativo sobre uma gata astronauta e sua tripulação de especialistas numa expedição lunar. A jornada é contada em 9 VIDAS — nove capítulos com desafios, enigmas e voos próprios.",
-  "MKTY is the project’s planned token; its launch is still ahead. After the launch, a locked Moon Points balance may be used to determine a reward under the official rules published at that time. Moon Points have no fixed MKTY rate and no guaranteed monetary value.":"MKTY é o token planejado do projeto; seu lançamento ainda está por vir. Após o lançamento, o saldo bloqueado de Moon Points poderá ser usado para determinar uma recompensa conforme as regras oficiais publicadas na época. Moon Points não têm taxa fixa em MKTY nem valor monetário garantido.",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points são pontos do jogo para a classificação e recompensas do jogo. Não têm valor monetário nem garantem prêmios ou pagamentos.",
   "Community":"Comunidade",
   "Official MOONKATTY channels. News and launch announcements appear here first.":"Canais oficiais do MOONKATTY. Notícias e anúncios de lançamento aparecem aqui primeiro.",
   "Announcements & crew chat":"Anúncios e chat da tripulação",
@@ -59,8 +59,8 @@
   "Share your invite link. Eligible verified activity of invited players can earn Moon Points within daily limits. Self-referrals do not count.":"Compartilhe seu link de convite. A atividade verificada dos jogadores convidados pode render Moon Points dentro dos limites diários. Autoindicações não contam.",
   "What is the final balance?":"O que é o saldo final?",
   "After you complete LIFE #9, earning stops and your Moon Points are locked as your FINAL MOON POINTS BALANCE.":"Ao concluir o CAPÍTULO 9, o acúmulo termina e seus Moon Points ficam bloqueados como seu SALDO FINAL.",
-  "Will I receive MKTY?":"Vou receber MKTY?",
-  "After the MKTY launch, the locked balance may be used to determine a reward under the official distribution rules. There is no fixed rate and no guaranteed value.":"Após o lançamento do MKTY, o saldo bloqueado poderá ser usado para determinar uma recompensa conforme as regras oficiais de distribuição. Não há taxa fixa nem valor garantido.",
+  "Do Moon Points have monetary value?":"Moon Points têm valor monetário?",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points são pontos do jogo para a classificação e recompensas do jogo. Não têm valor monetário nem garantem prêmios ou pagamentos.",
   "What counts as fair play?":"O que é jogo limpo?",
   "One player, one account. Duplicate activity, self-referrals, bots and manipulation may be excluded from rewards.":"Um jogador, uma conta. Atividade duplicada, autoindicações, bots e manipulação podem ser excluídos das recompensas.",
   "How do I change the language?":"Como mudo o idioma?",
@@ -117,7 +117,7 @@
   "Adjust coolant and magnetic field. Keep both readings in green for 3 seconds.":"Ajuste o líquido de refrigeração e o campo magnético. Mantenha ambas as leituras em verde por 3 segundos.",
   "After chapter ":"Após o capítulo ",
   "After successful completion of LIFE #9, Moon Point earning ends. Your accumulated Moon Points are totaled and locked as your FINAL MOON POINTS BALANCE.":"Após concluir com sucesso LIFE #9, a obtenção de Moon Points termina. Seus Moon Points acumulados são somados e bloqueados como seu SALDO FINAL DE MOON POINTS.",
-  "After the MKTY launch, the locked balance may be used to determine a reward under the official distribution rules published for the launch. Moon Points do not represent a fixed MKTY conversion rate or guaranteed monetary value.":"Após o lançamento do MKTY, o saldo bloqueado poderá ser usado para determinar uma recompensa conforme as regras oficiais de distribuição publicadas para o lançamento. Os Moon Points não representam uma taxa fixa de conversão em MKTY nem um valor monetário garantido.",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points são pontos do jogo para a classificação e recompensas do jogo. Não têm valor monetário nem garantem prêmios ou pagamentos.",
   "Aim three arrays at peak signal and lock their bearings. Mark the beam intersection on the map, then confirm the source.":"Apontar três arrays ao sinal máximo e bloquear os rolamentos. Marque o cruzamento do feixe no mapa e confirme a fonte.",
   "AIRLOCK":"ECLUSA",
   "Align the phase marker and hold a stable signal.":"Alinhar o marcador de fase e manter um sinal estável.",
@@ -802,7 +802,7 @@
   "Missions":"Missões",
   "MIXTURE":"MISTURA",
   "MKTY // LUNAR CREW":"MKTY // TRIPULAÇÃO LUNAR",
-  "MKTY REWARD 🚀":"RECOMPENSA MKTY 🚀",
+  "GAME POINTS":"PONTOS DO JOGO",
   "Mode accepted. Load changed: run a fresh diagnostic.":"Modo aceito. A carga mudou: faça um novo diagnóstico.",
   "Module contact. Braking helps precision movement.":"Contato com o módulo. Frear ajuda a manobrar com precisão.",
   "MOON BASE ALPHA":"BASE LUNAR ALFA",
@@ -1640,3 +1640,5 @@
  };
  locales["pt"].dynamic=[];
 })(typeof globalThis!=='undefined'?globalThis:this);
+
+Object.assign(globalThis.MKTYLocales["pt"].strings,{"Terms of use": "Termos de uso", "Privacy policy": "Política de privacidade"});

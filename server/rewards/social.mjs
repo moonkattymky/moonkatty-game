@@ -18,7 +18,8 @@ export function channelFromUrl(u){
 }
 
 export async function playerCode(telegram_id,secret){
- const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret||'mkty-social-code'),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+ if(typeof secret!=='string'||!secret.trim())throw Error('unavailable');
+ const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
  const mac=new Uint8Array(await crypto.subtle.sign('HMAC',key,new TextEncoder().encode('social-code:'+telegram_id)));
  return 'MKTY-'+[...mac.slice(0,2)].map(b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
 }

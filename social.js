@@ -4,7 +4,7 @@
 window.MKTYSocial=(()=>{
  'use strict';
  const ENDPOINT='https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/rewards';
- const LINKS={telegram:'https://t.me/moonkattymkty',youtube:'https://www.youtube.com/@moonkattymkty',x:'https://x.com/moonkattymkty',tiktok:'https://www.tiktok.com/@moonkattymkty'};
+ const LINKS={telegram:'https://t.me/moonkattymkty',youtube:'https://www.youtube.com/@moonkattymky',x:'https://x.com/moonkattymky',tiktok:'https://www.tiktok.com/@moonkattymky'};
  const t=(en,v={})=>{let s=window.MKTYI18n?window.MKTYI18n.t(en):en;for(const k in v)s=s.split('{'+k+'}').join(v[k]);return s;};
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const tg=()=>window.Telegram?.WebApp;
@@ -24,7 +24,7 @@ window.MKTYSocial=(()=>{
   const name=pl==='x'?'X':'TikTok',icon=pl==='x'?'𝕏':'♪';
   const how=pl==='x'?t('Post or reply on X with your code {code} and #MOONKATTY, then paste the link to the post.',{code}):t('Comment your code {code} under our pinned TikTok video, then paste the link to your comment.',{code});
   const fs=subFor(pl,'follow'),ds=subFor(pl,'daily'),m=st.msg[pl];
-  const form=k=>`<form class="sv-form" data-pl="${pl}" data-kind="${k}"><input name="proof" autocomplete="off" maxlength="500" dir="ltr" placeholder="${k==='follow'?(pl==='x'?'@your_handle':'@your.handle'):(pl==='x'?'https://x.com/you/status/…':'https://www.tiktok.com/@moonkattymkty/video/…')}" aria-label="${esc(k==='follow'?t('Your profile @handle'):t('Link to your post / comment'))}"><button class="sv-btn" ${st.busy?'disabled':''}>${t('SEND FOR REVIEW')}</button></form>`;
+  const form=k=>`<form class="sv-form" data-pl="${pl}" data-kind="${k}"><input name="proof" autocomplete="off" maxlength="500" dir="ltr" placeholder="${k==='follow'?(pl==='x'?'@your_handle':'@your.handle'):(pl==='x'?'https://x.com/you/status/…':'https://www.tiktok.com/@moonkattymky/video/…')}" aria-label="${esc(k==='follow'?t('Your profile @handle'):t('Link to your post / comment'))}"><button class="sv-btn" ${st.busy?'disabled':''}>${t('SEND FOR REVIEW')}</button></form>`;
   return `<article class="sv-card" data-sv="${pl}"><header><span class="sv-ico">${icon}</span><div><strong>${name}</strong><small>${t('Checked by the team · points after approval')}</small></div><a class="sv-link" href="${LINKS[pl]}" data-open="${pl}">${t('OPEN')} ↗</a></header>
 <p class="sv-how">${how}</p>
 <div class="sv-row"><div><b>${t('Follow')} · +${p[pl+'_follow']} ⭐</b><small>${t('Once. Paste your @handle so we can find you among followers.')}</small></div>${badge(fs)}</div>${!fs&&!d?.paid?.[pl+'_follow']?form('follow'):''}

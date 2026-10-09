@@ -5,7 +5,7 @@ const server=http.createServer((req,res)=>{const file=path.join(root,new URL(req
  await new Promise(r=>server.listen(0,r));const base='http://localhost:'+server.address().port;
  const b=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,headless:true,args:['--no-sandbox']});const p=await b.newPage({viewport:{width:390,height:844}});
  const errors=[];p.on('pageerror',e=>errors.push(String(e)));
- await p.addInitScript(()=>{localStorage.setItem('mkty_lang','ru');window.Telegram={WebApp:{initData:'signed=1',initDataUnsafe:{user:{id:1264735363,first_name:'Игорь'}},ready(){},expand(){},openLink(){},openTelegramLink(){}}};});
+ await p.addInitScript(()=>{localStorage.setItem('mkty_lang','ru');window.Telegram={WebApp:{initData:'signed=1',initDataUnsafe:{user:{id:900,first_name:'Игорь'}},ready(){},expand(){},openLink(){},openTelegramLink(){}}};});
  await p.route('https://telegram.org/js/telegram-web-app.js',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
  const subs=[{id:7,platform:'x',kind:'follow',proof:'@moonfan',code:'MKTY-7F3A',day:'2026-10-07',status:'pending',points:0,created_at:'2026-10-07T09:10:00Z',telegram_id:555,username:'moonfan'},{id:8,platform:'tiktok',kind:'daily',proof:'https://www.tiktok.com/@moonkattymkty/video/7412345678901234567?comment_id=7420000000000000001',code:'MKTY-7F3A',day:'2026-10-07',status:'pending',points:0,created_at:'2026-10-07T09:12:00Z',telegram_id:555,username:'moonfan'}];
  const calls=[];

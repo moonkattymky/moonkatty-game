@@ -903,9 +903,9 @@ setInterval(renderGlobalLivesHome,1000);
 
 const COMMUNITY_LINKS={
  telegram:'https://t.me/moonkattymkty',
- youtube:'https://www.youtube.com/@moonkattymkty',
- x:'https://x.com/moonkattymkty',
- tiktok:'https://www.tiktok.com/@moonkattymkty'
+ youtube:'https://www.youtube.com/@moonkattymky',
+ x:'https://x.com/moonkattymky',
+ tiktok:'https://www.tiktok.com/@moonkattymky'
 };
 function openCommunity(platform){
  const url=COMMUNITY_LINKS[platform];

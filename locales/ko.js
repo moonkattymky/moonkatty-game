@@ -35,13 +35,13 @@
   "🌙 Join my crew in MOONKATTY: 9 LIVES! Complete LIFE #1 and we both get +{n} Moon Points ⭐":"🌙 MOONKATTY: 9 LIVES에서 내 크루에 합류해! LIFE #1을 완료하면 우리 둘 다 +{n} Moon Points ⭐",
   "🚀 MOONKATTY: 9 LIVES — nine chapters of a lunar mission in Telegram. Play with me!":"🚀 MOONKATTY: 9 LIVES — Telegram 속 9개 챕터의 달 탐사 미션. 나랑 같이 하자!",
   "🌙 I completed LIFE #{n} in MOONKATTY: 9 LIVES! Can you beat it? 🚀":"🌙 MOONKATTY: 9 LIVES에서 LIFE #{n}을 완료했어! 너도 할 수 있어? 🚀",
-  "Invite friends with your personal link — no limit on invites. You and your friend each get +200 Moon Points only after your friend completes LIFE #1 (verified by the server). Self-referrals don't count; inviter rewards have a daily cap. Referral Moon Points count toward your FINAL MOON POINTS BALANCE, which may be used to determine the MKTY reward after launch. There is no fixed MKTY conversion rate or guaranteed value.":"개인 링크로 친구를 초대하세요 — 초대 수 제한 없음. 친구가 LIFE #1을 완료한 후에만(서버 검증) 당신과 친구가 각각 +200 Moon Points를 받습니다. 자기 초대는 인정되지 않으며, 초대자 보상에는 일일 한도가 있습니다. 추천으로 얻은 Moon Points는 최종 MOON POINTS 잔액에 포함되며, 이 잔액은 출시 후 MKTY 보상을 결정하는 데 사용될 수 있습니다. 고정된 MKTY 전환 비율이나 보장된 가치는 없습니다.",
-  "Referral Moon Points count toward your FINAL MOON POINTS BALANCE, which may be used to determine the MKTY reward after launch. No fixed MKTY conversion rate, no guaranteed value.":"추천으로 얻은 Moon Points는 최종 MOON POINTS 잔액에 포함되며, 출시 후 MKTY 보상을 결정하는 데 사용될 수 있습니다. 고정 MKTY 비율 없음, 보장된 가치 없음.",
+  "Invite friends with your personal link. You and your friend each receive +200 Moon Points only after your friend completes LIFE #1, verified by the server. Self-referrals do not count. Inviter rewards are limited to 10 verified events per UTC day and 100 in total.":"개인 링크로 친구를 초대하세요. 친구가 LIFE #1을 완료하고 서버가 확인하면 각각 +200 Moon Points를 받습니다. 자기 초대는 인정되지 않습니다. 초대 보상 한도: UTC 기준 하루 확인된 이벤트 10회, 누적 100회.",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points는 순위와 게임 보상을 위한 게임 내 점수입니다. 금전적 가치가 없으며 상품이나 지급을 보장하지 않습니다.",
   "About MOONKATTY":"MOONKATTY 소개",
   "THE PROJECT":"프로젝트 소개",
   "A small cat for a big mission":"큰 임무를 위한 작은 고양이",
   "MOONKATTY is a story game about a cat-astronaut and her crew of specialists on a lunar expedition. The journey is told in 9 LIVES — nine chapters, each with its own trials, puzzles and flights.":"MOONKATTY는 고양이 우주비행사와 전문가 크루의 달 탐사를 그린 스토리 게임입니다. 여정은 9 LIVES, 즉 각기 다른 시련과 퍼즐, 비행이 담긴 아홉 개의 챕터로 펼쳐집니다.",
-  "MKTY is the project’s planned token; its launch is still ahead. After the launch, a locked Moon Points balance may be used to determine a reward under the official rules published at that time. Moon Points have no fixed MKTY rate and no guaranteed monetary value.":"MKTY는 프로젝트에서 계획 중인 토큰이며, 아직 출시되지 않았습니다. 출시 후에는 확정된 문 포인트 잔액이 당시 공개되는 공식 규칙에 따라 보상을 정하는 데 사용될 수 있습니다. 문 포인트에는 고정된 MKTY 환율이나 보장된 금전적 가치가 없습니다.",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points는 순위와 게임 보상을 위한 게임 내 점수입니다. 금전적 가치가 없으며 상품이나 지급을 보장하지 않습니다.",
   "Community":"커뮤니티",
   "Official MOONKATTY channels. News and launch announcements appear here first.":"MOONKATTY 공식 채널입니다. 소식과 출시 공지가 가장 먼저 올라옵니다.",
   "Announcements & crew chat":"공지 및 크루 채팅",
@@ -59,8 +59,8 @@
   "Share your invite link. Eligible verified activity of invited players can earn Moon Points within daily limits. Self-referrals do not count.":"초대 링크를 공유하세요. 초대한 플레이어의 인증된 활동으로 일일 한도 내에서 문 포인트를 얻을 수 있습니다. 자기 자신 추천은 인정되지 않습니다.",
   "What is the final balance?":"최종 잔액이란?",
   "After you complete LIFE #9, earning stops and your Moon Points are locked as your FINAL MOON POINTS BALANCE.":"9번째 챕터를 완료하면 적립이 끝나고 문 포인트가 최종 잔액으로 확정됩니다.",
-  "Will I receive MKTY?":"MKTY를 받을 수 있나요?",
-  "After the MKTY launch, the locked balance may be used to determine a reward under the official distribution rules. There is no fixed rate and no guaranteed value.":"MKTY 출시 후 확정된 잔액은 공식 배분 규칙에 따라 보상을 정하는 데 사용될 수 있습니다. 고정 환율이나 보장된 가치는 없습니다.",
+  "Do Moon Points have monetary value?":"Moon Points에 금전적 가치가 있나요?",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points는 순위와 게임 보상을 위한 게임 내 점수입니다. 금전적 가치가 없으며 상품이나 지급을 보장하지 않습니다.",
   "What counts as fair play?":"공정한 플레이란?",
   "One player, one account. Duplicate activity, self-referrals, bots and manipulation may be excluded from rewards.":"플레이어 1명당 계정 1개입니다. 중복 활동, 자기 추천, 봇, 조작은 보상에서 제외될 수 있습니다.",
   "How do I change the language?":"언어는 어떻게 바꾸나요?",
@@ -139,7 +139,7 @@
   "Adjust coolant and magnetic field. Keep both readings in green for 3 seconds.":"냉각제와 자석 분야를 조정하십시오. 3 초 동안 녹색에서 두 번의 독서를 유지하십시오.",
   "After chapter ":"챕터 이후 ",
   "After successful completion of LIFE #9, Moon Point earning ends. Your accumulated Moon Points are totaled and locked as your FINAL MOON POINTS BALANCE.":"LIFE #9을 완료하면 Moon Points 획득이 종료됩니다. 모은 Moon Points는 합산되어 최종 MOON POINTS 잔액으로 고정됩니다.",
-  "After the MKTY launch, the locked balance may be used to determine a reward under the official distribution rules published for the launch. Moon Points do not represent a fixed MKTY conversion rate or guaranteed monetary value.":"MKTY 출시 후, 고정된 잔액은 출시 시 공개되는 공식 분배 규칙에 따라 보상을 정하는 데 사용될 수 있습니다. Moon Points는 고정된 MKTY 전환 비율이나 보장된 금전적 가치를 의미하지 않습니다.",
+  "Moon Points are in-game points for standings and game rewards. They have no monetary value and do not guarantee prizes or payments.":"Moon Points는 순위와 게임 보상을 위한 게임 내 점수입니다. 금전적 가치가 없으며 상품이나 지급을 보장하지 않습니다.",
   "Aim three arrays at peak signal and lock their bearings. Mark the beam intersection on the map, then confirm the source.":"첨단 신호에 Aim 3개의 배열은 그들의 방위를 잠급니다. 지도의 빔 교차로를 표시하면 소스를 확인합니다.",
   "Align the phase marker and hold a stable signal.":"단계 감적을 정렬하고 안정적인 신호를 유지합니다.",
   "All cells online. Calibrate coolant and magnetic field.":"모든 세포 온라인. Calibrate 냉각액과 자석 분야.",
@@ -775,7 +775,7 @@
   "MISSIONS":"미션",
   "MIXTURE":"혼합비",
   "MKTY // LUNAR CREW":"MKTY // 달 크루",
-  "MKTY REWARD 🚀":"MKTY 보상 🚀",
+  "GAME POINTS":"게임 점수",
   "MOON BASE ALPHA":"달 기지 알파",
   "MOON BASE ALPHA ONLINE":"달 기지 알파 가동",
   "MOON GATE":"달의 관문",
@@ -1639,3 +1639,5 @@
   "RESET ":"초기화 "
  };
 })(typeof globalThis!=="undefined"?globalThis:window);
+
+Object.assign(globalThis.MKTYLocales["ko"].strings,{"Terms of use": "이용 약관", "Privacy policy": "개인정보 처리방침"});
