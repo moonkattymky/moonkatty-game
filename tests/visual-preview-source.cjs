@@ -18,7 +18,7 @@ for(const m of plain.matchAll(/([^{}]*)\{([^{}]*)\}/g))for(const d of m[2].match
 const rgb=h=>h.match(/\w\w/g).map(x=>parseInt(x,16));
 const lum=h=>rgb(h).map(x=>x/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0);
 const contrast=(a,b)=>(Math.max(lum(a),lum(b))+.05)/(Math.min(lum(a),lum(b))+.05);
-const samples=[['stats label','3d5967','dcebef'],['stats detail','4a6674','dcebef'],['welcome','d0e0e6','0b2232'],['primary','102b3a','e4bb79'],['invite','eff6f7','173c52'],['invite bonus','f4d9a1','173c52'],['explore detail','c6dce5','1c455d'],['nav inactive','b7ceda','0b2638'],['chapter hint','d4e4e9','183343'],['telemetry label','3f606f','dceaf0'],['field hint','254b5d','e6eceb'],['field action','f0f3ec','315e77'],['field footer','36586b','e6eceb'],['EXIT label','fff7e7','214c4b']];
+const samples=[['stats label','3d5967','dcebef'],['stats detail','4a6674','dcebef'],['welcome','d0e0e6','0b2232'],['primary','102b3a','e4bb79'],['invite','eff6f7','173c52'],['invite bonus','f4d9a1','173c52'],['explore detail','c6dce5','1c455d'],['nav inactive','b7ceda','0b2638'],['chapter hint','d4e4e9','183343'],['telemetry label','3f606f','dceaf0'],['field hint','254b5d','e6eceb'],['field action','f0f3ec','315e77'],['field footer','36586b','e6eceb'],['EXIT label','fff7e7','196064']];
 for(const [name,a,b]of samples)assert(contrast(a,b)>=4.5,name+' declared opaque color pair passes 4.5:1');
 const R=require('../field-model.js'),P=require('../story-plan.js'),context={window:{},FieldRules:R};vm.createContext(context);vm.runInContext(fs.readFileSync(path.join(root,'field-art.js'),'utf8'),context);
 let rendered=0;

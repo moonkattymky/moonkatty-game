@@ -247,7 +247,10 @@
 #fieldMission[data-kind=rover] .field-head small {color:#f3d8a0;letter-spacing:1.2px}
 #fieldMission[data-kind=rover] .field-head h1 {font-size:23px;line-height:1.25;font-weight:650}
 #fieldMission[data-kind=rover] .field-route {background:#102f43;color:#d1e3eb;padding-block:10px}
-#fieldMission[data-kind=rover] .field-world {background:#143b50;border-bottom:2px solid #d6ba7b}
+#fieldMission[data-kind=rover] .field-world {background:#143b50;border-bottom:2px solid #e8c783}
+/* Reveal the existing terrain detail; the tint is deliberately only 4% opaque. */
+#fieldMission[data-kind=rover] .field-svg>image {opacity:1}
+#fieldMission[data-kind=rover] .field-svg>image+rect {fill:#c4e4f30a}
 #fieldMission[data-kind=rover] .field-telemetry {background:linear-gradient(120deg,#f3f3ea,#dceaf0);padding-block:14px}
 #fieldMission[data-kind=rover] .field-telemetry small {color:#3f606f;line-height:1.35}
 #fieldMission[data-kind=rover] .field-telemetry strong {color:#14394e;font-size:21px}
@@ -262,14 +265,16 @@
 #fieldMission[data-kind=rover] #fieldPause::before {content:"";display:block;width:14px;height:17px;margin:auto;background:linear-gradient(90deg,#f0f6f4 0 28%,transparent 28% 72%,#f0f6f4 72%)}
 /* Paint-only markers: the same 94×94 cell hit area, no new node positions. */
 #fieldMission[data-kind=rover] .lunar-cell>rect:first-child {rx:8px;fill:#153b5124;stroke:#d4e6ed42;stroke-width:1.2}
-#fieldMission[data-kind=rover] .lunar-cell.recovery-target:not(.recovered)>rect:first-child {fill:#b0e0e124;stroke:#e9d09299;stroke-width:1.8}
+#fieldMission[data-kind=rover] .lunar-cell.recovery-target:not(.recovered)>rect:first-child {fill:#f5c56829;stroke:#ffdf90;stroke-width:2}
+#fieldMission[data-kind=rover] .lunar-cell.recovery-target:not(.recovered)>g>circle {fill:#ffd36b3d;stroke:#ffe5a2;stroke-width:2.4}
+#fieldMission[data-kind=rover] .lunar-cell.recovery-target>g>text {fill:#fff4d6;font-size:16px;font-weight:600}
 #fieldMission[data-kind=rover] .lunar-cell.recovered>rect:first-child {fill:#9dd7c025;stroke:#a9dcc488}
-#fieldMission[data-kind=rover] .lunar-cell.exit-cell>rect:first-child {stroke:#b1e6d4aa;stroke-width:2}
-#fieldMission[data-kind=rover] .lunar-cell.current>rect:first-child {fill:#b9e4f036;stroke:#fff0b8;stroke-width:3}
+#fieldMission[data-kind=rover] .lunar-cell.exit-cell>rect:first-child {fill:#35c7b426;stroke:#92efdd;stroke-width:2.4}
+#fieldMission[data-kind=rover] .lunar-cell.current>rect:first-child {fill:#8ed6f34d;stroke:#fff0b8;stroke-width:3}
 #fieldMission[data-kind=rover] .lunar-cell>.field-cell-number {fill:#e2edf0;opacity:.8}
-#fieldMission[data-kind=rover] .field-exit-plate {fill:#214c4b;stroke:#c9ecdd}
-#fieldMission[data-kind=rover] .field-exit-label {fill:#fff7e7;opacity:1}
-#fieldMission[data-kind=rover] .lunar-fracture {stroke:#0d2f42;stroke-width:8;stroke-linejoin:round;stroke-linecap:round}
+#fieldMission[data-kind=rover] .field-exit-plate {fill:#196064;stroke:#b5ffdf;stroke-width:2}
+#fieldMission[data-kind=rover] .field-exit-label {fill:#fff7e7;opacity:1;font-size:16px;font-weight:600}
+#fieldMission[data-kind=rover] .lunar-fracture {stroke:#153e5b;stroke-width:8;stroke-linejoin:round;stroke-linecap:round;filter:drop-shadow(0 1.5px 0 #f5d5a0)}
 
 /* Small-screen copy may wrap; art keeps its native proportions. No new motion. */
 @media(max-height:899px) {

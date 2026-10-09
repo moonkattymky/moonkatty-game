@@ -14,8 +14,8 @@ The local baseline uses synthetic commit e8a2946 with that identical tree. Do no
 - Warm gold primary action, clearer cool-blue secondary panels, softer 13–17px corners, more breathing room, and improved text contrast.
 - Vector arrow icons and a CSS pause symbol replace decorative glyphs that were missing in some browser screenshots.
 - Chapter briefing: stronger title/next-objective hierarchy and a more readable, cohesive stage list.
-- Rover: clearer telemetry and controls, more distinct selected/recovery/exit cells, and a high-contrast EXIT label. Tile coordinates, rules, state, checkpoints, progression and rewards are unchanged.
-- No new image files, paid assets, third-party libraries, font requests or repeating animation. The stylesheet is about 14.8 KB raw / 4.3 KB gzip.
+- Rover: brighter original terrain with only a 4% ambient tint, warm gold recovery markers, a turquoise exit, crisp blue fracture edges, clearer telemetry/controls and a high-contrast EXIT label. Tile coordinates, rules, state, checkpoints, progression and rewards are unchanged.
+- No new image files, paid assets, third-party libraries, font requests or repeating animation. The stylesheet is about 15.5 KB raw / 4.4 KB gzip.
 
 ## Changed files
 
