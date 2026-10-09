@@ -72,3 +72,16 @@
 .field-mission:is([data-kind=rover],[data-kind=survey],[data-kind=stealth]) .field-world{width:min(100%,calc(var(--mk-vh,100dvh)*.46));margin-inline:auto}
 .field-mission:not([data-kind=rover],[data-kind=survey],[data-kind=stealth],[data-kind=trajectory],[data-kind=thermal]) .field-world{width:min(100%,calc(var(--mk-vh,100dvh)*.5));margin-inline:auto}
 }
+
+/* Compact control reminders remain in the objective panel, never over the scene. */
+#fieldMission .field-control-hint{margin:7px 0 0;color:#254b5d;font:12px/1.45 system-ui;letter-spacing:0}
+#fieldMission button:focus-visible,#fieldMission input:focus-visible,#fieldMission summary:focus-visible{outline:3px solid #174b67;outline-offset:2px}
+#fieldMission .field-svg [role=button]:focus-visible{outline:3px solid #ffe4a0;outline-offset:2px;filter:drop-shadow(0 0 4px #ffe4a0)}
+#fieldMission .field-guide summary{min-height:44px;align-content:center}
+@media(orientation:landscape) and (max-height:600px){#fieldMission .field-deck{min-height:0;overflow:auto;scroll-padding-block:4px}#fieldMission .field-control-hint{font-size:11px;line-height:1.35;margin-top:4px}}
+/* Expanded rules can be scrolled without pushing the scene or footer off short portrait screens. */
+@media(max-width:649px) and (min-height:540px){#fieldMission:is([data-kind=trajectory],[data-kind=thermal],[data-kind=decode],[data-kind=gate]) .field-deck{flex:0 1 auto;min-height:0;overflow:auto}}
+
+#fieldMission #fieldPause:focus-visible,#fieldMission #fieldDialog button:focus-visible{outline-color:#ffe4a0}
+
+#fieldMission input[type=range]{min-height:44px}

@@ -78,3 +78,11 @@
 @media(max-height:620px){#operationsDeck.active{gap:7px}.ops-hero{min-height:67px;padding:9px 12px 14px}.ops-hero small{display:none}.ops-hero>div:not(.ops-progress){gap:4px}.ops-hero>b{font-size:11px;bottom:auto;top:8px}.ops-progress{bottom:6px;left:12px;right:12px}.ops-header h2{font-size:16px}#operationsDeck .ops-header{padding-top:5px}.ops-footer{padding-bottom:5px;gap:5px}.ops-content{scroll-padding:5px}.ops-metrics{margin-bottom:9px}.ops-metrics>span{padding-top:7px;padding-bottom:7px}.oa-scope{height:43px}}
 @media(orientation:landscape) and (max-height:600px){#operationsDeck{max-width:none;width:100%;padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right));display:none}#operationsDeck.active{display:grid;grid-template-columns:1fr 210px;grid-template-rows:48px minmax(0,1fr);gap:8px 15px}#operationsDeck .ops-header{grid-column:1;grid-row:1;padding:0}.ops-hero{grid-column:2;grid-row:1;min-height:0;padding:4px 8px 7px;border:1px solid #81949d4d}.ops-hero strong{font-size:12px}.ops-hero span{font-size:11px}.ops-hero>b,.ops-hero::after{display:none}.ops-progress{bottom:3px;left:8px;right:8px;height:1px}.ops-content{grid-column:1;grid-row:2;align-self:stretch}.ops-footer{grid-column:2;grid-row:2;align-self:end}.ops-footer>div{flex-direction:column}.ops-instrument{max-width:390px;margin:auto}.ops-brief p{font-size:11px}.ops-metrics{margin-bottom:7px}.ops-metrics>span{padding:6px}.ops-metrics b{font-size:16px}}
 @media(prefers-reduced-motion:reduce){#operationsDeck *{transition:none!important;animation:none!important}}
+
+/* Short, persistent guidance belongs to the instrument; full rules stay one tap away. */
+#operationsDeck .ops-guide{margin:0 1px 8px;border-bottom:1px solid #8ba1b245;color:#d4e2e8}
+#operationsDeck .ops-guide summary{min-height:44px;display:list-item;align-content:center;padding:9px 2px;font:500 11px/1.5 system-ui;cursor:pointer}
+#operationsDeck .ops-guide p{font-size:12px;line-height:1.5;color:#d4e2e8;margin:2px 0 12px}
+#operationsDeck .ops-control-hint{margin:0 3px 10px;color:#e0eaee;font-size:12px;line-height:1.45}
+#operationsDeck .ops-guide summary:focus-visible{outline:3px solid #ffe4a0;outline-offset:-3px}
+#operationsDeck .ops-instrument-head{flex-wrap:wrap;row-gap:4px}
