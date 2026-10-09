@@ -57,8 +57,8 @@ function mock(modern) {
     }
   };
 }
-function documentFixture(server) {
-  const data = new Map(), sessions = new Map(), nodes = new Map(), events = new Map(), timers = new Map();
+function documentFixture(server, persisted = new Map()) {
+  const data = new Map(persisted), sessions = new Map(), nodes = new Map(), events = new Map(), timers = new Map();
   const checks = [], awaitingChecks = [];
   let timerId = 0, active = 'home';
   const on = (type, fn) => events.set(type, [...(events.get(type) || []), fn]);
@@ -96,7 +96,7 @@ function documentFixture(server) {
     for (const waiter of awaitingChecks.splice(0)) waiter.resolve();
     return result;
   }};
-  return {c, page, nodes, checks, timers, emit,
+  return {c, page, nodes, checks, timers, emit, persisted: () => new Map(data),
     read: key => c.localStorage.getItem(key), write: (key, value) => c.localStorage.setItem(key, value),
     active: id => {active = id;},
     async checked() {if (!checks.length) {const waiter = deferred(); awaitingChecks.push(waiter); await waiter.promise;}}
@@ -186,6 +186,39 @@ function playwrightPoll(predicate, schedule) {
     assert.equal(loading.read(CODE), '4444444444');
     assert.equal(loading.read(DIRTY), 'yes');
     assert(loading.c.document.querySelector('#cloudSaveStatus button'));
+
+    // Reload can destroy a visibility-triggered write's acknowledgement after
+    // the server commits. That durable disk image must offer recovery, not
+    // silently overwrite remote state or pretend the save is acknowledged.
+    const reloadServer = mock(modern);
+    reloadServer.cloud.revision = 0; reloadServer.cloud.snapshot = {};
+    const outgoing = documentFixture(reloadServer);
+    await outgoing.c.MKTYCloud.load();
+    outgoing.write(CODE, '5555555555');
+    const lostReceipt = reloadServer.hold('write');
+    outgoing.c.document.hidden = true;
+    outgoing.emit({type: 'document:visibilitychange'});
+    await lostReceipt.started;
+    const interrupted = documentFixture(reloadServer, outgoing.persisted());
+    await interrupted.c.MKTYCloud.load();
+    assert.equal(interrupted.read(CODE), '5555555555');
+    assert.equal(interrupted.read(REVISION), null);
+    assert.equal(interrupted.read(DIRTY), 'yes');
+    assert(interrupted.c.document.querySelector('#cloudSaveStatus button'));
+    const callsBefore = reloadServer.calls.length;
+    await assert.rejects(waitForCloud(interrupted.page, 'saved', {timeout: 20, polling: 1}), /not acknowledged/);
+    assert.equal(reloadServer.calls.length, callsBefore, 'A reload conflict cannot be flushed away');
+    // A fixture that intends to continue writing must await the original save
+    // before reload, so the next document inherits its acknowledged revision.
+    lostReceipt.release();
+    await waitForCloud(outgoing.page, 'saved', {polling: 1});
+    const resumed = documentFixture(reloadServer, outgoing.persisted());
+    await resumed.c.MKTYCloud.load();
+    assert.equal(resumed.read(CODE), '5555555555');
+    assert.equal(resumed.read(REVISION), '1');
+    assert.equal(resumed.read(DIRTY), null);
+    assert(!resumed.c.document.querySelector('#cloudSaveStatus button'));
+    assert.equal(await waitForCloud(resumed.page, 'saved', {polling: 1}), true);
   }
   // A request that never answers cannot defeat the helper's overall deadline.
   const late = deferred(); let lateChecks = 0;
@@ -194,5 +227,5 @@ function playwrightPoll(predicate, schedule) {
   let checks = 0;
   await assert.rejects(waitForCloud({evaluate: async () => {checks++; return false;}}, 'conflict', {timeout: 10, polling: 1}), /not acknowledged/);
   const stoppedAt = checks; await turn(); assert.equal(checks, stoppedAt, 'No polling continues after timeout');
-  console.log('PASS: legacy/compact actual-client in-flight save acknowledgements, false async predicate reproduction, stale-writer conflicts, load/edit protection and bounded waits');
+  console.log('PASS: legacy/compact actual-client in-flight save acknowledgements, false async predicate reproduction, stale-writer conflicts, lost-ack reload recovery, pre-reload acknowledgement, load/edit protection and bounded waits');
 })().catch(error => {console.error(error); process.exitCode = 1;});

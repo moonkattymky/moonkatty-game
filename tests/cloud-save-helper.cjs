@@ -1,12 +1,12 @@
 /* Await the result of each flush before deciding whether to poll again. Playwright's
    waitForFunction treats an async predicate's Promise as truthy, even if it resolves false. */
-async function waitForCloud(page, state, {timeout = 10000, polling = 100} = {}) {
+async function waitForCloud(page, state, {timeout = 10000, polling = 100, label = state} = {}) {
   if (!['saved', 'conflict'].includes(state)) throw Error('Unknown cloud condition: ' + state);
   let stopped = false, deadline, pause;
   const expired = new Promise((_, reject) => {
     deadline = setTimeout(() => {
       stopped = true;
-      reject(Error(`Cloud ${state} was not acknowledged within ${timeout}ms`));
+      reject(Error(`Cloud ${state} (${label}) was not acknowledged within ${timeout}ms`));
     }, timeout);
   });
   const checking = (async () => {
