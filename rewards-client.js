@@ -24,9 +24,15 @@
   el.textContent=msg;
  }
  async function post(url,payload,signal){
-  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:signal||AbortSignal.timeout(12000),cache:'no-store'});
-  const body=await r.json().catch(()=>({ok:false,error:'unavailable'}));
-  if(!r.ok&&!body.error)body.error=r.status===401?'auth':'unavailable';return body;
+  // Older Telegram WebViews support AbortController but not AbortSignal.timeout.
+  // Keep the timeout active until the response body has also finished downloading.
+  const controller=signal?null:new AbortController();
+  const timeout=controller?setTimeout(()=>controller.abort(),12000):null;
+  try{
+   const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:signal||controller.signal,cache:'no-store'});
+   const body=await r.json().catch(()=>({ok:false,error:'unavailable'}));
+   if(!r.ok&&!body.error)body.error=r.status===401?'auth':'unavailable';return body;
+  }finally{if(timeout!==null)clearTimeout(timeout);}
  }
  async function authPayload(){
   const data=initData();if(!data)return {};
@@ -82,9 +88,13 @@
    await window.MKTYCloud?.load?.();if(account!==scope())return null;
    for(const item of read()){
     if(account!==scope())return null;
-    if(item.action==='life.complete'){item.payload.proof=await proofFor(item.payload.life);if(account!==scope())return null;}
+    if(item.action==='life.complete'){const proof=await proofFor(item.payload.life);if(account!==scope())return null;if(proof)item.payload.proof=proof;}
     if(item.action==='life.complete'&&item.payload.life>Number(lastPlayer?.story_life||0)+1)continue;
-    const r=await call(item.action,item.payload);if(!r?.ok||account!==scope())break;remove(item.id);
+    const r=await call(item.action,item.payload);if(account!==scope())break;
+    // A spent-out account cannot settle this failed-attempt charge. It must not
+    // permanently block unrelated earned chapter rewards behind it in the queue.
+    if(item.action==='lives.spend'&&r?.error==='no_lives'){remove(item.id);continue;}
+    if(!r?.ok)break;remove(item.id);
    }
    return lastPlayer;
   })().finally(()=>{if(syncing===job)syncing=null;});syncing=job;return job;
@@ -96,7 +106,11 @@
    if(localStorage.getItem(key+'_awarded')!=='yes'){pts+=amount??LIFE_REWARDS[n]??0;localStorage.setItem('mkty_points',String(pts));localStorage.setItem(key+'_awarded','yes');}
    return {pts,source:'cache',player:null};
   }
-  const proof=await proofFor(n);if(account!==scope())return {pts:0,source:'account-changed',pending:true};queue('life.complete',{life:n,event_key,proof});
+  // Persist the intent before proofFor can wait for the network. An app close at
+  // that point must still leave a retryable completion on the next launch.
+  queue('life.complete',{life:n,event_key});
+  const proof=await proofFor(n);if(account!==scope())return {pts:0,source:'account-changed',pending:true};
+  if(proof)write(read().map(item=>item.id===event_key?{...item,payload:{...item.payload,proof}}:item));
   const body=await call('life.complete',{life:n,event_key,proof});
   if(body?.ok&&body.player){remove(event_key);localStorage.setItem(key+'_awarded','yes');return {pts:body.player.moon_points,source:body.awarded?'server':'server-idempotent',player:body.player};}
   return {pts:Number(localStorage.getItem('mkty_points')||0),source:'pending',pending:true,error:body?.error,player:null};

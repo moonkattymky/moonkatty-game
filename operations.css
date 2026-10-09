@@ -35,6 +35,11 @@
 .ops-pipes{gap:0;border:1px solid #667c874d;background:#10222b;overflow:hidden}
 #operationsDeck .ops-pipes .ops-tile{border:0;border-right:1px solid #050e18aa;border-bottom:1px solid #050e18aa;border-radius:0;background:linear-gradient(135deg,#354c56,#1b303a);box-shadow:inset 0 1px #dce9e91a;min-height:39px}
 #operationsDeck .ops-pipes .ops-tile.powered{background:linear-gradient(135deg,#3a5057,#223b43)}
+/* Keep actionable hints above the more-specific conduit artwork rules. The
+   inset outline remains visible without relying on a subtle colour change. */
+#operationsDeck .ops-pipes .ops-tile.hinted{background:#4a4b40;outline:3px solid #f0cc84;outline-offset:-4px;box-shadow:inset 0 0 0 2px #f0cc84}
+#operationsDeck .ops-pipes .ops-tile.hinted::after{content:'?';position:absolute;right:4px;top:4px;display:grid;place-items:center;min-width:18px;height:18px;border-radius:50%;background:#f0cc84;color:#18232b;font:bold 12px/1 system-ui;pointer-events:none}
+#operationsDeck .ops-pipes .ops-tile.powered .oa-pipe-light{stroke:#baf9ed;stroke-width:3}
 .oa-conduit{width:100%;height:100%;position:absolute;inset:0;overflow:visible}
 .oa-conduit path{fill:none;stroke-linecap:butt}.oa-trace{stroke:#66888455;stroke-width:.8}.oa-pipe-shadow{stroke:#06131dcc;stroke-width:18}.oa-pipe-body{stroke:#83939a;stroke-width:11}.oa-pipe-core{stroke:#233b48;stroke-width:5}.oa-pipe-light{stroke:#607e8a;stroke-width:1.4}.powered .oa-pipe-light{stroke:#bee8df;stroke-width:2.1}.oa-coupling{stroke:#bec8ca;stroke-width:2}.oa-contact{stroke:#2e4857;stroke-width:1}.oa-fastener{stroke:#718b99;stroke-width:.8}.oa-node-bezel{stroke:#c1cdcf;stroke-width:2;fill:#233b45}.oa-node-led{stroke:#101e28;stroke-width:2;fill:#738997}.powered .oa-node-led{fill:#aedccc}
 .ops-tile .oa-pipe-label{position:absolute;left:3px;top:3px;font-size:11px;color:#bccdd1;background:#15232c99;padding:2px}.ops-tile .oa-rotate{position:absolute;right:3px;bottom:3px;color:#b4c7d366;font-size:11px}

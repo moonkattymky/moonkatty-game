@@ -233,6 +233,7 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
    if(msg==='daily_limit'||msg==='pending_limit')return json({ok:false,error:msg},429);
    if(msg==='proof_required')return json({ok:false,error:msg},409);
    if(msg==='snapshot')return json({ok:false,error:msg},400);
+   if(msg==='snapshot_too_large')return json({ok:false,error:msg},413);
    if(msg==='proof'||msg==='platform'||msg==='kind'||msg==='unverified')return json({ok:false,error:msg},400);
    if(msg==='cap')return json({ok:false,error:'cap'},429);
    if(msg==='life'||msg==='event_key'||msg==='event_type'||msg==='points'||msg==='referral'||msg==='source'||msg==='use_life_complete')return json({ok:false,error:msg},400);

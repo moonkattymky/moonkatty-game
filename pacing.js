@@ -98,10 +98,11 @@
   if(bypass()||!n)return false;
   if(!Rules.costs({n,kind,done1:done(1)})){if(kind!=='training')toast(T('Tutorial: no life lost in your first LIFE #1'));return false;}
   let charged=[];try{charged=JSON.parse(ls.getItem('mkty_pace_charged')||'[]');}catch{}
+  charged=Array.isArray(charged)?charged.filter(k=>typeof k==='string').slice(-200):[];
   const id=String(key||Date.now());if(charged.includes(id))return false;charged.push(id);ls.setItem('mkty_pace_charged',JSON.stringify(charged.slice(-200)));
   if(typeof spendGlobalLife!=='function'||!spendGlobalLife('life:fail:'+id.replace(/[^A-Za-z0-9:._-]/g,'').slice(0,150)))return false;
   const L=lives();toast(T('−1 life · {n} / 9 left',{n:L}));refresh();
-  if(L<=0)setTimeout(()=>{show('chapters');open('lives',n);},1200);
+  if(L<=0){const failedScreen=document.querySelector('.screen.active');setTimeout(()=>{if(lives()<=0&&document.querySelector('.screen.active')===failedScreen){show('chapters');open('lives',n);}},1200);}
   return true;
  }
 
