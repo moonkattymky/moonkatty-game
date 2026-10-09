@@ -7,7 +7,7 @@ await p.route('**/functions/v1/**',async r=>{const b=r.request().postDataJSON()|
 posts.push({id:current,action:b.action});if(b.action==='session'&&current===delayedAccount)await new Promise(resolve=>setTimeout(resolve,180));
 if(b.action==='session')out.session={token:'session:'+current,expires_at:Date.now()+43200000};
 if(b.action==='campaign.cloud'){const old=cloud.get(current)||{revision:0,snapshot:{}};if(b.snapshot){if(b.revision!==old.revision)out={ok:true,conflict:true,...old};else{const next={revision:old.revision+1,snapshot:b.snapshot};cloud.set(current,next);out={ok:true,revision:next.revision};}}else out={ok:true,...old};}
-if(b.action==='campaign.open')out={ok:true,route:{life:b.life,seed:b.seed,edition:b.edition,route:'route-'+current+'-'+b.life}};
+if(b.action==='campaign.open')out={ok:true,route:{life:b.life,telegram_id:current,challenge_version:2,seed:b.life===2?90210:1234,edition:2,route:'route-'+current+'-'+b.life}};
 await r.fulfill({contentType:'application/json',body:JSON.stringify(out)});});await p.goto('http://localhost:'+server.address().port);await p.waitForFunction(()=>MKTYRewards.getLastPlayer());await p.evaluate(()=>MKTYCloud.load());return {p,c};}
 try{
 const {p}=await page(101);
@@ -24,7 +24,7 @@ await p.evaluate(()=>localStorage.setItem('mkty_life1_memory_code','2222222222')
 // Selecting a cloud checkpoint during live play must survive outgoing pagehide saves.
 const remoteCrew={version:1,joined:['Navigator','Scout'],pipes:[]};
 await p.evaluate(checkpoint=>localStorage.setItem('mkty_campaign_checkpoint_2',JSON.stringify(checkpoint)),remoteCrew);await p.evaluate(()=>MKTYCloud.flush());
-await second.evaluate(()=>{const s=StoryPlan.fresh(2,90210,2);s.done=[0,1,2,3,4,5,6,7];s.phase='core';localStorage.setItem('mkty_story_plan_2_v1',JSON.stringify(s));openMission2();document.querySelector('[data-mate="Engineer"]').classList.add('joined');crewCount=1;MKTYCampaign.save();});
+await second.evaluate(async()=>{const s=StoryPlan.fresh(2,90210,2);s.done=[0,1,2,3,4,5,6,7];s.phase='core';localStorage.setItem('mkty_story_plan_2_v1',JSON.stringify(s));await openMission2();document.querySelector('[data-mate="Engineer"]').classList.add('joined');crewCount=1;MKTYCampaign.save();});
 await second.evaluate(async()=>{window.dispatchEvent(new Event('online'));await MKTYCloud.load();});assert.equal(await second.locator('.screen.active').getAttribute('id'),'mission2');
 await Promise.all([second.waitForEvent('load'),second.locator('#cloudSaveStatus button').click()]);
 await second.waitForFunction(()=>window.MKTYStory);assert.deepEqual(await second.evaluate(()=>JSON.parse(localStorage.getItem('mkty_campaign_checkpoint_2'))),remoteCrew,'new document restores the selected cloud snapshot after the old controller saves');

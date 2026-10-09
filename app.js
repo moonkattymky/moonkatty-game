@@ -94,7 +94,7 @@ function leaveMission(id){
 function show(id){
  if(activeCinematic&&activeCinematic.id!==id)activeCinematic.cleanup();
  window.MKTYCampaign?.save();
- window.MKTYExpedition?.onScreen(id);window.MKTYField?.onScreen(id);
+ window.MKTYExpedition?.onScreen(id);window.MKTYField?.onScreen(id);window.MKTYStory?.onScreen(id);
  document.querySelectorAll('.mission-screen.active').forEach(s=>{if(s.id!==id)leaveMission(s.id);});
  const previous=document.querySelector('.screen.active');
  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
