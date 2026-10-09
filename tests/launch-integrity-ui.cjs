@@ -25,7 +25,7 @@ await p.evaluate(()=>localStorage.setItem('mkty_life1_memory_code','2222222222')
 const remoteCrew={version:1,joined:['Navigator','Scout'],pipes:[]};
 await p.evaluate(checkpoint=>localStorage.setItem('mkty_campaign_checkpoint_2',JSON.stringify(checkpoint)),remoteCrew);await p.evaluate(()=>MKTYCloud.flush());
 await second.evaluate(()=>{const s=StoryPlan.fresh(2,90210,2);s.done=[0,1,2,3,4,5,6,7];s.phase='core';localStorage.setItem('mkty_story_plan_2_v1',JSON.stringify(s));openMission2();document.querySelector('[data-mate="Engineer"]').classList.add('joined');crewCount=1;MKTYCampaign.save();});
-await second.evaluate(()=>MKTYCloud.flush());assert.equal(await second.locator('.screen.active').getAttribute('id'),'mission2');
+await second.evaluate(async()=>{window.dispatchEvent(new Event('online'));await MKTYCloud.load();});assert.equal(await second.locator('.screen.active').getAttribute('id'),'mission2');
 await Promise.all([second.waitForEvent('load'),second.locator('#cloudSaveStatus button').click()]);
 await second.waitForFunction(()=>window.MKTYStory);assert.deepEqual(await second.evaluate(()=>JSON.parse(localStorage.getItem('mkty_campaign_checkpoint_2'))),remoteCrew,'new document restores the selected cloud snapshot after the old controller saves');
 assert((await second.evaluate(()=>JSON.parse(JSON.parse(localStorage.getItem('mkty_cloud_recovery')).mkty_campaign_checkpoint_2).joined)).includes('Engineer'),'outgoing local run is preserved for recovery');

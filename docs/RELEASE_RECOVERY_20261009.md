@@ -27,7 +27,8 @@ It introduces no new mechanic, purchase, database migration or production deploy
   hijack a newer destination.
 - Restore a clearly visible gold power-grid hint, with a `?` marker as well as
   colour, and increase powered-path contrast. Reset console scroll on navigation
-  so Settings and other screens open at their headings.
+  so Settings and other screens open at their headings. Increase daily instruction
+  text to 13px with lighter ink above 4.5:1 against its card background.
 
 ## Verification
 
