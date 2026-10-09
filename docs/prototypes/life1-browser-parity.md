@@ -1,26 +1,51 @@
 # Chapter 1 browser parity gate
 
-## Status
+## Current reviewed baseline
 
-Authored locally against prototype commit
-`999046db33af2c2a125b2bde0addba2e6378c3ec`, tree
-`e94c770ca43b3902523fd8317fc8a38bc11d5cb3`.
+This diagnostic continuation uses exact reviewed PR49 commit
+`357d819fdc8ef2ab7e245e7abcd79859bba6c256`, tree
+`669f3efe9d355af0184a10314fdb506dc7e92f01`. That baseline passed 73/73 game
+suites, 32 real PostgreSQL contention cases and 74 screenshots / 12,539 checks.
+Those are baseline results, not proof that this prototype is correct.
 
-**Actual browser execution is pending CI.** Local browser/socket execution was
-previously denied, so it was not launched, retried, escalated, or bypassed while
-writing these tests. Parsing and non-browser contract checks do not establish
-browser parity. Local verification passed 43/43 permitted non-browser files
-(the previous 42 plus the new seven-group contract suite), JavaScript syntax,
-source fingerprints, generated-server-model checks, and diff whitespace checks.
-The existing VM oracle still compares 5,833 states in 21 scenarios.
+The prototype remains unwired. Its runtime, CSS, endpoint, settlement and SQL
+surfaces are byte-identical to PR49, pinned in `life1-source-manifest.json`.
+PR49 includes the separately reviewed Chapter 1 entrance-cache correction and
+cloud fixture acknowledgement corrections. The model still needs exact native
+layout parity; no threshold or boolean assertion is relaxed to obtain a pass.
+Local browser/socket execution is not used; the independent diagnostic and
+full workflows provide actual Chromium evidence.
 
-These tests may expose genuine model differences, especially
-at strict subpixel boundaries. A failing gate must not be relaxed into a pass.
+## First CI result and diagnostic follow-up
 
-The source checkout and its accepted first tree remain untouched. This slice
-adds tests and this document only. It changes no model, controller, runtime
-loader, CSS, reward/settlement behavior, SQL, endpoint, or legacy policy. It does
-not incorporate the separate visual-redesign branch or certify its geometry.
+The first full run, `37977916761` / job `113980757948`, on PR47 head
+`e5d741d4005f2a1e2352cb0104b2d359f988d2f3` finished with 71/73 suites passing.
+The Chapter 1 browser suite passed 19/23 cases: all 15 frame/layout scenarios,
+all three earned quests, and puzzles/lifecycle. Each compact/large/fractional
+strict-boundary case reported 36 decision mismatches. The ordinary-motion
+entry-cache case also failed its cached-width assertion. The model boundary failures remain unresolved. The independently fixed runtime
+entrance-cache case is now retested against PR49. This diagnostic follow-up does
+not change the candidate model, production files, tolerances, boolean assertions
+or expected results.
+
+The CI log previously kept only the first mismatch from three failed cases,
+so it omitted the animation measurements and most independent native edges.
+It now prints one bounded synthetic row per failed scenario: Chromium version,
+configuration, world rectangle, all three raw obstacle rectangles, candidate,
+cached and freshly measured collision edges, plus initial/final animation
+geometry and four passive 50ms post-animation observations. The original
+immediate cache assertion remains intact; later samples only distinguish
+persistent stale geometry from a pending observer delivery. Additional bounded observations include computed positioning/transform styles,
+DPR, visual-viewport/scroll offsets, ancestor transforms and the actual player
+and hotspot rectangles at each strict proximity probe. These observations
+never become model input.
+
+A path-filtered `Chapter 1 prototype parity diagnostics` workflow runs these
+four non-browser suites and the real Chromium parity suite directly, providing
+shorter feedback on prototype changes. It does not replace or modify the full
+aggregate workflow. No CI rerun has yet verified this follow-up. The source
+fingerprint checks and eight-group non-browser harness contract pass locally;
+no local browser/socket process was launched.
 
 ## Run in an authorized browser-capable environment
 
@@ -33,13 +58,13 @@ node tests/life1-browser-contract.cjs
 node tests/life1-browser-parity.cjs
 ```
 
-The existing `npm test` discovers both suites automatically. No new workflow is
-required. `CHROMIUM_PATH` optionally selects an installed Chromium;
+The existing `npm test` discovers both suites automatically and remains mandatory.
+The focused workflow runs the Chapter 1 suites separately for quicker diagnostics. `CHROMIUM_PATH` optionally selects an installed Chromium;
 `MKTY_TEST_OUTPUT` selects the report directory. Without it, the browser suite
 creates a unique temporary directory. It writes `life1-browser-parity.json` and
-failure screenshots. The last failure output includes a bounded synthetic
-numeric/geometry/boundary sample, so the existing aggregate's final 25 log lines
-can diagnose the first failures without uploading artifacts.
+failure screenshots. Failure output includes bounded synthetic geometry rows for every failing
+scenario, so the existing aggregate's final 25 log lines retain all three
+obstacle-edge sets and the animation-cache observation without artifacts.
 
 `node tests/life1-browser-contract.cjs` is safe without a browser: it imports the
 runner without calling `main`, checks compilation and isolation, and verifies

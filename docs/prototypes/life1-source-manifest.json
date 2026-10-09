@@ -1,10 +1,10 @@
 {
-  "baselineCommit": "54db90e00c346433544784fd09c30360659f2d4c",
-  "baselineTree": "f3ec07d7adf6d0126b71ae9585b37030221d251e",
-  "note": "Pinned source contract and explicit unchanged production integration surfaces. VM geometry is supplied, not browser-measured.",
+  "baselineCommit": "357d819fdc8ef2ab7e245e7abcd79859bba6c256",
+  "baselineTree": "669f3efe9d355af0184a10314fdb506dc7e92f01",
+  "note": "Pinned reviewed PR49 production baseline. Includes the independently approved Chapter1 entrance-cache correction from PR48; this prototype does not modify or activate runtime integration surfaces. VM geometry is supplied, not browser-measured.",
   "sha256": {
-    "app.js": "ad98d6450c63c3e617f947d2d9237b63b0fb17daa15d66d7d66fdcb679433055",
-    "index.html": "2ef6742f3f16c04e51cb5c1be15241e7721fb889fd24b68fb51412bbb045dfce",
+    "app.js": "9d74a481f47e822d35e4d32d90e11b051a79f985da95d5aa2e5939c002553f87",
+    "index.html": "0aa1af98a0c836f7a1715b4ef2368039123044529949ec1e852371ae09251afc",
     "styles.css": "45b91d8df2047d9292d2c3614bb205ca0d4bd6b0e209840c83dfd0ed327bdb19",
     "chapters-1-4.css": "da358cc14e8ceacb02135b9ae17fafa81f6f86e380e449ce207245d961280ed0",
     "mission-polish.css": "63830b60a4691060cfd1a9a3a29f35e3313f970dfb4fa9e5563c19b83d47fafd",

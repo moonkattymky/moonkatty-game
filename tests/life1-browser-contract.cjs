@@ -25,6 +25,25 @@ test('Network boundary rejects live hosts, alternate ports and API mutations',()
   const origin='http://127.0.0.1:12345';assert(runner.allowedRequest(origin+'/app.js','GET',origin));
   for(const [url,method] of [['https://telegram.org/js/telegram-web-app.js','GET'],['https://example.supabase.co/functions/v1/rewards','POST'],['http://127.0.0.1:12346/app.js','GET'],[origin+'/api/rewards','POST'],[origin+'/app.js','POST']])assert.equal(runner.allowedRequest(url,method,origin),false,url);
 });
+test('Failure diagnostics retain every native/model/cache obstacle edge and animation case',()=>{
+  const rect={left:10,top:20,right:310,bottom:251.21875,width:300,height:231.21875};
+  const raw={left:88.46875,top:137.890625,right:139.125,bottom:188.546875,width:50.65625,height:50.65625};
+  const edge={left:26,right:43,top:58,bottom:73};
+  const model={x:50,y:68,geometry:{obstacles:[edge,edge,edge]}};
+  const browser={x:50,y:68,world:rect,geometry:{width:300,height:231.21875,obstacles:[edge,edge,edge]},obstacles:[raw,raw,raw,raw]};
+  const entry={name:'strict-boundaries-compact',config:{viewport:{width:320,height:568}},error:{message:'strict mismatch'},
+    adapter:{failure:{event:['strict-probes',0],model,browser},probes:[]},pageErrors:['a','b','c']};
+  const row=runner.summarizeFailure(entry,'fixture-version');
+  assert.equal(row.browserVersion,'fixture-version');assert.deepEqual(row.world,rect);assert.equal(row.obstacles.length,3);
+  for(const obstacle of row.obstacles){assert.deepEqual(obstacle.raw,raw);assert.deepEqual(obstacle.model,edge);assert.deepEqual(obstacle.cached,edge);
+    assert.deepEqual(obstacle.native,{left:81.46875/300*100,right:126.125/300*100,
+      top:(117.890625+50.65625*.36)/231.21875*100,bottom:166.546875/231.21875*100});}
+  assert.deepEqual(row.pageErrors,['a','b']);
+  const atEntry={cached:{width:358.38},world:{width:358.38},transform:'matrix(...)'},afterAnimation={cached:{width:358.38},world:{width:362},transform:'none'};
+  const animation=runner.summarizeFailure({name:'ordinary-motion-entry-cache',config:{},error:{message:'stale'},pageErrors:[],atEntry,afterAnimation},'fixture-version');
+  assert.deepEqual(animation.animation,{atEntry,afterAnimation,passiveSamples:undefined});assert.equal(animation.obstacles,undefined);
+  assert(JSON.stringify(row).length<5000,'Bounded failure row size');
+});
 test('Source prototype production contract is unchanged',()=>{
   const manifest=JSON.parse(fs.readFileSync(path.join(root,'docs/prototypes/life1-source-manifest.json')));
   for(const [file,want]of Object.entries(manifest.sha256))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex'),want,file);

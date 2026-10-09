@@ -83,8 +83,15 @@ module.exports = function installLife1BrowserAdapter({route}) {
     report.comparisons++;
     return v;
   }
+  function nativeDetails() {
+    const style=el=>{const c=getComputedStyle(el);return Object.fromEntries(['left','top','right','bottom','width','height','transform','boxSizing','borderTopWidth','borderLeftWidth'].map(k=>[k,c[k]]));};
+    const ancestors=[];for(let el=$('life1World');el;el=el.parentElement)ancestors.push({id:el.id,tag:el.tagName,transform:getComputedStyle(el).transform,scrollLeft:el.scrollLeft,scrollTop:el.scrollTop});
+    return {dpr:devicePixelRatio,viewport:visualViewport&&{scale:visualViewport.scale,offsetLeft:visualViewport.offsetLeft,offsetTop:visualViewport.offsetTop,pageLeft:visualViewport.pageLeft,pageTop:visualViewport.pageTop},
+      scroll:[scrollX,scrollY],world:style($('life1World')),player:style($('life1Player')),
+      obstacles:[...document.querySelectorAll('#life1World .l1-obstacle')].map(style),spots:['1','2','3','repair','antenna'].map(id=>({id,...style(spot(id))})),ancestors};
+  }
   function rememberFailure(error, event) {
-    report.failure ||= {message:error.message,event,previous:copy(beforeEvent),model:copy(state),browser:snapshot()};
+    report.failure ||= {message:error.message,event,previous:copy(beforeEvent),model:copy(state),browser:snapshot(),nativeDetails:nativeDetails()};
     throw error;
   }
   function event(e, execute) {
@@ -227,7 +234,7 @@ module.exports = function installLife1BrowserAdapter({route}) {
           // so this isolated predicate probe does not itself resize the world.
           $('missionStatus').textContent=prior.status;
           eq(reached,browser<.24,'controller strict proximity predicate');
-          const probe={kind:'strict-proximity',offset,x,y,candidate,browser,candidateReach:candidate<.24,browserReach:reached};report.probes.push(probe);
+          const probe={kind:'strict-proximity',offset,x,y,candidate,browser,candidateReach:candidate<.24,browserReach:reached,player:rect($('life1Player')),spot:rect(spot('1')),style:{left:$('life1Player').style.left,top:$('life1Player').style.top}};report.probes.push(probe);
           if((candidate<.24)!==reached)failures.push(probe);
         }
       } finally {l1PX=prior.x;l1PY=prior.y;$('missionStatus').textContent=prior.status;renderLife1Player();}

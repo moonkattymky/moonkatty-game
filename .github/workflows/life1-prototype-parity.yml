@@ -1,0 +1,40 @@
+name: Chapter 1 prototype parity diagnostics
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/life1-prototype-parity.yml'
+      - 'life1-model.js'
+      - 'server/rewards/life1-verifier.cjs'
+      - 'tests/life1-*.cjs'
+      - 'tests/fixtures/life1-*.cjs'
+      - 'docs/prototypes/life1-*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Fast diagnostics only. The existing Full game tests gate remains mandatory.
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - name: Prototype model, verifier and source contracts
+        run: |
+          node tests/life1-model.cjs
+          node tests/life1-verifier.cjs
+          node tests/life1-controller-differential.cjs
+          node tests/life1-browser-contract.cjs
+      - name: Real Chromium parity and bounded failure diagnostics
+        run: node tests/life1-browser-parity.cjs

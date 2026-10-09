@@ -34,6 +34,20 @@ function allowedRequest(url,method,origin) {
   let parsed;try{parsed=new URL(url);}catch{return false;}
   return parsed.origin===origin&&!!localAsset(url,method);
 }
+// Preserve every obstacle edge in CI's bounded log tail. These are observations,
+// not input to the model. Source/candidate geometry must remain independent.
+function summarizeFailure(entry,browserVersion) {
+  const failure=entry.adapter?.failure,v=failure?.browser,g=failure?.model?.geometry,w=v?.world;
+  return {scenario:entry.name,browserVersion,config:entry.config,error:entry.error?.message,event:failure?.event,
+    modelPosition:failure?.model&&[failure.model.x,failure.model.y],browserPosition:v&&[v.x,v.y],
+    world:w,dimensions:v&&{cached:[v.geometry.width,v.geometry.height],live:[w.width,w.height]},
+    obstacles:v?.obstacles?.slice(0,3).map((raw,i)=>({i,raw,model:g?.obstacles[i],cached:v.geometry.obstacles[i],
+      native:{left:(raw.left+3-w.left)/w.width*100,right:(raw.right-3-w.left)/w.width*100,
+        top:(raw.top+raw.height*.36-w.top)/w.height*100,bottom:(raw.bottom-2-w.top)/w.height*100}})),
+    nativeDetails:failure?.nativeDetails,player:v?.player,spots:v?.spots,proximity:entry.adapter?.probes?.filter(p=>p.kind==='strict-proximity'),
+    boundary:entry.adapter?.probes?.find(p=>p.kind==='strict-collision'?p.candidate!==p.browser:p.candidateReach!==p.browserReach),
+    animation:entry.afterAnimation&&{atEntry:entry.atEntry,afterAnimation:entry.afterAnimation,passiveSamples:entry.passiveAnimationSamples},pageErrors:entry.pageErrors.slice(0,2)};
+}
 async function main() {
   const {chromium}=require('playwright');
   const output=process.env.MKTY_TEST_OUTPUT||fs.mkdtempSync('/tmp/mkty-life1-browser-');fs.mkdirSync(output,{recursive:true});
@@ -242,21 +256,24 @@ async function main() {
       // transform or manually refreshed cache. This is an ordinary-motion gate.
       await page.waitForFunction(()=>getComputedStyle(document.getElementById('mission1')).transform==='none',null,{polling:50,timeout:6000});
       entry.afterAnimation=await measure();
+      // Diagnostics only: preserve the immediate assertion below, but also
+      // observe four later real rendering opportunities. Playwright's Node-side
+      // delay does not advance/rewrite the page's frozen virtual clock, call the
+      // production refresh, or rely on its cancelled Chapter 1 animation frame.
+      entry.passiveAnimationSamples=[];
+      for(let i=0;i<4;i++){await page.waitForTimeout(50);entry.passiveAnimationSamples.push(await measure());}
       assert(Math.abs(entry.afterAnimation.cached.width-entry.afterAnimation.world.width)<=1/16,'Entry animation left cached width stale');
       assert(Math.abs(entry.afterAnimation.cached.height-entry.afterAnimation.world.height)<=1/16,'Entry animation left cached height stale');
     },{ordinaryMotion:true});
     report.browserExecution='finished';save();
-    if(report.failed)console.error('PARITY_FIRST_FAILURES '+JSON.stringify(report.scenarios.filter(s=>!s.passed).slice(0,3).map(s=>({
-      scenario:s.name,error:s.error?.message,event:s.adapter?.failure?.event,
-      modelPosition:s.adapter?.failure?.model&&[s.adapter.failure.model.x,s.adapter.failure.model.y],
-      browserPosition:s.adapter?.failure?.browser&&[s.adapter.failure.browser.x,s.adapter.failure.browser.y],
-      dimensions:s.adapter?.failure?.browser&&{cached:[s.adapter.failure.browser.geometry.width,s.adapter.failure.browser.geometry.height],live:[s.adapter.failure.browser.world.width,s.adapter.failure.browser.world.height]},
-      boundary:s.adapter?.probes?.find(p=>p.kind==='strict-collision'?p.candidate!==p.browser:p.candidateReach!==p.browserReach),
-      animation:s.afterAnimation,pageErrors:s.pageErrors.slice(0,2)
-    }))));
+    // One bounded row per failed scenario, including the ordinary-motion case.
+    // The previous first-three/first-probe sample hid its cache measurements and
+    // made it impossible to derive all independent native collision boundaries.
+    for(const entry of report.scenarios.filter(s=>!s.passed))
+      console.error('PARITY_FAILURE '+JSON.stringify(summarizeFailure(entry,report.browserVersion)));
     assert.equal(report.failed,0,`${report.failed}/${report.scenarios.length} browser parity scenarios failed; report: ${output}`);
     console.log(JSON.stringify({suite:report.suite,passed:report.scenarios.length,output}));
   } finally {await browser?.close();await new Promise(resolve=>server.close(resolve));save();}
 }
-module.exports={VIEWPORTS,RATES,localAsset,allowedRequest,main};
+module.exports={VIEWPORTS,RATES,localAsset,allowedRequest,summarizeFailure,main};
 if(require.main===module)main().catch(error=>{console.error(error);process.exitCode=1;});
