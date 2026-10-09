@@ -13,7 +13,7 @@ function harness(){
  const document={getElementById:get,createElement:()=>new Element(),documentElement:get('html'),body:get('body'),hidden:false,addEventListener(){},querySelector:sel=>sel==='.screen.active'?get(active):null,querySelectorAll:()=>[]};
  const storage={getItem:k=>data.get(owner+':'+k)??null,setItem:(k,v)=>data.set(owner+':'+k,String(v)),removeItem:k=>data.delete(owner+':'+k)};
  const sessionStorage={getItem:k=>sessions.get(k)||null,setItem:(k,v)=>sessions.set(k,String(v)),removeItem:k=>sessions.delete(k)};
- const window={Telegram:{WebApp:{initData:'user='+encodeURIComponent(JSON.stringify({id:101}))}},addEventListener(){},dispatchEvent(){},MKTYStorage:{persistent:true},MKTYCampaign:{render(){}},MKTYPace:{gate:()=>true,bypass:()=>true,risky:(_n,fn)=>risk.push(fn)}};
+ const window={MKTYTraceCodec:require('../trace-codec.js'),Telegram:{WebApp:{initData:'user='+encodeURIComponent(JSON.stringify({id:101}))}},addEventListener(){},dispatchEvent(){},MKTYStorage:{persistent:true},MKTYCampaign:{render(){}},MKTYPace:{gate:()=>true,bypass:()=>true,risky:(_n,fn)=>risk.push(fn)}};
  const show=id=>{window.MKTYStory?.onScreen(id);get(active).classes.delete('active');active=id;get(id).classes.add('active');};get(active).classes.add('active');
  const fetch=async(_url,opt)=>{const body=JSON.parse(opt.body);calls.push(body);if(body.action==='session')return response({ok:true,session:{token:'account:'+owner,expires_at:Date.now()+3600000}});
   if(body.action==='campaign.open'){if(offline)return response({ok:false,error:'unavailable'});return new Promise(resolve=>pending.push({body,owner,resolve:x=>resolve(response(x))}));}return response({ok:true});};

@@ -1,0 +1,90 @@
+/* Lossless replay transport. Local controllers keep ordinary rows; cloud/proof
+   boundaries may replace a prefix with one versioned, bounded binary frame. */
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.MKTYTraceCodec=api;})(typeof globalThis!=='undefined'?globalThis:this,()=>{
+ 'use strict';
+ const PROTOCOL='mkty-trace-v1',MARKER='mkty-trace';
+ const LIMITS=Object.freeze({maxRows:25000,maxTicks:200000,snapshotEntryBytes:180000,snapshotBytes:350000,decodedEntryBytes:1000000,decodedSnapshotBytes:2000000,proofBytes:1000000,transportBytes:400000,maxDepth:64,maxLiteralBytes:65536});
+ const fail=(kind='trace_invalid')=>{throw Error(kind);};
+ const own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
+ function utf8Bytes(s){if(typeof s!=='string')fail();let n=0;for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);if(c<128)n++;else if(c<2048)n+=2;else if(c>=0xd800&&c<=0xdbff&&i+1<s.length&&s.charCodeAt(i+1)>=0xdc00&&s.charCodeAt(i+1)<=0xdfff){n+=4;i++;}else n+=3;}return n;}
+ // Measure JSON escaping before allocating a token (control characters can expand 6x).
+ function stringBytes(s){let n=2;for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);if(c===34||c===92||c===8||c===9||c===10||c===12||c===13)n+=2;else if(c<32)n+=6;else if(c<128)n++;else if(c<2048)n+=2;else if(c>=0xd800&&c<=0xdbff&&s.charCodeAt(i+1)>=0xdc00&&s.charCodeAt(i+1)<=0xdfff){n+=4;i++;}else if(c>=0xd800&&c<=0xdfff)n+=6;else n+=3;}return n;}
+ function quoted(s,max=LIMITS.decodedSnapshotBytes,error='trace_too_large'){if(stringBytes(s)>max)fail(error);return JSON.stringify(s);}
+ const numberJSON=n=>Object.is(n,-0)?'-0':String(n);
+ function scalar(v,max,error){if(v===null)return 'null';if(typeof v==='string')return quoted(v,max,error);if(typeof v==='boolean')return String(v);if(typeof v==='number'&&Number.isFinite(v))return numberJSON(v);fail();}
+ function container(v){if(!v||typeof v!=='object')return false;const p=Object.getPrototypeOf(v);if(!Array.isArray(v)&&p!==null&&Object.getPrototypeOf(p)!==null)fail();return true;}
+ function keys(v){const k=Object.keys(v);if(Array.isArray(v)){if(k.length!==v.length||k.some((x,i)=>x!==String(i)))fail();}return k;}
+ function meter(max,error='trace_too_large',parent=null,escape=false){return {bytes:0,max,error,count(n){if(this.bytes+n>max)fail(error);this.bytes+=n;},add(s){this.count(escape?stringBytes(s)-2:utf8Bytes(s));if(parent)parent.add(s);}};}
+ // The serializer is deliberately bounded before joining and retains negative zero.
+ function stringify(v,max=LIMITS.decodedSnapshotBytes,error='trace_too_large'){
+  const out=[],m=meter(max,error),seen=new Set();
+  function put(s){m.add(s);out.push(s);}
+  function visit(x,d){if(d>LIMITS.maxDepth)fail();if(!container(x)){put(scalar(x,max-m.bytes,error));return;}if(seen.has(x))fail();seen.add(x);const k=keys(x),a=Array.isArray(x);put(a?'[':'{');k.forEach((key,i)=>{if(i)put(',');if(!a){put(quoted(key,max-m.bytes,error));put(':');}visit(x[key],d+1);});put(a?']':'}');seen.delete(x);}
+  visit(v,0);return out.join('');
+ }
+ function options(v){const o=v||{},get=(key,max)=>{if(o[key]===undefined)return max;if(!Number.isSafeInteger(o[key])||o[key]<0||o[key]>max)fail();return o[key];};return {maxRows:get('maxRows',LIMITS.maxRows),maxTicks:get('maxTicks',LIMITS.maxTicks),maxBytes:get('maxBytes',LIMITS.decodedEntryBytes)};}
+ function scan(v,depth=0,seen=new Set()){
+  if(depth>LIMITS.maxDepth)fail();if(!container(v)){if(v===null||typeof v==='string'||typeof v==='boolean'||typeof v==='number'&&Number.isFinite(v))return;fail();}if(seen.has(v))fail();seen.add(v);
+  if(Array.isArray(v)&&v[0]===MARKER)fail();for(const k of keys(v))scan(v[k],depth+1,seen);seen.delete(v);
+ }
+ function tickCount(row){if(Array.isArray(row)&&row[0]==='tick'){if(!Number.isSafeInteger(row[1])||row[1]<1)fail();return row[1];}return 0;}
+ function strictTick(row){return Array.isArray(row)&&(row.length===4||row.length===6)&&row[0]==='tick'&&Number.isFinite(row[2])&&Number.isFinite(row[3])&&(row.length===4||typeof row[4]==='boolean'&&typeof row[5]==='boolean');}
+ const alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+ function base64(bytes){const out=[];for(let i=0;i<bytes.length;i+=3){const a=bytes[i],b=bytes[i+1],c=bytes[i+2];out.push(alphabet[a>>2]+alphabet[((a&3)<<4)|((b||0)>>4)]+(i+1<bytes.length?alphabet[((b&15)<<2)|((c||0)>>6)]:'=')+(i+2<bytes.length?alphabet[c&63]:'='));}return out.join('');}
+ function unbase64(s,max){
+  if(typeof s!=='string')fail();if(s.length>Math.ceil(max/3)*4)fail('trace_too_large');if(s.length%4||/[^A-Za-z0-9+/=]/.test(s))fail();
+  const pad=s.endsWith('==')?2:s.endsWith('=')?1:0,n=s.length/4*3-pad;if(s.indexOf('=')!==-1&&s.indexOf('=')!==s.length-pad)fail();if(n>max)fail('trace_too_large');
+  if(pad===2&&(alphabet.indexOf(s[s.length-3])&15)||pad===1&&(alphabet.indexOf(s[s.length-2])&3))fail();
+  const out=new Uint8Array(n);let at=0;for(let i=0;i<s.length;i+=4){const a=alphabet.indexOf(s[i]),b=alphabet.indexOf(s[i+1]),c=alphabet.indexOf(s[i+2]),d=alphabet.indexOf(s[i+3]);out[at++]=(a<<2)|(b>>4);if(at<n)out[at++]=((b&15)<<4)|(c>>2);if(at<n)out[at++]=((c&3)<<6)|d;}return out;
+ }
+ function utf8Encode(s){const out=new Uint8Array(utf8Bytes(s));let at=0;for(let i=0;i<s.length;i++){let c=s.charCodeAt(i);if(c>=0xd800&&c<=0xdbff&&s.charCodeAt(i+1)>=0xdc00&&s.charCodeAt(i+1)<=0xdfff)c=0x10000+((c-0xd800)<<10)+(s.charCodeAt(++i)-0xdc00);if(c<128)out[at++]=c;else if(c<2048){out[at++]=192|(c>>6);out[at++]=128|(c&63);}else if(c<65536){out[at++]=224|(c>>12);out[at++]=128|((c>>6)&63);out[at++]=128|(c&63);}else{out[at++]=240|(c>>18);out[at++]=128|((c>>12)&63);out[at++]=128|((c>>6)&63);out[at++]=128|(c&63);}}return out;}
+ function utf8Decode(bytes){let out='';for(let i=0;i<bytes.length;){const a=bytes[i++];let c,n,min;if(a<128){out+=String.fromCharCode(a);continue;}if(a>=194&&a<=223){c=a&31;n=1;min=128;}else if(a>=224&&a<=239){c=a&15;n=2;min=2048;}else if(a>=240&&a<=244){c=a&7;n=3;min=65536;}else fail();if(i+n>bytes.length)fail();for(let k=0;k<n;k++){const b=bytes[i++];if((b&192)!==128)fail();c=(c<<6)|(b&63);}if(c<min||c>0x10ffff||c>=0xd800&&c<=0xdfff)fail();out+=String.fromCodePoint(c);}return out;}
+ function writer(max){const data=[];return {byte(n){if(data.length>=max)fail('trace_too_large');data.push(n);},varint(n){do{const a=n%128;n=Math.floor(n/128);this.byte(a|(n?128:0));}while(n);},axis(n,float){if(!float){const q=Math.round(n*1000);this.byte(q&255);this.byte((q>>8)&255);}else{const b=new Uint8Array(8);new DataView(b.buffer).setFloat64(0,n,true);for(const v of b)this.byte(v);}},bytes(b){for(const v of b)this.byte(v);},finish(){return new Uint8Array(data);}};}
+ function reader(data){let at=0;return {get remaining(){return data.length-at;},byte(){if(at>=data.length)fail();return data[at++];},varint(max){let n=0,factor=1;for(let k=0;k<4;k++){const b=this.byte();n+=(b&127)*factor;if(n>max)fail();if(!(b&128)){if(k>0&&(b&127)===0)fail();return n;}factor*=128;}fail();},axis(float){if(!float){let n=this.byte()|(this.byte()<<8);if(n&32768)n-=65536;return n/1000;}if(this.remaining<8)fail();const n=new DataView(data.buffer,data.byteOffset+at,8).getFloat64(0,true);at+=8;if(!Number.isFinite(n))fail();return n;},literal(n){if(n>this.remaining)fail();const s=utf8Decode(data.subarray(at,at+n));at+=n;let row;try{row=JSON.parse(s);}catch{fail();}scan(row);return row;}};}
+ const compactAxis=n=>!Object.is(n,-0)&&Number.isInteger(Math.round(n*1000))&&Math.round(n*1000)>=-32768&&Math.round(n*1000)<=32767&&Math.round(n*1000)/1000===n;
+ function decode(trace,limit,m,depth=0){
+  if(!Array.isArray(trace))fail();if(trace.length>limit.maxRows)fail('trace_too_large');
+  const out=[];let ticks=0;const add=row=>{scan(row,depth+1);ticks+=tickCount(row);if(ticks>limit.maxTicks||out.length>=limit.maxRows)fail('trace_too_large');const s=stringify(row,limit.maxBytes);if(!strictTick(row)&&utf8Bytes(s)>LIMITS.maxLiteralBytes)fail('trace_too_large');if(out.length)m.add(',');m.add(s);out.push(row);};
+  m.add('[');let start=0;
+  if(Array.isArray(trace[0])&&trace[0][0]===MARKER){
+   const h=trace[0];if(Number.isSafeInteger(h[2])&&h[2]+trace.length-1>limit.maxRows||Number.isSafeInteger(h[3])&&h[3]>limit.maxTicks)fail('trace_too_large');if(h.length!==5||h[1]!==1||!Number.isSafeInteger(h[2])||h[2]<1||h[2]+trace.length-1>limit.maxRows||!Number.isSafeInteger(h[3])||h[3]<0||h[3]>limit.maxTicks)fail();
+   const bytes=unbase64(h[4],limit.maxBytes);if(h[2]>Math.floor(bytes.length/3))fail();const r=reader(bytes);
+   for(let i=0;i<h[2];i++){const tag=r.byte();let row;if(tag===0){const n=r.varint(LIMITS.maxLiteralBytes);if(!n)fail();row=r.literal(n);}else if(tag===1||tag===2){const flags=r.byte();if(flags&(tag===1?252:240))fail();const count=r.varint(limit.maxTicks-ticks);if(!count)fail();row=['tick',count,r.axis(flags&1),r.axis(flags&2)];if(tag===2)row.push(!!(flags&4),!!(flags&8));}else fail();add(row);}
+   if(r.remaining||ticks!==h[3])fail();start=1;
+  }
+  for(let i=start;i<trace.length;i++)add(trace[i]);m.add(']');return {rows:out,ticks};
+ }
+ function encode(rows,ticks,limit){
+  if(!rows.length)return rows;const w=writer(limit.maxBytes+limit.maxRows*5);
+  for(const row of rows){if(strictTick(row)){const x=!compactAxis(row[2]),y=!compactAxis(row[3]);w.byte(row.length===4?1:2);w.byte((x?1:0)|(y?2:0)|(row[4]?4:0)|(row[5]?8:0));w.varint(row[1]);w.axis(row[2],x);w.axis(row[3],y);}else{const s=stringify(row,LIMITS.maxLiteralBytes);w.byte(0);w.varint(utf8Bytes(s));w.bytes(utf8Encode(s));}}
+  const packed=[[MARKER,1,rows.length,ticks,base64(w.finish())]];
+  return utf8Bytes(stringify(packed,limit.maxBytes*2+256))<utf8Bytes(stringify(rows,limit.maxBytes))?packed:rows;
+ }
+ function unpackTrace(trace,opts){const limit=options(opts);return decode(trace,limit,meter(limit.maxBytes)).rows;}
+ function packTrace(trace,opts){const limit=options(opts),d=decode(trace,limit,meter(limit.maxBytes));return encode(d.rows,d.ticks,limit);}
+ function transform(value,pack,m,limit,depth=0,seen=new Set()){
+  if(depth>LIMITS.maxDepth)fail();if(!container(value)){m.add(scalar(value,m.max-m.bytes,m.error));return value;}if(seen.has(value))fail();seen.add(value);const k=keys(value),a=Array.isArray(value),out=a?[]:{};m.add(a?'[':'{');let changed=false;
+  k.forEach((key,i)=>{if(i)m.add(',');if(!a){m.add(quoted(key,m.max-m.bytes,m.error));m.add(':');}let next;if(!a&&key==='trace'&&Array.isArray(value[key])){const d=decode(value[key],limit,m,depth+1);next=pack?encode(d.rows,d.ticks,limit):d.rows;changed=true;}else next=transform(value[key],pack,m,limit,depth+1,seen);if(next!==value[key])changed=true;Object.defineProperty(out,key,{value:next,enumerable:true,writable:true,configurable:true});});
+  m.add(a?']':'}');seen.delete(value);return changed?out:value;
+ }
+ function snapshot(value,pack){
+  if(!value||typeof value!=='object'||Array.isArray(value))fail('snapshot');container(value);
+  // Bound source strings before JSON.parse, including legacy raw cloud entries.
+  const ks=keys(value);let sourceBytes=2;for(const k of ks){const v=value[k];if(typeof v!=='string')fail('snapshot');if(utf8Bytes(v)>LIMITS.decodedEntryBytes)fail('snapshot_too_large');sourceBytes+=stringBytes(k)+1+stringBytes(v)+(sourceBytes>2?1:0);if(sourceBytes>LIMITS.decodedSnapshotBytes)fail('snapshot_too_large');}
+  const out={},aggregate=meter(LIMITS.decodedSnapshotBytes,'snapshot_too_large');aggregate.add('{');
+  for(let i=0;i<ks.length;i++){const k=ks[i],v=value[k];if(i)aggregate.add(',');aggregate.add(quoted(k,LIMITS.decodedSnapshotBytes,'snapshot_too_large'));aggregate.add(':');aggregate.add('"');
+   const escaped={add(s){aggregate.count(stringBytes(s)-2);}},entry=meter(LIMITS.decodedEntryBytes,'snapshot_too_large',escaped);let parsed=null;const lead=v.trimStart()[0];if(lead==='{'||lead==='[')try{parsed=JSON.parse(v);}catch{/* Opaque strings are still ordinary save values. */}
+   const beforeEntry=aggregate.bytes;let text=v;if(parsed&&typeof parsed==='object'){const next=transform(parsed,pack,entry,options());if(next!==parsed)text=stringify(next,LIMITS.decodedSnapshotBytes,'snapshot_too_large');else{ // Count original whitespace as well when retaining the exact source.
+     aggregate.bytes=beforeEntry;aggregate.count(stringBytes(v)-2);
+    }}else entry.add(v);
+   aggregate.add('"');Object.defineProperty(out,k,{value:text,enumerable:true,writable:true,configurable:true});
+  }
+  aggregate.add('}');
+  for(const v of Object.values(out))if(utf8Bytes(v)>=(pack?LIMITS.snapshotEntryBytes:LIMITS.decodedEntryBytes+1))fail('snapshot_too_large');
+  if(utf8Bytes(stringify(out,LIMITS.decodedSnapshotBytes,'snapshot_too_large'))>(pack?LIMITS.snapshotBytes:LIMITS.decodedSnapshotBytes))fail('snapshot_too_large');return out;
+ }
+ function proof(value,pack){
+  const limit=options({maxBytes:LIMITS.proofBytes});stringify(value,LIMITS.proofBytes,'proof_too_large');const out=transform(value,pack,meter(LIMITS.proofBytes,'proof_too_large'),limit);stringify(out,pack?LIMITS.transportBytes:LIMITS.proofBytes,'proof_too_large');return out;
+ }
+ return {PROTOCOL,LIMITS,utf8Bytes,stringify,packTrace,unpackTrace,packSnapshot:value=>snapshot(value,true),unpackSnapshot:value=>snapshot(value,false),packProof:value=>proof(value,true),unpackProof:value=>proof(value,false)};
+});

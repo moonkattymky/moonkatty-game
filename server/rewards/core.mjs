@@ -4,6 +4,7 @@
 import {issueSession,verifySession} from './session.mjs';
 import {profileFields} from './profile.mjs';
 import {createCampaign} from './campaign.mjs';
+import Codec from './models/trace-codec.mjs';
 import {createDaily} from './daily.mjs';
 import {createCreator,parseAdminIds} from './creator.mjs';
 import {createSocial,channelFromUrl,TELEGRAM_CHANNEL_URL} from './social.mjs';
@@ -19,6 +20,33 @@ export function parseReferrer(start_param){const m=/^ref_([1-9][0-9]{0,15})$/.ex
 const REFERRAL_DAILY_CAP=Number((typeof Deno!=='undefined'&&Deno.env?.get?.('REFERRAL_DAILY_CAP'))||10);
 const enc=new TextEncoder(),cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'content-type','Access-Control-Allow-Methods':'GET, POST, OPTIONS'};
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{...cors,'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
+
+const MAX_BODY_BYTES=400000;
+async function readBody(request){
+ const tooLarge=()=>Error('body_too_large');
+ if(Number(request.headers.get('Content-Length'))>MAX_BODY_BYTES){
+  request.body?.cancel().catch(()=>{});throw tooLarge();
+ }
+ if(!request.body)throw Error('body');
+ const reader=request.body.getReader(),decoder=new TextDecoder('utf-8',{fatal:true});
+ const parts=[];let bytes=0,reads=0,finished=false;
+ try{
+  while(true){
+   const {done,value}=await reader.read();if(done){finished=true;break;}
+   // Even a pathological stream of empty chunks has a finite work budget.
+   if(++reads>MAX_BODY_BYTES+1)throw Error('body');
+   bytes+=value.byteLength;if(bytes>MAX_BODY_BYTES)throw tooLarge();
+   if(value.byteLength)parts.push(decoder.decode(value,{stream:true}));
+  }
+  parts.push(decoder.decode());
+  return JSON.parse(parts.join(''));
+ }finally{
+  // Stop receiving excess data without waiting for a peer-controlled stream to
+  // finish. Count bytes as they arrive; Content-Length is never the authority.
+  if(!finished)reader.cancel().catch(()=>{});
+  reader.releaseLock();
+ }
+}
 
 export async function verifyTelegram(initData,now=Date.now(),publicKey=PUBLIC_KEY){
  if(typeof initData!=='string'||initData.length>10000)throw Error('auth');
@@ -158,25 +186,24 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
   if(!url||!key)return json({ok:false,error:'unavailable'},503);
   let body;
   try{
-   if(Number(request.headers.get('Content-Length'))>400000)return json({ok:false,error:'body'},413);
-   const raw=await request.text();
-   if(raw.length>400000)return json({ok:false,error:'body'},413);
-   body=JSON.parse(raw);if(!body||typeof body!=='object'||Array.isArray(body))throw Error('body');
-  }catch{return json({ok:false,error:'body'},400);}
+   body=await readBody(request);if(!body||typeof body!=='object'||Array.isArray(body))throw Error('body');
+  }catch(e){return json({ok:false,error:'body'},e?.message==='body_too_large'?413:400);}
+  const action=body.action||'player',packedAction=action==='campaign.cloud.v2'||action==='life.complete.v2';
+  const reply=(data,status=200)=>json({...data,...(packedAction?{protocol:Codec.PROTOCOL}:{})},status);
+  if(packedAction&&body.protocol!==Codec.PROTOCOL)return reply({ok:false,error:'protocol'},400);
   let user;
-  try{user=body.session?await verifySession(body.session,key,clock().getTime()):await verify(body.initData);}catch{return json({ok:false,error:'auth'},401);}
+  try{user=body.session?await verifySession(body.session,key,clock().getTime()):await verify(body.initData);}catch{return reply({ok:false,error:'auth'},401);}
   try{
    let player=await ensurePlayer(user);
-   const action=body.action||'player';
-   if(action==='session'){if(body.session)throw Error('auth');return json({ok:true,session:await issueSession(user,key,clock().getTime()),player:publicPlayer(player),pace:await pace.status(player)});}
-   if(action==='player')return json({ok:true,player:publicPlayer(player),pace:await pace.status(player)});
+   if(action==='session'){if(body.session)throw Error('auth');return reply({ok:true,session:await issueSession(user,key,clock().getTime()),capabilities:{trace_codec:Codec.PROTOCOL},player:publicPlayer(player),pace:await pace.status(player)});}
+   if(action==='player')return reply({ok:true,capabilities:{trace_codec:Codec.PROTOCOL},player:publicPlayer(player),pace:await pace.status(player)});
    if(action==='chapter.status')return json({ok:true,pace:await pace.status(player),player:publicPlayer(player)});
    if(action==='chapter.skip'){const r=await pace.skip(player,body.life);return json({ok:true,...r,pace:await pace.status(player),player:publicPlayer(player)});}
    if(action==='campaign.open')return json({ok:true,route:await campaign.open(player,body)});
-   if(action==='campaign.cloud')return json({ok:true,...await campaign.cloud(player,body)});
-   if(action==='life.complete'){
+   if(action==='campaign.cloud'||action==='campaign.cloud.v2')return reply({ok:true,...await campaign.cloud(player,body,{packed:action==='campaign.cloud.v2'})});
+   if(action==='life.complete'||action==='life.complete.v2'){
     const result=await lifeComplete(player,body.life,body.proof);
-    return json({ok:true,...result,player:publicPlayer(result.player),pace:await pace.status(result.player)});
+    return reply({ok:true,...result,player:publicPlayer(result.player),pace:await pace.status(result.player)});
    }
    if(action==='rewards.verify'){
     const result=await verifyReward(player,body.event_key,body.event_type,body.points);
@@ -218,26 +245,26 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
    return json({ok:false,error:'action'},400);
   }catch(e){
    const msg=String(e.message||e);
-   if(msg==='locked')return json({ok:false,error:'locked'},409);
-   if(msg==='no_lives')return json({ok:false,error:'no_lives'},409);
-   if(msg==='chapter_locked')return json({ok:false,error:'chapter_locked',unlock_at:e.unlock_at||null},409);
-   if(msg==='too_fast')return json({ok:false,error:'too_fast'},409);
-   if(msg==='no_skips')return json({ok:false,error:'no_skips'},409);
-   if(msg==='no_attempts')return json({ok:false,error:'no_attempts'},429);
-   if(msg==='answer'||msg==='code')return json({ok:false,error:msg},400);
-   if(msg==='forbidden')return json({ok:false,error:'forbidden'},403);
-   if(msg==='weekly')return json({ok:false,error:'weekly'},429);
-   if(msg==='duplicate_url'||msg==='reviewed'||msg==='not_approved')return json({ok:false,error:msg},409);
-   if(msg==='url'||msg==='hashtag'||msg==='own'||msg==='submission'||msg==='decision'||msg==='tier')return json({ok:false,error:msg},400);
-   if(msg==='already'||msg==='duplicate_proof')return json({ok:false,error:msg},409);
-   if(msg==='daily_limit'||msg==='pending_limit')return json({ok:false,error:msg},429);
-   if(['proof_required','route_upgrade_required','route_changed','route_restart_required'].includes(msg))return json({ok:false,error:msg},409);
-   if(msg==='snapshot')return json({ok:false,error:msg},400);
-   if(msg==='snapshot_too_large')return json({ok:false,error:msg},413);
-   if(msg==='proof'||msg==='platform'||msg==='kind'||msg==='unverified')return json({ok:false,error:msg},400);
-   if(msg==='cap')return json({ok:false,error:'cap'},429);
-   if(msg==='life'||msg==='event_key'||msg==='event_type'||msg==='points'||msg==='referral'||msg==='source'||msg==='use_life_complete')return json({ok:false,error:msg},400);
-   return json({ok:false,error:'unavailable'},503);
+   if(msg==='locked')return reply({ok:false,error:'locked'},409);
+   if(msg==='no_lives')return reply({ok:false,error:'no_lives'},409);
+   if(msg==='chapter_locked')return reply({ok:false,error:'chapter_locked',unlock_at:e.unlock_at||null},409);
+   if(msg==='too_fast')return reply({ok:false,error:'too_fast'},409);
+   if(msg==='no_skips')return reply({ok:false,error:'no_skips'},409);
+   if(msg==='no_attempts')return reply({ok:false,error:'no_attempts'},429);
+   if(msg==='answer'||msg==='code')return reply({ok:false,error:msg},400);
+   if(msg==='forbidden')return reply({ok:false,error:'forbidden'},403);
+   if(msg==='weekly')return reply({ok:false,error:'weekly'},429);
+   if(msg==='duplicate_url'||msg==='reviewed'||msg==='not_approved')return reply({ok:false,error:msg},409);
+   if(msg==='url'||msg==='hashtag'||msg==='own'||msg==='submission'||msg==='decision'||msg==='tier')return reply({ok:false,error:msg},400);
+   if(msg==='already'||msg==='duplicate_proof')return reply({ok:false,error:msg},409);
+   if(msg==='daily_limit'||msg==='pending_limit')return reply({ok:false,error:msg},429);
+   if(['proof_required','route_upgrade_required','route_changed','route_restart_required'].includes(msg))return reply({ok:false,error:msg},409);
+   if(msg==='snapshot'||msg==='snapshot_transport_invalid'||msg==='proof_transport_invalid')return reply({ok:false,error:msg},400);
+   if(msg==='snapshot_too_large'||msg==='proof_too_large')return reply({ok:false,error:msg},413);
+   if(msg==='proof'||msg==='platform'||msg==='kind'||msg==='unverified')return reply({ok:false,error:msg},400);
+   if(msg==='cap')return reply({ok:false,error:'cap'},429);
+   if(msg==='life'||msg==='event_key'||msg==='event_type'||msg==='points'||msg==='referral'||msg==='source'||msg==='use_life_complete')return reply({ok:false,error:msg},400);
+   return reply({ok:false,error:'unavailable'},503);
   }
  };
 }
