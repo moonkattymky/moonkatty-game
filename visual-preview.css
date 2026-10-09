@@ -1,0 +1,320 @@
+/* MOONKATTY — first-light visual preview.
+   Presentation only. No state, gameplay geometry, locale or reward changes.
+   Loaded after the existing theme and before the shared 44px touch floor. */
+
+/* The cover has a real art row and a content-sized deck. Translated copy can grow
+   without covering the cat or forcing fixed-height buttons to crop their text. */
+#home .mk-home-hero {
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto auto auto;
+  min-height:0;
+  padding-block-end:18px;
+  isolation:isolate;
+  background:#0b2232;
+}
+#home .mk-home-hero::after {
+  content:"";
+  display:block;
+  grid-row:2;
+  grid-column:1;
+  height:clamp(246px,68vw,322px);
+  pointer-events:none;
+}
+#home .mk-home-bg {
+  background-position:58% 18%!important;
+  background-size:auto 590px!important;
+  background-repeat:no-repeat!important;
+  filter:saturate(.96) contrast(1.02);
+  opacity:1;
+}
+#home .mk-home-shade {
+  background:
+    radial-gradient(ellipse at 79% 23%,#f8dba633,transparent 39%),
+    linear-gradient(90deg,#081f32b8,transparent 70%),
+    linear-gradient(0deg,#0b2232 0%,#0b2232 27%,#0b2232d9 40%,transparent 70%,#0b2232a6 100%);
+}
+#home .mk-topbar {
+  grid-row:1;
+  padding:calc(20px + env(safe-area-inset-top)) 22px 0;
+  min-width:0;
+  align-items:flex-start;
+}
+#home .mk-topbar h2 {
+  font-size:22px!important;
+  letter-spacing:1.65px!important;
+  font-weight:800;
+  color:#fff7e7;
+}
+#home .mk-topbar>div>span {
+  color:#d1e0e6;
+  font-size:11px;
+  letter-spacing:1px;
+  line-height:1.5;
+  max-width:260px;
+}
+#home .header-actions {gap:7px}
+#home .header-actions .icon-btn {
+  width:44px;
+  height:44px;
+  border-radius:14px;
+  background:#113146ed!important;
+  border-color:#aac5d45c!important;
+  box-shadow:inset 0 1px #e6f2ff14;
+}
+#home .mk-home-character {
+  position:relative;
+  grid-row:2;
+  grid-column:1;
+  align-self:center;
+  justify-self:end;
+  margin:12px 6px 8px 0;
+  top:auto;
+  left:auto;
+  right:auto;
+  width:min(74%,360px);
+  height:auto;
+  max-height:360px;
+  object-fit:contain;
+  transform:none;
+  filter:drop-shadow(0 12px 12px #071b2855);
+}
+#home .mk-mission-wordmark {
+  left:24px;
+  top:116px;
+  gap:0;
+  flex-direction:column;
+  align-items:flex-start;
+  color:#fff4da;
+  text-shadow:0 2px 18px #10263b44;
+}
+#home .mk-mission-wordmark>span {
+  font-size:112px;
+  font-weight:300;
+  line-height:.84;
+  letter-spacing:-7px;
+}
+#home .mk-mission-wordmark>strong {
+  font-size:28px;
+  line-height:1.15;
+  font-weight:650;
+  letter-spacing:5px;
+  margin:10px 0 0 3px;
+}
+#home .mk-hero-copy {
+  top:264px;
+  left:26px;
+  right:auto;
+  max-width:140px;
+  font-size:11px;
+  line-height:1.65;
+  letter-spacing:.8px;
+  color:#e3edf0;
+  text-shadow:0 1px 6px #081e32;
+}
+#home .mk-hero-copy strong {color:#ffe2a9;font-size:11px;letter-spacing:.5px}
+#home .mk-orbit-trace {
+  top:137px;
+  left:9%;
+  width:93%;
+  height:176px;
+  border-color:#ffe3a752;
+  transform:rotate(-25deg);
+}
+#home .mk-home-bottom {
+  position:relative;
+  grid-row:3;
+  left:auto;
+  right:auto;
+  bottom:auto;
+  min-width:0;
+  margin:0 18px;
+  padding:0;
+}
+#home .mk-home-bottom .stats {
+  border-radius:17px;
+  background:linear-gradient(125deg,#f6f5ed,#dcebef);
+  border:1px solid #f5f7eb;
+  box-shadow:0 9px 24px #03142024;
+  margin-bottom:12px!important;
+}
+#home .mk-home-bottom .stats article {min-height:76px!important;padding:12px 5px 10px}
+#home .stats small {color:#3d5967;font-size:11px;letter-spacing:.5px;overflow-wrap:anywhere}
+#home .mk-home-bottom .stats strong {font-size:19px!important;font-weight:750!important;color:#123246}
+#home .stats em {color:#4a6674;font-size:11px;letter-spacing:.4px}
+#home .mk-home-bottom #welcome {
+  margin:10px 0 12px;
+  color:#d0e0e6;
+  font-size:11px;
+  line-height:1.5;
+  letter-spacing:1.2px;
+}
+#home #enterBtn {
+  min-height:60px!important;
+  padding:17px 48px 17px 18px!important;
+  font-size:14px!important;
+  letter-spacing:.35px;
+  line-height:1.45;
+  border-radius:15px!important;
+  background:linear-gradient(115deg,#fff0c8,#eed094 65%,#e4bb79)!important;
+  border-color:#fff2d0!important;
+  box-shadow:inset 0 1px #fff9,0 5px 0 #80602c33,0 10px 24px #060f1a25!important;
+  overflow-wrap:anywhere;
+}
+/* Pure vector arrows replace decorative glyphs that some phones cannot draw. */
+#home {--mk-arrow:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14m-6-6 6 6-6 6'/%3E%3C/svg%3E")}
+#home #enterBtn::after {
+  content:"";
+  width:23px;
+  height:23px;
+  right:17px;
+  background:currentColor;
+  -webkit-mask:var(--mk-arrow) center/contain no-repeat;
+  mask:var(--mk-arrow) center/contain no-repeat;
+}
+#home .mk-growth-row {gap:9px;margin:0 0 11px}
+#home :is(.mk-invite-btn,.mk-share-btn) {
+  min-height:55px;
+  border-radius:13px;
+  border-color:#88aec454;
+  background:#173c52;
+  box-shadow:inset 0 1px #e2f0f514;
+}
+#home .mk-invite-btn {min-width:0;padding:10px 13px}
+#home .mk-gt {min-width:0;overflow-wrap:anywhere}
+#home .mk-invite-btn b {font-size:13px;line-height:1.4;color:#eff6f7}
+#home .mk-invite-btn small {color:#f4d9a1;font-size:11px;line-height:1.4}
+#home .mk-share-btn {min-width:78px}
+#home .mk-share-btn b {font-size:11px;line-height:1.4;color:#d9e8ed}
+#home :is(.mk-share-btn>span,.exp-entry>b) {font-size:0;flex:none}
+#home :is(.mk-share-btn>span,.exp-entry>b)::before {
+  content:"";
+  display:block;
+  width:22px;
+  height:22px;
+  background:#efd49e;
+  -webkit-mask:var(--mk-arrow) center/contain no-repeat;
+  mask:var(--mk-arrow) center/contain no-repeat;
+}
+#home .exp-entry {
+  min-height:77px;
+  padding:12px 14px!important;
+  border-radius:14px!important;
+  background:linear-gradient(115deg,#1c455d,#13354b)!important;
+  border:1px solid #87adc456!important;
+  border-inline-start:3px solid #b4d6e4!important;
+}
+#home .exp-entry>span {min-width:0}
+#home .exp-entry small {color:#bed8e4;letter-spacing:1px;line-height:1.5}
+#home .exp-entry strong {font-size:12px;line-height:1.6;color:#f0f6f6;letter-spacing:.45px}
+#home .exp-entry em {font-size:11px;line-height:1.5;color:#c6dce5}
+#home button.mk-life-teaser {margin-top:12px;padding:8px 4px!important}
+#home .mk-life-teaser span {color:#b6d0dc;line-height:1.5}
+#home .mk-bottom-nav {
+  height:auto;
+  min-height:82px;
+  padding:9px 8px calc(10px + env(safe-area-inset-bottom));
+  background:#0b2638;
+  border-top-color:#b2ced538;
+  box-shadow:0 -6px 24px #071b2922;
+  backdrop-filter:none;
+}
+#home .mk-bottom-nav button {color:#b7ceda;gap:6px;min-height:60px;border-radius:12px;padding:7px 2px}
+#home .mk-bottom-nav button.active {color:#f8dfaa;background:#28424b}
+#home .mk-bottom-nav button.active::after {display:none}
+#home .mk-bottom-nav button>span {font-size:11px;line-height:1.35;letter-spacing:0;overflow-wrap:anywhere}
+#home button:focus-visible {outline:3px solid #fff0b7;outline-offset:3px}
+
+/* Chapter briefing: hierarchy and breathing room, with all instructions kept live. */
+#storyPlan .story-head {background:#102e42!important;border-bottom-color:#8db2c745}
+#storyPlan .story-head h1 {font-size:28px;font-weight:650;line-height:1.2}
+#storyPlan .story-cover {min-height:215px;background:linear-gradient(0deg,#0c263af7,#0c263a20 88%),var(--story-art) center 43%/cover}
+#storyPlan .story-cover>p {line-height:1.65;color:#eff6f7!important}
+#storyPlan .story-next {background:#183343;padding:17px 18px;gap:9px;border-bottom-color:#8db2c745}
+#storyPlan .story-next>strong {font-size:19px;font-weight:650;line-height:1.35;color:#f2f6f2}
+#storyPlan .story-next>small {font-size:11px;color:#f5dca4;letter-spacing:1px}
+#storyPlan .story-next p {color:#d4e4e9;font-size:13px;line-height:1.5}
+#storyPlan .story-primary {border-radius:13px!important;min-height:54px;padding:13px 16px;font-size:13px;line-height:1.5;white-space:normal}
+#storyPlan .story-spatial-map {border-radius:15px;overflow:hidden;border:1px solid #a0c3d557}
+#storyPlan .story-step {border-radius:14px!important;padding-block:16px}
+#storyPlan .story-step-copy strong {font-size:15px;line-height:1.4}
+#storyPlan .story-step-copy small {font-size:11px!important;line-height:1.5;color:#c7dde5!important}
+#storyPlan .story-step-copy em {font-size:12px;line-height:1.5;color:#c2d8e2!important}
+#storyPlan .story-step.available {box-shadow:inset 3px 0 #f5d59a,inset 0 1px #e1f0f412!important}
+
+/* Chapter 1 field deck. SVG positions and interactive cell dimensions stay intact. */
+#fieldMission[data-kind=rover] .field-head {background:linear-gradient(115deg,#1b4158,#102d43);padding-block:calc(14px + env(safe-area-inset-top)) 13px}
+#fieldMission[data-kind=rover] .field-head small {color:#f3d8a0;letter-spacing:1.2px}
+#fieldMission[data-kind=rover] .field-head h1 {font-size:23px;line-height:1.25;font-weight:650}
+#fieldMission[data-kind=rover] .field-route {background:#102f43;color:#d1e3eb;padding-block:10px}
+#fieldMission[data-kind=rover] .field-world {background:#143b50;border-bottom:2px solid #d6ba7b}
+#fieldMission[data-kind=rover] .field-telemetry {background:linear-gradient(120deg,#f3f3ea,#dceaf0);padding-block:14px}
+#fieldMission[data-kind=rover] .field-telemetry small {color:#3f606f;line-height:1.35}
+#fieldMission[data-kind=rover] .field-telemetry strong {color:#14394e;font-size:21px}
+#fieldMission[data-kind=rover] .field-deck {background:#e6eceb;padding-top:16px}
+#fieldMission[data-kind=rover] .field-control-hint {font-size:13px;line-height:1.5}
+#fieldMission[data-kind=rover] .field-guide summary {font-size:11px;letter-spacing:.6px}
+#fieldMission[data-kind=rover] #fieldControls>button {border-radius:12px;min-height:48px;font-size:12px;line-height:1.45;background:linear-gradient(#315e77,#1b4058)}
+#fieldMission[data-kind=rover] .field-footer {border-top-color:#7896a34d;box-shadow:0 -5px 16px #0f2b3c0a}
+#fieldMission[data-kind=rover] .field-footer p {font-size:12px;line-height:1.5;color:#36586b}
+#fieldMission[data-kind=rover] .field-footer button {border-radius:13px!important;font-size:13px;min-height:51px;line-height:1.45}
+#fieldMission[data-kind=rover] #fieldPause {font-size:0;border-radius:13px;background:#2a5269}
+#fieldMission[data-kind=rover] #fieldPause::before {content:"";display:block;width:14px;height:17px;margin:auto;background:linear-gradient(90deg,#f0f6f4 0 28%,transparent 28% 72%,#f0f6f4 72%)}
+/* Paint-only markers: the same 94×94 cell hit area, no new node positions. */
+#fieldMission[data-kind=rover] .lunar-cell>rect:first-child {rx:8px;fill:#153b5124;stroke:#d4e6ed42;stroke-width:1.2}
+#fieldMission[data-kind=rover] .lunar-cell.recovery-target:not(.recovered)>rect:first-child {fill:#b0e0e124;stroke:#e9d09299;stroke-width:1.8}
+#fieldMission[data-kind=rover] .lunar-cell.recovered>rect:first-child {fill:#9dd7c025;stroke:#a9dcc488}
+#fieldMission[data-kind=rover] .lunar-cell.exit-cell>rect:first-child {stroke:#b1e6d4aa;stroke-width:2}
+#fieldMission[data-kind=rover] .lunar-cell.current>rect:first-child {fill:#b9e4f036;stroke:#fff0b8;stroke-width:3}
+#fieldMission[data-kind=rover] .lunar-cell>.field-cell-number {fill:#e2edf0;opacity:.8}
+#fieldMission[data-kind=rover] .field-exit-plate {fill:#214c4b;stroke:#c9ecdd}
+#fieldMission[data-kind=rover] .field-exit-label {fill:#fff7e7;opacity:1}
+#fieldMission[data-kind=rover] .lunar-fracture {stroke:#0d2f42;stroke-width:8;stroke-linejoin:round;stroke-linecap:round}
+
+/* Small-screen copy may wrap; art keeps its native proportions. No new motion. */
+@media(max-width:359px) {
+  #home .mk-topbar {padding-inline:16px}
+  #home .mk-topbar h2 {font-size:18px!important;letter-spacing:1.2px!important}
+  #home .mk-topbar>div>span {letter-spacing:.5px}
+  #home .header-actions {gap:5px}
+  #home .mk-mission-wordmark {top:112px;left:18px}
+  #home .mk-mission-wordmark>span {font-size:96px}
+  #home .mk-mission-wordmark>strong {font-size:24px;letter-spacing:4px}
+  #home .mk-hero-copy {top:240px;left:20px;max-width:125px}
+  #home .mk-home-character {top:auto;right:auto;width:76%;height:auto;margin-inline-end:0}
+  #home .mk-home-bottom {margin-inline:13px}
+  #home #enterBtn {font-size:13px!important}
+  #home .mk-home-bottom .stats strong {font-size:17px!important}
+}
+@media(orientation:portrait) and (max-height:700px) {
+  #fieldMission[data-kind=rover] .field-world {width:min(100%,max(284px,calc(var(--mk-vh,100dvh)*.46)))}
+}
+@media(orientation:landscape) and (max-height:600px) {
+  #home .mk-home-hero {grid-template-columns:42% minmax(0,1fr);padding-block-end:16px;direction:ltr}
+  [dir=rtl] #home :is(.mk-topbar,.mk-home-bottom) {direction:rtl}
+  #home .mk-topbar {grid-column:1/-1}
+  #home .mk-home-hero::after {grid-column:1;grid-row:2;height:300px}
+  #home .mk-home-bottom {grid-column:2;grid-row:2;margin:18px 14px 0 4px}
+  #home .mk-home-character {position:absolute;grid-area:auto;margin:0;width:42%;height:auto;top:125px;left:0;right:auto}
+  #home .mk-mission-wordmark {top:90px;left:22px;flex-direction:row;align-items:baseline;gap:9px}
+  #home .mk-mission-wordmark>span {font-size:64px}
+  #home .mk-mission-wordmark>strong {font-size:20px;margin:0;letter-spacing:3px}
+  #home .mk-hero-copy {display:none}
+  #home .mk-home-bottom .stats strong {font-size:15px!important}
+  #home .mk-orbit-trace {width:45%;left:-4%;top:188px;height:130px}
+  #fieldMission[data-kind=rover] .field-head {padding-block:3px}
+  #fieldMission[data-kind=rover] .field-head h1 {font-size:16px;margin-top:2px}
+  #fieldMission[data-kind=rover] .field-telemetry {padding-block:4px}
+  #fieldMission[data-kind=rover] .field-telemetry strong {font-size:14px}
+  #fieldMission[data-kind=rover] .field-deck {padding-top:6px}
+  #fieldMission[data-kind=rover] .field-control-hint {font-size:11px;line-height:1.4}
+  #fieldMission[data-kind=rover] #fieldControls>button,#fieldMission[data-kind=rover] .field-footer button {min-height:44px;font-size:11px}
+}
+[dir=rtl] #home .mk-home-character {justify-self:start}
+[dir=rtl] #home #enterBtn {padding-inline:18px 48px!important}
+[dir=rtl] #home #enterBtn::after {left:17px;right:auto;transform:translateY(-50%) scaleX(-1)}
+[dir=rtl] #home .mk-share-btn>span {transform:none}
+[dir=rtl] #home :is(.mk-share-btn>span,.exp-entry>b)::before {transform:scaleX(-1)}
+@media(prefers-reduced-motion:reduce) {
+  #home *,#storyPlan *,#fieldMission[data-kind=rover] * {animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
