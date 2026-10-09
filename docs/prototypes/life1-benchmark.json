@@ -1,0 +1,126 @@
+{
+  "environment": {
+    "node": "v24.19.0",
+    "v8": "13.6.233.17-node.51",
+    "platform": "linux",
+    "arch": "x64",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "logicalCpus": 9
+  },
+  "clock": "performance.now monotonic milliseconds",
+  "method": "One process; 20 warmup calls per workload; JSON parsing, full validation and replay included; no browser/network; timestamps are claimed input, not measured playtime",
+  "limits": {
+    "movement": 8192,
+    "semantic": 1024,
+    "layouts": 128,
+    "encodedBytes": 196608,
+    "decodedBytes": 524288
+  },
+  "workloads": [
+    {
+      "name": "successful-proof",
+      "iterations": 1000,
+      "bytes": 6082,
+      "work": {
+        "events": 181,
+        "replayed": 181,
+        "movement": 145,
+        "semantic": 36,
+        "layouts": 1,
+        "bytes": 6082
+      },
+      "result": "accepted complete",
+      "elapsedMs": 146.93944800000003,
+      "meanMs": 0.14693944800000003,
+      "p50Ms": 0.11427199999999971,
+      "p95Ms": 0.30282599999999604,
+      "maxMs": 1.9193600000000117,
+      "heapUsedDelta": 1732520,
+      "rssDelta": 1654784
+    },
+    {
+      "name": "all-work-budgets-exact",
+      "iterations": 200,
+      "bytes": 172217,
+      "work": {
+        "events": 9343,
+        "replayed": 9343,
+        "movement": 8192,
+        "semantic": 1024,
+        "layouts": 128,
+        "bytes": 172217
+      },
+      "result": "accepted incomplete",
+      "elapsedMs": 1087.326555,
+      "meanMs": 5.4366327750000005,
+      "p50Ms": 5.223103000000037,
+      "p95Ms": 6.991284999999948,
+      "maxMs": 10.79108599999995,
+      "heapUsedDelta": 11270776,
+      "rssDelta": 35102720
+    },
+    {
+      "name": "movement-over-limit",
+      "iterations": 200,
+      "bytes": 131383,
+      "work": {
+        "events": 8193,
+        "replayed": 0,
+        "movement": 8193,
+        "semantic": 0,
+        "layouts": 1,
+        "bytes": 131383
+      },
+      "result": "movement-limit",
+      "elapsedMs": 315.201409,
+      "meanMs": 1.576007045,
+      "p50Ms": 1.4736089999998967,
+      "p95Ms": 1.9380580000001828,
+      "maxMs": 14.587039999999888,
+      "heapUsedDelta": -13097872,
+      "rssDelta": 66494464
+    },
+    {
+      "name": "encoded-byte-over-limit",
+      "iterations": 1000,
+      "bytes": 196609,
+      "work": {
+        "events": 0,
+        "replayed": 0,
+        "movement": 0,
+        "semantic": 0,
+        "layouts": 0,
+        "bytes": 196609
+      },
+      "result": "encoded-byte-limit",
+      "elapsedMs": 69.38442499999996,
+      "meanMs": 0.06938442499999996,
+      "p50Ms": 0.04631999999992331,
+      "p95Ms": 0.11248000000000502,
+      "maxMs": 1.9061490000001413,
+      "heapUsedDelta": -5354336,
+      "rssDelta": 73310208
+    },
+    {
+      "name": "unknown-tail-before-replay",
+      "iterations": 200,
+      "bytes": 172210,
+      "work": {
+        "events": 9342,
+        "replayed": 0,
+        "movement": 8192,
+        "semantic": 1024,
+        "layouts": 127,
+        "bytes": 172210
+      },
+      "result": "invalid-event",
+      "elapsedMs": 310.30278399999975,
+      "meanMs": 1.5515139199999988,
+      "p50Ms": 1.5051659999999174,
+      "p95Ms": 1.8192890000000261,
+      "maxMs": 2.987497000000076,
+      "heapUsedDelta": 31159976,
+      "rssDelta": 4849664
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+name: Review artifacts - visual source preview
+on:
+  pull_request:
+    paths:
+      - 'visual-preview.css'
+      - 'field-art.js'
+      - 'art/lunar-worksite-*'
+      - 'tests/lunar-worksite.cjs'
+      - 'index.html'
+      - 'tests/visual-preview-source.cjs'
+      - 'tools/render-visual-preview.cjs'
+      - '.github/workflows/visual-preview.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: visual-preview-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - name: Check out the exact stable comparison tree
+        run: |
+          test "$(git rev-parse 36c6a3f2d69301c30331109083d134fd97c9507c^{tree})" = "ec2d0e8d46cc9e79928027dad3f231417c0a16be"
+          git worktree add --detach /tmp/moonkatty-before 36c6a3f2d69301c30331109083d134fd97c9507c
+      - name: Check presentation source invariants
+        run: node tests/visual-preview-source.cjs && node tests/lunar-worksite.cjs
+      - name: Render before and after without deployment or real account traffic
+        run: node tools/render-visual-preview.cjs --before=/tmp/moonkatty-before --out=/tmp/moonkatty-preview-artifacts
+      - name: Save screenshots and honest validation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: moonkatty-visual-preview-${{ github.sha }}
+          path: /tmp/moonkatty-preview-artifacts
+          retention-days: 7
+          if-no-files-found: error

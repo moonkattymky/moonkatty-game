@@ -125,3 +125,20 @@ Prompt: Create a 2 × 2 transparent atlas of four separate production space-game
 ## Language-screen hero — 7 October 2026
 
 - `moonkatty-hero.webp` / `moonkatty-bust.webp`: cropped from root `moonkatty.png` (bust used on crew cards; hero currently unused — language intro uses the original emoji helmet).
+
+## Chapter 1 structural worksite draft — 9 October 2026
+
+Two purpose-built assets replace the mismatched photograph/sticker combination in the chapter 1 field only. The 36 hit rectangles, rules, target locations, hazards, scanner, saves and rewards remain unchanged. Other chapters retain their existing artwork pending review of this first scene.
+
+- `lunar-worksite-atlas-v1.webp`: 1254 × 1254 RGBA, 528,906 bytes. Sixteen original premium 3D worksite objects: eight different industrial obstacles, three distinct gold data instruments, an extraction pad, tabby astronaut rover, fissure, rocks and crater. The latter two are reserved and not placed as misleading obstacles. One atlas image definition is reused through SVG references. Explicit inspected source rectangles and clip paths prevent neighboring sprites leaking into letterboxed viewports.
+- `lunar-worksite-ground-v1.webp`: 900 × 900 RGB, 277,330 bytes. Empty lunar terrain with warm upper-left sunlight and cool ambient fill. The game places every gameplay object separately; no objective or control is baked into the plate.
+
+Created with the built-in image generation tool. Existing `moonkatty-hero.webp` was the identity reference for the tabby driver. The atlas was generated, inspected, then revised for clearer spacing; its packing is still deliberately represented by explicit rectangles rather than assumed equal cells. Original generated PNGs were converted to WebP; alpha is preserved. No external asset host, paid dependency or additional runtime package was introduced.
+
+Production prompt: create a transparent 4 × 4 production sprite sheet of sixteen isolated detailed 3D lunar worksite objects, with a consistent elevated orthographic camera, off-white ceramic and champagne-gold metal, restrained blue glass, functional machinery detail, warm upper-left key and cool fill. Preserve the recognizable tabby astronaut identity from the reference, with no token symbols, lettering, interface or background cards. Requested objects in row order: habitat, solar collector, paired tanks, cooling fans; dish, greenhouse, battery, drill; terminal, sensor dish, sample cylinder, docking pad; cat-piloted rover, fissure, rocks, crater.
+
+Revision prompt: preserve those sixteen designs and materials, but fit complete objects inside their own atlas cells with transparent padding, especially the rover. Keep the same order, camera and lighting. No guides, borders, labels or UI.
+
+Ground prompt: an empty square production lunar ground plate under a fixed elevated orthographic camera, luminous silver regolith and restrained champagne/blue lighting, detailed but calm central play area, shallow rock erosion mainly near the edges. No horizon, sky, buildings, equipment, characters, grids, paths, pads, marks, controls or collectible positions.
+
+Performance budgets enforced by `tests/lunar-worksite.cjs`: under 850 KB combined image transfer, two shared image resources, under 650 SVG nodes, under 48 KB generated SVG per redraw, under 15 KB gzip for the complete shared field renderer, no full-frame filters or decorative animation, deterministic non-mutating rendering. CI source-generation timing is not a physical-phone or Telegram performance certification.

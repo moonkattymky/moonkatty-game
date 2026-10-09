@@ -1,0 +1,19 @@
+{
+  "baselineCommit": "357d819fdc8ef2ab7e245e7abcd79859bba6c256",
+  "baselineTree": "669f3efe9d355af0184a10314fdb506dc7e92f01",
+  "note": "Pinned reviewed PR49 production baseline. Includes the independently approved Chapter1 entrance-cache correction from PR48; this prototype does not modify or activate runtime integration surfaces. VM geometry is supplied, not browser-measured.",
+  "sha256": {
+    "app.js": "9d74a481f47e822d35e4d32d90e11b051a79f985da95d5aa2e5939c002553f87",
+    "index.html": "0aa1af98a0c836f7a1715b4ef2368039123044529949ec1e852371ae09251afc",
+    "styles.css": "45b91d8df2047d9292d2c3614bb205ca0d4bd6b0e209840c83dfd0ed327bdb19",
+    "chapters-1-4.css": "da358cc14e8ceacb02135b9ae17fafa81f6f86e380e449ce207245d961280ed0",
+    "mission-polish.css": "63830b60a4691060cfd1a9a3a29f35e3313f970dfb4fa9e5563c19b83d47fafd",
+    "experience.js": "13f5dd4b6eb840d89a51389b8bf0c879ef8ff322633b8fb36e2ae64348e57491",
+    "campaign.js": "54d5deea269bbc09e7a22c7a5b3c2e44da810e1daabebf80a193d307b67f35ad",
+    "rewards-client.js": "23504bf39fd47129e08cf49432ffeca2aca50a087d92edcb0716269a2722103f",
+    "server/rewards/index.ts": "de8b15a9617a0b858409946a19722920a196790a6c8627f7a538605d4d2cd5ae",
+    "server/rewards/campaign.mjs": "30d39df6093d02b4c183aaf27af721085c487f644ad1d6f918c54576956a196f",
+    "server/schema.sql": "9e56b05f192d3a538baec51b28e519eddb9eb0d796860415a56250cb65342915",
+    "tools/build-server-models.cjs": "ec1e5fabaef6cc7c631a1800b8312768ffb8c0bdb606534f0ba3218a17daaa01"
+  }
+}
