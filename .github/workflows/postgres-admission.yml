@@ -1,0 +1,58 @@
+name: PostgreSQL admission contention
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/postgres-admission.yml'
+      - 'tests/postgres/**'
+      - 'tests/postgres-admission-*.cjs'
+      - 'server/schema.sql'
+      - 'server/migrations/**'
+      - 'supabase/migrations/**'
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+# Correctness in one small, disposable database. Independent of the browser suite.
+concurrency:
+  group: postgres-admission-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contention:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: moonkatty_admission_test
+          POSTGRES_USER: postgres
+          # Public synthetic fixture password, never a production secret.
+          POSTGRES_PASSWORD: mkty-local-fixture-only
+        options: >-
+          --cpus 1
+          --memory 512m
+          --health-cmd "pg_isready -U postgres -d moonkatty_admission_test"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+        ports:
+          - 5432/tcp
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+      - name: Verify PostgreSQL client availability
+        run: psql --version
+      - name: Assert actual two-session contention
+        env:
+          MKTY_PG_TEST_DISPOSABLE: '1'
+          MKTY_PG_TEST_PORT: ${{ job.services.postgres.ports[5432] }}
+        run: node tests/postgres/submission-admission.cjs
