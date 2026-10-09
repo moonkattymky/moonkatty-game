@@ -8,11 +8,11 @@ const {chromium}=require('playwright');
 const assertFieldControlReachable=require('../tests/field-control-helper.cjs');
 const args=process.argv.slice(2),get=k=>args.find(a=>a.startsWith('--'+k+'='))?.slice(k.length+3);
 const after=path.resolve(__dirname,'..'),before=get('before'),out=path.resolve(get('out')||'/tmp/moonkatty-visual-preview');
-assert(before,'--before must identify the stable PR42 checkout');
+assert(before,'--before must identify the reviewed PR45 checkout');
 fs.mkdirSync(out,{recursive:true});
 const variants=[['before',path.resolve(before)],['after',after]],views=[[390,844],[320,568],[568,320]];
 const languages=['en','ru','uk','es','pt','de','fr','it','tr','he','ar','ko','zh'];
-const report={purpose:'Seeded, local source-build screenshots. No real account or reward traffic.',screenshots:[],checks:[],svgTargetSizes:[],scanControls:[],failures:[],externalRequestsBlocked:0};
+const report={purpose:'Seeded, local source-build screenshots. No real account or reward traffic.',screenshots:[],checks:[],svgTargetSizes:[],scanControls:[],sceneGraphics:[],failures:[],externalRequestsBlocked:0};
 const types={'.html':'text/html','.js':'application/javascript','.css':'text/css','.webp':'image/webp','.png':'image/png','.svg':'image/svg+xml','.json':'application/json'};
 const server=http.createServer((req,res)=>{
   const u=new URL(req.url,'http://localhost'),match=u.pathname.match(/^\/(before|after)(\/.*)?$/),variant=variants.find(v=>v[0]===match?.[1]);
@@ -79,7 +79,7 @@ async function pageFor(variant,lang,view){
   await p.evaluate(l=>setLang(l),lang);
   await p.waitForFunction(l=>MKTYI18n.getLanguage()===l&&(l==='en'||!!window.MKTYLocales?.[l]),lang);
   // Prewarm the existing chapter artwork before dynamic SVG pattern insertion.
-  await p.evaluate(async()=>Promise.all(['art/station-details-v2.webp','art/world-rover.webp','art/world-surface.webp','art/life1-base.webp'].map(async src=>{const image=new Image();image.src=src;await image.decode();})));
+  await p.evaluate(async variant=>Promise.all(['art/station-details-v2.webp','art/world-rover.webp','art/world-surface.webp','art/life1-base.webp',...(variant==='after'?['art/lunar-worksite-atlas-v1.webp','art/lunar-worksite-ground-v1.webp']:[])].map(async src=>{const image=new Image();image.src=src;await image.decode();})),variant);
   return {ctx,p};
 }
 let origin;
@@ -102,6 +102,13 @@ let origin;
         await metrics(p,label+'/rover');
         const overlaps=await p.evaluate(()=>{const a=document.querySelector('#fieldTelemetry').getBoundingClientRect(),b=document.querySelector('#fieldMission .field-footer').getBoundingClientRect();return Math.min(a.right,b.right)>Math.max(a.left,b.left)&&Math.min(a.bottom,b.bottom)>Math.max(a.top,b.top);});
         check(!overlaps,label+' rover telemetry is not covered by its sticky footer');
+        const graphics=await p.evaluate(()=>{const svg=document.querySelector('.lunar-worksite'),state=MKTYField.snapshot(),before=JSON.stringify(state),times=[];for(let i=0;i<80;i++){const t=performance.now();FieldArt.scene(state,1);times.push(performance.now()-t);}const ids=[...svg.querySelectorAll('[id]')].map(e=>e.id);return {renderer:svg.dataset.renderer,nodes:svg.querySelectorAll('*').length,images:[...svg.querySelectorAll('image')].map(e=>e.getAttribute('href')),props:new Set([...svg.querySelectorAll('[data-prop]')].map(e=>e.dataset.prop)).size,objectives:svg.querySelectorAll('.lunar-objective').length,clippedSprites:svg.querySelectorAll('.lunar-sprite>g[clip-path]').length,filters:svg.querySelectorAll('filter').length,idsUnique:new Set(ids).size===ids.length,stateUnchanged:before===JSON.stringify(state),renderP95ms:times.sort((a,b)=>a-b)[76]};});
+        report.sceneGraphics.push({lang,viewport:view,...graphics});
+        check(graphics.renderer==='lunar-worksite-v2',label+' uses the replacement playable scene');
+        check(graphics.images.length===2&&graphics.props===8&&graphics.objectives===3,label+' uses two shared textures, eight distinct modules and three data instruments');
+        check(graphics.idsUnique&&graphics.filters===0&&graphics.nodes<650&&graphics.clippedSprites===16,label+' bounded SVG scene has unique IDs, clipped sprites and no image filters');
+        check(graphics.stateUnchanged&&graphics.renderP95ms<15,label+' draw does not mutate state and source generation p95 <15ms (CI runner)');
+
       }
       const cellSizes=await p.locator('.field-map-cell>rect:first-child').evaluateAll(es=>es.map(e=>{const r=e.getBoundingClientRect();return {width:r.width,height:r.height};}));
       const minimumCell=Math.min(...cellSizes.flatMap(c=>[c.width,c.height]));
@@ -127,6 +134,19 @@ let origin;
       await scanner.click();
       check(await p.locator('[data-field-cell]').count()===36,label+' rover redraw retains all 36 cells');
       if(variant==='after')check(await p.locator('.lunar-cell').count()===36,label+' paint hooks remain on the rover cells');
+      if(variant==='after'&&lang==='ru'&&view[0]===390&&view[1]===844){
+        const initial=await p.evaluate(()=>MKTYField.snapshot()),targets=await p.evaluate(()=>FieldRules.layout(MKTYField.snapshot()).targets);
+        for(const goal of targets){
+          const route=await p.evaluate(goal=>{const s=MKTYField.snapshot(),b=FieldRules.layout(s),q=[[s.pos]],seen=new Set([s.pos]);while(q.length){const path=q.shift(),at=path.at(-1);if(at===goal)return path.slice(1);for(const n of [at-1,at+1,at-6,at+6])if(n>=0&&n<36&&!seen.has(n)&&!b.walls.includes(n)&&Math.abs(n%6-at%6)+Math.abs(Math.floor(n/6)-Math.floor(at/6))===1){seen.add(n);q.push([...path,n]);}}throw Error('fixture route not found');},goal);
+          for(const cell of route){const beforeMove=await p.evaluate(()=>MKTYField.snapshot());await p.locator(`[data-field-cell="${cell}"]`).click();const afterMove=await p.evaluate(()=>MKTYField.snapshot());check(afterMove.pos===cell&&afterMove.moves===beforeMove.moves+1,label+' rendered target '+cell+' executes the original one-step move');}
+          const checkpoint=await p.evaluate(()=>MKTYField.snapshot());check(checkpoint.collected.includes(goal),label+' collection state matches the reached data instrument');
+          if(goal===targets[0])await capture(p,variant,lang,view,'chapter1-collected');
+        }
+        check((await p.evaluate(()=>MKTYField.snapshot())).collected.length===3,label+' all three distinct instruments are collectable');
+        await capture(p,variant,lang,view,'chapter1-exit-ready');
+        check((await p.evaluate(()=>MKTYField.snapshot())).errors===initial.errors,label+' art redraw introduced no move or scan errors');
+      }
+
       await p.locator('#fieldPause').click();await p.locator('#fieldExit').click();
       await p.locator('[data-story-step="1"]').click();
       await capture(p,variant,lang,view,'chapter1-power');
@@ -139,13 +159,13 @@ let origin;
     await home(p);await metrics(p,'all-locales/'+lang+'/home');
     await plan(p);await metrics(p,'all-locales/'+lang+'/plan');
   }catch(e){report.failures.push('all-locales/'+lang+': '+e.message);}finally{await ctx.close();}}
-  check(report.screenshots.length===72,'72 actual browser screenshots: before/after × 3 languages × 3 sizes × 4 scenes');
+  check(report.screenshots.length===74,'74 actual browser screenshots: 72 before/after fixtures plus collected and exit-ready states');
   check(report.failures.length===0,'No fixture page errors or layout assertion failures');
 })().catch(e=>{report.failures.push(e.message);process.exitCode=1;}).finally(async()=>{
   if(browser)await browser.close();server.close();
   fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2));
   const pairs=report.screenshots.filter(s=>s.variant==='after');
-  fs.writeFileSync(path.join(out,'index.html'),'<!doctype html><meta charset="utf-8"><title>MOONKATTY source preview</title><style>body{margin:30px;background:#091f30;color:#eef5f6;font:16px system-ui}h1{font-weight:600}section{margin-block:32px}div{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}figure{margin:0}img{max-width:min(100%,568px);border:1px solid #496579}figcaption{margin:8px 0;color:#eace9d}</style><h1>MOONKATTY · actual source-build previews</h1><p>Before: stable PR42. After: proposed visual-only branch. Seeded local fixtures, not production or authenticated gameplay.</p>'+pairs.map(s=>`<section><h2>${s.screen} · ${s.lang} · ${s.width}×${s.height}</h2><div><figure><figcaption>BEFORE · PR42</figcaption><img src="${s.file.replace(/^after/,'before')}"></figure><figure><figcaption>AFTER · visual preview</figcaption><img src="${s.file}"></figure></div></section>`).join(''));
+  fs.writeFileSync(path.join(out,'index.html'),'<!doctype html><meta charset="utf-8"><title>MOONKATTY source preview</title><style>body{margin:30px;background:#091f30;color:#eef5f6;font:16px system-ui}h1{font-weight:600}section{margin-block:32px}div{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}figure{margin:0}img{max-width:min(100%,568px);border:1px solid #496579}figcaption{margin:8px 0;color:#eace9d}</style><h1>MOONKATTY · actual source-build previews</h1><p>Before: reviewed PR45. After: proposed visual-only branch. Seeded local fixtures, not production or authenticated gameplay.</p>'+pairs.map(s=>`<section><h2>${s.screen} · ${s.lang} · ${s.width}×${s.height}</h2><div><figure><figcaption>BEFORE · PR45</figcaption><img src="${s.file.replace(/^after/,'before')}"></figure><figure><figcaption>AFTER · visual preview</figcaption><img src="${s.file}"></figure></div></section>`).join(''));
   console.log(JSON.stringify({screenshots:report.screenshots.length,checks:report.checks.length,failures:report.failures,out},null,2));
   if(report.failures.length)process.exitCode=1;
 });
