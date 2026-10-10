@@ -389,8 +389,10 @@ function spendGlobalLife(eventKey){
  if(!localStorage.getItem('mkty_life_restore_at'))localStorage.setItem('mkty_life_restore_at',String(Date.now()));
  // Fire-and-forget server spend (idempotent event_key). Local cache remains provisional until deploy.
  try{
+  const account=window.MKTYRewards?.accountScope?.();
   const event_key=eventKey||('life:spend:'+Date.now()+':'+Math.random().toString(36).slice(2,8));
   window.MKTYRewards?.spendLife?.(event_key)?.then?.(res=>{
+   if(account!==window.MKTYRewards?.accountScope?.())return;
    if(res&&typeof res.lives==='number'){localStorage.setItem('mkty_global_lives',String(res.lives));renderLife3Gate();renderGlobalLivesHome?.();window.MKTYPace?.refresh();}
   });
  }catch(_){ }
@@ -477,7 +479,9 @@ function awardLifePoints(n,amount){
  if(!tg?.initData&&localStorage.getItem(awardKey)!=='yes'){pts+=amount;localStorage.setItem('mkty_points',String(pts));localStorage.setItem(awardKey,'yes');}
  localStorage.setItem(key,'complete');
  try{
+  const account=window.MKTYRewards?.accountScope?.();
   window.MKTYRewards?.completeLife?.(n,amount)?.then?.(res=>{
+   if(account!==window.MKTYRewards?.accountScope?.())return;
    if(res&&typeof res.pts==='number'){pts=res.pts;localStorage.setItem('mkty_points',String(pts));if($('points'))$('points').textContent=pts+(moonPointsLocked()?' ⭐ 🔒':' ⭐');}
   });
  }catch(_){ }
