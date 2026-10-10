@@ -11,8 +11,9 @@ explicitly approved, deployed and verified. Keep parallel graphics work separate
 - Use the already-reviewed lossless trace codec for optional versioned cloud and
   completion transport. Every original replay action and floating-point value is
   decoded before the existing model verification; no traces are pruned.
-- Decoder-only is the default. With explicit `MKTY_TRACE_TRANSPORT_V1=on`,
-  session/player responses advertise `trace_codec`; the already-live client then
+- The shipping entrypoint explicitly sets `traceTransport:false`, ignoring any
+  existing activation environment flag. A separately approved source release can
+  enable it; then session/player responses advertise `trace_codec` and the client
   negotiates `campaign.cloud.v2` and `life.complete.v2`. Old clients keep the legacy
   actions and receive expanded raw snapshots, including conflict responses.
 - In enabled mode, every cloud upload, including a legacy action, is canonicalized
@@ -55,15 +56,16 @@ still hit fixed limits; the client retains local evidence and displays a warning
    backend package and current database backup through the owner's normal backup
    process; do not create credentials or alter access as part of this candidate.
 2. Obtain explicit approval to deploy this specific `rewards` function package
-   in decoder-only mode. Leave `MKTY_TRACE_TRANSPORT_V1` unset/off. No schema change
+   in decoder-only mode. Keep the explicit `traceTransport:false` entrypoint. No schema change
    is required. Approval for static Pages does not cover this function.
 3. Deploy the decoder-compatible handler and generated models through the approved
    existing flow. Verify health, absent compact advertisement, raw roundtrip and
    conflict behavior with an owner-approved disposable account. Establish that
    every serving instance uses this decoder and old in-flight handlers have
    drained; mixed old/new readers must not share newly compact records.
-4. Obtain the activation approval before setting `MKTY_TRACE_TRANSPORT_V1=on`.
-   This enables advertisement and compact writes for all cloud upload actions,
+4. Obtain separate activation approval and review the entrypoint source change
+   before enabling compact transport. Environment settings cannot activate this
+   release. An enabled entrypoint advertises support and compacts all cloud uploads,
    including requests from old clients. Verify compact/raw roundtrip and conflict
    behavior without changing real balances. Existing live clients opt in on their
    next capability refresh; this is a server-side activation, not a Pages gate.

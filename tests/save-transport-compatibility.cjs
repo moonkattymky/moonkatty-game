@@ -125,6 +125,24 @@ function replayFlight(trace){
 }
 
 (async()=>{
+ // Exercise the shipping entrypoint, not just the handler's optional defaults.
+ // An unknown pre-existing environment flag must never activate compact writes.
+ const {createHandler}=await import('../server/rewards/core.mjs');
+ for(const flag of [undefined,'off','on']){
+  let options,handler,requests=0;const reads=[];
+  vm.runInNewContext(source('server/rewards/index.ts').replace(/^import .*;\s*$/m,''),{
+   Deno:{env:{get:name=>{reads.push(name);return name==='SUPABASE_URL'?'https://db.test':name==='SUPABASE_SERVICE_ROLE_KEY'?'synthetic-key':flag;}},serve:value=>{handler=value;}},
+   createHandler:value=>{options=value;return createHandler({...value,verify:async()=>{throw Error('auth');},fetcher:async()=>{requests++;throw Error('unexpected database request');}});}
+  },{filename:'server/rewards/index.ts'});
+  assert.equal(options.traceTransport,false);assert.deepEqual(reads,['SUPABASE_URL','SUPABASE_SERVICE_ROLE_KEY']);
+  assert.equal((await handler(new Request('https://entrypoint.test'))).status,200);
+  for(const action of ['campaign.cloud.v2','life.complete.v2']){
+   const response=await handler(new Request('https://entrypoint.test',{method:'POST',body:JSON.stringify({action,protocol:Codec.PROTOCOL})}));
+   assert.equal(response.status,400);assert.deepEqual(await response.json(),{ok:false,error:'action'});
+  }
+  const legacy=await handler(new Request('https://entrypoint.test',{method:'POST',body:JSON.stringify({action:'campaign.cloud'})}));
+  assert.equal(legacy.status,401);assert.deepEqual(await legacy.json(),{ok:false,error:'auth'});assert.equal(requests,0);
+ }
  assert.deepEqual(Codec.LIMITS,{maxRows:25000,maxTicks:200000,snapshotEntryBytes:180000,snapshotBytes:350000,decodedEntryBytes:1000000,decodedSnapshotBytes:2000000,proofBytes:1000000,transportBytes:400000,maxDepth:64,maxLiteralBytes:65536},'compatibility must not increase any codec budget');
  const fixture=await database();
  try{
@@ -220,7 +238,7 @@ function replayFlight(trace){
   const oversized=await fixture.handler(new Request('https://in-process.test/rewards',{method:'POST',body:oversizedBody}));
   assert.equal(oversized.status,413);assert.equal((await oversized.json()).error,'body');assert.equal(fixture.writes.length,writes);assert.deepEqual(plain(await saved(201)),before);
   // A default deployment decodes existing compact saves but cannot write new
-  // compact records or advertise the feature until its explicit rollout flag.
+  // compact records or advertise the feature until a separate source release.
   const decoder=client(fixture.decoderHandler,201),D=decoder.window.MKTYRewards;
   assert.equal(await D.traceProtocol(),null);await D.call('player');
   for(const response of decoder.responses.filter(x=>['session','player'].includes(x.action)))assert.equal(response.body.capabilities,undefined);
