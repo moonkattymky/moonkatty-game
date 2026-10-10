@@ -17,10 +17,21 @@
  // An unavailable read is not an empty queue. Keep edits separately until the
  // original queue can be read and saving is durable again, including removals
  // acknowledged by the server while storage is unavailable.
- const pendingEdits=new Map(),unreadableQueues=new Set();
+ const pendingEdits=new Map(),unreadableQueues=new Set(),invalidQueues=new Set();
+ const record=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
+ const validQueue=all=>Array.isArray(all)&&all.every(item=>record(item)&&typeof item.id==='string'&&item.id.length>0&&['life.complete','lives.spend'].includes(item.action)&&record(item.payload)&&typeof item.payload.event_key==='string'&&item.payload.event_key.length>0&&(item.action!=='life.complete'||Number.isInteger(item.payload.life)&&item.payload.life>=1&&item.payload.life<=9));
  function storedQueue(account){
-  const key=pendingKey(account),raw=window.MKTYStorage?.readItem?window.MKTYStorage.readItem(key):localStorage.getItem(key);
-  const all=JSON.parse(raw||'[]');if(!Array.isArray(all))throw Error('storage_read');return all;
+  try{
+   const key=pendingKey(account),raw=window.MKTYStorage?.readItem?window.MKTYStorage.readItem(key):localStorage.getItem(key);let all;
+   try{all=JSON.parse(raw||'[]');}catch{throw Error('queue_format');}
+   // Older v2 writers also supplied string IDs/event keys; proof was optional.
+   // An incomplete row is not permission to rewrite or partially drain its queue.
+   if(!validQueue(all))throw Error('queue_format');
+   unreadableQueues.delete(account);invalidQueues.delete(account);return all;
+  }catch(error){
+   if(error?.message==='queue_format'){invalidQueues.add(account);unreadableQueues.delete(account);}
+   else{unreadableQueues.add(account);invalidQueues.delete(account);}throw error;
+  }
  }
  function mergeQueue(all,edits){
   all=all.slice();
@@ -32,26 +43,27 @@
   return all;
  }
  function read(account=scope()){
-  let all=[];try{all=storedQueue(account);unreadableQueues.delete(account);}catch{unreadableQueues.add(account);}
-  return mergeQueue(all,pendingEdits.get(account)).filter(item=>item&&['life.complete','lives.spend'].includes(item.action));
+  let all=[];try{all=storedQueue(account);}catch{}
+  const items=mergeQueue(all,pendingEdits.get(account));if(!validQueue(items))invalidQueues.add(account);return items;
  }
  // false is a verified clear queue; null means replay must wait for a readable
  // queue. Include memory-only edits and never inspect another account's queue.
  function pendingCompletion(n){
   if(!initData())return false;
   const account=scope();let items;
-  try{items=mergeQueue(storedQueue(account),pendingEdits.get(account));unreadableQueues.delete(account);}catch{unreadableQueues.add(account);return null;}
-  if(account!==scope()||items.some(item=>!item||!['life.complete','lives.spend'].includes(item.action)||!item.payload||item.action==='life.complete'&&(!Number.isInteger(item.payload.life)||item.payload.life<1||item.payload.life>9)))return null;
+  try{items=mergeQueue(storedQueue(account),pendingEdits.get(account));}catch{return null;}
+  if(!validQueue(items)){invalidQueues.add(account);return null;}if(account!==scope())return null;
   return items.some(item=>item.action==='life.complete'&&item.payload.life===Number(n));
  }
  function persistQueue(account){
-  let all;try{all=storedQueue(account);unreadableQueues.delete(account);}catch{unreadableQueues.add(account);return false;}
+  let all;try{all=storedQueue(account);}catch{return false;}
   const edits=pendingEdits.get(account);if(!edits)return true;
   if(window.MKTYStorage?.persistent===false)return false;
   try{
    // Never truncate the base: even a long ordinary offline backlog must survive
    // an unrelated enqueue, proof update or acknowledged removal.
-   const serialized=JSON.stringify(mergeQueue(all,edits));localStorage.setItem(pendingKey(account),serialized);
+   const merged=mergeQueue(all,edits);if(!validQueue(merged)){invalidQueues.add(account);return false;}
+   const serialized=JSON.stringify(merged);localStorage.setItem(pendingKey(account),serialized);
    if(window.MKTYStorage?.persistent===false)return false;
    if(JSON.stringify(storedQueue(account))!==serialized)throw Error('storage_write');
    pendingEdits.delete(account);return true;
@@ -66,13 +78,14 @@
  const saveProof=(id,proof,account=scope())=>editQueue(account,{kind:'proof',id,proof});
  function renderStatus(){
   if(!initData())return;
-  const account=scope(),items=read(account),memoryOnly=pendingEdits.has(account)||unreadableQueues.has(account)||(items.length&&window.MKTYStorage?.persistent===false);let el=document.getElementById('rewardSyncStatus');
+  const account=scope(),items=read(account),invalid=invalidQueues.has(account),memoryOnly=pendingEdits.has(account)||unreadableQueues.has(account)||(items.length&&window.MKTYStorage?.persistent===false);let el=document.getElementById('rewardSyncStatus');
   if(!el){el=document.createElement('button');el.id='rewardSyncStatus';el.className='reward-sync-status';el.type='button';el.setAttribute('aria-live','polite');el.onclick=()=>syncPlayer();document.body.appendChild(el);}
   const ru=(localStorage.getItem('mkty_lang')||'en')==='ru';
-  el.hidden=!items.length&&!lastError&&!memoryOnly;
-  const msg=memoryOnly?(ru?'Изменения наград пока хранятся только в открытой игре. Восстановите сохранение на устройстве, прежде чем закрывать её.':'Reward changes are kept only in this open game. Restore device saving before closing it.'):
+  el.hidden=!items.length&&!lastError&&!memoryOnly&&!invalid;
+  const memoryMessage=ru?'Изменения наград пока хранятся только в открытой игре. Восстановите сохранение на устройстве, прежде чем закрывать её.':'Reward changes are kept only in this open game. Restore device saving before closing it.';
+  const msg=invalid?(ru?'Не удалось прочитать формат сохранённых данных наград. Синхронизация наград приостановлена. Не очищайте данные игры.':'Saved reward data has an unreadable format. Reward sync is paused. Keep the game data.')+(memoryOnly?' '+memoryMessage:''):memoryOnly?memoryMessage:
    lastError==='auth'?(ru?'Сессия истекла. Закройте и снова откройте игру — прогресс сохранён.':'Session expired. Reopen the game — progress is saved.'):
-   lastError==='route_upgrade_required'||lastError==='proof_required'||lastError==='proof'?(items.some(item=>item.action==='life.complete')?(ru?'Награда пока не подтверждена. Текущий маршрут сохранён. Нажмите для повтора синхронизации и не очищайте данные игры.':'The reward is not yet verified. Your current route is preserved. Tap to retry sync and keep the game data.'):(ru?'Для подтверждения награды повторите этапы через «Новый маршрут главы». Подтверждённые достижения сохранены.':'Replay the chapter route to verify its reward. Confirmed achievements are preserved.')):
+   lastError==='route_upgrade_required'||lastError==='proof_required'||lastError==='proof'?(items.some(item=>item?.action==='life.complete')?(ru?'Награда пока не подтверждена. Текущий маршрут сохранён. Нажмите для повтора синхронизации и не очищайте данные игры.':'The reward is not yet verified. Your current route is preserved. Tap to retry sync and keep the game data.'):(ru?'Для подтверждения награды повторите этапы через «Новый маршрут главы». Подтверждённые достижения сохранены.':'Replay the chapter route to verify its reward. Confirmed achievements are preserved.')):
    ['transport_unsupported','proof_too_large','trace_too_large','body_too_large'].includes(lastError)?(ru?'Доказательство прохождения сохранено на устройстве. Сервер пока не может принять его размер или формат; сохраните данные игры и повторите позже.':'Completion evidence is saved on this device. The server cannot currently accept its size or format; keep the game data and retry later.'):
    lastError==='trace_invalid'||lastError==='proof_transport_invalid'?(ru?'Доказательство прохождения сохранено, но его формат не удалось проверить. Не очищайте данные игры.':'Completion evidence is saved, but its format could not be verified. Keep the game data.'):
    lastError==='chapter_locked'?(ru?'Глава пройдена. Награда ожидает открытия по расписанию.':'Chapter completed. Reward awaits the scheduled unlock.'):
@@ -191,7 +204,9 @@
    persistQueue(account);
    const body=await call('player');if(!isCurrent(context))return null;if(!body?.ok)return lastPlayer;
    await window.MKTYCloud?.load?.();if(!isCurrent(context))return null;
-   for(const item of read()){
+   const items=read(account);
+   if(unreadableQueues.has(account)||invalidQueues.has(account)){renderStatus();return lastPlayer;}
+   for(const item of items){
     if(!isCurrent(context))return null;
     if(item.action==='life.complete'){const proof=await proofFor(item.payload.life);if(!isCurrent(context))return null;if(proof){saveProof(item.id,proof,account);item.payload.proof=proof;}}
     if(item.action==='life.complete'&&item.payload.life>Number(lastPlayer?.story_life||0)+1)continue;
@@ -202,7 +217,12 @@
     if(!r?.ok)break;remove(item.id,account);
    }
    return lastPlayer;
-  })().finally(()=>{if(syncing===job)syncing=null;});syncing=job;return job;
+  })().catch(()=>{
+   if(!isCurrent(context))return null;
+   // Cloud/proof work can fail outside the transport wrapper. Keep every intent
+   // retryable and resolve event-triggered syncs without leaking a rejection.
+   serverReady=false;lastError='unavailable';renderStatus();return lastPlayer;
+  }).finally(()=>{if(syncing===job)syncing=null;});syncing=job;return job;
  }
  async function completeLife(n,amount){
   const context=accountContext(),account=context.account,key='mkty_life'+n,event_key='life:'+n+':complete';localStorage.setItem(key,'complete');
@@ -258,7 +278,7 @@
  }
  window.MKTYRewards={prepareRoute,proofFor,pendingCompletion,accountScope:scope,endpoint:ENDPOINT,traceProtocol,syncPlayer,completeLife,spendLife,call,authPayload,authenticatedFetch,getLastPlayer:()=>lastPlayer,isServerReady:()=>serverReady,LIFE_REWARDS};
  window.addEventListener('mkty:storage-retry',()=>{
-  const accounts=new Set([...pendingEdits.keys(),...unreadableQueues]);for(const account of accounts)persistQueue(account);
+  const accounts=new Set([...pendingEdits.keys(),...unreadableQueues,...invalidQueues]);for(const account of accounts)persistQueue(account);
   renderStatus();if(initData()&&accounts.has(scope()))syncPlayer().catch(()=>renderStatus());
  });
  window.addEventListener('online',()=>syncPlayer());

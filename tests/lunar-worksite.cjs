@@ -10,7 +10,7 @@ const baseHashes={
  'story.js':'98544c3dd645f76cd47188184ee5a80a9443b96faf13545b31356b11a29cb42e',
  'storage.js':'c8a4becffdff791e36ce0a709a8cd8dba2cfa5a4f4e8cde4732ab2565a9261c9',
  'trace-codec.js':'baba00a4cc9a4ab309382220d3e37b7b35ddc925a582012d8d4d622c124ea865',
- 'rewards-client.js':'5a911974be1d50576d4e472c05f590442f4e91922508bd330a5ee731cb683c32',
+ 'rewards-client.js':'e4444f4248d6389a650833dbd5a77c60985ba2ca64a37f342ca5dd340536758c',
  'expedition-model.js':'5209ca04232a01204a3ab1019e32a4cef92c5600de2370cd62243a497ba3e571'
 };
 for(const [file,hash]of Object.entries(baseHashes))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex'),hash,file+' matches the pinned reviewed baseline (with convoy, Echo and closing-gate checkpoint corrections)');
