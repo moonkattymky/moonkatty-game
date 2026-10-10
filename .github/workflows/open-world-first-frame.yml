@@ -1,0 +1,30 @@
+name: Open-world first frame · read-only
+on:
+  push:
+    branches: [open-world]
+    paths: ['.github/workflows/open-world-first-frame.yml', '.github/scripts/open-world-first-frame.cjs']
+permissions:
+  contents: read
+jobs:
+  first-frame:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - name: Capture one actual frame without continuous repaint contention
+        timeout-minutes: 4
+        run: node .github/scripts/open-world-first-frame.cjs
+      - name: Retain first actual frame and diagnostic report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: moonkatty-first-frame-${{ github.sha }}
+          path: /tmp/moonkatty-first-frame
+          retention-days: 14
+          if-no-files-found: warn
