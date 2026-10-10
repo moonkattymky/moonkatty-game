@@ -136,29 +136,40 @@
   // Persist the intent before proofFor can wait for the network. An app close at
   // that point must still leave a retryable completion on the next launch.
   queue('life.complete',{life:n,event_key});
-  const proof=await proofFor(n);if(account!==scope())return {pts:0,source:'account-changed',pending:true};
+  const proof=await proofFor(n);if(account!==scope())return {source:'account-changed',pending:true};
   if(proof)write(read().map(item=>item.id===event_key?{...item,payload:{...item.payload,proof}}:item));
   const body=await call('life.complete',{life:n,event_key,proof});
+  if(account!==scope())return {source:'account-changed',pending:true};
   if(body?.ok&&body.player){remove(event_key);localStorage.setItem(key+'_awarded','yes');return {pts:body.player.moon_points,source:body.awarded?'server':'server-idempotent',player:body.player};}
   return {pts:Number(localStorage.getItem('mkty_points')||0),source:'pending',pending:true,error:body?.error,player:null};
  }
  async function spendLife(event_key){
-  const key=event_key||'life:spend:'+Date.now();
+  const account=scope(),key=event_key||'life:spend:'+Date.now();
   if(!initData())return {ok:true,source:'cache'};
   queue('lives.spend',{event_key:key});const body=await call('lives.spend',{event_key:key});
+  if(account!==scope())return {ok:false,source:'account-changed',pending:true};
   if(body?.ok){remove(key);return {ok:body.spent||body.duplicate,source:'server',player:body.player,lives:body.player.lives};}
   if(body?.error==='no_lives'){remove(key);return {ok:false,source:'server',lives:0};}
   return {ok:true,source:'pending',pending:true};
  }
 
- const routeJobs=new Map();
+ const routeJobs=new Map(),routeRequests=new Map();
  async function prepareRoute(n,reset=false){
   const p=window.MKTYStory?.read(n);if(!initData()||!p)return null;
-  const key='mkty_proof_route_'+n;let route;try{route=JSON.parse(localStorage.getItem(key)||'null');}catch{}
-  if(!reset&&route&&Number(route.seed)===p.seed&&route.edition===(p.edition||1))return route;
-  const jobKey=scope()+':'+n+':'+p.seed;if(routeJobs.has(jobKey))return routeJobs.get(jobKey);
-  const job=(async()=>{const body=await call('campaign.open',{life:n,seed:p.seed,edition:p.edition||1,reset});if(body?.ok&&body.route){route=body.route;if(Number(route.seed)!==p.seed||route.edition!==(p.edition||1))return null;localStorage.setItem(key,JSON.stringify(route));return route;}return null;})().finally(()=>routeJobs.delete(jobKey));
-  routeJobs.set(jobKey,job);return job;
+  const account=scope(),seed=p.seed,edition=p.edition||1,key='mkty_proof_route_'+n;
+  let route;try{route=JSON.parse(localStorage.getItem(key)||'null');}catch{}
+  if(!reset&&route&&Number(route.seed)===seed&&route.edition===edition)return route;
+  const owner=account+':'+n,jobKey=owner+':'+seed+':'+edition+':'+reset;
+  const existing=routeJobs.get(jobKey);if(existing&&routeRequests.get(owner)===existing.request)return existing.job;
+  const request={};routeRequests.set(owner,request);
+  const job=(async()=>{
+   const body=await call('campaign.open',{life:n,seed,edition,reset});
+   const current=window.MKTYStory?.read(n);
+   // A late open belongs to its original account and route, never a newer replay.
+   if(account!==scope()||routeRequests.get(owner)!==request||!current||current.seed!==seed||(current.edition||1)!==edition)return null;
+   if(body?.ok&&body.route){route=body.route;if(Number(route.seed)!==seed||route.edition!==edition)return null;localStorage.setItem(key,JSON.stringify(route));return route;}return null;
+  })().finally(()=>{if(routeJobs.get(jobKey)?.job===job)routeJobs.delete(jobKey);if(routeRequests.get(owner)===request)routeRequests.delete(owner);});
+  routeJobs.set(jobKey,{job,request});return job;
  }
  async function proofFor(n){
   try{const p=window.MKTYStory?.read(n);if(!p||p.done.length!==8)return undefined;const route=await prepareRoute(n);if(!route)return undefined;

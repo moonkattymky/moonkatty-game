@@ -1,6 +1,7 @@
 # Optional save transport and Convoy recovery candidate
 
-Base: live client `3521323b7c8e30f739f779fa8e2df4f5baaeba9d`.
+Source base: merged client `40d89a9a5a73b1ea387d074cf1dc237e5fc0229e`.
+Its publication is verified separately from this draft.
 This is a source/test candidate. No backend deployment or database migration has
 been performed. Do not merge its client model before the matching backend is
 explicitly approved, deployed and verified. Keep parallel graphics work separate.
