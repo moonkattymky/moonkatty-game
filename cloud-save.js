@@ -155,7 +155,16 @@
    }
    loaded=true;if(!remote&&Object.keys(snapshot()).length){localStorage.setItem('mkty_cloud_dirty','yes');schedule();}
    else if(dirty()&&!conflict)schedule();
-  }catch(error){if(account!==scope())return;if(conflict){blocked(conflict);return;}if(['trace_invalid','trace_too_large','snapshot_transport_invalid','snapshot_too_large','transport_unsupported'].includes(error?.message))transportWarning();else status(ru()?'Облако временно недоступно. Маршрут остаётся на этом устройстве.':'Cloud saving is temporarily unavailable. Your route stays on this device.');}finally{if(account===scope())loading=null;}})();return loading;
+  }catch(error){
+   if(account!==scope())return;if(conflict){blocked(conflict);return;}
+   if(['trace_invalid','trace_too_large','snapshot_transport_invalid','snapshot_too_large','transport_unsupported'].includes(error?.message))transportWarning();
+   else if(window.MKTYStorage?.persistent===false||['storage','storage_read'].includes(error?.message))storageWarning();
+   else{
+    status(ru()?'Облако временно недоступно. Маршрут остаётся на этом устройстве.':'Cloud saving is temporarily unavailable. Your route stays on this device.');
+    // A transient first download must not consume the only timer for local edits.
+    try{if(dirty())schedule();}catch{storageWarning();}
+   }
+  }finally{if(account===scope())loading=null;}})();return loading;
  }
  function schedule(){if(timer||!enabled())return;timer=setTimeout(()=>{timer=null;flush();},8000);}
  function oversized(s){return Object.values(s).some(v=>codec.utf8Bytes(v)>=codec.LIMITS.snapshotEntryBytes)||codec.utf8Bytes(JSON.stringify(s))>codec.LIMITS.snapshotBytes;}
@@ -187,7 +196,15 @@
   if(applying||window.MKTYStorage?.persistent===false)return;
   // Retry has durably flushed the complete memory overlay, including any play
   // since rollback. Do not let the old pending remote replace that local work.
-  try{if(pauseInterruptedRestore(true)){const pending=JSON.parse(stored(restoreKey)||'null');if(pending)blocked(validatedRemote(pending));}}catch{transportWarning();}
+  try{
+   if(pauseInterruptedRestore(true)){const pending=JSON.parse(stored(restoreKey)||'null');if(pending)conflict=validatedRemote(pending);}
+   if(conflict){blocked(conflict);return;}
+   if(!guardUnreadable&&!selectingRestore&&dirty()){
+    // The previous autosave may have stopped while storage was memory-only.
+    // Resume through the same bounded request path, after all recovery guards.
+    schedule();status('');
+   }
+  }catch{transportWarning();}
  });
  window.addEventListener('mkty:storage',e=>{
   if(applying||!allowed.test(e.detail?.key)||!enabled())return;scope();generation++;localStorage.setItem('mkty_cloud_dirty','yes');

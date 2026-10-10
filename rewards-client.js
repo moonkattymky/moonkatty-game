@@ -8,18 +8,56 @@
  function learnCapabilities(body,account){if(body?.ok&&account===scope()){capabilityScope=account;traceCapability=body.capabilities?.trace_codec===codec().PROTOCOL;}}
  const initData=()=>window.Telegram?.WebApp?.initData||'';
  const scope=()=>{try{return String(JSON.parse(new URLSearchParams(initData()).get('user')).id);}catch{return 'telegram';}};
- const pendingKey=()=> 'mkty_pending_v2_'+scope();
- const read=()=>{try{return JSON.parse(localStorage.getItem(pendingKey())||'[]').filter(x=>x&&['life.complete','lives.spend'].includes(x.action)).slice(0,100);}catch{return [];}};
- const write=x=>{localStorage.setItem(pendingKey(),JSON.stringify(x));renderStatus();};
- const queue=(action,payload)=>{const all=read(),id=payload.event_key;if(!all.some(x=>x.id===id))write([...all,{id,action,payload}]);};
- const remove=id=>write(read().filter(x=>x.id!==id));
+ const pendingKey=(account=scope())=> 'mkty_pending_v2_'+account;
+ // An unavailable read is not an empty queue. Keep edits separately until the
+ // original queue can be read and saving is durable again, including removals
+ // acknowledged by the server while storage is unavailable.
+ const pendingEdits=new Map(),unreadableQueues=new Set();
+ function storedQueue(account){
+  const key=pendingKey(account),raw=window.MKTYStorage?.readItem?window.MKTYStorage.readItem(key):localStorage.getItem(key);
+  const all=JSON.parse(raw||'[]');if(!Array.isArray(all))throw Error('storage_read');return all;
+ }
+ function mergeQueue(all,edits){
+  all=all.slice();
+  for(const edit of edits||[]){
+   if(edit.kind==='remove')all=all.filter(item=>item?.id!==edit.id);
+   else if(edit.kind==='proof')all=all.map(item=>item?.id===edit.id?{...item,payload:{...item.payload,proof:edit.proof}}:item);
+   else if(!all.some(item=>item?.id===edit.item.id))all.push(edit.item);
+  }
+  return all;
+ }
+ function read(account=scope()){
+  let all=[];try{all=storedQueue(account);unreadableQueues.delete(account);}catch{unreadableQueues.add(account);}
+  return mergeQueue(all,pendingEdits.get(account)).filter(item=>item&&['life.complete','lives.spend'].includes(item.action));
+ }
+ function persistQueue(account){
+  let all;try{all=storedQueue(account);unreadableQueues.delete(account);}catch{unreadableQueues.add(account);return false;}
+  const edits=pendingEdits.get(account);if(!edits)return true;
+  if(window.MKTYStorage?.persistent===false)return false;
+  try{
+   // Never truncate the base: even a long ordinary offline backlog must survive
+   // an unrelated enqueue, proof update or acknowledged removal.
+   const serialized=JSON.stringify(mergeQueue(all,edits));localStorage.setItem(pendingKey(account),serialized);
+   if(window.MKTYStorage?.persistent===false)return false;
+   if(JSON.stringify(storedQueue(account))!==serialized)throw Error('storage_write');
+   pendingEdits.delete(account);return true;
+  }catch{return false;}
+ }
+ function editQueue(account,edit){
+  const edits=pendingEdits.get(account)||[];edits.push(edit);pendingEdits.set(account,edits);
+  persistQueue(account);if(account===scope())renderStatus();
+ }
+ const queue=(action,payload,account=scope())=>editQueue(account,{kind:'add',item:{id:payload.event_key,action,payload}});
+ const remove=(id,account=scope())=>editQueue(account,{kind:'remove',id});
+ const saveProof=(id,proof,account=scope())=>editQueue(account,{kind:'proof',id,proof});
  function renderStatus(){
   if(!initData())return;
-  const items=read();let el=document.getElementById('rewardSyncStatus');
+  const account=scope(),items=read(account),memoryOnly=pendingEdits.has(account)||unreadableQueues.has(account)||(items.length&&window.MKTYStorage?.persistent===false);let el=document.getElementById('rewardSyncStatus');
   if(!el){el=document.createElement('button');el.id='rewardSyncStatus';el.className='reward-sync-status';el.type='button';el.setAttribute('aria-live','polite');el.onclick=()=>syncPlayer();document.body.appendChild(el);}
   const ru=(localStorage.getItem('mkty_lang')||'en')==='ru';
-  el.hidden=!items.length&&!lastError;
-  const msg=lastError==='auth'?(ru?'Сессия истекла. Закройте и снова откройте игру — прогресс сохранён.':'Session expired. Reopen the game — progress is saved.'):
+  el.hidden=!items.length&&!lastError&&!memoryOnly;
+  const msg=memoryOnly?(ru?'Изменения наград пока хранятся только в открытой игре. Восстановите сохранение на устройстве, прежде чем закрывать её.':'Reward changes are kept only in this open game. Restore device saving before closing it.'):
+   lastError==='auth'?(ru?'Сессия истекла. Закройте и снова откройте игру — прогресс сохранён.':'Session expired. Reopen the game — progress is saved.'):
    lastError==='route_upgrade_required'||lastError==='proof_required'||lastError==='proof'?(ru?'Для подтверждения награды повторите этапы через «Новый маршрут главы». Подтверждённые достижения сохранены.':'Replay the chapter route to verify its reward. Confirmed achievements are preserved.'):
    ['transport_unsupported','proof_too_large','trace_too_large','body_too_large'].includes(lastError)?(ru?'Доказательство прохождения сохранено на устройстве. Сервер пока не может принять его размер или формат; сохраните данные игры и повторите позже.':'Completion evidence is saved on this device. The server cannot currently accept its size or format; keep the game data and retry later.'):
    lastError==='trace_invalid'||lastError==='proof_transport_invalid'?(ru?'Доказательство прохождения сохранено, но его формат не удалось проверить. Не очищайте данные игры.':'Completion evidence is saved, but its format could not be verified. Keep the game data.'):
@@ -111,17 +149,18 @@
  async function syncPlayer(){
   const account=scope();if(syncing&&syncScope===account)return syncing;syncScope=account;
   const job=(async()=>{
+   persistQueue(account);
    const body=await call('player');if(!body?.ok||account!==scope())return lastPlayer;
    await window.MKTYCloud?.load?.();if(account!==scope())return null;
    for(const item of read()){
     if(account!==scope())return null;
-    if(item.action==='life.complete'){const proof=await proofFor(item.payload.life);if(account!==scope())return null;if(proof)item.payload.proof=proof;}
+    if(item.action==='life.complete'){const proof=await proofFor(item.payload.life);if(account!==scope())return null;if(proof){saveProof(item.id,proof,account);item.payload.proof=proof;}}
     if(item.action==='life.complete'&&item.payload.life>Number(lastPlayer?.story_life||0)+1)continue;
     const r=await call(item.action,item.payload);if(account!==scope())break;
     // A spent-out account cannot settle this failed-attempt charge. It must not
     // permanently block unrelated earned chapter rewards behind it in the queue.
-    if(item.action==='lives.spend'&&r?.error==='no_lives'){remove(item.id);continue;}
-    if(!r?.ok)break;remove(item.id);
+    if(item.action==='lives.spend'&&r?.error==='no_lives'){remove(item.id,account);continue;}
+    if(!r?.ok)break;remove(item.id,account);
    }
    return lastPlayer;
   })().finally(()=>{if(syncing===job)syncing=null;});syncing=job;return job;
@@ -135,21 +174,21 @@
   }
   // Persist the intent before proofFor can wait for the network. An app close at
   // that point must still leave a retryable completion on the next launch.
-  queue('life.complete',{life:n,event_key});
+  queue('life.complete',{life:n,event_key},account);
   const proof=await proofFor(n);if(account!==scope())return {source:'account-changed',pending:true};
-  if(proof)write(read().map(item=>item.id===event_key?{...item,payload:{...item.payload,proof}}:item));
+  if(proof)saveProof(event_key,proof,account);
   const body=await call('life.complete',{life:n,event_key,proof});
   if(account!==scope())return {source:'account-changed',pending:true};
-  if(body?.ok&&body.player){remove(event_key);localStorage.setItem(key+'_awarded','yes');return {pts:body.player.moon_points,source:body.awarded?'server':'server-idempotent',player:body.player};}
+  if(body?.ok&&body.player){remove(event_key,account);localStorage.setItem(key+'_awarded','yes');return {pts:body.player.moon_points,source:body.awarded?'server':'server-idempotent',player:body.player};}
   return {pts:Number(localStorage.getItem('mkty_points')||0),source:'pending',pending:true,error:body?.error,player:null};
  }
  async function spendLife(event_key){
   const account=scope(),key=event_key||'life:spend:'+Date.now();
   if(!initData())return {ok:true,source:'cache'};
-  queue('lives.spend',{event_key:key});const body=await call('lives.spend',{event_key:key});
+  queue('lives.spend',{event_key:key},account);const body=await call('lives.spend',{event_key:key});
   if(account!==scope())return {ok:false,source:'account-changed',pending:true};
-  if(body?.ok){remove(key);return {ok:body.spent||body.duplicate,source:'server',player:body.player,lives:body.player.lives};}
-  if(body?.error==='no_lives'){remove(key);return {ok:false,source:'server',lives:0};}
+  if(body?.ok){remove(key,account);return {ok:body.spent||body.duplicate,source:'server',player:body.player,lives:body.player.lives};}
+  if(body?.error==='no_lives'){remove(key,account);return {ok:false,source:'server',lives:0};}
   return {ok:true,source:'pending',pending:true};
  }
 
@@ -178,6 +217,10 @@
   }catch{return undefined;}
  }
  window.MKTYRewards={prepareRoute,proofFor,accountScope:scope,endpoint:ENDPOINT,traceProtocol,syncPlayer,completeLife,spendLife,call,authPayload,authenticatedFetch,getLastPlayer:()=>lastPlayer,isServerReady:()=>serverReady,LIFE_REWARDS};
+ window.addEventListener('mkty:storage-retry',()=>{
+  const accounts=new Set([...pendingEdits.keys(),...unreadableQueues]);for(const account of accounts)persistQueue(account);
+  renderStatus();if(initData()&&accounts.has(scope()))syncPlayer().catch(()=>renderStatus());
+ });
  window.addEventListener('online',()=>syncPlayer());
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncPlayer();});
  window.addEventListener('mkty:language',renderStatus);
