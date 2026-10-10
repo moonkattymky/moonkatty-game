@@ -21,3 +21,11 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Every model, browser, campaign and security regression
         run: npm test
+      - name: Embedded 3D entry browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-entry-${{ github.sha }}
+          path: /tmp/mkty-preview-entry-ui-*/
+          if-no-files-found: ignore
+          retention-days: 7

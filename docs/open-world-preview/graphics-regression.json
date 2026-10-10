@@ -1,0 +1,631 @@
+{
+  "layouts": [
+    {
+      "width": 320,
+      "height": 568,
+      "boxes": [
+        {
+          "id": "pause",
+          "w": 46,
+          "h": 46,
+          "x": 262,
+          "y": 16,
+          "hit": true
+        },
+        {
+          "id": "up",
+          "w": 44,
+          "h": 44,
+          "x": 46,
+          "y": 369,
+          "hit": true
+        },
+        {
+          "id": "down",
+          "w": 44,
+          "h": 44,
+          "x": 46,
+          "y": 435,
+          "hit": true
+        },
+        {
+          "id": "left",
+          "w": 44,
+          "h": 44,
+          "x": 13,
+          "y": 402,
+          "hit": true
+        },
+        {
+          "id": "right",
+          "w": 44,
+          "h": 44,
+          "x": 79,
+          "y": 402,
+          "hit": true
+        },
+        {
+          "id": "inspect",
+          "w": 85,
+          "h": 79,
+          "x": 131,
+          "y": 401,
+          "hit": true
+        },
+        {
+          "id": "scan",
+          "w": 85,
+          "h": 79,
+          "x": 223,
+          "y": 401,
+          "hit": true
+        },
+        {
+          "id": "map",
+          "w": 98.65625,
+          "h": 54,
+          "x": 12.015625,
+          "y": 498,
+          "hit": true
+        },
+        {
+          "id": "camera-reset",
+          "w": 98.65625,
+          "h": 54,
+          "x": 110.671875,
+          "y": 498,
+          "hit": true
+        },
+        {
+          "id": "tasks",
+          "w": 98.65625,
+          "h": 54,
+          "x": 209.328125,
+          "y": 498,
+          "hit": true
+        }
+      ]
+    },
+    {
+      "width": 360,
+      "height": 640,
+      "boxes": [
+        {
+          "id": "pause",
+          "w": 46,
+          "h": 46,
+          "x": 296,
+          "y": 16,
+          "hit": true
+        },
+        {
+          "id": "up",
+          "w": 44,
+          "h": 44,
+          "x": 60,
+          "y": 422,
+          "hit": true
+        },
+        {
+          "id": "down",
+          "w": 44,
+          "h": 44,
+          "x": 60,
+          "y": 504,
+          "hit": true
+        },
+        {
+          "id": "left",
+          "w": 44,
+          "h": 44,
+          "x": 19,
+          "y": 463,
+          "hit": true
+        },
+        {
+          "id": "right",
+          "w": 44,
+          "h": 44,
+          "x": 101,
+          "y": 463,
+          "hit": true
+        },
+        {
+          "id": "inspect",
+          "w": 86,
+          "h": 95,
+          "x": 158,
+          "y": 454,
+          "hit": true
+        },
+        {
+          "id": "scan",
+          "w": 86,
+          "h": 95,
+          "x": 256,
+          "y": 454,
+          "hit": true
+        },
+        {
+          "id": "map",
+          "w": 107.984375,
+          "h": 54,
+          "x": 18.015625,
+          "y": 570,
+          "hit": true
+        },
+        {
+          "id": "camera-reset",
+          "w": 107.984375,
+          "h": 54,
+          "x": 126,
+          "y": 570,
+          "hit": true
+        },
+        {
+          "id": "tasks",
+          "w": 107.984375,
+          "h": 54,
+          "x": 233.984375,
+          "y": 570,
+          "hit": true
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "boxes": [
+        {
+          "id": "pause",
+          "w": 46,
+          "h": 46,
+          "x": 326,
+          "y": 16,
+          "hit": true
+        },
+        {
+          "id": "up",
+          "w": 44,
+          "h": 44,
+          "x": 60,
+          "y": 626,
+          "hit": true
+        },
+        {
+          "id": "down",
+          "w": 44,
+          "h": 44,
+          "x": 60,
+          "y": 708,
+          "hit": true
+        },
+        {
+          "id": "left",
+          "w": 44,
+          "h": 44,
+          "x": 19,
+          "y": 667,
+          "hit": true
+        },
+        {
+          "id": "right",
+          "w": 44,
+          "h": 44,
+          "x": 101,
+          "y": 667,
+          "hit": true
+        },
+        {
+          "id": "inspect",
+          "w": 94,
+          "h": 95,
+          "x": 165,
+          "y": 658,
+          "hit": true
+        },
+        {
+          "id": "scan",
+          "w": 94,
+          "h": 95,
+          "x": 278,
+          "y": 658,
+          "hit": true
+        },
+        {
+          "id": "map",
+          "w": 117.984375,
+          "h": 54,
+          "x": 18.015625,
+          "y": 774,
+          "hit": true
+        },
+        {
+          "id": "camera-reset",
+          "w": 117.984375,
+          "h": 54,
+          "x": 136,
+          "y": 774,
+          "hit": true
+        },
+        {
+          "id": "tasks",
+          "w": 117.984375,
+          "h": 54,
+          "x": 253.984375,
+          "y": 774,
+          "hit": true
+        }
+      ]
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "boxes": [
+        {
+          "id": "pause",
+          "w": 46,
+          "h": 46,
+          "x": 366,
+          "y": 16,
+          "hit": true
+        },
+        {
+          "id": "up",
+          "w": 44,
+          "h": 44,
+          "x": 60,
+          "y": 714,
+          "hit": true
+        },
+        {
+          "id": "down",
+          "w": 44,
+          "h": 44,
+          "x": 60,
+          "y": 796,
+          "hit": true
+        },
+        {
+          "id": "left",
+          "w": 44,
+          "h": 44,
+          "x": 19,
+          "y": 755,
+          "hit": true
+        },
+        {
+          "id": "right",
+          "w": 44,
+          "h": 44,
+          "x": 101,
+          "y": 755,
+          "hit": true
+        },
+        {
+          "id": "inspect",
+          "w": 94,
+          "h": 95,
+          "x": 185,
+          "y": 746,
+          "hit": true
+        },
+        {
+          "id": "scan",
+          "w": 94,
+          "h": 95,
+          "x": 318,
+          "y": 746,
+          "hit": true
+        },
+        {
+          "id": "map",
+          "w": 131.3125,
+          "h": 54,
+          "x": 18.03125,
+          "y": 862,
+          "hit": true
+        },
+        {
+          "id": "camera-reset",
+          "w": 131.3125,
+          "h": 54,
+          "x": 149.34375,
+          "y": 862,
+          "hit": true
+        },
+        {
+          "id": "tasks",
+          "w": 131.3125,
+          "h": 54,
+          "x": 280.65625,
+          "y": 862,
+          "hit": true
+        }
+      ]
+    },
+    {
+      "width": 568,
+      "height": 320,
+      "boxes": [
+        {
+          "id": "pause",
+          "w": 44,
+          "h": 44,
+          "x": 501,
+          "y": 9,
+          "hit": true
+        },
+        {
+          "id": "up",
+          "w": 44,
+          "h": 44,
+          "x": 52,
+          "y": 189,
+          "hit": true
+        },
+        {
+          "id": "down",
+          "w": 44,
+          "h": 44,
+          "x": 52,
+          "y": 255,
+          "hit": true
+        },
+        {
+          "id": "left",
+          "w": 44,
+          "h": 44,
+          "x": 19,
+          "y": 222,
+          "hit": true
+        },
+        {
+          "id": "right",
+          "w": 44,
+          "h": 44,
+          "x": 85,
+          "y": 222,
+          "hit": true
+        },
+        {
+          "id": "inspect",
+          "w": 68,
+          "h": 80,
+          "x": 394,
+          "y": 220,
+          "hit": true
+        },
+        {
+          "id": "scan",
+          "w": 68,
+          "h": 80,
+          "x": 482,
+          "y": 220,
+          "hit": true
+        },
+        {
+          "id": "map",
+          "w": 57.3125,
+          "h": 48,
+          "x": 198.03125,
+          "y": 254,
+          "hit": true
+        },
+        {
+          "id": "camera-reset",
+          "w": 57.3125,
+          "h": 48,
+          "x": 255.34375,
+          "y": 254,
+          "hit": true
+        },
+        {
+          "id": "tasks",
+          "w": 57.3125,
+          "h": 48,
+          "x": 312.65625,
+          "y": 254,
+          "hit": true
+        }
+      ]
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "boxes": [
+        {
+          "id": "pause",
+          "w": 44,
+          "h": 44,
+          "x": 777,
+          "y": 9,
+          "hit": true
+        },
+        {
+          "id": "up",
+          "w": 44,
+          "h": 44,
+          "x": 52,
+          "y": 259,
+          "hit": true
+        },
+        {
+          "id": "down",
+          "w": 44,
+          "h": 44,
+          "x": 52,
+          "y": 325,
+          "hit": true
+        },
+        {
+          "id": "left",
+          "w": 44,
+          "h": 44,
+          "x": 19,
+          "y": 292,
+          "hit": true
+        },
+        {
+          "id": "right",
+          "w": 44,
+          "h": 44,
+          "x": 85,
+          "y": 292,
+          "hit": true
+        },
+        {
+          "id": "inspect",
+          "w": 68,
+          "h": 80,
+          "x": 670,
+          "y": 290,
+          "hit": true
+        },
+        {
+          "id": "scan",
+          "w": 68,
+          "h": 80,
+          "x": 758,
+          "y": 290,
+          "hit": true
+        },
+        {
+          "id": "map",
+          "w": 57.3125,
+          "h": 48,
+          "x": 336.03125,
+          "y": 324,
+          "hit": true
+        },
+        {
+          "id": "camera-reset",
+          "w": 57.3125,
+          "h": 48,
+          "x": 393.34375,
+          "y": 324,
+          "hit": true
+        },
+        {
+          "id": "tasks",
+          "w": 57.3125,
+          "h": 48,
+          "x": 450.65625,
+          "y": 324,
+          "hit": true
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "boxes": [
+        {
+          "id": "pause",
+          "w": 46,
+          "h": 46,
+          "x": 687,
+          "y": 30,
+          "hit": true
+        },
+        {
+          "id": "up",
+          "w": 44,
+          "h": 44,
+          "x": 95,
+          "y": 755,
+          "hit": true
+        },
+        {
+          "id": "down",
+          "w": 44,
+          "h": 44,
+          "x": 95,
+          "y": 864,
+          "hit": true
+        },
+        {
+          "id": "left",
+          "w": 44,
+          "h": 44,
+          "x": 41,
+          "y": 809,
+          "hit": true
+        },
+        {
+          "id": "right",
+          "w": 44,
+          "h": 44,
+          "x": 150,
+          "y": 809,
+          "hit": true
+        },
+        {
+          "id": "inspect",
+          "w": 94,
+          "h": 116,
+          "x": 505,
+          "y": 793,
+          "hit": true
+        },
+        {
+          "id": "scan",
+          "w": 94,
+          "h": 116,
+          "x": 634,
+          "y": 793,
+          "hit": true
+        },
+        {
+          "id": "map",
+          "w": 220,
+          "h": 54,
+          "x": 54,
+          "y": 948,
+          "hit": true
+        },
+        {
+          "id": "camera-reset",
+          "w": 220,
+          "h": 54,
+          "x": 274,
+          "y": 948,
+          "hit": true
+        },
+        {
+          "id": "tasks",
+          "w": 220,
+          "h": 54,
+          "x": 494,
+          "y": 948,
+          "hit": true
+        }
+      ]
+    }
+  ],
+  "checks": [
+    "real WebGL2 world renders",
+    "camera-relative continuous keyboard movement",
+    "simultaneous real touch movement + camera",
+    "pinch zoom",
+    "touch cancel clears movement",
+    "physical collision and nearby inspection",
+    "all three demo objectives reached through actual walking",
+    "full 360° camera",
+    "outdoor orbit keeps usable camera distance",
+    "pause is an input barrier",
+    "map and task panels pause correctly",
+    "reload restores preview only; campaign state untouched",
+    "BFCache return restores one active animation loop",
+    "background pause and economy mode",
+    "GPU context loss offers recovery",
+    "failed asset load has usable fallback",
+    "Telegram SDK viewport/back/deactivation contract (emulated)"
+  ],
+  "metrics": {
+    "drawCalls": 66,
+    "triangles": 118914,
+    "device": "Chromium mobile emulation, software WebGL; not a physical Telegram phone"
+  },
+  "firstLoadBytes": 1458550
+}
