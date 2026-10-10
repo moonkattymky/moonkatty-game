@@ -21,9 +21,11 @@ async function saved(p,label){
 }
 try{
 const {p}=await page(101);
-await p.evaluate(()=>{for(let i=1;i<=9;i++)localStorage.setItem('mkty_life'+i,'complete');localStorage.setItem('mkty_life1_memory_code','1234567890');localStorage.setItem('mkty_life3_memory_verified','yes');localStorage.setItem('mkty_story_plan_3_v1',JSON.stringify(StoryPlan.fresh(3,1234,2)));});
+await p.evaluate(()=>{for(let i=1;i<=9;i++)localStorage.setItem('mkty_life'+i,'complete');localStorage.setItem('mkty_life1_memory_code','1234567890');localStorage.setItem('mkty_life3_memory_verified','yes');localStorage.setItem('mkty_story_plan_3_v1',JSON.stringify(StoryPlan.fresh(3,1234,2)));localStorage.setItem('mkty_expeditions_v1',JSON.stringify(MKTYExpedition.snapshot()));});
 // This section isolates account switching, not lost upload acknowledgements on
-// document destruction. Establish the first writer before deliberately reloading.
+// document destruction. Seed the actual idle expedition checkpoint too: its
+// pagehide handler otherwise creates a new dirty key after this save barrier.
+// Establish the first writer before deliberately reloading.
 // Lost-ack reloads correctly retain a conflict; cloud-acknowledgement.cjs covers it.
 await saved(p,'seeded account101 before account switch');assert.equal(cloud.get(101).snapshot.mkty_life1_memory_code,'1234567890');
 await p.evaluate(()=>sessionStorage.setItem('audit-account','202'));

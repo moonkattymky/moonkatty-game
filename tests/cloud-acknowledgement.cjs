@@ -102,6 +102,76 @@ function documentFixture(server, persisted = new Map()) {
     async checked() {if (!checks.length) {const waiter = deferred(); awaitingChecks.push(waiter); await waiter.promise;}}
   };
 }
+// Only the idle controller's DOM is stubbed. Its initialization, checkpoint,
+// pagehide handler, storage events and cloud requests all run production code.
+function installExpedition({c, nodes}) {
+  const create = c.document.createElement;
+  c.document.createElement = tag => {
+    const node = create(tag);
+    Object.assign(node, {dataset: {}, classList: {contains: () => false, remove() {}, add() {}, toggle() {}},
+      addEventListener() {}, before() {}, querySelectorAll: () => [], getContext: () => ({})});
+    let html = '';
+    Object.defineProperty(node, 'innerHTML', {get: () => html, set(value) {
+      html = value;
+      for (const match of value.matchAll(/\bid="([^"]+)"/g))
+        nodes.set(match[1], c.document.createElement('div'));
+    }});
+    return node;
+  };
+  for (const id of ['app', 'enterBtn', 'chapterList']) nodes.set(id, c.document.createElement('div'));
+  c.document.documentElement = c.document.createElement('html');
+  c.ResizeObserver = c.MutationObserver = class {observe() {}};
+  c.cancelAnimationFrame = () => {}; c.structuredClone = structuredClone;
+  c.ExpeditionRules = require('../expedition-model.js');
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'expedition.js'), 'utf8'), c, {filename: 'expedition.js'});
+}
+async function idleExpeditionReload(modern) {
+  const KEY = 'mkty_expeditions_v1';
+  const server = mock(modern); server.cloud.revision = 0; server.cloud.snapshot = {};
+  const outgoing = documentFixture(server); installExpedition(outgoing);
+  await outgoing.c.MKTYCloud.load(); outgoing.write(CODE, '1234567890');
+  await waitForCloud(outgoing.page, 'saved', {polling: 1});
+  assert.equal(outgoing.read(REVISION), '1'); assert.equal(outgoing.read(DIRTY), null);
+  assert.equal(outgoing.read(KEY), null, 'An idle expedition is initially only in controller memory');
+  const receipt = server.hold('write');
+  outgoing.emit({type: 'pagehide'});
+  assert.equal(outgoing.read(KEY), JSON.stringify(outgoing.c.MKTYExpedition.snapshot()));
+  assert.equal(outgoing.read(DIRTY), 'yes', 'Actual pagehide creates a new dirty checkpoint after the first acknowledgement');
+  outgoing.c.document.hidden = true; outgoing.emit({type: 'document:visibilitychange'});
+  const secondWrite = await receipt.started;
+  assert.equal(secondWrite.revision, 1); assert.equal(server.cloud.revision, 2);
+  assert.deepEqual(Object.keys(Codec.unpackSnapshot(secondWrite.snapshot)).sort(), [KEY, CODE].sort());
+  const returned = documentFixture(server, outgoing.persisted()); installExpedition(returned);
+  await returned.c.MKTYCloud.load();
+  assert.equal(returned.read(CODE), '1234567890'); assert.equal(returned.read(REVISION), '1');
+  assert.equal(returned.read(DIRTY), 'yes');
+  assert(returned.c.document.querySelector('#cloudSaveStatus button'));
+  const blockedCalls = server.calls.length;
+  await assert.rejects(waitForCloud(returned.page, 'saved', {timeout: 20, polling: 1}), /not acknowledged/);
+  assert.equal(server.calls.length, blockedCalls, 'The post-barrier lost receipt remains a genuine conflict');
+  receipt.release(); await waitForCloud(outgoing.page, 'saved', {polling: 1});
+
+  const preparedServer = mock(modern); preparedServer.cloud.revision = 0; preparedServer.cloud.snapshot = {};
+  const prepared = documentFixture(preparedServer); installExpedition(prepared);
+  await prepared.c.MKTYCloud.load(); prepared.write(CODE, '1234567890');
+  // The UI account-switch fixture persists the exact real controller checkpoint
+  // before its save barrier, making the later genuine pagehide write identical.
+  prepared.write(KEY, JSON.stringify(prepared.c.MKTYExpedition.snapshot()));
+  await waitForCloud(prepared.page, 'saved', {polling: 1});
+  const savedCalls = preparedServer.calls.length;
+  prepared.emit({type: 'pagehide'});
+  prepared.c.document.hidden = true; prepared.emit({type: 'document:visibilitychange'});
+  await prepared.c.MKTYCloud.flush();
+  assert.equal(preparedServer.calls.length, savedCalls, 'Pagehide after the prepared barrier starts no extra upload');
+  assert.equal(prepared.read(DIRTY), null); assert.equal(prepared.read(REVISION), '1');
+  const resumed = documentFixture(preparedServer, prepared.persisted()); installExpedition(resumed);
+  await resumed.c.MKTYCloud.load();
+  assert.equal(resumed.read(CODE), '1234567890'); assert.equal(resumed.read(REVISION), '1');
+  assert.equal(resumed.read(DIRTY), null); assert(!resumed.c.document.querySelector('#cloudSaveStatus button'));
+  assert.equal(preparedServer.cloud.revision, 1);
+  assert.equal(Codec.unpackSnapshot(preparedServer.cloud.snapshot)[CODE], '1234567890');
+  assert.equal(await waitForCloud(resumed.page, 'saved', {polling: 1}), true);
+}
 // Pinned Playwright 1.58.2's predicate loop, independent of browser execution:
 // https://github.com/microsoft/playwright/blob/v1.58.2/packages/playwright-core/src/server/frames.ts#L1400-L1416
 function playwrightPoll(predicate, schedule) {
@@ -219,6 +289,7 @@ function playwrightPoll(predicate, schedule) {
     assert.equal(resumed.read(DIRTY), null);
     assert(!resumed.c.document.querySelector('#cloudSaveStatus button'));
     assert.equal(await waitForCloud(resumed.page, 'saved', {polling: 1}), true);
+    await idleExpeditionReload(modern);
   }
   // A request that never answers cannot defeat the helper's overall deadline.
   const late = deferred(); let lateChecks = 0;
@@ -227,5 +298,5 @@ function playwrightPoll(predicate, schedule) {
   let checks = 0;
   await assert.rejects(waitForCloud({evaluate: async () => {checks++; return false;}}, 'conflict', {timeout: 10, polling: 1}), /not acknowledged/);
   const stoppedAt = checks; await turn(); assert.equal(checks, stoppedAt, 'No polling continues after timeout');
-  console.log('PASS: legacy/compact actual-client in-flight save acknowledgements, false async predicate reproduction, stale-writer conflicts, lost-ack reload recovery, pre-reload acknowledgement, load/edit protection and bounded waits');
+  console.log('PASS: legacy/compact actual-client in-flight save acknowledgements, false async predicate reproduction, stale-writer conflicts, lost-ack reload recovery, pre-reload acknowledgement, actual expedition pagehide red/green, load/edit protection and bounded waits');
 })().catch(error => {console.error(error); process.exitCode = 1;});
