@@ -76,6 +76,11 @@ Automatic pixel ratio is capped and reduced when sustained frame timing is slow.
 The first software-GPU benchmark exposed expensive full-scene shadow sampling.
 That path was removed in favor of contact decals and vertex-baked terrain AO;
 small distant bolts use fewer triangles while the character keeps its mesh detail.
+Opaque character surfaces are merged per rigid animated part rather than per
+primitive; the head, arms, legs and tail retain their separate animation. Rough
+terrain, rocks and the Earth use vertex lighting, while station metal, glass and
+the mascot keep their surface materials. The reproducible benchmark records all
+observed stalls and includes automation dispatch overhead in the input result.
 
 Browser verification uses Chromium mobile emulation with software WebGL. Physical
 Telegram Android/iOS tests still require representative devices: sustained frame

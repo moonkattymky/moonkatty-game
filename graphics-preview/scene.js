@@ -45,8 +45,8 @@ export async function buildScene(renderer){
     amber:new T.MeshBasicMaterial({color:'#ffba40',toneMapped:false}),
     cyan:new T.MeshBasicMaterial({color:'#57f4ff',toneMapped:false}),
     solar:new T.MeshStandardMaterial({color:'#123357',metalness:.6,roughness:.32}),
-    soil:new T.MeshStandardMaterial({color:'#abb2ba',map:regolith,roughness:1}),
-    rock:new T.MeshStandardMaterial({color:'#687078',roughness:1,flatShading:true})
+    soil:new T.MeshLambertMaterial({color:'#abb2ba',map:regolith}),
+    rock:new T.MeshLambertMaterial({color:'#687078',flatShading:true})
   };
   // Fine panel seams and wear belong to the surface, while bevels and hardware are geometry.
   const metalC=document.createElement('canvas');metalC.width=metalC.height=256;const mc=metalC.getContext('2d');mc.fillStyle='#e5e8e6';mc.fillRect(0,0,256,256);mc.strokeStyle='#99a3a5';mc.lineWidth=1;mc.strokeRect(5,5,246,246);mc.strokeStyle='#bdc6c5';mc.strokeRect(8,8,240,240);for(const x of [14,242])for(const y of [14,242]){mc.fillStyle='#737e80';mc.beginPath();mc.arc(x,y,1.6,0,Math.PI*2);mc.fill();}for(let i=0;i<70;i++){mc.strokeStyle=i%2?'#cad0cd':'#f2f4f0';mc.beginPath();const x=(i*37)%256,y=(i*71)%256;mc.moveTo(x,y);mc.lineTo(x+3+(i%9),y+.8);mc.stroke();}const metalTex=new T.CanvasTexture(metalC);metalTex.colorSpace=T.SRGBColorSpace;mat.white.map=metalTex;mat.white.envMapIntensity=1.4;mat.gold.envMapIntensity=1.6;
@@ -139,7 +139,7 @@ export async function buildScene(renderer){
   for(let i=0;i<19;i++){const x=300+i*24,y=160+Math.sin(i*.43)*80;const g=sk.createRadialGradient(x,y,0,x,y,105);g.addColorStop(0,i%2?'rgba(48,87,152,.17)':'rgba(114,51,162,.16)');g.addColorStop(1,'rgba(8,17,35,0)');sk.fillStyle=g;sk.fillRect(x-105,y-105,210,210);}
   for(let i=0;i<1400;i++){const x=seeded()*1024,y=seeded()*512,s=seeded()*1.3+.2;sk.fillStyle=`rgba(190,224,255,${.22+seeded()*.65})`;sk.fillRect(x,y,s,s);}
   const skyTex=new T.CanvasTexture(skyC);skyTex.colorSpace=T.SRGBColorSpace;const sky=mesh(new T.SphereGeometry(400,32,16),new T.MeshBasicMaterial({map:skyTex,side:T.BackSide,fog:false}),scene);sky.rotation.y=1.5;
-  const earth=mesh(new T.SphereGeometry(29,48,32),new T.MeshStandardMaterial({map:earthTex,roughness:.94,metalness:0,emissive:'#174470',emissiveIntensity:.42,fog:false}),scene,30,41,-149);earth.rotation.y=-1.8;earth.rotation.z=.13;
+  const earth=mesh(new T.SphereGeometry(29,48,32),new T.MeshLambertMaterial({map:earthTex,emissive:'#174470',emissiveIntensity:.42,fog:false}),scene,30,41,-149);earth.rotation.y=-1.8;earth.rotation.z=.13;
   const atmosphere=mesh(new T.SphereGeometry(29.55,40,24),new T.ShaderMaterial({transparent:true,depthWrite:false,side:T.BackSide,uniforms:{glow:{value:new T.Color('#2d90ed')}},vertexShader:'varying vec3 n;varying vec3 v;void main(){vec4 p=modelViewMatrix*vec4(position,1.0);n=normalize(normalMatrix*normal);v=normalize(-p.xyz);gl_Position=projectionMatrix*p;}',fragmentShader:'uniform vec3 glow;varying vec3 n;varying vec3 v;void main(){float a=pow(1.0-abs(dot(normalize(n),normalize(v))),3.5);gl_FragColor=vec4(glow,a*.65);}'}),scene,30,41,-149);
 
   characterParts=true;const cat=new T.Group();scene.add(cat);const suit=new T.Group();cat.add(suit);
@@ -168,6 +168,28 @@ export async function buildScene(renderer){
   for(const side of [-1,1]){const earpiece=cyl(helmet,mat.white,side*.69,.035,0,.23,.12);earpiece.rotation.z=Math.PI/2;const earring=ring(helmet,mat.gold,side*.764,.035,0,.18);earring.rotation.y=Math.PI/2;box(helmet,mat.gold,side*.72,-.14,-.14,.11,.16,.25);}
   const glint=new T.Mesh(new T.SphereGeometry(.766,16,8,.55,.19,.67,.48),new T.MeshBasicMaterial({color:'#d9f7ff',transparent:true,opacity:.25,depthWrite:false}));glint.scale.z=.925;helmet.add(glint);
   const tail=new T.Group();tail.position.set(0,.95,-.5);suit.add(tail);const tc=new T.CatmullRomCurve3([new T.Vector3(0,0,0),new T.Vector3(-.45,-.11,-.6),new T.Vector3(-.75,.05,-.86),new T.Vector3(-.88,.49,-.89)]);mesh(new T.TubeGeometry(tc,24,.18,10,false),fur,tail);ball(tail,fur,-.88,.49,-.89,.19);
+  // Merge opaque surfaces within each rigid rig part. Limbs still animate separately;
+  // eyes, ears, seams and material boundaries retain their original mesh detail.
+  function mergeRigidPart(part){
+    const batches=new Map();
+    for(const o of part.children){
+      if(!o.isMesh||Array.isArray(o.material)||o.material.transparent)continue;
+      const list=batches.get(o.material)||[];list.push(o);batches.set(o.material,list);
+    }
+    for(const [material,list]of batches){
+      if(list.length<2)continue;
+      const transformed=list.map(o=>{o.updateMatrix();const g=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();return g.applyMatrix4(o.matrix);});
+      const merged=new T.BufferGeometry();
+      for(const name of ['position','normal','uv']){
+        const size=name==='uv'?2:3,count=transformed.reduce((sum,g)=>sum+g.getAttribute(name).array.length,0),values=new Float32Array(count);let offset=0;
+        for(const g of transformed){const array=g.getAttribute(name).array;values.set(array,offset);offset+=array.length;}
+        merged.setAttribute(name,new T.BufferAttribute(values,size));
+      }
+      merged.computeBoundingSphere();part.add(new T.Mesh(merged,material));
+      list.forEach(o=>o.removeFromParent());transformed.forEach(g=>g.dispose());
+    }
+  }
+  for(const part of [suit,...limbs.legs,...limbs.arms,head,helmet,tail])mergeRigidPart(part);
   const catShadow=contact(scene,0,12,3.2,2.0);
   cat.traverse(o=>{if(o.isMesh&&!o.material.transparent)o.receiveShadow=true;});
   function animateCat(time,speed){const walk=clamp(speed/4.5,0,1),a=Math.sin(time*8.5)*.48*walk;limbs.legs[0].rotation.x=a;limbs.legs[1].rotation.x=-a;limbs.arms[0].rotation.x=-a*.65;limbs.arms[1].rotation.x=a*.65;suit.position.y=Math.abs(Math.sin(time*8.5))*.065*walk;tail.rotation.y=Math.sin(time*2.1)*.1;head.rotation.z=Math.sin(time*1.7)*.012;catShadow.position.set(cat.position.x,floorHeight(cat.position.x,cat.position.z)+.02,cat.position.z);}

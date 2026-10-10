@@ -9,7 +9,10 @@ The scene uses actual WebGL2 geometry throughout: walkable lunar terrain, reacto
 parabolic antenna, generator, an open airlock, a rover, solar arrays, and a rigged
 tabby astronaut with a striped tail. Camera yaw is unrestricted. Station/character
 contact shadows and terrain vertex AO avoid full-scene shadow-map sampling. Repeated
-station parts are instanced; distant bolts use lighter geometry. This is the first authored 3D model of the mascot;
+station parts are instanced; distant bolts use lighter geometry. Opaque mascot
+surfaces are merged within each animated rig part, retaining their geometry and
+materials. Rough terrain and rocks use vertex-lit shading with baked AO; station
+metal, glass and the mascot keep their detailed surface materials. This is the first authored 3D model of the mascot;
 its modeling/material fidelity is still below the cinematic reference.
 
 ## Controls
@@ -52,6 +55,11 @@ composition and are resized/re-encoded to WebP.
 Run `node tests/open-world-graphics-ui.cjs` for real-render checks. Use
 `CHROMIUM_PATH` if a non-default Playwright executable is needed. The full
 repository regression suite remains `npm test`.
+
+`tools/record-open-world-preview.cjs` records actual touch-operated mobile footage.
+`tools/benchmark-open-world-preview.cjs` measures cold loading under a defined
+network/CPU throttle and interaction afterward. Both report their software-GPU
+environment explicitly; neither substitutes for physical Telegram device tests.
 
 Production chapter integration is deliberately pending the decisions documented
 in `docs/OPEN_WORLD_GRAPHICS_20261010.md`.
