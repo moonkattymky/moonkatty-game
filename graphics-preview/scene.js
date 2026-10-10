@@ -114,6 +114,7 @@ export async function buildScene(renderer){
 
   const airlock=group(10,0,0);const shellProfile=[new T.Vector2(3.15,-3.4),new T.Vector2(3.95,-3.4),new T.Vector2(3.95,3.4),new T.Vector2(3.15,3.4)];const shell=mesh(new T.LatheGeometry(shellProfile,48),mat.white,airlock,0,3.5,0);shell.rotation.x=Math.PI/2;
   for(const z of [-3.4,3.4]){ring(airlock,mat.gold,0,3.5,z,3.52);ring(airlock,mat.black,0,3.5,z+.12,3.28);ring(airlock,mat.amber,0,3.5,z+.18,3.18);}
+  for(let i=0;i<12;i++){const a=.14+i*(Math.PI-.28)/11,x=Math.cos(a)*4.0,y=3.5+Math.sin(a)*4.0;const seam=box(airlock,mat.steel,x,y,0,.045,.065,6.3);seam.rotation.z=a+Math.PI/2;const clasp=box(airlock,mat.black,x,y,3.4,.35,.2,.43);clasp.rotation.z=a+Math.PI/2;ball(airlock,mat.gold,x,y,3.65,.085);}
   box(airlock,mat.black,0,.48,0,6,.5,6.8);box(airlock,mat.steel,0,.72,0,5.8,.1,6.7);
   box(airlock,mat.white,0,3.45,-3.6,6.5,5.9,.3);box(airlock,mat.gold,0,3,-3.41,2.8,4.2,.1);box(airlock,mat.black,0,2.9,-3.29,2.6,3.8,.13);box(airlock,mat.amber,0,4.45,-3.18,2,.12,.08);
   for(const x of [-2.95,2.95]){box(airlock,mat.steel,x,2.2,0,.32,3,4.8);for(const z of [-2,0,2])box(airlock,mat.amber,x*.96,3.5,z,.08,2.8,.22);box(airlock,mat.white,x*.89,1.5,-1,.8,1.5,1.1);box(airlock,mat.cyan,x*.83,2.24,-.65,.53,.05,.61);}
