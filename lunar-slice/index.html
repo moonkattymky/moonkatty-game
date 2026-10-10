@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><meta name="theme-color" content="#0b1825"><title>MOONKATTY · Lunar Observatory</title><link rel="stylesheet" href="./style.css"></head>
+<body><canvas id="world" aria-label="Трёхмерная лунная станция. WASD — движение, перетаскивание — камера."></canvas>
+<div id="loading"><div class="loading-mark">M</div><p>MOONKATTY</p><span>Подготавливаем лунную станцию…</span></div>
+<header><div class="brand"><span class="emblem">M</span><div>MOONKATTY<small>ЛУННАЯ ОБСЕРВАТОРИЯ</small></div></div><div class="status"><i></i> ВИЗУАЛЬНЫЙ ПРОТОТИП <b>01</b></div><button id="menu" aria-label="Открыть управление">☰</button></header>
+<div class="location"><span>MARE TRANQUILLITATIS</span><strong>Добро пожаловать домой.</strong><p>Исследуйте станцию и осмотритесь вокруг</p></div>
+<div id="reticle" aria-hidden="true"><i></i></div>
+<div class="bottom-hud"><div class="coordinates"><b>SECTOR 01</b><span id="coords">00.0 · 00.0</span></div><div class="guide"><span>W A S D</span> движение <span>↔</span> камера <span>колесо</span> приближение</div><div class="actions"><button id="photo" aria-label="Скрыть интерфейс">КАДР</button><button id="home" aria-label="Вернуть исходную камеру">⌖</button></div></div>
+<div id="stick" aria-label="Сенсорный джойстик"><div></div></div>
+<div id="modal" hidden><section><small>MOONKATTY / 3D</small><h1>Лунная обсерватория</h1><p>Это самостоятельная прогулка по новой станции. Вращайте камеру на 360°, исследуйте дорожки и кристаллы.</p><dl><dt>Компьютер</dt><dd>WASD / стрелки — идти<br>Перетаскивание — осмотреться<br>Колесо — приблизить камеру</dd><dt>Телефон</dt><dd>Левый джойстик — идти<br>Правая часть экрана — камера<br>Два пальца — приближение</dd></dl><button id="quality">Качество: высокое</button><button id="resume">Продолжить прогулку</button></section></div>
+<div class="error" id="error" hidden></div><script type="module" src="./app.js"></script></body></html>

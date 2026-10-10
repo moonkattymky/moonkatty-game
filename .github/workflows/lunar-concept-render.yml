@@ -1,0 +1,39 @@
+name: Render isolated lunar observatory concept
+on:
+  push:
+    branches:
+      - 'visual/lunar-concept-20261010'
+    paths:
+      - 'lunar-slice/**'
+      - '.github/workflows/lunar-concept-render.yml'
+permissions:
+  contents: read
+concurrency:
+  group: lunar-concept-render-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - name: Check new isolated scene source
+        run: node --check lunar-slice/world.js && node --check lunar-slice/hero.js && node --check lunar-slice/app.js && node --check lunar-slice/tests/render.cjs
+      - name: Render real WebGL frames and exercise local controls
+        run: node lunar-slice/tests/render.cjs
+      - name: Preserve new visual evidence without deployment
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lunar-concept-${{ github.sha }}
+          path: /tmp/moonkatty-lunar-concept
+          retention-days: 7
+          if-no-files-found: error
