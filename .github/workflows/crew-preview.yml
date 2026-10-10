@@ -1,0 +1,48 @@
+name: Review artifacts - rebuilt crew scene
+on:
+  pull_request:
+    paths:
+      - 'field-art.js'
+      - 'art/lunar-worksite-*'
+      - 'art/life2-crew.webp'
+      - 'tests/crew-workshop.cjs'
+      - 'tests/fixtures/pr53-field-art.js'
+      - 'tools/render-crew-preview.cjs'
+      - '.github/workflows/crew-preview.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: crew-preview-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  crew-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - name: Check out exact PR53 comparison tree
+        run: |
+          test "$(git rev-parse 2e15ef6417b92996f5678550a9b2319c53931f4b^{tree})" = "5d54617da8e2924d5af4066fd1396a017a7999cc"
+          git worktree add --detach /tmp/moonkatty-pr53-before 2e15ef6417b92996f5678550a9b2319c53931f4b
+      - name: Keep original PR53 resource guard and verify new crew invariants
+        run: node tests/lunar-worksite.cjs && node tests/crew-workshop.cjs
+      - name: Render RU EN AR before and after through real Chapter 2 gameplay
+        run: node tools/render-crew-preview.cjs --before=/tmp/moonkatty-pr53-before --out=/tmp/moonkatty-crew-preview
+      - name: Retain browser evidence without deployment
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: moonkatty-crew-preview-${{ github.sha }}
+          path: /tmp/moonkatty-crew-preview
+          retention-days: 7
+          if-no-files-found: warn
