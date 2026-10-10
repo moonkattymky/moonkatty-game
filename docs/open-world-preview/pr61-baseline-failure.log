@@ -1,0 +1,10 @@
+PASS preview-entry-source.cjs (0s)
+FAIL preview-entry-ui.cjs (44s)
+page.evaluate: TypeError: Cannot read properties of undefined (reading 'type')
+    at eval (eval at evaluate (:290:30), <anonymous>:1:52)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+    at /workspace/scratch/423c8b025fa4/moonkatty-pr61-compat/tests/preview-entry-ui.cjs:543:27
+
+
+1/2 passed
