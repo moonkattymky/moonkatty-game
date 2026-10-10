@@ -143,12 +143,12 @@ async function idleExpeditionReload(modern) {
   assert.deepEqual(Object.keys(Codec.unpackSnapshot(secondWrite.snapshot)).sort(), [KEY, CODE].sort());
   const returned = documentFixture(server, outgoing.persisted()); installExpedition(returned);
   await returned.c.MKTYCloud.load();
-  assert.equal(returned.read(CODE), '1234567890'); assert.equal(returned.read(REVISION), '1');
-  assert.equal(returned.read(DIRTY), 'yes');
-  assert(returned.c.document.querySelector('#cloudSaveStatus button'));
-  const blockedCalls = server.calls.length;
-  await assert.rejects(waitForCloud(returned.page, 'saved', {timeout: 20, polling: 1}), /not acknowledged/);
-  assert.equal(server.calls.length, blockedCalls, 'The post-barrier lost receipt remains a genuine conflict');
+  assert.equal(returned.read(CODE), '1234567890'); assert.equal(returned.read(REVISION), '2');
+  assert.equal(returned.read(DIRTY), null);
+  assert(!returned.c.document.querySelector('#cloudSaveStatus button'));
+  const acknowledgedCalls = server.calls.length;
+  assert.equal(await waitForCloud(returned.page, 'saved', {polling: 1}), true);
+  assert.equal(server.calls.length, acknowledgedCalls, 'An exact committed pagehide checkpoint needs no second upload');
   receipt.release(); await waitForCloud(outgoing.page, 'saved', {polling: 1});
 
   const preparedServer = mock(modern); preparedServer.cloud.revision = 0; preparedServer.cloud.snapshot = {};
@@ -258,8 +258,8 @@ function playwrightPoll(predicate, schedule) {
     assert(loading.c.document.querySelector('#cloudSaveStatus button'));
 
     // Reload can destroy a visibility-triggered write's acknowledgement after
-    // the server commits. That durable disk image must offer recovery, not
-    // silently overwrite remote state or pretend the save is acknowledged.
+    // the server commits. A fresh validated read of the exact durable checkpoint
+    // is sufficient acknowledgement without restoring or uploading any data.
     const reloadServer = mock(modern);
     reloadServer.cloud.revision = 0; reloadServer.cloud.snapshot = {};
     const outgoing = documentFixture(reloadServer);
@@ -272,14 +272,13 @@ function playwrightPoll(predicate, schedule) {
     const interrupted = documentFixture(reloadServer, outgoing.persisted());
     await interrupted.c.MKTYCloud.load();
     assert.equal(interrupted.read(CODE), '5555555555');
-    assert.equal(interrupted.read(REVISION), null);
-    assert.equal(interrupted.read(DIRTY), 'yes');
-    assert(interrupted.c.document.querySelector('#cloudSaveStatus button'));
+    assert.equal(interrupted.read(REVISION), '1');
+    assert.equal(interrupted.read(DIRTY), null);
+    assert(!interrupted.c.document.querySelector('#cloudSaveStatus button'));
     const callsBefore = reloadServer.calls.length;
-    await assert.rejects(waitForCloud(interrupted.page, 'saved', {timeout: 20, polling: 1}), /not acknowledged/);
-    assert.equal(reloadServer.calls.length, callsBefore, 'A reload conflict cannot be flushed away');
-    // A fixture that intends to continue writing must await the original save
-    // before reload, so the next document inherits its acknowledged revision.
+    assert.equal(await waitForCloud(interrupted.page, 'saved', {polling: 1}), true);
+    assert.equal(reloadServer.calls.length, callsBefore, 'Exact reload acknowledgement does not upload again');
+    // Receiving the original receipt is still the ordinary pre-reload barrier.
     lostReceipt.release();
     await waitForCloud(outgoing.page, 'saved', {polling: 1});
     const resumed = documentFixture(reloadServer, outgoing.persisted());

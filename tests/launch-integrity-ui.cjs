@@ -26,7 +26,8 @@ await p.evaluate(()=>{for(let i=1;i<=9;i++)localStorage.setItem('mkty_life'+i,'c
 // document destruction. Seed the actual idle expedition checkpoint too: its
 // pagehide handler otherwise creates a new dirty key after this save barrier.
 // Establish the first writer before deliberately reloading.
-// Lost-ack reloads correctly retain a conflict; cloud-acknowledgement.cjs covers it.
+// Exact lost-ack reloads reconcile metadata; divergent saves retain a choice.
+// Separate cloud acknowledgement suites cover both cases.
 await saved(p,'seeded account101 before account switch');assert.equal(cloud.get(101).snapshot.mkty_life1_memory_code,'1234567890');
 await p.evaluate(()=>sessionStorage.setItem('audit-account','202'));
 await p.reload();await p.waitForFunction(()=>MKTYRewards.getLastPlayer()?.telegram_id===202);assert.deepEqual(await p.evaluate(()=>Array.from({length:9},(_,i)=>localStorage.getItem('mkty_life'+(i+1)))),Array(9).fill(null));assert.equal(await p.evaluate(()=>localStorage.getItem('mkty_life1_memory_code')),null);
