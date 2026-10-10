@@ -122,8 +122,16 @@ if(n===3)s.trim=0;if(n===4)s.sites=[];if(n===5){s.load=0;s.diagnosed=false;s.iso
  function restore(v,n,stage,seed){if(v?.version===1)return restoreLegacy(v,n,stage,seed);if(v?.version!==2||typeof v.complete!=='boolean')return null;const base=restoreLegacy({...v,version:1,complete:false},n,stage,seed);if(!base)return null;const s={...base,...JSON.parse(JSON.stringify(v))},ints=(a,max)=>Array.isArray(a)&&a.every(i=>Number.isInteger(i)&&i>=0&&i<=max)&&new Set(a).size===a.length;
   if(!Number.isInteger(s.detections)||s.detections<0)return null;if(s.mods===undefined)s.mods={};if(!s.mods||typeof s.mods!=='object'||JSON.stringify(cleanMods(s.mods))!==JSON.stringify(s.mods))return null;
   const I=(v,a,z)=>Number.isInteger(v)&&v>=a&&v<=z;
-  if(n===10&&(!I(s.turn,0,1000)||!I(s.band,0,4)||!I(s.fragments,0,decodeNeed)||!Number.isFinite(s.noise)||s.noise<0||s.noise>100||!I(s.charges,0,8)||typeof s.filter!=='boolean'||!Array.isArray(s.log)||s.log.length>12||![null,'echo'].includes(s.event)||![null,'answer','silent'].includes(s.choice)||s.event&&s.choice||s.failed!==undefined&&typeof s.failed!=='boolean'||s.failed&&s.noise<100))return null;
-  if(n===11&&(!I(s.turn,0,1000)||!I(s.home,0,gateShips)||!Number.isFinite(s.stability)||s.stability<0||s.stability>GATE_BASE+40||!I(s.charges,0,8)||!Array.isArray(s.log)||s.log.length>12||s.failed!==undefined&&typeof s.failed!=='boolean'||s.failed&&s.stability>0))return null;
+  // The sixth fragment wins before noisy() clamps failure. It adds 7 below 100;
+  // six hits total 42 and jams/misses/answer add multiples of 3, so the maximum
+  // completed noise is 105. Answer's 99 cap occurs at three fragments and cannot
+  // lead to completion. Only 102/105 extend the existing finite 0..100 envelope.
+  if(n===10&&(!I(s.turn,0,1000)||!I(s.band,0,4)||!I(s.fragments,0,decodeNeed)||!Number.isFinite(s.noise)||s.noise<0||s.noise>100&&(!s.complete||![102,105].includes(s.noise))||!I(s.charges,0,8)||typeof s.filter!=='boolean'||!Array.isArray(s.log)||s.log.length>12||![null,'echo'].includes(s.event)||![null,'answer','silent'].includes(s.choice)||s.event&&s.choice||s.failed!==undefined&&typeof s.failed!=='boolean'||s.failed&&s.noise<100))return null;
+  // A final launch spends 2 from positive stability and wins before collapse.
+  // Every cost is integer, so newly accepted negatives must stay on the exact
+  // starting modifier's numeric lattice. Integer starts permit only -1.
+  const gateStart=GATE_BASE+(s.mods.stability||0),gateBelow=gateStart-Math.ceil(gateStart);
+  if(n===11&&(!I(s.turn,0,1000)||!I(s.home,0,gateShips)||!Number.isFinite(s.stability)||s.stability<0&&(!s.complete||![gateBelow,gateBelow-1].includes(s.stability))||s.stability>GATE_BASE+40||!I(s.charges,0,8)||!Array.isArray(s.log)||s.log.length>12||s.failed!==undefined&&typeof s.failed!=='boolean'||s.failed&&s.stability>0))return null;
   if(n===3&&(!Number.isFinite(s.trim)||Math.abs(s.trim)>20||s.trails.some(t=>!Number.isFinite(t.trim)||Math.abs(t.trim)>20||!Number.isFinite(t.wind)||Math.abs(t.wind)>15||![3.2,5,6.2].includes(t.gravity))))return null;
   if(n===4&&(!ints(s.sites,34)||s.pad!==(s.sites[0]??null)||s.sites.length>layout(s).requiredSites||s.sites.some(i=>!validSite(s,i))||s.sites.length>1&&footprint(s.sites[0]).some(i=>footprint(s.sites[1]).includes(i))))return null;
   if(n===5&&(!Number.isInteger(s.load)||s.load<0||s.load>3||typeof s.diagnosed!=='boolean'||!Number.isInteger(s.isolated)||s.isolated< -1||s.isolated>2||s.isolated!==-1&&!s.diagnosed))return null;

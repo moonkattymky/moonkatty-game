@@ -94,7 +94,7 @@ function leaveMission(id){
 function show(id){
  if(activeCinematic&&activeCinematic.id!==id)activeCinematic.cleanup();
  window.MKTYCampaign?.save();
- window.MKTYExpedition?.onScreen(id);window.MKTYField?.onScreen(id);
+ window.MKTYExpedition?.onScreen(id);window.MKTYField?.onScreen(id);window.MKTYStory?.onScreen(id);
  document.querySelectorAll('.mission-screen.active').forEach(s=>{if(s.id!==id)leaveMission(s.id);});
  const previous=document.querySelector('.screen.active');
  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -133,6 +133,16 @@ function refreshLife1Geometry(){
  ensureLife1WalkablePosition();
 }
 new ResizeObserver(refreshLife1Geometry).observe($('life1World'));
+// screenEnter transforms the mission without resizing its layout box, so
+// ResizeObserver alone can retain the scaled entrance geometry indefinitely.
+// Read once after the transform ends (or is cancelled, e.g. reduced motion).
+function settleLife1EntranceGeometry(event){
+ const mission=$('mission1');
+ if(event.target!==mission||event.animationName!=='screenEnter'||!mission.classList.contains('active'))return;
+ refreshLife1Geometry();
+}
+$('mission1').addEventListener('animationend',settleLife1EntranceGeometry);
+$('mission1').addEventListener('animationcancel',settleLife1EntranceGeometry);
 function renderLife1Player(){
  if(!l1Player)return;
  if(l1RenderCache.x!==l1PX){l1Player.style.left=l1PX+'%';l1RenderCache.x=l1PX;}

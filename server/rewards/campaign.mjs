@@ -8,8 +8,12 @@ import Flight from './models/expedition-model.mjs';
 const saveKey=/^mkty_(story_(plan_[1-9]_v1|history_[1-9])|operations_[1-9]_v1|campaign_checkpoint_[1-9]|field_finale_[89]_v1|legacy_v1|current_chapter|life1_(memory_code|code_[a-z_]+)|life3_(memory_verified|code_[a-z_]+|hint_[a-z_]+)|life9_coordinates|reactor5_checkpoint_v2|liftoff6_checkpoint_v1|expeditions_v1)$/;
 export function cleanSnapshot(value){
  if(!value||typeof value!=='object'||Array.isArray(value))throw Error('snapshot');
- const out={};for(const [k,v] of Object.entries(value))if(saveKey.test(k)&&typeof v==='string'&&v.length<180000)out[k]=v;
- if(JSON.stringify(out).length>350000)throw Error('snapshot');return out;
+ const out={};for(const [k,v] of Object.entries(value))if(saveKey.test(k)){
+  if(typeof v!=='string')throw Error('snapshot');
+  // Never acknowledge a partial save: valid flight traces can cross this limit.
+  if(v.length>=180000)throw Error('snapshot_too_large');out[k]=v;
+ }
+ if(JSON.stringify(out).length>350000)throw Error('snapshot_too_large');return out;
 }
 export function validateProof(run,proof){
  if(!run||!proof||proof.route!==run.route||!Array.isArray(proof.tasks)||proof.tasks.length!==8)throw Error('proof_required');

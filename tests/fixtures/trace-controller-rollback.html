@@ -1,0 +1,43 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Legacy trace-controller rollback regression</title>
+<style>.screen {display:none}.screen.active {display:block}#expViewport {width:390px;height:480px}</style>
+<div id="app"><button id="enterBtn">Home</button><div id="chapterList"></div></div>
+<script>
+// Only the browser clock/host integration is controlled. The controllers and both models below
+// are the actual shipped files, loaded without the new codec to simulate a controller rollback.
+const queuedTraceFrames = new Map();
+let traceFrameId = 0;
+window.requestAnimationFrame = fn => (queuedTraceFrames.set(++traceFrameId, fn), traceFrameId);
+window.cancelAnimationFrame = id => queuedTraceFrames.delete(id);
+window.show = id => {
+  document.querySelectorAll('.screen').forEach(node => node.classList.toggle('active', node.id === id));
+};
+window.traceRollback = {
+  frame(now) {
+    if (queuedTraceFrames.size !== 1) throw new Error('Expected exactly one active controller frame');
+    const callbacks = [...queuedTraceFrames.values()];
+    queuedTraceFrames.clear();
+    callbacks.forEach(fn => fn(now));
+  },
+  open() {
+    const kind = new URLSearchParams(location.search).get('kind');
+    const saved = JSON.parse(localStorage.getItem('trace-controller-checkpoint') || 'null');
+    if (!saved) return;
+    const task = {
+      chapter: 6, id: 0, fieldStage: 3, seed: kind === 'flight' ? 53 : 21,
+      contract: 'rescue', tier: 1, title: ['Проверка', 'Trace rollback'],
+      save: state => localStorage.setItem('trace-controller-checkpoint', JSON.stringify(state)),
+      exit() {}, complete() {throw new Error('Fixture unexpectedly completed');}
+    };
+    this.api = kind === 'flight' ? MKTYExpedition : MKTYField;
+    if (kind === 'flight') this.api.openStory(task, saved); else this.api.open(task, saved);
+  }
+};
+</script>
+<script src="/field-model.js"></script>
+<script src="/field-art.js"></script>
+<script src="/expedition-model.js"></script>
+<script src="/field-missions.js"></script>
+<script src="/expedition.js"></script>
+<script>traceRollback.open();</script>
