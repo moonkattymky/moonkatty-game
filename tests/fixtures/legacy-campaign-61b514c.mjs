@@ -2,37 +2,16 @@ import Plan from './models/story-plan.mjs';
 import Field from './models/field-model.mjs';
 import Board from './models/mission-rules.mjs';
 import Flight from './models/expedition-model.mjs';
-import Codec from './models/trace-codec.mjs';
 
 // Saves are untrusted resume data, never evidence for rewards. Wallet/identity/pending
 // operations cannot be written through this API. Revisions prevent silent lost updates.
 const saveKey=/^mkty_(story_(plan_[1-9]_v1|history_[1-9])|operations_[1-9]_v1|campaign_checkpoint_[1-9]|field_finale_[89]_v1|legacy_v1|current_chapter|life1_(memory_code|code_[a-z_]+)|life3_(memory_verified|code_[a-z_]+|hint_[a-z_]+)|life9_coordinates|reactor5_checkpoint_v2|liftoff6_checkpoint_v1|expeditions_v1)$/;
-export function cleanSnapshot(value,{packed=false}={}){
+export function cleanSnapshot(value){
  if(!value||typeof value!=='object'||Array.isArray(value))throw Error('snapshot');
- const out={};for(const [k,v] of Object.entries(value))if(saveKey.test(k)){
-  if(typeof v!=='string')throw Error('snapshot');
-  out[k]=v;
- }
- // Decode and canonicalize before the compare-and-swap. Never acknowledge a
- // partial save or strip replay evidence; compact storage requires explicit opt-in.
- if(packed)return snapshotTransport(out,true);
- // Decoder-first rollout/rollback: never create compact records until all
- // readers understand them. Preserve the legacy raw limits without truncation.
- const raw=snapshotTransport(out,false);
- if(Object.values(raw).some(v=>Codec.utf8Bytes(v)>=Codec.LIMITS.snapshotEntryBytes)||Codec.utf8Bytes(JSON.stringify(raw))>Codec.LIMITS.snapshotBytes)throw Error('snapshot_too_large');
- return raw;
-}
-function snapshotTransport(snapshot,packed){
- try{return packed?Codec.packSnapshot(snapshot):Codec.unpackSnapshot(snapshot);}
- catch(e){throw Error(/too_large/.test(String(e?.message))?'snapshot_too_large':'snapshot_transport_invalid');}
+ const out={};for(const [k,v] of Object.entries(value))if(saveKey.test(k)&&typeof v==='string'&&v.length<180000)out[k]=v;
+ if(JSON.stringify(out).length>350000)throw Error('snapshot');return out;
 }
 export function validateProof(run,proof){
- // Packing is transport only. Every replay below still uses all original rows,
- // with decoded budgets checked before any physics/action replay can begin.
- if(proof!==undefined&&proof!==null){
-  try{proof=Codec.unpackProof(proof);}
-  catch(e){throw Error(/too_large/.test(String(e?.message))?'proof_too_large':'proof_transport_invalid');}
- }
  if(!run||!proof||proof.route!==run.route||!Array.isArray(proof.tasks)||proof.tasks.length!==8)throw Error('proof_required');
  const p=Plan.fresh(run.life,Number(run.seed),run.edition),plan=Plan.plan(run.life,run.edition),seen=new Set();
  for(const item of proof.tasks){
@@ -68,7 +47,7 @@ function replayTrace(trace,act,tick){
   else throw Error('proof');
  }
 }
-export function createCampaign({rpc,pace,clock,compactWrites=false}){
+export function createCampaign({rpc,pace,clock}){
  return {
   async open(player,body){
    const life=Number(body.life);if(!Number.isInteger(life)||life<1||life>9)throw Error('life');
@@ -87,20 +66,10 @@ export function createCampaign({rpc,pace,clock,compactWrites=false}){
    if(clock().getTime()-Date.parse(run.started_at)<30000)throw Error('too_fast');
    await rpc('mkty_campaign_verified',{p_id:player.telegram_id,p_life:life,p_route:run.route});
   },
-  async cloud(player,body,{packed=false}={}){
-   let result;
-   if(body.snapshot===undefined)result=await rpc('mkty_cloud',{p_id:player.telegram_id});
-   else{
-    if(!Number.isSafeInteger(body.revision)||body.revision<0)throw Error('snapshot');
-    const snapshot=cleanSnapshot(body.snapshot,{packed:compactWrites===true});
-    result=await rpc('mkty_cloud',{p_id:player.telegram_id,p_expected:body.revision,p_snapshot:snapshot});
-   }
-   if(!Number.isSafeInteger(result?.revision)||result.revision<0||
-      (body.snapshot!==undefined&&!result.conflict&&result.revision<=body.revision))throw Error('snapshot');
-   // Old clients must never download a packed trace they cannot replay. This
-   // also applies to the authoritative snapshot returned by a CAS conflict.
-   if(result.snapshot!==undefined)return {...result,snapshot:snapshotTransport(result.snapshot,packed)};
-   return result;
+  async cloud(player,body){
+   if(body.snapshot===undefined)return rpc('mkty_cloud',{p_id:player.telegram_id});
+   if(!Number.isSafeInteger(body.revision)||body.revision<0)throw Error('snapshot');
+   return rpc('mkty_cloud',{p_id:player.telegram_id,p_expected:body.revision,p_snapshot:cleanSnapshot(body.snapshot)});
   }
  };
 }

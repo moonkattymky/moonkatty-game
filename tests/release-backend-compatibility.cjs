@@ -11,17 +11,9 @@ const golden=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/chapter1-p
 const source=file=>fs.readFileSync(path.join(root,file),'utf8');
 const plain=value=>JSON.parse(JSON.stringify(value));
 const turn=()=>new Promise(resolve=>setImmediate(resolve));
-// Only the source-only snapshot guard differs from the live campaign module.
-// Restore the exact old function in memory, then require the entire resulting
-// module to match main's Git hash. This tests the actual old truncation risk,
-// rather than accidentally certifying the undeployed source-only protection.
-const oldCleanSnapshot=`export function cleanSnapshot(value){
- if(!value||typeof value!=='object'||Array.isArray(value))throw Error('snapshot');
- const out={};for(const [k,v] of Object.entries(value))if(saveKey.test(k)&&typeof v==='string'&&v.length<180000)out[k]=v;
- if(JSON.stringify(out).length>350000)throw Error('snapshot');return out;
-}
-`;
-const legacyCampaign=source('server/rewards/campaign.mjs').replace(/export function cleanSnapshot\(value\)\{[\s\S]*?\n\}\n(?=export function validateProof)/,oldCleanSnapshot);
+// Exact published legacy modules remain immutable compatibility fixtures.
+const legacyCampaign=source('tests/fixtures/legacy-campaign-61b514c.mjs');
+const legacyCore=source('tests/fixtures/legacy-core-61b514c.mjs');
 function moduleURL(text,file,overrides={}){
  const {pathToFileURL}=require('node:url');
  const absolute=text.replace(/from\s+(['"])(\.\/[^'"]+)\1/g,(_match,_quote,relative)=>'from '+JSON.stringify(overrides[relative]||pathToFileURL(path.resolve(root,path.dirname(file),relative)).href));
@@ -37,11 +29,14 @@ const pinned={
  'server/migrations/20261007_social_verify.sql':'00969f82a67e1c49e28f77a5e7dc5a8a0f5e6e91',
  'supabase/migrations/20261007200800_reward_integrity_sessions.sql':'8fed546a14d081b82f818eb8b6c5c4ff5bffdc7f',
  'supabase/migrations/20261008201825_launch_campaign_integrity.sql':'0c4887e377bb53ea86358d2085a0661b191cfa95',
- 'story-plan.js':'e0638e84b51fbd3419d47d3fb3fcd19da4cee2d3'
+ 'story-plan.js':'e0638e84b51fbd3419d47d3fb3fcd19da4cee2d3',
+ 'tests/fixtures/legacy-field-model-61b514c.mjs':'0c1b77acad5de10e8d66ee1cb114e6b038da7e54',
+ 'tests/fixtures/legacy-rewards-client-61b514c.js':'5f1c33d03b493f6902722cc483c3c1726cd1ca07',
+ 'tests/fixtures/legacy-cloud-save-61b514c.js':'904b5341e9656dfa8ad5714e18fea02472889521'
 };
 function checkReleaseSources(){
  for(const [file,sha]of Object.entries(pinned)){
-  const bytes=file==='server/rewards/campaign.mjs'?Buffer.from(legacyCampaign):fs.readFileSync(path.join(root,file));
+  const bytes=file==='server/rewards/campaign.mjs'?Buffer.from(legacyCampaign):file==='server/rewards/core.mjs'?Buffer.from(legacyCore):fs.readFileSync(path.join(root,file));
   assert.equal(crypto.createHash('sha1').update('blob '+bytes.length+'\0').update(bytes).digest('hex'),sha,'legacy contract changed: '+file);
  }
  for(const file of ['20261009151834_trusted_campaign_routes.sql','20261009153246_atomic_submission_admission.sql'])assert(!fs.existsSync(path.join(root,'supabase/migrations',file)),'unapproved rollout migration is outside this client release');
@@ -109,8 +104,9 @@ async function database(){
    assert(sql);return Response.json((await db.query(sql,values)).rows);
   }catch(error){return Response.json({error:error.message},{status:500});}
  };
- const campaignURL=moduleURL(legacyCampaign,'server/rewards/campaign.mjs');
- const {createHandler}=await import(moduleURL(source('server/rewards/core.mjs'),'server/rewards/core.mjs',{'./campaign.mjs':campaignURL}));
+ const legacyFieldURL=moduleURL(source('tests/fixtures/legacy-field-model-61b514c.mjs'),'server/rewards/models/field-model.mjs');
+ const campaignURL=moduleURL(legacyCampaign,'server/rewards/campaign.mjs',{'./models/field-model.mjs':legacyFieldURL});
+ const {createHandler}=await import(moduleURL(legacyCore,'server/rewards/core.mjs',{'./campaign.mjs':campaignURL}));
  const noNetwork=()=>{throw Error('external network is forbidden in this fixture');};
  const handler=createHandler({url:'https://db.test',key:'synthetic-local-fixture-key',fetcher,tgFetcher:noNetwork,ytFetcher:noNetwork,verify:async initData=>({id:JSON.parse(new URLSearchParams(initData).get('user')).id}),clock:()=>now});
  return {db,handler,advance:ms=>{now=new Date(now.getTime()+ms);}};
