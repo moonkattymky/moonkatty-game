@@ -192,7 +192,7 @@ async function nativeWheelAudit(p,label){
  const before=await snap(p);
  // This independent short-portrait audit uses no focus, scrollIntoView, DOM
  // scrolling writes, or forced clicks. Normal controller tests remain separate.
- for(const selector of ['[data-field-slider="angle"]','[data-field-slider="power"]','[data-field-slider="trim"]','#fieldSubmit']){
+ for(const selector of ['[data-field-slider="angle"]','[data-field-slider="power"]','[data-field-slider="trim"]','#fieldSubmit','#fieldPause']){
   const control=p.locator(selector),attempts=[];
   const read=()=>control.evaluate(e=>{
    const box=r=>({left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height});
@@ -204,13 +204,20 @@ async function nativeWheelAudit(p,label){
      if(/auto|scroll|hidden|clip/.test(s.overflowY)){r.top=Math.max(r.top,b.top+a.clientTop);r.bottom=Math.min(r.bottom,b.top+a.clientTop+a.clientHeight);}
     }return r;
    };
-   const deck=e.closest('.field-deck'),panel=deck||document.getElementById('app'),header=document.querySelector('#fieldMission .field-head'),footer=document.querySelector('#fieldMission .field-footer');
-   const target=box(e.getBoundingClientRect()),head=box(header.getBoundingClientRect()),foot=box(footer.getBoundingClientRect());
+   const app=document.getElementById('app'),header=document.querySelector('#fieldMission .field-head'),footer=document.querySelector('#fieldMission .field-footer');
+   // Old compact fixtures scroll their clipped deck. The candidate's visible
+   // deck belongs to the ordinary app scroller; never assume a class scrolls.
+   let panel=null;const scrollAncestors=[];
+   for(let a=e.parentElement;a;a=a.parentElement){const css=getComputedStyle(a),scrollable=/auto|scroll/.test(css.overflowY)&&a.scrollHeight>a.clientHeight+.5;if(scrollable){scrollAncestors.push({id:a.id||a.className,overflowY:css.overflowY,scrollHeight:a.scrollHeight,clientHeight:a.clientHeight});panel??=a;}}
+   panel??=app;
+   const target=box(e.getBoundingClientRect()),head=box(header.getBoundingClientRect()),foot=box(footer.getBoundingClientRect()),headFixed=['sticky','fixed'].includes(getComputedStyle(header).position),footFixed=['sticky','fixed'].includes(getComputedStyle(footer).position);
    const visible=clip(e),area=intersection(box(panel.getBoundingClientRect()),clip(panel));
-   if(deck){visible.top=Math.max(visible.top,head.bottom);visible.bottom=Math.min(visible.bottom,foot.top);area.top=Math.max(area.top,head.bottom);area.bottom=Math.min(area.bottom,foot.top);}
-   const wheelArea=deck?area:intersection(head,area);
-   return{target,clip:visible,wheelArea,panel:{id:panel.id||panel.className,scrollTop:panel.scrollTop,scrollHeight:panel.scrollHeight,clientHeight:panel.clientHeight},header:head,footer:foot,
-    appScrollTop:document.getElementById('app').scrollTop,deckScrollTop:document.querySelector('#fieldMission .field-deck').scrollTop};
+   if(headFixed&&!header.contains(e))visible.top=Math.max(visible.top,head.bottom);
+   if(footFixed&&!footer.contains(e))visible.bottom=Math.min(visible.bottom,foot.top);
+   if(panel!==app){if(headFixed)area.top=Math.max(area.top,head.bottom);if(footFixed)area.bottom=Math.min(area.bottom,foot.top);}
+   const headerArea=intersection(head,area),wheelArea=panel===app&&headerArea.right>headerArea.left&&headerArea.bottom>headerArea.top?headerArea:area;
+   return{target,clip:visible,wheelArea,panel:{id:panel.id||panel.className,scrollTop:panel.scrollTop,scrollHeight:panel.scrollHeight,clientHeight:panel.clientHeight},scrollAncestors,header:{...head,position:getComputedStyle(header).position},footer:{...foot,position:getComputedStyle(footer).position},
+    appScrollTop:app.scrollTop,deckScrollTop:document.querySelector('#fieldMission .field-deck').scrollTop};
   });
   const wheel=async(g,delta,phase)=>{
    const a=g.wheelArea;assert(a.right>a.left&&a.bottom>a.top,label+' '+selector+' has a visible native wheel area');
@@ -229,8 +236,13 @@ async function nativeWheelAudit(p,label){
    attempts.push({phase,delta,before:g,after,motionObserved,polls,waitedMs:performance.now()-started,samples});return after;
   };
   let g=await read();
-  for(let i=0;g.panel.scrollTop>.5&&i<12;i++)g=await wheel(g,-220,'rewind-panel');
-  check(g.panel.scrollTop<=.5,label+' '+selector+' native wheel resets its scroll panel');
+  // Pause is checked at the end-of-page position reached for Execute, so a
+  // sticky header must stay genuinely reachable rather than passing at the top.
+  if(selector!=='#fieldPause'){
+   for(let i=0;g.panel.scrollTop>.5&&i<12;i++)g=await wheel(g,-220,'rewind-panel');
+   check(g.panel.scrollTop<=.5,label+' '+selector+' native wheel resets its scroll panel');
+  }
+  if(label.startsWith('after/'))check(g.panel.id==='app',label+' '+selector+' uses ordinary app scrolling, never an inner clipped deck');
   for(let i=0;i<12;i++){
    const t=g.target,c=g.clip;if(t.top>=c.top-.5&&t.bottom<=c.bottom+.5)break;
    const distance=t.top<c.top?t.top-c.top-4:t.bottom-c.bottom+4;
@@ -243,7 +255,7 @@ async function nativeWheelAudit(p,label){
  }
  const after=await snap(p),first=structuredClone(before),last=structuredClone(after);delete first.seconds;delete last.seconds;
  assert.deepEqual(last,first,label+' wheel-only navigation changes no gameplay input or trace');
- check(true,label+' every slider and Execute passes native-wheel five-point reachability');
+ check(true,label+' every slider, Execute and Pause passes native-wheel five-point reachability');
 }
 async function capture(p,variant,lang,view,screen){
  await p.evaluate(()=>{document.getElementById('app').scrollTop=0;document.getElementById('fieldMission').scrollTop=0;document.querySelector('#fieldMission .field-deck').scrollTop=0;window.scrollTo(0,0);});
@@ -280,21 +292,27 @@ async function graphics(p,label){
  await p.evaluate(()=>document.fonts.ready);
  const g=await p.locator('#fieldWorld>svg').evaluate(svg=>{
   const state=MKTYField.snapshot(),layout=FieldRules.layout(state),points=(trail,preview)=>Array.from({length:41},(_,i)=>FieldRules.flightPoint(trail.angle,trail.power,i/10,preview?FieldRules.condition(state):{wind:trail.wind||0,gravity:trail.gravity||4},preview?state.trim||0:trail.trim||0));
-  const box=b=>({x:b.x,y:b.y,width:b.width,height:b.height,right:b.x+b.width,bottom:b.y+b.height});
-  return{state,layout,expectedPreview:state.complete?null:points(state,true),expectedTrails:state.trails.map(trail=>points(trail,false)),
+  const box=b=>({x:b.x,y:b.y,width:b.width,height:b.height,right:b.x+b.width,bottom:b.y+b.height}),matrix=svg.getScreenCTM(),viewBox=svg.viewBox.baseVal,scaleX=Math.hypot(matrix.a,matrix.b),scaleY=Math.hypot(matrix.c,matrix.d);
+  const viewBoxCorners=[[viewBox.x,viewBox.y],[viewBox.x+viewBox.width,viewBox.y],[viewBox.x+viewBox.width,viewBox.y+viewBox.height],[viewBox.x,viewBox.y+viewBox.height]].map(([x,y])=>{const p=new DOMPoint(x,y).matrixTransform(matrix);return{x:p.x,y:p.y};}),left=Math.min(...viewBoxCorners.map(p=>p.x)),right=Math.max(...viewBoxCorners.map(p=>p.x)),top=Math.min(...viewBoxCorners.map(p=>p.y)),bottom=Math.max(...viewBoxCorners.map(p=>p.y));
+  const sceneSize={viewportWidth:innerWidth,viewportHeight:innerHeight,svgOuter:box(svg.getBoundingClientRect()),worldOuter:box(document.getElementById('fieldWorld').getBoundingClientRect()),viewBox:box(viewBox),screenCTM:{a:matrix.a,b:matrix.b,c:matrix.c,d:matrix.d,e:matrix.e,f:matrix.f},scaleX,scaleY,viewBoxCorners,renderedBounds:{left,top,right,bottom,width:right-left,height:bottom-top},renderedWidth:viewBox.width*scaleX,renderedHeight:viewBox.height*scaleY};
+  return{state,layout,sceneSize,expectedPreview:state.complete?null:points(state,true),expectedTrails:state.trails.map(trail=>points(trail,false)),
    renderer:svg.dataset.renderer,nodes:svg.querySelectorAll('*').length,filters:svg.querySelectorAll('filter').length,
    ids:[...svg.querySelectorAll('[id]')].map(e=>e.id),images:[...svg.querySelectorAll('image')].map(e=>e.getAttribute('href')),
    preview:[...svg.querySelectorAll('.trajectory-preview')].map(e=>e.getAttribute('d')),
    trails:[...svg.querySelectorAll('.trajectory-trail')].map(e=>e.getAttribute('d')),
    receiver:svg.querySelector('.trajectory-receiver')?.getAttribute('transform'),radius:svg.querySelector('.trajectory-target')?.getAttribute('r'),
    relay:svg.querySelector('.trajectory-relay')?.getAttribute('transform'),relayRadius:svg.querySelector('.trajectory-relay circle')?.getAttribute('r'),
-   labels:[...svg.querySelectorAll('text')].map(e=>{const plate=[...e.parentElement.children].find(n=>n.tagName.toLowerCase()==='rect'),style=getComputedStyle(e),paint=plate&&getComputedStyle(plate);let opacity=1;for(let n=plate;n;n=n.parentElement)opacity*=Number(getComputedStyle(n).opacity);return{text:e.textContent,textBounds:box(e.getBBox()),plateBounds:plate?box(plate.getBBox()):null,platePaint:paint?{fill:paint.fill,fillOpacity:Number(paint.fillOpacity),effectiveOpacity:opacity}:null,fontSize:style.fontSize,fontFamily:style.fontFamily,fontWeight:style.fontWeight,group:e.parentElement.getAttribute('class'),transform:e.parentElement.getAttribute('transform')};})
+   labels:[...svg.querySelectorAll('text')].map(e=>{const plate=[...e.parentElement.children].find(n=>n.tagName.toLowerCase()==='rect'),style=getComputedStyle(e),paint=plate&&getComputedStyle(plate);let opacity=1;for(let n=plate;n;n=n.parentElement)opacity*=Number(getComputedStyle(n).opacity);return{text:e.textContent,textBounds:box(e.getBBox()),plateBounds:plate?box(plate.getBBox()):null,platePaint:paint?{fill:paint.fill,fillOpacity:Number(paint.fillOpacity),effectiveOpacity:opacity}:null,fontSize:style.fontSize,physicalFontPixels:parseFloat(style.fontSize)*Math.hypot(e.getScreenCTM().c,e.getScreenCTM().d),physicalBounds:box(e.getBoundingClientRect()),fontFamily:style.fontFamily,fontWeight:style.fontWeight,group:e.parentElement.getAttribute('class'),transform:e.parentElement.getAttribute('transform')};})
   };
  });
  const s=g.state,b=g.layout;
  // Preserve measured text/plate bounds even if strict containment fails below.
  report.graphics.push({label,...g,burn:s.burn,complete:s.complete});report.labelBounds.push({label,labels:g.labels});
  check(g.renderer===MARKER,label+' rebuilt module is mounted');
+ if(g.sceneSize.viewportWidth<=320&&g.sceneSize.viewportHeight<=700){
+  const size=g.sceneSize;check(size.renderedWidth>=size.viewportWidth-2,label+' actual viewBox content fills the short-phone width: '+JSON.stringify(size));check(size.renderedHeight>=size.renderedWidth*.75-1,label+' actual viewBox content retains full 4:3 height: '+JSON.stringify(size));
+  for(const row of g.labels)check(row.physicalFontPixels>=11,label+' actual SVG label font is at least 11 physical CSS pixels: '+JSON.stringify(row));
+ }
  check(g.nodes<400&&g.filters===0&&new Set(g.ids).size===g.ids.length,label+' bounded scene DOM, no SVG filters, unique resource ids');
  assert.equal(g.receiver,`translate(${b.target.x} ${b.target.y})`,label+' capture center exactly matches actual browser FieldRules');
  assert.equal(+g.radius,b.target.radius,label+' capture radius exactly matches actual browser FieldRules');
