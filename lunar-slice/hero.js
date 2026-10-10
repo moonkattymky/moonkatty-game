@@ -74,15 +74,16 @@ export function createHero(){
     glow:new T.MeshStandardMaterial({color:'#ffe5a0',emissive:'#ffc257',emissiveIntensity:3.4,roughness:.2}),
     cyan:new T.MeshStandardMaterial({color:'#99f8ff',emissive:'#57cce7',emissiveIntensity:1.4}),
   };
-  const sphere=new T.SphereGeometry(1,28,18),smallSphere=new T.SphereGeometry(1,12,8);
+  const sphere=new T.SphereGeometry(1,18,10),faceSphere=new T.SphereGeometry(1,32,20),smallSphere=new T.SphereGeometry(1,10,6);
   function mesh(geo,m,g,x=0,y=0,z=0,sx=1,sy=sx,sz=sx){const o=new T.Mesh(geo,m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);o.castShadow=!m.transparent;o.receiveShadow=!m.transparent;g.add(o);return o;}
   const ell=(g,m,x,y,z,a,b=a,c=a)=>mesh(sphere,m,g,x,y,z,a,b,c);
+  const faceEll=(g,m,x,y,z,a,b=a,c=a)=>mesh(faceSphere,m,g,x,y,z,a,b,c);
   const bead=(g,m,x,y,z,a,b=a,c=a)=>mesh(smallSphere,m,g,x,y,z,a,b,c);
-  function roundedGeometry(w,h,d,r=.06){r=Math.min(r,w/2-.001,h/2-.001);const s=new T.Shape(),x=-w/2,y=-h/2;s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.quadraticCurveTo(x+w,y,x+w,y+r);s.lineTo(x+w,y+h-r);s.quadraticCurveTo(x+w,y+h,x+w-r,y+h);s.lineTo(x+r,y+h);s.quadraticCurveTo(x,y+h,x,y+h-r);s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);const b=Math.min(r*.4,d*.25);const geo=new T.ExtrudeGeometry(s,{depth:d-b*2,bevelEnabled:true,bevelThickness:b,bevelSize:b,bevelSegments:2,curveSegments:5,steps:1});geo.translate(0,0,-(d-b*2)/2);geo.computeVertexNormals();const uv=geo.attributes.uv,pp=geo.attributes.position;for(let i=0;i<uv.count;i++)uv.setXY(i,pp.getX(i)/w+.5,pp.getY(i)/h+.5);return geo;}
+  function roundedGeometry(w,h,d,r=.06){r=Math.min(r,w/2-.001,h/2-.001);const s=new T.Shape(),x=-w/2,y=-h/2;s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.quadraticCurveTo(x+w,y,x+w,y+r);s.lineTo(x+w,y+h-r);s.quadraticCurveTo(x+w,y+h,x+w-r,y+h);s.lineTo(x+r,y+h);s.quadraticCurveTo(x,y+h,x,y+h-r);s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);const b=Math.min(r*.4,d*.25);const geo=new T.ExtrudeGeometry(s,{depth:d-b*2,bevelEnabled:true,bevelThickness:b,bevelSize:b,bevelSegments:1,curveSegments:3,steps:1});geo.translate(0,0,-(d-b*2)/2);geo.computeVertexNormals();const uv=geo.attributes.uv,pp=geo.attributes.position;for(let i=0;i<uv.count;i++)uv.setXY(i,pp.getX(i)/w+.5,pp.getY(i)/h+.5);return geo;}
   const plate=(g,m,x,y,z,w,h,d,r=.06)=>mesh(roundedGeometry(w,h,d,r),m,g,x,y,z);
-  function ring(g,m,x,y,z,r,t=.04,sx=1,sy=1){return mesh(new T.TorusGeometry(r,t,8,48),m,g,x,y,z,sx,sy,1);}
-  function cylinder(g,m,x,y,z,r,h,rt=r){return mesh(new T.CylinderGeometry(rt,r,h,24,1),m,g,x,y,z);}
-  function tube(g,m,pts,r=.012,segments=30,sides=8){return mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts.map(p=>new T.Vector3(...p))),segments,r,sides,false),m,g);}
+  function ring(g,m,x,y,z,r,t=.04,sx=1,sy=1){return mesh(new T.TorusGeometry(r,t,6,r>.60?48:24),m,g,x,y,z,sx,sy,1);}
+  function cylinder(g,m,x,y,z,r,h,rt=r){return mesh(new T.CylinderGeometry(rt,r,h,16,1),m,g,x,y,z);}
+  function tube(g,m,pts,r=.012,segments=22,sides=6){return mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts.map(p=>new T.Vector3(...p))),segments,r,sides,false),m,g);}
   function rod(g,m,a,b,r=.02){const start=new T.Vector3(...a),end=new T.Vector3(...b),o=cylinder(g,m,...start.clone().add(end).multiplyScalar(.5).toArray(),r,start.distanceTo(end));o.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),end.sub(start).normalize());return o;}
   function fastener(g,x,y,z,r=.026,m=mat.gold){const o=cylinder(g,m,x,y,z,r,.018);o.rotation.x=Math.PI/2;plate(g,mat.dark,x,y,z+.014,r*.88,.006,.003,.002);return o;}
   function emblem(g,x,y,z,size=.49){const m=new T.MeshStandardMaterial({map:insigniaMap(),roughness:.38,metalness:.16});return plate(g,m,x,y,z,size,size,.019,.035);}
@@ -208,7 +209,7 @@ export function createHero(){
 
   const head=new T.Group();head.position.set(0,2.85,.028);body.add(head);
   // Sculpt the cranial envelope: broad temples, heart-shaped chin and plush cheeks.
-  const headGeo=new T.SphereGeometry(1,80,52),pos=headGeo.attributes.position;
+  const headGeo=new T.SphereGeometry(1,56,36),pos=headGeo.attributes.position;
   for(let i=0;i<pos.count;i++){
     const x=pos.getX(i),y=pos.getY(i),z=pos.getZ(i);const cheek=Math.exp(-(((y+.20)/.32)**2))*smooth(.1,.7,z);
     let px=x*.633*(1+.12*cheek-.055*smooth(.43,.95,y));
@@ -220,47 +221,51 @@ export function createHero(){
   for(const side of [-1,1]){
     const ear=new T.Group();ear.position.set(side*.452,.414,-.049);ear.rotation.z=side*-.22;head.add(ear);
     const s=new T.Shape();s.moveTo(-.20,-.09);s.quadraticCurveTo(-.22,.15,-.10,.45);s.quadraticCurveTo(-.035,.52,.01,.49);s.quadraticCurveTo(.20,.32,.225,-.045);s.quadraticCurveTo(.0,-.15,-.20,-.09);
-    const eg=new T.ExtrudeGeometry(s,{depth:.155,bevelEnabled:true,bevelSegments:5,bevelSize:.027,bevelThickness:.046,curveSegments:18});eg.translate(0,0,-.075);mesh(eg,mat.brown,ear);
+    const eg=new T.ExtrudeGeometry(s,{depth:.155,bevelEnabled:true,bevelSegments:3,bevelSize:.027,bevelThickness:.046,curveSegments:12});eg.translate(0,0,-.075);mesh(eg,mat.brown,ear);
     const inner=new T.Shape();inner.moveTo(-.135,-.021);inner.quadraticCurveTo(-.145,.16,-.072,.369);inner.quadraticCurveTo(-.039,.41,-.007,.357);inner.quadraticCurveTo(.11,.21,.145,-.026);inner.quadraticCurveTo(.0,-.092,-.135,-.021);
-    const ig=new T.ExtrudeGeometry(inner,{depth:.013,bevelEnabled:true,bevelSegments:3,bevelSize:.016,bevelThickness:.015,curveSegments:16});mesh(ig,mat.innerEar,ear,0,0,.115);
+    const ig=new T.ExtrudeGeometry(inner,{depth:.013,bevelEnabled:true,bevelSegments:2,bevelSize:.016,bevelThickness:.015,curveSegments:10});mesh(ig,mat.innerEar,ear,0,0,.115);
     tube(ear,mat.cream,[[-.159,-.009,.148],[-.161,.13,.135],[-.094,.38,.114]],.010,22,6);
     tube(ear,mat.stripe,[[.116,-.055,.143],[.159,.08,.133],[.097,.26,.126]],.019,24,6);
     for(let j=0;j<8;j++){const yy=j*.028-.015;const xx=-.1+j*.008;tube(ear,mat.whiteFur,[[xx,yy,.146],[xx+.082,yy+.069,.154],[xx+.111,yy+.104,.139]],.003,6,4);}
   }
   // Soft cheek volumes blend into the cranium, with little sculpted fur points.
   for(const side of [-1,1]){
-    ell(head,mat.cream,side*.382,-.243,.376,.233,.203,.15).rotation.z=side*-.26;
+    faceEll(head,mat.cream,side*.382,-.243,.376,.233,.203,.15).rotation.z=side*-.26;
     for(let k=0;k<3;k++){
       const shape=new T.Shape();shape.moveTo(0,0);shape.quadraticCurveTo(side*.12,.035,side*.185,.018);shape.quadraticCurveTo(side*.10,-.042,0,-.085);shape.closePath();const geo=new T.ExtrudeGeometry(shape,{depth:.04,bevelEnabled:true,bevelThickness:.025,bevelSize:.020,bevelSegments:2,curveSegments:8});mesh(geo,mat.cream,head,side*.39,-.205-k*.076,.274-k*.014);
     }
   }
-  ell(head,mat.whiteFur,0,-.364,.36,.334,.181,.194);
-  // Warm eye sockets and separate glossy globes; iris detail remains actual UVs.
-  const irisTex=irisMap(),irisMat=new T.MeshStandardMaterial({map:irisTex,roughness:.33,metalness:.06});
-  const eyeGroups=[];
+  faceEll(head,mat.whiteFur,0,-.364,.36,.334,.181,.194);
+  // Convex amber eyes with painted radial iris UVs, not concentric mechanical rings.
+  const irisTex=irisMap(),irisMat=new T.MeshStandardMaterial({map:irisTex,color:'#ffc967',roughness:.40,metalness:0});
+  function irisDome(){
+    const verts=[],normals=[],uvs=[],indices=[],rings=12,slices=48;
+    for(let j=0;j<=rings;j++){const theta=j/rings*Math.PI*.5;
+      for(let i=0;i<=slices;i++){const a=i/slices*TAU,x=Math.sin(theta)*Math.cos(a),y=Math.sin(theta)*Math.sin(a),z=Math.cos(theta);verts.push(x*.175,y*.185,z*.066);normals.push(x,y,z);uvs.push(x*.5+.5,y*.5+.5);}
+    }
+    for(let j=0;j<rings;j++)for(let i=0;i<slices;i++){const a=j*(slices+1)+i,b=a+slices+1;indices.push(a,b,a+1,b,b+1,a+1);}
+    const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(verts,3));geo.setAttribute('normal',new T.Float32BufferAttribute(normals,3));geo.setAttribute('uv',new T.Float32BufferAttribute(uvs,2));geo.setIndex(indices);geo.computeVertexNormals();return geo;
+  }
+  const irisGeo=irisDome(),eyeGroups=[];
   for(const side of [-1,1]){
-    const eyes=new T.Group();eyes.position.set(side*.261,.061,.474);eyes.rotation.y=side*.095;eyes.rotation.z=side*-.075;head.add(eyes);eyeGroups.push(eyes);
-    ell(eyes,mat.cream,0,0,-.018,.237,.245,.066);
-    ell(eyes,mat.dark,0,-.003,.014,.202,.209,.072);
-    ell(eyes,mat.black,0,0,.043,.176,.185,.065);
-    // The circle surface has radial UVs, keeping iris streaks centered.
-    const iris=mesh(new T.CircleGeometry(.148,64),irisMat,eyes,0,.006,.104);iris.scale.y=1.06;
-    ell(eyes,mat.black,-side*.006,.006,.111,.086,.129,.026);
-    const cornea=new T.MeshPhysicalMaterial({color:'#fff8df',transparent:true,opacity:.08,roughness:.015,metalness:.1,clearcoat:1,depthWrite:false});ell(eyes,cornea,0,.003,.098,.169,.180,.045);
-    // Deliberate catchlights, including a tiny secondary sparkle.
-    const shine=new T.MeshBasicMaterial({color:'#ffffff'});bead(eyes,shine,-.052,.076,.140,.038,.047,.013);bead(eyes,shine,.066,-.048,.135,.017,.02,.010);
-    tube(eyes,mat.stripe,[[-.177,.074,.052],[-.12,.174,.057],[.035,.194,.045],[.164,.094,.046]],.021,24,7);
-    tube(eyes,mat.cream,[[-.15,-.122,.052],[0,-.179,.054],[.15,-.113,.052]],.013,20,6);
-    // Eye-to-cheek tabby eyeliner is dimensional, but restrained.
-    tube(head,mat.stripe,[[side*.399,-.075,.453],[side*.485,-.061,.397],[side*.555,-.031,.30]],.018,20,6);
+    const eyes=new T.Group();eyes.position.set(side*.262,.061,.473);eyes.rotation.y=side*.13;eyes.rotation.z=side*-.095;head.add(eyes);eyeGroups.push(eyes);
+    // A thin charcoal waterline follows the globe without a pale ring around it.
+    faceEll(eyes,mat.stripe,0,0,.017,.189,.200,.054);
+    mesh(irisGeo,irisMat,eyes,0,.003,.062);
+    faceEll(eyes,mat.black,-side*.007,.004,.133,.089,.132,.021);
+    const shine=new T.MeshBasicMaterial({color:'#fff8e3'});
+    bead(eyes,shine,-.042,.063,.153,.026,.032,.010);bead(eyes,shine,.049,-.044,.151,.011,.013,.006);
+    tube(eyes,mat.stripe,[[-.176,.065,.063],[-.116,.166,.071],[.036,.187,.051],[.167,.081,.061]],.013,24,6);
+    tube(eyes,mat.brown,[[-.15,-.108,.057],[0,-.184,.057],[.15,-.109,.057]],.009,20,6);
+    tube(head,mat.stripe,[[side*.405,-.074,.453],[side*.488,-.058,.395],[side*.552,-.025,.30]],.013,18,6);
   }
   // Mouth first, then the plush two-lobed white muzzle and heart-shaped nose.
-  ell(head,mat.mouth,0,-.300,.539,.137,.143,.057);
-  ell(head,mat.tongue,0,-.354,.587,.084,.059,.024);
+  faceEll(head,mat.mouth,0,-.300,.539,.137,.143,.057);
+  faceEll(head,mat.tongue,0,-.354,.587,.084,.059,.024);
   tube(head,mat.nose,[[0,-.323,.615],[0,-.363,.614]],.005,8,5);
   for(const side of [-1,1]){
-    ell(head,mat.whiteFur,side*.126,-.216,.558,.183,.113,.103).rotation.z=side*.08;
-    ell(head,mat.cream,side*.129,-.275,.535,.161,.079,.09);
+    faceEll(head,mat.whiteFur,side*.126,-.216,.558,.183,.113,.103).rotation.z=side*.08;
+    faceEll(head,mat.cream,side*.129,-.275,.535,.161,.079,.09);
     // Whisker roots and fine tapered curved whiskers are real geometry.
     for(let j=0;j<4;j++)bead(head,mat.stripe,side*(.119+(j%2)*.053),-.194-Math.floor(j/2)*.042,.654-j*.003,.009,.007,.006);
     for(let j=0;j<4;j++)tube(head,mat.whiteFur,[[side*.16,-.224+j*.021,.655],[side*.35,-.241+j*.054,.622],[side*(.61+j*.031),-.29+j*.086,.491]],.0036-j*.00025,22,5);
@@ -270,9 +275,19 @@ export function createHero(){
   tube(head,mat.mouth,[[0,-.204,.687],[0,-.254,.674],[-.035,-.272,.646]],.009,16,6);tube(head,mat.mouth,[[0,-.254,.674],[.035,-.272,.646]],.009,12,6);
   bead(head,mat.whiteFur,-.021,-.133,.695,.022,.008,.003);
 
+  // Fine tapered guard hairs break the contour of the sculpted cheeks and crown.
+  const hairPos=[],hairColor=[],hr=random(887),hc=new T.Color();
+  for(let i=0;i<1600;i++){
+    const a=hr()*TAU,y=-.46+hr()*1.00,x=Math.cos(a)*Math.sqrt(Math.max(0,1-(y/.68)**2))*.637,z=Math.sin(a)*Math.sqrt(Math.max(0,1-(y/.68)**2))*.526;
+    if(z<.05)continue;
+    const length=.014+hr()*.021,normal=new T.Vector3(x,y*.8,z*.55).normalize(),start=new T.Vector3(x,y,z),end=start.clone().addScaledVector(normal,length);
+    hairPos.push(...start.toArray(),...end.toArray());hc.set(y<-.24?'#edd8b8':hr()>.5?'#bb8b56':'#63472e');hairColor.push(...hc.toArray(),...hc.toArray());
+  }
+  const hairGeo=new T.BufferGeometry();hairGeo.setAttribute('position',new T.Float32BufferAttribute(hairPos,3));hairGeo.setAttribute('color',new T.Float32BufferAttribute(hairColor,3));head.add(new T.LineSegments(hairGeo,new T.LineBasicMaterial({vertexColors:true,transparent:true,opacity:.72})));
+
   // Helmet shell wraps the rear; a clear convex front preserves the expression.
   const helmet=new T.Group();helmet.position.copy(head.position);body.add(helmet);
-  const shellGeo=new T.SphereGeometry(.783,64,40,Math.PI,Math.PI,0,Math.PI*.87);
+  const shellGeo=new T.SphereGeometry(.783,40,24,Math.PI,Math.PI,0,Math.PI*.87);
   const shell=mesh(shellGeo,mat.armor,helmet,0,.014,-.023,1,1.045,.90);
   // Visor rim: dark gasket, warm machined outer ring, ivory inset, tiny rivets.
   ring(helmet,mat.dark,0,0,.203,.723,.073,1,1.045);
@@ -298,7 +313,7 @@ export function createHero(){
   plate(helmet,mat.dark,0,-.727,.254,.086,.035,.015,.008);
   // Bubble is a front spherical cap. Low-opacity physical glass has no dark face tint.
   const glassMat=new T.MeshPhysicalMaterial({color:'#b4e6f4',transparent:true,opacity:.075,roughness:.035,metalness:.14,clearcoat:1,clearcoatRoughness:.025,depthWrite:false,side:T.FrontSide});
-  const glass=mesh(new T.SphereGeometry(.848,72,44,0,Math.PI,0,Math.PI),glassMat,helmet,0,0,.035,1,1.045,1);glass.renderOrder=4;glass.castShadow=false;
+  const glass=mesh(new T.SphereGeometry(.848,48,28,0,Math.PI,0,Math.PI),glassMat,helmet,0,0,.035,1,1.045,1);glass.renderOrder=4;glass.castShadow=false;
   // Geometric curved reflection strokes, deliberately away from eyes and muzzle.
   const glintMat=new T.MeshBasicMaterial({color:'#e8faff',transparent:true,opacity:.40,depthWrite:false});
   const glint=mesh(new T.SphereGeometry(.852,24,14,.32,.062,.58,.67),glintMat,helmet,0,0,.035,1,1.045,1);glint.renderOrder=5;
@@ -307,7 +322,7 @@ export function createHero(){
   // Plush, tapered, curled tail with alternating rings painted along the tube UV.
   const tail=new T.Group();tail.position.set(0,1.015,-.32);body.add(tail);
   const tc=new T.CatmullRomCurve3([new T.Vector3(0,0,0),new T.Vector3(-.23,-.12,-.31),new T.Vector3(-.60,-.07,-.54),new T.Vector3(-.95,.15,-.65),new T.Vector3(-1.12,.52,-.62),new T.Vector3(-1.03,.76,-.55)]);
-  const tailGeo=new T.TubeGeometry(tc,70,1,28,false),tp=tailGeo.attributes.position,tn=tailGeo.attributes.normal,tu=tailGeo.attributes.uv;
+  const tailGeo=new T.TubeGeometry(tc,50,1,18,false),tp=tailGeo.attributes.position,tn=tailGeo.attributes.normal,tu=tailGeo.attributes.uv;
   for(let i=0;i<tp.count;i++){const u=tu.getX(i),center=tc.getPointAt(u);const radius=(.115+.102*Math.sin(u*Math.PI*.91))*(1-smooth(.88,1,u)*.54);const micro=1+.019*Math.sin(i*2.17)+.010*Math.sin(i*.773);tp.setXYZ(i,center.x+tn.getX(i)*radius*micro,center.y+tn.getY(i)*radius*micro,center.z+tn.getZ(i)*radius*micro);}
   tailGeo.computeVertexNormals();
   const tailTex=canvas(1024,128,(c,w,h)=>{const im=c.createImageData(w,h),r=random(892);for(let y=0;y<h;y++)for(let x=0;x<w;x++){const u=x/w;const stripe=1-smooth(.27,.43,Math.abs(Math.sin(u*Math.PI*6.2+.12*Math.sin(y*.10))));const tip=smooth(.94,1,u),s=Math.max(stripe,tip),grain=(r()-.5)*35;const k=(y*w+x)*4;im.data[k]=180*(1-s)+58*s+grain;im.data[k+1]=132*(1-s)+39*s+grain;im.data[k+2]=82*(1-s)+27*s+grain;im.data[k+3]=255;}c.putImageData(im,0,0);});
