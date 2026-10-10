@@ -45,7 +45,7 @@ fixture, not a signed-in physical Telegram client.
 ## Measured software-renderer limits
 
 `performance-software-webgl.json` is a fresh isolated benchmark from the final
-source. Chromium 149 uses ANGLE / SwiftShader, without a physical GPU or phone.
+source. Chromium 145.0.7632.6 uses ANGLE / SwiftShader, without a physical GPU or phone.
 Cold cache loading uses 4 Mbit/s, 150 ms network latency and 4× CPU throttling.
 CPU throttling is removed for the subsequent interaction sample; no other WebGL
 workload runs concurrently. All stalls are retained.

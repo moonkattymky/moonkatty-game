@@ -25,6 +25,7 @@ export async function buildScene(renderer){
   const loader=new T.TextureLoader();
   const [regolith,earthTex]=await Promise.all([loader.loadAsync('./art/regolith.webp?v=20261010-world-1'),loader.loadAsync('./art/earth.webp?v=20261010-world-1')]);
   regolith.colorSpace=earthTex.colorSpace=T.SRGBColorSpace;regolith.wrapS=regolith.wrapT=T.RepeatWrapping;regolith.repeat.set(26,26);regolith.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
+  const rockTex=regolith.clone();rockTex.repeat.set(1.4,1.4);rockTex.anisotropy=Math.min(2,renderer.capabilities.getMaxAnisotropy());
   const hemisphere=new T.HemisphereLight('#b9d7ff','#53402c',1.15);scene.add(hemisphere);
   const sun=new T.DirectionalLight('#ffe4b1',3.6);sun.position.set(-25,38,22);scene.add(sun);
   const rim=new T.DirectionalLight('#64cfff',1.1);rim.position.set(14,11,-22);scene.add(rim);
@@ -46,22 +47,27 @@ export async function buildScene(renderer){
     cyan:new T.MeshBasicMaterial({color:'#57f4ff',toneMapped:false}),
     solar:new T.MeshStandardMaterial({color:'#123357',metalness:.6,roughness:.32}),
     soil:new T.MeshLambertMaterial({color:'#abb2ba',map:regolith}),
-    rock:new T.MeshLambertMaterial({color:'#687078',flatShading:true})
+    rock:new T.MeshLambertMaterial({color:'#a5adb7',map:rockTex,flatShading:true})
   };
   // Fine panel seams and wear belong to the surface, while bevels and hardware are geometry.
   const metalC=document.createElement('canvas');metalC.width=metalC.height=256;const mc=metalC.getContext('2d');mc.fillStyle='#e5e8e6';mc.fillRect(0,0,256,256);mc.strokeStyle='#99a3a5';mc.lineWidth=1;mc.strokeRect(5,5,246,246);mc.strokeStyle='#bdc6c5';mc.strokeRect(8,8,240,240);for(const x of [14,242])for(const y of [14,242]){mc.fillStyle='#737e80';mc.beginPath();mc.arc(x,y,1.6,0,Math.PI*2);mc.fill();}for(let i=0;i<70;i++){mc.strokeStyle=i%2?'#cad0cd':'#f2f4f0';mc.beginPath();const x=(i*37)%256,y=(i*71)%256;mc.moveTo(x,y);mc.lineTo(x+3+(i%9),y+.8);mc.stroke();}const metalTex=new T.CanvasTexture(metalC);metalTex.colorSpace=T.SRGBColorSpace;mat.white.map=metalTex;mat.white.envMapIntensity=1.4;mat.gold.envMapIntensity=1.6;
+  // Surface details use small procedural atlases, with no extra network requests.
+  const solarC=document.createElement('canvas');solarC.width=512;solarC.height=256;const sol=solarC.getContext('2d');sol.fillStyle='#172d48';sol.fillRect(0,0,512,256);
+  for(let x=0;x<12;x++)for(let y=0;y<6;y++){const px=4+x*42,py=4+y*42;sol.fillStyle=(x+y)%3?'#a9c8e4':'#7799bd';sol.fillRect(px,py,39,39);const g=sol.createLinearGradient(px,py,px+35,py+38);g.addColorStop(0,'#245082');g.addColorStop(.5,'#122b4e');g.addColorStop(1,'#173d69');sol.fillStyle=g;sol.fillRect(px+1,py+1,37,37);sol.strokeStyle='#6797c380';sol.lineWidth=.7;for(let i=1;i<5;i++){sol.beginPath();sol.moveTo(px+2,py+i*7);sol.lineTo(px+37,py+i*7);sol.stroke();}}
+  const solarTex=new T.CanvasTexture(solarC);solarTex.colorSpace=T.SRGBColorSpace;mat.solar.map=solarTex;mat.solar.color.set('#c6d6e8');
   const square=new T.Shape();square.moveTo(-.47,-.47);square.lineTo(.47,-.47);square.lineTo(.47,.47);square.lineTo(-.47,.47);square.closePath();
   const bevelBox=new T.ExtrudeGeometry(square,{depth:.94,bevelEnabled:true,bevelThickness:.03,bevelSize:.03,bevelSegments:2,steps:1});bevelBox.translate(0,0,-.47);
-  const geo={box:bevelBox,ball:new T.SphereGeometry(1,12,8),catBall:new T.SphereGeometry(1,24,16),cyl:new T.CylinderGeometry(1,1,1,20),tube:new T.CylinderGeometry(1,1,1,12),rock:new T.DodecahedronGeometry(1,0),torus:new T.TorusGeometry(1,.075,8,40)};let characterParts=false;
+  const geo={box:bevelBox,ball:new T.SphereGeometry(1,12,8),catMedium:new T.SphereGeometry(1,16,12),catBall:new T.SphereGeometry(1,24,16),cyl:new T.CylinderGeometry(1,1,1,20),tube:new T.CylinderGeometry(1,1,1,12),rock:new T.DodecahedronGeometry(1,0),rockNear:new T.DodecahedronGeometry(1,1),ridge:new T.IcosahedronGeometry(1,1),torus:new T.TorusGeometry(1,.075,8,40),torusLight:new T.TorusGeometry(1,.075,6,32)};let characterParts=false;
+  for(const g of [geo.rockNear,geo.ridge]){const p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i),f=.89+.11*Math.sin(x*17+y*11+z*23)**2;p.setXYZ(i,x*f,y*f,z*f);}g.computeVertexNormals();}
   function mesh(g,m,group,x=0,y=0,z=0,sx=1,sy=sx,sz=sx){const o=new T.Mesh(g,m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);group.add(o);return o;}
   const box=(g,m,x,y,z,a,b,c)=>mesh(geo.box,m,g,x,y,z,a,b,c);
   const cyl=(g,m,x,y,z,r,h)=>mesh(geo.cyl,m,g,x,y,z,r,h,r);
-  const ball=(g,m,x,y,z,a,b=a,c=a)=>mesh(characterParts?geo.catBall:geo.ball,m,g,x,y,z,a,b,c);
-  const ring=(g,m,x,y,z,r)=>mesh(geo.torus,m,g,x,y,z,r,r,r);
+  const ball=(g,m,x,y,z,a,b=a,c=a)=>mesh(characterParts?(Math.max(a,b,c)>=.5?geo.catBall:Math.max(a,b,c)>=.22?geo.catMedium:geo.ball):geo.ball,m,g,x,y,z,a,b,c);
+  const ring=(g,m,x,y,z,r)=>mesh(characterParts&&r>.5?geo.torus:geo.torusLight,m,g,x,y,z,r,r,r);
   function rod(g,m,a,b,r=.07){const aa=new T.Vector3(...a),bb=new T.Vector3(...b),o=mesh(geo.tube,m,g,...aa.clone().add(bb).multiplyScalar(.5).toArray(),r,aa.distanceTo(bb),r);o.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),bb.sub(aa).normalize());return o;}
-  function pipe(g,m,points,r=.11){const curve=new T.CatmullRomCurve3(points.map(p=>new T.Vector3(...p)));return mesh(new T.TubeGeometry(curve,Math.max(16,points.length*6),r,8,false),m,g);}
+  function pipe(g,m,points,r=.11){const curve=new T.CatmullRomCurve3(points.map(p=>new T.Vector3(...p))),o=mesh(new T.TubeGeometry(curve,Math.max(16,points.length*6),r,8,false),m,g);if(m===mat.black&&r>=.18){for(let i=1;i<8;i++){const t=i/8,p=curve.getPoint(t),band=mesh(geo.tube,mat.gold,g,p.x,p.y,p.z,r*1.2,.18,r*1.2);band.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),curve.getTangent(t).normalize());}}return o;}
   function group(x=0,y=0,z=0){const g=new T.Group();g.position.set(x,y,z);objects.add(g);return g;}
-  function panelText(text,w=2.1,h=.8){const c=document.createElement('canvas');c.width=512;c.height=192;const ctx=c.getContext('2d');ctx.fillStyle='#e1e7e7';ctx.fillRect(0,0,512,192);ctx.fillStyle='#273c48';ctx.font='bold 100px Arial';ctx.textAlign='center';ctx.fillText(text,256,140);const tex=new T.CanvasTexture(c);tex.colorSpace=T.SRGBColorSpace;return new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshStandardMaterial({map:tex,roughness:.5,metalness:.15}));}
+  function panelText(text,w=2.1,h=.8){const c=document.createElement('canvas');c.width=512;c.height=192;const ctx=c.getContext('2d');ctx.fillStyle='#e1e7e7';ctx.fillRect(0,0,512,192);ctx.strokeStyle='#a6b2b5';ctx.lineWidth=2;ctx.strokeRect(6,6,500,180);ctx.fillStyle='#273c48';ctx.font='bold 100px Arial';ctx.font='bold '+Math.min(100,Math.floor(100*470/ctx.measureText(text).width))+'px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,256,104);const tex=new T.CanvasTexture(c);tex.colorSpace=T.SRGBColorSpace;return new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshStandardMaterial({map:tex,roughness:.5,metalness:.15}));}
   const shadowCanvas=document.createElement('canvas');shadowCanvas.width=shadowCanvas.height=128;const sc=shadowCanvas.getContext('2d'),sg=sc.createRadialGradient(64,64,10,64,64,64);sg.addColorStop(0,'rgba(0,5,12,.7)');sg.addColorStop(.5,'rgba(0,5,12,.4)');sg.addColorStop(1,'rgba(0,5,12,0)');sc.fillStyle=sg;sc.fillRect(0,0,128,128);
   const shadowMat=new T.MeshBasicMaterial({map:new T.CanvasTexture(shadowCanvas),transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1});const shadowGeo=new T.PlaneGeometry(1,1);
   function contact(g,x,z,w,h=w){const s=mesh(shadowGeo,shadowMat,g,x,groundHeight(x,z)+.018,z,w,h,1);s.rotation.x=-Math.PI/2;return s;}
@@ -75,16 +81,18 @@ export async function buildScene(renderer){
   for(let i=0;i<190;i++){
     const a=seeded()*Math.PI*2,r=17+seeded()*73,x=Math.cos(a)*r,z=Math.sin(a)*r;
     if(x>3&&x<20&&z>-14&&z<18)continue;
-    const size=.25+seeded()*(r>45?3.8:1.3);const o=mesh(geo.rock,mat.rock,objects,x,groundHeight(x,z)+size*.42,z,size,size*(.4+seeded()*.55),size*(.7+seeded()*.5));o.rotation.set(seeded(),seeded()*6,seeded());
+    const size=.25+seeded()*(r>45?3.8:1.3);const o=mesh(r<45?geo.rockNear:geo.rock,mat.rock,objects,x,groundHeight(x,z)+size*.42,z,size,size*(.4+seeded()*.55),size*(.7+seeded()*.5));o.rotation.set(seeded(),seeded()*6,seeded());
     if(r<65&&size>.6)colliders.push({type:'circle',x,z,r:size*.75,height:size});
   }
   // Regolith embankments form a real skyline in all camera directions.
-  for(let i=0;i<24;i++){const a=i/24*Math.PI*2,r=83+seeded()*6;const x=Math.cos(a)*r,z=Math.sin(a)*r;const o=mesh(geo.rock,mat.rock,objects,x,groundHeight(x,z),z,9+seeded()*9,5+seeded()*8,8+seeded()*9);o.rotation.y=a;}
+  for(let i=0;i<24;i++){const a=i/24*Math.PI*2,r=83+seeded()*6;const x=Math.cos(a)*r,z=Math.sin(a)*r;const o=mesh(geo.ridge,mat.rock,objects,x,groundHeight(x,z),z,9+seeded()*9,5+seeded()*8,8+seeded()*9);o.rotation.y=a;}
 
   function footing(g,r){cyl(g,mat.black,0,.13,0,r,.24);cyl(g,mat.steel,0,.34,0,r*.95,.18);const rr=ring(g,mat.gold,0,.45,0,r*.9);rr.rotation.x=Math.PI/2;for(let i=0;i<12;i++){const a=i/12*Math.PI*2;box(g,mat.gold,Math.cos(a)*r*.86,.51,Math.sin(a)*r*.86,.35,.12,.18);}}
   function housing(g,x,z,h=3,w=1.4){box(g,mat.black,x,h/2+.6,z,w+.12,h+.15,1.8);box(g,mat.white,x,h/2+.6,z+.07,w,h,1.72);box(g,mat.gold,x,h+.36,z+.96,w*.74,.13,.12);box(g,mat.black,x,h/2+.6,z+.95,w*.66,h*.5,.055);for(let i=0;i<5;i++)box(g,mat.steel,x,.95+i*.4,z+.998,w*.58,.095,.07);for(const dx of [-1,1])for(const dy of [-1,1])ball(g,mat.gold,x+dx*w*.38,h/2+.6+dy*h*.4,z+.96,.09);}
   const reactor=group(-9,groundHeight(-9,-4),-4);footing(reactor,3.4);
-  cyl(reactor,mat.steel,0,2.1,0,1.4,3.2);cyl(reactor,mat.black,0,2.3,0,1.15,3.3);
+  // An opaque outer cylinder previously hid every emissive core ring.
+  cyl(reactor,mat.steel,0,.75,0,1.5,.28);cyl(reactor,mat.steel,0,3.9,0,1.5,.28);cyl(reactor,mat.black,0,2.3,0,.94,3.1);
+  const coreGlass=new T.MeshBasicMaterial({color:'#70eaff',transparent:true,opacity:.075,depthWrite:false});cyl(reactor,coreGlass,0,2.32,0,1.38,2.9);
   for(let i=0;i<6;i++){const y=.95+i*.48,rr=ring(reactor,mat.cyan,0,y,0,1.23);rr.rotation.x=Math.PI/2;}
   for(const x of [-2.1,2.1])housing(reactor,x,.25,3.4,1.35);
   for(let i=0;i<4;i++){const a=i/4*Math.PI*2+Math.PI/4;rod(reactor,mat.gold,[Math.cos(a)*1.48,.5,Math.sin(a)*1.48],[Math.cos(a)*1.48,4.1,Math.sin(a)*1.48],.14);}
@@ -126,8 +134,12 @@ export async function buildScene(renderer){
   // Solar wings and rover, consistent white/gold materials.
   for(const side of [-1,1]){const g=group(17,0,11);const wing=box(g,mat.solar,side*4,1.9,0,6,.08,3.5);wing.rotation.z=-side*.24;for(let i=0;i<6;i++){const x=side*4-2.8+i*1.1;rod(g,mat.steel,[x,1.7,-1.74],[x,1.7,1.74],.025);}rod(g,mat.steel,[0,0,0],[side*4,1.7,0],.11);}
   const rover=group(6,0,15);rover.rotation.y=-.6;box(rover,mat.black,0,.8,0,3.8,.7,5);box(rover,mat.white,0,1.4,0,3.2,.8,3.9);box(rover,mat.gold,0,1.9,-.7,2.7,.17,2);box(rover,mat.black,0,2,-1.5,2.1,.7,.08);
+  box(rover,mat.black,0,2.05,-.5,2.4,.62,2.1);box(rover,mat.solar,0,2.08,.59,2.1,.5,.06);box(rover,mat.white,0,2.44,-.5,2.8,.14,2.45);box(rover,mat.steel,0,.98,2.62,3.6,.2,.2);
+  for(const x of [-1.2,1.2]){rod(rover,mat.gold,[x,1.75,.63],[x,2.45,.62],.065);rod(rover,mat.gold,[x,2.45,.62],[x,2.45,-1.62],.065);box(rover,mat.gold,x*1.13,1.15,2.65,.14,.35,.12);}
   for(const x of [-2,2])for(const z of [-1.7,1.7]){const wheel=cyl(rover,mat.rubber,x,.72,z,.85,.62);wheel.rotation.z=Math.PI/2;const hub=cyl(rover,mat.gold,x*1.1,.72,z,.45,.06);hub.rotation.z=Math.PI/2;for(let i=0;i<10;i++){const a=i/10*Math.PI*2;const tread=box(rover,mat.black,x,.72+Math.cos(a)*.86,z+Math.sin(a)*.86,.67,.16,.27);tread.rotation.x=a;}}
   for(const x of [-1.1,1.1])ball(rover,mat.amber,x,1.5,2.03,.21);colliders.push({type:'circle',x:6,z:15,r:3,height:2.5});contact(objects,6,15,6,7);
+  const trackC=document.createElement('canvas');trackC.width=64;trackC.height=256;const tr=trackC.getContext('2d');tr.strokeStyle='rgba(22,27,33,.48)';tr.lineWidth=7;for(let i=0;i<12;i++){const y=i*22;tr.beginPath();tr.moveTo(2,y);tr.lineTo(31,y+11);tr.lineTo(62,y);tr.stroke();}const trackTex=new T.CanvasTexture(trackC),trackMat=new T.MeshBasicMaterial({map:trackTex,transparent:true,opacity:.5,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1});
+  for(const side of [-1,1]){const g=new T.PlaneGeometry(1.12,10.5,1,12);g.rotateX(-Math.PI/2);g.rotateY(-.6);g.translate(6+side*1.62,.03,21);const p=g.attributes.position;for(let i=0;i<p.count;i++)p.setY(i,groundHeight(p.getX(i),p.getZ(i))+.019);g.computeVertexNormals();mesh(g,trackMat,objects);}
 
   // Combine repeated static parts, preserving world-space matrices and alpha ordering.
   objects.updateMatrixWorld(true);const batches=new Map(),remove=[];
@@ -136,7 +148,7 @@ export async function buildScene(renderer){
 
   // Stars and nebula are a sky sphere; the Earth itself is a lit 3D sphere.
   const skyC=document.createElement('canvas');skyC.width=1024;skyC.height=512;const sk=skyC.getContext('2d');sk.fillStyle='#040c1c';sk.fillRect(0,0,1024,512);
-  for(let i=0;i<19;i++){const x=300+i*24,y=160+Math.sin(i*.43)*80;const g=sk.createRadialGradient(x,y,0,x,y,105);g.addColorStop(0,i%2?'rgba(48,87,152,.17)':'rgba(114,51,162,.16)');g.addColorStop(1,'rgba(8,17,35,0)');sk.fillStyle=g;sk.fillRect(x-105,y-105,210,210);}
+  for(let i=-2;i<29;i++){const x=i*39,y=155+Math.sin(i*.43)*60;const g=sk.createRadialGradient(x,y,0,x,y,100);g.addColorStop(0,i%2?'rgba(43,113,185,.32)':'rgba(141,54,193,.30)');g.addColorStop(.4,'rgba(72,71,148,.13)');g.addColorStop(1,'rgba(8,17,35,0)');sk.fillStyle=g;sk.fillRect(x-100,y-100,200,200);}
   for(let i=0;i<1400;i++){const x=seeded()*1024,y=seeded()*512,s=seeded()*1.3+.2;sk.fillStyle=`rgba(190,224,255,${.22+seeded()*.65})`;sk.fillRect(x,y,s,s);}
   const skyTex=new T.CanvasTexture(skyC);skyTex.colorSpace=T.SRGBColorSpace;const sky=mesh(new T.SphereGeometry(400,32,16),new T.MeshBasicMaterial({map:skyTex,side:T.BackSide,fog:false}),scene);sky.rotation.y=1.5;
   const earth=mesh(new T.SphereGeometry(29,48,32),new T.MeshLambertMaterial({map:earthTex,emissive:'#174470',emissiveIntensity:.42,fog:false}),scene,30,41,-149);earth.rotation.y=-1.8;earth.rotation.z=.13;
@@ -193,7 +205,7 @@ export async function buildScene(renderer){
   const catShadow=contact(scene,0,12,3.2,2.0);
   cat.traverse(o=>{if(o.isMesh&&!o.material.transparent)o.receiveShadow=true;});
   function animateCat(time,speed){const walk=clamp(speed/4.5,0,1),a=Math.sin(time*8.5)*.48*walk;limbs.legs[0].rotation.x=a;limbs.legs[1].rotation.x=-a;limbs.arms[0].rotation.x=-a*.65;limbs.arms[1].rotation.x=a*.65;suit.position.y=Math.abs(Math.sin(time*8.5))*.065*walk;tail.rotation.y=Math.sin(time*2.1)*.1;head.rotation.z=Math.sin(time*1.7)*.012;catShadow.position.set(cat.position.x,floorHeight(cat.position.x,cat.position.z)+.02,cat.position.z);}
-  return {scene,cat,colliders,animateCat,resources:{envTarget,regolith,earthTex},earth,atmosphere};
+  return {scene,cat,colliders,animateCat,resources:{envTarget,regolith,earthTex,rockTex,solarTex,trackTex},earth,atmosphere};
 }
 
 // Continuous circle/box collision with separate axes: no grid, teleport or progression hook.

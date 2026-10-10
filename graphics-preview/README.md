@@ -15,6 +15,14 @@ materials. Rough terrain and rocks use vertex-lit shading with baked AO; station
 metal, glass and the mascot keep their detailed surface materials. This is the first authored 3D model of the mascot;
 its modeling/material fidelity is still below the cinematic reference.
 
+The reactor's illuminated rings are visible through an open framed core rather
+than being hidden inside an opaque cylinder. Near rocks have irregular textured
+surfaces; distant ridges keep lighter geometry. Solar cells, cable collars,
+rover cabin/bumper and regolith tire tracks are editable scene details. Small
+mascot features have fewer subdivisions while the head, helmet and body keep
+their smooth geometry. The station name is scaled to fit its physical panel.
+These changes preserve collision parameters and movement rules.
+
 ## Controls
 
 - Phone: left joystick for walking; another finger drags the world to look around;
