@@ -7,9 +7,9 @@ server. From the repository root: `python3 -m http.server 8000`, then visit
 
 The scene uses actual WebGL2 geometry throughout: walkable lunar terrain, reactor,
 parabolic antenna, generator, an open airlock, a rover, solar arrays, and a rigged
-tabby astronaut with a striped tail. Camera yaw is unrestricted. Static station
-shadows are rendered once; the moving character uses a contact shadow. Repeated
-station parts are instanced. This is the first authored 3D model of the mascot;
+tabby astronaut with a striped tail. Camera yaw is unrestricted. Station/character
+contact shadows and terrain vertex AO avoid full-scene shadow-map sampling. Repeated
+station parts are instanced; distant bolts use lighter geometry. This is the first authored 3D model of the mascot;
 its modeling/material fidelity is still below the cinematic reference.
 
 ## Controls

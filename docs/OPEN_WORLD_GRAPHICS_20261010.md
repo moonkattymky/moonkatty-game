@@ -32,6 +32,10 @@ nearby inspections, map, tasks, pause, blur/background handling, tab-reload
 restoration, BFCache return handling, a low-resolution option, and explicit
 asset/WebGL failure recovery. All scene elements are real mesh geometry; there is
 no fixed cinematic backdrop or billboard mascot standing in for an open world.
+Outdoor camera obstruction now raises the viewpoint above nearby equipment when
+necessary, keeps at least 7 m of framing, and smooths orbit angles instead of
+crossing the character along an interpolated chord. Confined airlock views hide
+the avatar only when the camera would otherwise be inside its helmet.
 
 The sampled world is roughly 146 m across, bounded to this one location. Three
 inspection objectives are a local presentation exercise. Nine mission chapters,
@@ -69,6 +73,9 @@ engine, two WebP textures, HTML/CSS and scene scripts. Scene budgets are under
 160 draw calls and 220,000 visible triangles in the tested views. These are size
 and geometry limits, not proof of a particular frame rate on a physical phone.
 Automatic pixel ratio is capped and reduced when sustained frame timing is slow.
+The first software-GPU benchmark exposed expensive full-scene shadow sampling.
+That path was removed in favor of contact decals and vertex-baked terrain AO;
+small distant bolts use fewer triangles while the character keeps its mesh detail.
 
 Browser verification uses Chromium mobile emulation with software WebGL. Physical
 Telegram Android/iOS tests still require representative devices: sustained frame

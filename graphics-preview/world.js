@@ -9,6 +9,7 @@ state.x=clamp(state.x,-60,60);state.z=clamp(state.z,-60,60);if(Math.hypot(state.
 let world,renderer,camera,ready=false,paused=false,lost=false,closed=false,frame=0,last=0,time=0,saveAt=0,noticeUntil=0,scanUntil=0,nearest=null,collisionCount=0,frameTimes=[],qualityScale=1.25,qualityAt=0,animationId=0;
 const keyboard=new Set(),move={x:0,y:0},velocity={x:0,z:0},pointers=new Map();let joyId=null,lookId=null,lookLast=null,pinch=null;
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cameraPose={yaw:state.yaw,pitch:state.pitch,distance:state.distance};
 const labels=MODULES.map(m=>{const el=document.createElement('div');el.className='station-label';el.innerHTML=`<b>${m.number}</b><small>${m.name}</small>`;$('station-labels').append(el);return {module:m,el};});
 function save(){if(!ready)return;state.x=world.cat.position.x;state.z=world.cat.position.z;state.heading=world.cat.rotation.y;try{sessionStorage.setItem(storageKey,JSON.stringify({version:1,...state}));}catch{/* A storage-disabled browser can still explore. */}}
 function notice(message){$('notice').textContent=message;$('notice').classList.add('visible');noticeUntil=performance.now()+4800;}
@@ -29,18 +30,25 @@ function resize(){
   if(!renderer)return;const w=canvas.clientWidth,h=canvas.clientHeight;if(w<=0||h<=0)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
 }
 function setQuality(){const max=state.quality==='economy'?.85:qualityScale;renderer?.setPixelRatio(Math.min(devicePixelRatio||1,max));resize();$('quality').textContent='КАЧЕСТВО: '+(state.quality==='economy'?'ЭКОНОМНО':'АВТО');}
-function snapshot(){return Object.freeze({ready,paused,contextLost:lost,position:world?{x:world.cat.position.x,y:world.cat.position.y,z:world.cat.position.z}:null,camera:{yaw:state.yaw,pitch:state.pitch,distance:state.distance},heading:world?.cat.rotation.y,inspected:[...state.inspected],nearest:nearest?.id||null,velocity:{...velocity},collisions:collisionCount,inputPointers:pointers.size,quality:state.quality,pixelRatio:renderer?.getPixelRatio(),drawCalls:renderer?.info.render.calls,triangles:renderer?.info.render.triangles,frames:frame,frameMs:frameTimes.slice(-240),engine:'Three.js r170 / WebGL2',persistenceKey:storageKey});}
+function snapshot(){return Object.freeze({ready,paused,contextLost:lost,position:world?{x:world.cat.position.x,y:world.cat.position.y,z:world.cat.position.z}:null,camera:{yaw:state.yaw,pitch:state.pitch,distance:state.distance,actualDistance:camera&&world?camera.position.distanceTo(world.cat.position.clone().add(new T.Vector3(0,1.8,0))):null},heading:world?.cat.rotation.y,inspected:[...state.inspected],nearest:nearest?.id||null,velocity:{...velocity},collisions:collisionCount,inputPointers:pointers.size,quality:state.quality,pixelRatio:renderer?.getPixelRatio(),drawCalls:renderer?.info.render.calls,triangles:renderer?.info.render.triangles,frames:frame,frameMs:frameTimes.slice(-240),engine:'Three.js r170 / WebGL2',persistenceKey:storageKey});}
 window.MKTYOpenWorld=Object.freeze({snapshot});
 function positionLabels(){const v=new T.Vector3();for(const {module:m,el}of labels){v.set(m.x,groundHeight(m.x,m.z)+(m.id==='relay'?8.8:5.25),m.z).project(camera);const x=(v.x*.5+.5)*canvas.clientWidth,y=(-v.y*.5+.5)*canvas.clientHeight;const upper=canvas.clientHeight>550?145:100,bottom=canvas.clientHeight>550?220:90;const visible=v.z>-1&&v.z<1&&x>26&&x<canvas.clientWidth-26&&y>upper&&y<canvas.clientHeight-bottom;el.style.display=visible?'block':'none';el.style.transform=`translate(${x-23}px,${y-23}px)`;el.classList.toggle('done',state.inspected.includes(m.id));el.querySelector('b').textContent=state.inspected.includes(m.id)?'✓':String(m.number);}}
 function updateCamera(dt){
   const target=new T.Vector3(world.cat.position.x,world.cat.position.y+1.8,world.cat.position.z);
-  const cp=Math.cos(state.pitch),desired=new T.Vector3(Math.sin(state.yaw)*state.distance*cp,Math.sin(state.pitch)*state.distance,Math.cos(state.yaw)*state.distance*cp).add(target);
-  // Keep camera above terrain. Cat remains the orbit centre through a complete turn.
+  const blend=reduceMotion?1:1-Math.exp(-12*dt);
+  // Smooth angular coordinates on the orbit, rather than a chord through the cat.
+  cameraPose.yaw+=Math.atan2(Math.sin(state.yaw-cameraPose.yaw),Math.cos(state.yaw-cameraPose.yaw))*blend;cameraPose.pitch+=(state.pitch-cameraPose.pitch)*blend;cameraPose.distance+=(state.distance-cameraPose.distance)*blend;
+  const cp=Math.cos(cameraPose.pitch),desired=new T.Vector3(Math.sin(cameraPose.yaw)*cameraPose.distance*cp,Math.sin(cameraPose.pitch)*cameraPose.distance,Math.cos(cameraPose.yaw)*cameraPose.distance*cp).add(target);
   desired.y=Math.max(desired.y,groundHeight(desired.x,desired.z)+.8);
-  // Pull the camera towards the cat when an orbit would enter solid station walls.
-  const delta=desired.clone().sub(target),steps=36;
-  for(let i=3;i<=steps;i++){const p=target.clone().addScaledVector(delta,i/steps);const solid=world.colliders.some(c=>p.y<groundHeight(c.x,c.z)+(c.height||3)+.3&&(c.type==='circle'?Math.hypot(p.x-c.x,p.z-c.z)<c.r+.3:Math.abs(p.x-c.x)<c.hx+.3&&Math.abs(p.z-c.z)<c.hz+.3));if(solid){desired.copy(target).addScaledVector(delta,Math.max(.12,(i-2)/steps));break;}}
-  camera.position.lerp(desired,reduceMotion?1:1-Math.exp(-12*dt));camera.lookAt(target);
+  function obstruction(end){const delta=end.clone().sub(target);for(let i=3;i<=36;i++){const p=target.clone().addScaledVector(delta,i/36);if(world.colliders.some(c=>p.y<groundHeight(c.x,c.z)+(c.height||3)+.3&&(c.type==='circle'?Math.hypot(p.x-c.x,p.z-c.z)<c.r+.3:Math.abs(p.x-c.x)<c.hx+.3&&Math.abs(p.z-c.z)<c.hz+.3)))return (i-2)/36;}return null;}
+  const indoor=world.cat.position.x>7.1&&world.cat.position.x<12.9&&world.cat.position.z>-3.2&&world.cat.position.z<3.3;
+  let hit=obstruction(desired);
+  // Outside, look over close equipment instead of zooming into the mascot's face.
+  if(!indoor&&hit!==null&&desired.distanceTo(target)*hit<7){for(let n=0;n<10&&hit!==null;n++){desired.y+=3.5;hit=obstruction(desired);}}
+  if(hit!==null){const delta=desired.clone().sub(target);desired.copy(target).addScaledVector(delta,indoor?Math.max(.12,hit):Math.max(7/delta.length(),hit));}
+  camera.position.copy(desired);camera.lookAt(target);
+  // In confined interiors use a close view without an opaque helmet blocking it.
+  world.cat.visible=!(indoor&&camera.position.distanceTo(target)<4);
 }
 function animate(now){
   if(closed)return;animationId=requestAnimationFrame(animate);if(!ready||lost)return;
@@ -93,12 +101,12 @@ canvas.addEventListener('webglcontextrestored',()=>location.reload());
 async function start(){
   try{
     renderer=new T.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance',alpha:false});renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
-    // Static world shadow is baked once at load; moving cat has a lightweight contact shadow.
-    renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;
+    // Contact decals and vertex-baked terrain AO avoid full-scene shadow sampling in WebViews.
+    renderer.shadowMap.enabled=false;
     camera=new T.PerspectiveCamera(64,1,.12,650);setQuality();world=await buildScene(renderer);world.cat.position.set(state.x,groundHeight(state.x,state.z),state.z);
     // Reject stale/out-of-bounds demo positions inside current solid geometry.
     const overlaps=world.colliders.some(c=>c.type==='circle'?Math.hypot(state.x-c.x,state.z-c.z)<c.r+.47:Math.abs(state.x-c.x)<c.hx+.47&&Math.abs(state.z-c.z)<c.hz+.47);
-    if(overlaps)world.cat.position.set(0,0,11);moveActor(world.cat.position,0,0,world.colliders);world.cat.rotation.y=state.heading;world.animateCat(0,0);updateCamera(1);renderer.shadowMap.needsUpdate=true;renderer.render(world.scene,camera);ready=true;last=performance.now();$('progress').textContent=state.inspected.length+' / 3';$('loading').hidden=true;canvas.focus({preventScroll:true});
+    if(overlaps)world.cat.position.set(0,0,11);moveActor(world.cat.position,0,0,world.colliders);world.cat.rotation.y=state.heading;world.animateCat(0,0);updateCamera(1);renderer.render(world.scene,camera);ready=true;last=performance.now();$('progress').textContent=state.inspected.length+' / 3';$('loading').hidden=true;canvas.focus({preventScroll:true});
     const tg=window.Telegram?.WebApp;if(tg?.initData){tg.ready?.();tg.expand?.();if(tg.isVersionAtLeast?.('7.7'))tg.disableVerticalSwipes?.();tg.onEvent?.('viewportChanged',resize);tg.onEvent?.('deactivated',()=>pause());tg.BackButton?.show();tg.BackButton?.onClick(()=>{if(panel.open)resume();else pause();});resize();}
     animationId=requestAnimationFrame(animate);
   }catch(e){console.error('MOONKATTY 3D:',e);$('load-status').textContent='3D-локация не загрузилась. Проверьте соединение и поддержку WebGL2. Основная игра доступна по кнопке ниже.';$('fallback').hidden=false;}
