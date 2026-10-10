@@ -393,7 +393,8 @@ function spendGlobalLife(eventKey){
   const event_key=eventKey||('life:spend:'+Date.now()+':'+Math.random().toString(36).slice(2,8));
   window.MKTYRewards?.spendLife?.(event_key)?.then?.(res=>{
    if(account!==window.MKTYRewards?.accountScope?.())return;
-   if(res&&typeof res.lives==='number'){localStorage.setItem('mkty_global_lives',String(res.lives));renderLife3Gate();renderGlobalLivesHome?.();window.MKTYPace?.refresh();}
+   // The reward client applied this result in order; render the current cache.
+   if(res&&typeof res.lives==='number'){renderLife3Gate();renderGlobalLivesHome?.();window.MKTYPace?.refresh();}
   });
  }catch(_){ }
  renderLife3Gate(); return true;
@@ -482,7 +483,8 @@ function awardLifePoints(n,amount){
   const account=window.MKTYRewards?.accountScope?.();
   window.MKTYRewards?.completeLife?.(n,amount)?.then?.(res=>{
    if(account!==window.MKTYRewards?.accountScope?.())return;
-   if(res&&typeof res.pts==='number'){pts=res.pts;localStorage.setItem('mkty_points',String(pts));if($('points'))$('points').textContent=pts+(moonPointsLocked()?' ⭐ 🔒':' ⭐');}
+   // A newer response may already be cached before this callback runs.
+   if(res&&typeof res.pts==='number'){pts=Number(localStorage.getItem('mkty_points')||0);if($('points'))$('points').textContent=pts+(moonPointsLocked()?' ⭐ 🔒':' ⭐');}
   });
  }catch(_){ }
  window.MKTYExperience?.signal('complete');if($('points'))$('points').textContent=pts+' ⭐';if($('livesProgress')){const done=[1,2,3,4,5,6,7,8,9].filter(x=>localStorage.getItem('mkty_life'+x)==='complete').length;$('livesProgress').textContent=done+' / 9 🌙';}renderMissionArchive();if(n===9){renderFinalMoonPoints();renderCrewNetwork();renderDailyMissions();}return pts;

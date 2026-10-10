@@ -72,7 +72,8 @@
  $('paceGo').onclick=()=>{const go=onGo;close();go?.();};
  $('paceCancel').onclick=close;dlg.addEventListener('cancel',e=>{e.preventDefault();close();});
  $('paceInvite').onclick=()=>{close();root.MKTYGrowth?.openInvite?.();};
- $('paceSkip').onclick=async()=>{const n=chapter;$('paceSkip').disabled=true;const r=await root.MKTYRewards?.call?.('chapter.skip',{life:n});$('paceSkip').disabled=false;if(r?.ok){if(r.pace)setServer(r.pace);ls.setItem('mkty_pace_skip_'+n,'yes');close();toast(T('Chapter unlocked with a referral pass 🎟'));refresh();}else toast(T('No referral passes yet'));};
+ // call() has already applied the ordered pace snapshot before resolving.
+ $('paceSkip').onclick=async()=>{const n=chapter;$('paceSkip').disabled=true;const r=await root.MKTYRewards?.call?.('chapter.skip',{life:n});$('paceSkip').disabled=false;if(r?.ok){ls.setItem('mkty_pace_skip_'+n,'yes');close();toast(T('Chapter unlocked with a referral pass 🎟'));refresh();}else toast(T('No referral passes yet'));};
 
  // ---------- toast ----------
  const note=document.createElement('div');note.id='paceToast';note.className='pace-toast';note.setAttribute('role','status');document.body.append(note);let noteTimer=0;

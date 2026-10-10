@@ -3,14 +3,14 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),crypto=require('node:crypto'),zlib=require('node:zlib'),path=require('node:path');
 const root=path.resolve(__dirname,'..'),source=fs.readFileSync(path.join(root,'field-art.js'),'utf8'),R=require('../field-model.js');
 const baseHashes={
- // Client-only composition: live handshake retained; reviewed checkpoint and pending-queue recovery fixes included.
+ // Client-only composition: live handshake retained; reviewed checkpoint, pending-queue and reward-lifecycle fixes included.
  'field-model.js':'94ab25d49258d5ca64cdf391eccdaadd3b3f10370b363295a4c3bd3a58aea7a8',
  'field-missions.js':'87ae7505443efcaa76ec1cf8c9b0293493a8d3b32ded761d08f8fae280bbf168',
  'story-plan.js':'fd4683463fc1bcf72862b33478a6d4d1036036632ccff88a049798428d583474',
- 'story.js':'82f189960b85d245550e322b4dbd53cb182dfadc60e2a33d164abf45a5e90086',
+ 'story.js':'98544c3dd645f76cd47188184ee5a80a9443b96faf13545b31356b11a29cb42e',
  'storage.js':'c8a4becffdff791e36ce0a709a8cd8dba2cfa5a4f4e8cde4732ab2565a9261c9',
  'trace-codec.js':'baba00a4cc9a4ab309382220d3e37b7b35ddc925a582012d8d4d622c124ea865',
- 'rewards-client.js':'b3940f50a6166b13f9960c66fb8d273b2caac19530e32f0091767ee48849b5a6',
+ 'rewards-client.js':'5a911974be1d50576d4e472c05f590442f4e91922508bd330a5ee731cb683c32',
  'expedition-model.js':'5209ca04232a01204a3ab1019e32a4cef92c5600de2370cd62243a497ba3e571'
 };
 for(const [file,hash]of Object.entries(baseHashes))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex'),hash,file+' matches the pinned reviewed baseline (with convoy, Echo and closing-gate checkpoint corrections)');

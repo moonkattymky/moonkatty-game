@@ -3,11 +3,16 @@
 (() => {
  const ENDPOINT='https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/rewards';
  const LIFE_REWARDS={1:500,2:500,3:750,4:1000,5:1250,6:1500,7:1750,8:2000,9:3000};
- let lastPlayer=null,serverReady=null,session=null,opening=null,syncing=null,lastError='',sessionScope='',syncScope='',capabilityScope='',traceCapability;
+ let lastPlayer=null,serverReady=null,session=null,opening=null,syncing=null,lastError='',sessionScope='',syncScope='',capabilityScope='',traceCapability,sessionGeneration=-1,syncGeneration=-1;
  const codec=()=>window.MKTYTraceCodec;
  function learnCapabilities(body,account){if(body?.ok&&account===scope()){capabilityScope=account;traceCapability=body.capabilities?.trace_codec===codec().PROTOCOL;}}
  const initData=()=>window.Telegram?.WebApp?.initData||'';
- const scope=()=>{try{return String(JSON.parse(new URLSearchParams(initData()).get('user')).id);}catch{return 'telegram';}};
+ let observedScope='',accountGeneration=0;
+ const scope=()=>{let account;try{account=String(JSON.parse(new URLSearchParams(initData()).get('user')).id);}catch{account='telegram';}
+  if(account!==observedScope){observedScope=account;accountGeneration++;}return account;
+ };
+ const accountContext=()=>({account:scope(),generation:accountGeneration});
+ const isCurrent=context=>context.account===scope()&&context.generation===accountGeneration;
  const pendingKey=(account=scope())=> 'mkty_pending_v2_'+account;
  // An unavailable read is not an empty queue. Keep edits separately until the
  // original queue can be read and saving is durable again, including removals
@@ -29,6 +34,15 @@
  function read(account=scope()){
   let all=[];try{all=storedQueue(account);unreadableQueues.delete(account);}catch{unreadableQueues.add(account);}
   return mergeQueue(all,pendingEdits.get(account)).filter(item=>item&&['life.complete','lives.spend'].includes(item.action));
+ }
+ // false is a verified clear queue; null means replay must wait for a readable
+ // queue. Include memory-only edits and never inspect another account's queue.
+ function pendingCompletion(n){
+  if(!initData())return false;
+  const account=scope();let items;
+  try{items=mergeQueue(storedQueue(account),pendingEdits.get(account));unreadableQueues.delete(account);}catch{unreadableQueues.add(account);return null;}
+  if(account!==scope()||items.some(item=>!item||!['life.complete','lives.spend'].includes(item.action)||!item.payload||item.action==='life.complete'&&(!Number.isInteger(item.payload.life)||item.payload.life<1||item.payload.life>9)))return null;
+  return items.some(item=>item.action==='life.complete'&&item.payload.life===Number(n));
  }
  function persistQueue(account){
   let all;try{all=storedQueue(account);unreadableQueues.delete(account);}catch{unreadableQueues.add(account);return false;}
@@ -58,7 +72,7 @@
   el.hidden=!items.length&&!lastError&&!memoryOnly;
   const msg=memoryOnly?(ru?'Изменения наград пока хранятся только в открытой игре. Восстановите сохранение на устройстве, прежде чем закрывать её.':'Reward changes are kept only in this open game. Restore device saving before closing it.'):
    lastError==='auth'?(ru?'Сессия истекла. Закройте и снова откройте игру — прогресс сохранён.':'Session expired. Reopen the game — progress is saved.'):
-   lastError==='route_upgrade_required'||lastError==='proof_required'||lastError==='proof'?(ru?'Для подтверждения награды повторите этапы через «Новый маршрут главы». Подтверждённые достижения сохранены.':'Replay the chapter route to verify its reward. Confirmed achievements are preserved.'):
+   lastError==='route_upgrade_required'||lastError==='proof_required'||lastError==='proof'?(items.some(item=>item.action==='life.complete')?(ru?'Награда пока не подтверждена. Текущий маршрут сохранён. Нажмите для повтора синхронизации и не очищайте данные игры.':'The reward is not yet verified. Your current route is preserved. Tap to retry sync and keep the game data.'):(ru?'Для подтверждения награды повторите этапы через «Новый маршрут главы». Подтверждённые достижения сохранены.':'Replay the chapter route to verify its reward. Confirmed achievements are preserved.')):
    ['transport_unsupported','proof_too_large','trace_too_large','body_too_large'].includes(lastError)?(ru?'Доказательство прохождения сохранено на устройстве. Сервер пока не может принять его размер или формат; сохраните данные игры и повторите позже.':'Completion evidence is saved on this device. The server cannot currently accept its size or format; keep the game data and retry later.'):
    lastError==='trace_invalid'||lastError==='proof_transport_invalid'?(ru?'Доказательство прохождения сохранено, но его формат не удалось проверить. Не очищайте данные игры.':'Completion evidence is saved, but its format could not be verified. Keep the game data.'):
    lastError==='chapter_locked'?(ru?'Глава пройдена. Награда ожидает открытия по расписанию.':'Chapter completed. Reward awaits the scheduled unlock.'):
@@ -86,13 +100,13 @@
  }
  async function authPayload(){
   const data=initData();if(!data)return {};
-  const currentScope=scope();if(sessionScope!==currentScope){session=null;opening=null;lastPlayer=null;serverReady=null;sessionScope=currentScope;capabilityScope='';traceCapability=undefined;}
+  const context=accountContext(),currentScope=context.account;if(sessionScope!==currentScope||sessionGeneration!==context.generation){session=null;opening=null;lastPlayer=null;serverReady=null;sessionScope=currentScope;sessionGeneration=context.generation;capabilityScope='';traceCapability=undefined;}
   if(!session){try{session=JSON.parse(sessionStorage.getItem('mkty_session_v1_'+currentScope)||'null');}catch{}}
   if(session?.token&&session.expires_at>Date.now()+30000)return {session:session.token};
   if(!opening){
    const job=(async()=>{
     const r=await post(ENDPOINT,{initData:data,action:'session'});
-    if(currentScope!==scope())return {};
+    if(!isCurrent(context))return {};
     if(r.ok&&r.session){learnCapabilities(r,currentScope);session=r.session;try{sessionStorage.setItem('mkty_session_v1_'+currentScope,JSON.stringify(session));}catch{}return {session:session.token};}
     return {initData:data};
    })().finally(()=>{if(opening===job)opening=null;});opening=job;
@@ -100,10 +114,10 @@
   return opening;
  }
  async function authenticatedFetch(url,payload={},signal){
-  const currentScope=scope(),auth=await authPayload();
-  if(currentScope!==scope())return {ok:false,error:'account_changed'};
+  const context=accountContext(),currentScope=context.account,auth=await authPayload();
+  if(!isCurrent(context))return {ok:false,error:'account_changed'};
   const result=await post(url,{...payload,...auth},signal);
-  if(currentScope!==scope()||(result?.player?.telegram_id!=null&&String(result.player.telegram_id)!==currentScope))return {ok:false,error:'account_changed'};
+  if(!isCurrent(context)||(result?.player?.telegram_id!=null&&String(result.player.telegram_id)!==currentScope))return {ok:false,error:'account_changed'};
   if(url===ENDPOINT&&payload.action==='player')learnCapabilities(result,currentScope);
   if(payload.action==='campaign.cloud.v2'||payload.action==='life.complete.v2'){
    if(result?.error==='action'||result?.error==='protocol'||(result?.ok&&result.protocol!==codec().PROTOCOL)){capabilityScope=currentScope;traceCapability=false;return {ok:false,error:'transport_unsupported'};}
@@ -112,27 +126,52 @@
   return result;
  }
  async function traceProtocol(){
-  const account=scope();await authPayload();if(account!==scope())return null;
+  const context=accountContext(),account=context.account;await authPayload();if(!isCurrent(context))return null;
   if(capabilityScope!==account||traceCapability===undefined){const result=await authenticatedFetch(ENDPOINT,{action:'player'});if(!result?.ok)return null;}
-  return account===scope()&&capabilityScope===account&&traceCapability===true?codec().PROTOCOL:null;
+  return isCurrent(context)&&capabilityScope===account&&traceCapability===true?codec().PROTOCOL:null;
  }
- async function call(action,payload={}){
-  if(!initData()){serverReady=false;return null;}
+ // Snapshot-bearing requests share an account-scoped lane through response-body
+ // parsing and cache application. Arrival order or a request-start counter cannot
+ // tell us the server's commit order. Another account has its own independent lane.
+ const playerRequests=new Map();
+ function call(action,payload={}){
+  if(!initData()){serverReady=false;return Promise.resolve(null);}
+  const context=accountContext();
+  // campaign.open returns a route only. Keep superseding route work responsive;
+  // its identity checks live in prepareRoute and it must never apply a snapshot.
+  if(action==='campaign.open')return performCall(action,payload,context,false);
+  const previous=playerRequests.get(context.account)||Promise.resolve();
+  const result=previous.then(()=>performCall(action,payload,context,true));
+  const settled=result.then(()=>{},()=>{});playerRequests.set(context.account,settled);
+  settled.then(()=>{if(playerRequests.get(context.account)===settled)playerRequests.delete(context.account);});
+  return result;
+ }
+ async function performCall(action,payload,context,applySnapshot){
+  if(!isCurrent(context))return {ok:false,error:'account_changed'};
   try{
-   const requestedScope=scope();
    if(action==='life.complete'){
-    const protocol=await traceProtocol();if(requestedScope!==scope())return {ok:false,error:'account_changed'};
+    const protocol=await traceProtocol();if(!isCurrent(context))return {ok:false,error:'account_changed'};
     payload={...payload,...(payload.proof?{proof:protocol?codec().packProof(payload.proof):codec().unpackProof(payload.proof)}:{})};
     if(protocol){action='life.complete.v2';payload.protocol=protocol;}
    }
    const body=await authenticatedFetch(ENDPOINT,{...payload,action});
-   if(requestedScope!==scope()||(body?.player?.telegram_id!=null&&String(body.player.telegram_id)!==requestedScope))return {ok:false,error:'account_changed'};
-   if(!body?.ok){lastError=body?.error||'unavailable';serverReady=false;renderStatus();return body;}
+   if(!isCurrent(context)||(body?.player?.telegram_id!=null&&String(body.player.telegram_id)!==context.account))return {ok:false,error:'account_changed'};
+   if(!body?.ok){
+    // This error is an authoritative zero-life result. Apply it inside the lane,
+    // rather than letting a delayed app callback overwrite a later restoration.
+    if(applySnapshot&&action==='lives.spend'&&body?.error==='no_lives')localStorage.setItem('mkty_global_lives','0');
+    lastError=body?.error||'unavailable';serverReady=false;renderStatus();return body;
+   }
    serverReady=true;lastError='';
-   if(body.player){lastPlayer=body.player;applyCache(body.player);}
-   if(body.pace){localStorage.setItem('mkty_pace_server',JSON.stringify(body.pace));window.MKTYPace?.setServer?.(body.pace);}
+   if(applySnapshot&&body.player){lastPlayer=body.player;applyCache(body.player);}
+   if(applySnapshot&&body.pace){localStorage.setItem('mkty_pace_server',JSON.stringify(body.pace));window.MKTYPace?.setServer?.(body.pace);}
    renderStatus();return body;
-  }catch(error){serverReady=false;lastError=['trace_invalid','trace_too_large','proof_too_large'].includes(error?.message)?error.message:'unavailable';renderStatus();return {ok:false,error:lastError};}
+  }catch(error){
+   if(!isCurrent(context))return {ok:false,error:'account_changed'};
+   // An abort is not proof of a server rollback. Leave retryable intents queued;
+   // release this lane so one failed connection cannot block further local play.
+   serverReady=false;lastError=['trace_invalid','trace_too_large','proof_too_large'].includes(error?.message)?error.message:'unavailable';renderStatus();return {ok:false,error:lastError};
+  }
  }
  function applyCache(p){
   if(!p)return;
@@ -147,16 +186,16 @@
   window.dispatchEvent(new CustomEvent('mkty:player',{detail:{story_life:p.story_life}}));
  }
  async function syncPlayer(){
-  const account=scope();if(syncing&&syncScope===account)return syncing;syncScope=account;
+  const context=accountContext(),account=context.account;if(syncing&&syncScope===account&&syncGeneration===context.generation)return syncing;syncScope=account;syncGeneration=context.generation;
   const job=(async()=>{
    persistQueue(account);
-   const body=await call('player');if(!body?.ok||account!==scope())return lastPlayer;
-   await window.MKTYCloud?.load?.();if(account!==scope())return null;
+   const body=await call('player');if(!isCurrent(context))return null;if(!body?.ok)return lastPlayer;
+   await window.MKTYCloud?.load?.();if(!isCurrent(context))return null;
    for(const item of read()){
-    if(account!==scope())return null;
-    if(item.action==='life.complete'){const proof=await proofFor(item.payload.life);if(account!==scope())return null;if(proof){saveProof(item.id,proof,account);item.payload.proof=proof;}}
+    if(!isCurrent(context))return null;
+    if(item.action==='life.complete'){const proof=await proofFor(item.payload.life);if(!isCurrent(context))return null;if(proof){saveProof(item.id,proof,account);item.payload.proof=proof;}}
     if(item.action==='life.complete'&&item.payload.life>Number(lastPlayer?.story_life||0)+1)continue;
-    const r=await call(item.action,item.payload);if(account!==scope())break;
+    const r=await call(item.action,item.payload);if(!isCurrent(context))break;
     // A spent-out account cannot settle this failed-attempt charge. It must not
     // permanently block unrelated earned chapter rewards behind it in the queue.
     if(item.action==='lives.spend'&&r?.error==='no_lives'){remove(item.id,account);continue;}
@@ -166,7 +205,7 @@
   })().finally(()=>{if(syncing===job)syncing=null;});syncing=job;return job;
  }
  async function completeLife(n,amount){
-  const account=scope(),key='mkty_life'+n,event_key='life:'+n+':complete';localStorage.setItem(key,'complete');
+  const context=accountContext(),account=context.account,key='mkty_life'+n,event_key='life:'+n+':complete';localStorage.setItem(key,'complete');
   let pts=Number(localStorage.getItem('mkty_points')||0);
   if(!initData()){
    if(localStorage.getItem(key+'_awarded')!=='yes'){pts+=amount??LIFE_REWARDS[n]??0;localStorage.setItem('mkty_points',String(pts));localStorage.setItem(key+'_awarded','yes');}
@@ -175,18 +214,18 @@
   // Persist the intent before proofFor can wait for the network. An app close at
   // that point must still leave a retryable completion on the next launch.
   queue('life.complete',{life:n,event_key},account);
-  const proof=await proofFor(n);if(account!==scope())return {source:'account-changed',pending:true};
+  const proof=await proofFor(n);if(!isCurrent(context))return {source:'account-changed',pending:true};
   if(proof)saveProof(event_key,proof,account);
   const body=await call('life.complete',{life:n,event_key,proof});
-  if(account!==scope())return {source:'account-changed',pending:true};
+  if(!isCurrent(context)||body?.error==='account_changed')return {source:'account-changed',pending:true};
   if(body?.ok&&body.player){remove(event_key,account);localStorage.setItem(key+'_awarded','yes');return {pts:body.player.moon_points,source:body.awarded?'server':'server-idempotent',player:body.player};}
   return {pts:Number(localStorage.getItem('mkty_points')||0),source:'pending',pending:true,error:body?.error,player:null};
  }
  async function spendLife(event_key){
-  const account=scope(),key=event_key||'life:spend:'+Date.now();
+  const context=accountContext(),account=context.account,key=event_key||'life:spend:'+Date.now();
   if(!initData())return {ok:true,source:'cache'};
   queue('lives.spend',{event_key:key},account);const body=await call('lives.spend',{event_key:key});
-  if(account!==scope())return {ok:false,source:'account-changed',pending:true};
+  if(!isCurrent(context)||body?.error==='account_changed')return {ok:false,source:'account-changed',pending:true};
   if(body?.ok){remove(key,account);return {ok:body.spent||body.duplicate,source:'server',player:body.player,lives:body.player.lives};}
   if(body?.error==='no_lives'){remove(key,account);return {ok:false,source:'server',lives:0};}
   return {ok:true,source:'pending',pending:true};
@@ -195,17 +234,18 @@
  const routeJobs=new Map(),routeRequests=new Map();
  async function prepareRoute(n,reset=false){
   const p=window.MKTYStory?.read(n);if(!initData()||!p)return null;
-  const account=scope(),seed=p.seed,edition=p.edition||1,key='mkty_proof_route_'+n;
+  if(reset&&pendingCompletion(n)!==false)return null;
+  const context=accountContext(),account=context.account,seed=p.seed,edition=p.edition||1,key='mkty_proof_route_'+n;
   let route;try{route=JSON.parse(localStorage.getItem(key)||'null');}catch{}
   if(!reset&&route&&Number(route.seed)===seed&&route.edition===edition)return route;
-  const owner=account+':'+n,jobKey=owner+':'+seed+':'+edition+':'+reset;
+  const owner=account+':'+n,jobKey=owner+':'+context.generation+':'+seed+':'+edition+':'+reset;
   const existing=routeJobs.get(jobKey);if(existing&&routeRequests.get(owner)===existing.request)return existing.job;
   const request={};routeRequests.set(owner,request);
   const job=(async()=>{
    const body=await call('campaign.open',{life:n,seed,edition,reset});
    const current=window.MKTYStory?.read(n);
    // A late open belongs to its original account and route, never a newer replay.
-   if(account!==scope()||routeRequests.get(owner)!==request||!current||current.seed!==seed||(current.edition||1)!==edition)return null;
+   if(!isCurrent(context)||routeRequests.get(owner)!==request||!current||current.seed!==seed||(current.edition||1)!==edition)return null;
    if(body?.ok&&body.route){route=body.route;if(Number(route.seed)!==seed||route.edition!==edition)return null;localStorage.setItem(key,JSON.stringify(route));return route;}return null;
   })().finally(()=>{if(routeJobs.get(jobKey)?.job===job)routeJobs.delete(jobKey);if(routeRequests.get(owner)===request)routeRequests.delete(owner);});
   routeJobs.set(jobKey,{job,request});return job;
@@ -216,7 +256,7 @@
    if(tasks.some(t=>!t.state))return undefined;return {route:route.route,tasks};
   }catch{return undefined;}
  }
- window.MKTYRewards={prepareRoute,proofFor,accountScope:scope,endpoint:ENDPOINT,traceProtocol,syncPlayer,completeLife,spendLife,call,authPayload,authenticatedFetch,getLastPlayer:()=>lastPlayer,isServerReady:()=>serverReady,LIFE_REWARDS};
+ window.MKTYRewards={prepareRoute,proofFor,pendingCompletion,accountScope:scope,endpoint:ENDPOINT,traceProtocol,syncPlayer,completeLife,spendLife,call,authPayload,authenticatedFetch,getLastPlayer:()=>lastPlayer,isServerReady:()=>serverReady,LIFE_REWARDS};
  window.addEventListener('mkty:storage-retry',()=>{
   const accounts=new Set([...pendingEdits.keys(),...unreadableQueues]);for(const account of accounts)persistQueue(account);
   renderStatus();if(initData()&&accounts.has(scope()))syncPlayer().catch(()=>renderStatus());

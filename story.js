@@ -3,7 +3,7 @@ window.MKTYStory=(()=>{
  'use strict';
  const P=StoryPlan,$=id=>document.getElementById(id),tr=(ru,en)=>window.MKTYI18n?window.MKTYI18n.tr(ru,en):(localStorage.getItem('mkty_lang')==='ru'?ru:en),pair=a=>tr(...a);
  const original={},entry={1:'openMission',2:'openMission2',3:'openLife3MemoryGate',4:'openMission4',5:'openMission5',6:'openMission6',7:'openMission7',8:'openMission8',9:'openMission9'};
- const key=n=>'mkty_story_plan_'+n+'_v1',done=n=>localStorage.getItem('mkty_life'+n)==='complete';let current=0,storageOK=true,navigation=0,routeState='idle',request=null;
+ const key=n=>'mkty_story_plan_'+n+'_v1',done=n=>localStorage.getItem('mkty_life'+n)==='complete';let current=0,storageOK=true,navigation=0,routeState='idle',request=null,rewardRetry=null;
  const root=document.createElement('section');root.id='storyPlan';root.className='screen story-plan';root.setAttribute('translate','no');root.dir='ltr';root.innerHTML=`<header class="story-head"><div><small id="storyEyebrow"></small><h1 id="storyTitle"></h1></div><button id="storyBack"></button></header><section class="story-next" aria-labelledby="storyNextTitle"><small id="storyNextLabel"></small><strong id="storyNextTitle"></strong><button id="storyNext" type="button" class="story-primary" aria-describedby="storyNextTitle"></button><p id="storyNextHint" role="status"></p></section><div class="story-cover"><span id="storyCoverLabel"></span><strong id="storyCoverNumber"></strong><p id="storyBrief"></p></div><div id="storySpatialMap" class="story-spatial-map"></div><div class="story-body"><div class="story-stats"><div><strong id="storyProgress"></strong><span id="storyProgressLabel"></span></div><div><strong id="storyTime"></strong><span id="storyTimeLabel"></span></div><div><strong id="storyTarget"></strong><span id="storyTargetLabel"></span></div></div><p id="storyHint" class="story-hint"></p><p id="storyRisk" class="story-risk" role="note"></p><div id="storySteps" class="story-steps"></div><button id="storyCore" class="story-primary"></button><button id="storyReplay" class="story-secondary"></button><button id="storyArchive" class="story-secondary" hidden></button><p id="storySave" class="story-save" role="status"></p></div>`;$('app').append(root);if($('expeditionEntry').compareDocumentPosition($('enterBtn'))&Node.DOCUMENT_POSITION_FOLLOWING)$('expeditionEntry').before($('enterBtn'));$('enterBtn').setAttribute('translate','no');
  function read(n){try{return P.restore(JSON.parse(localStorage.getItem(key(n))));}catch{return null;}}
  function write(s){try{localStorage.setItem(key(s.n),JSON.stringify(s));storageOK=window.MKTYStorage?.persistent!==false;return storageOK;}catch{storageOK=false;return false;}}
@@ -11,8 +11,32 @@ window.MKTYStory=(()=>{
  function elapsed(s){let legacy=0;try{legacy=JSON.parse(localStorage.getItem('mkty_operations_'+s.n+'_v1'))?.seconds||0;}catch{}const finale=window.MKTYSpatialFinale?.read(s.n);const activeFinale=finale?(finale.seconds+(finale.checkpoint?.seconds||0)):0;return s.coreSeconds+legacy+activeFinale+Object.values(s.tasks).reduce((sum,t)=>sum+(t.seconds||0)+(t.checkpoint?.seconds||t.checkpoint?.run?.time||0),0);}
  function timeLabel(value){const v=Math.floor(value);return Math.floor(v/60)+':'+String(v%60).padStart(2,'0');}
  const requiresRoute=()=>window.MKTYRewards?.requiresRoute?.()===true;
- const account=()=>window.MKTYRewards?.accountScope?.()||'guest';
+ const account=()=>window.MKTYRewards?.accountScope?.()||window.MKTYStorage?.identity?.()||'guest';
  const ready=n=>!requiresRoute()||window.MKTYRewards?.routeReady?.(n,read(n))===true;
+ function completionPending(n){
+  try{
+   if(window.MKTYRewards?.pendingCompletion){const value=window.MKTYRewards.pendingCompletion(n);return value===true||value===false?value:null;}
+   if(!window.Telegram?.WebApp?.initData)return false;
+   // Older reward clients have only a durable queue. Keep a mixed cached release
+   // safe without preventing an explicitly settled route from being replayed.
+   const data=window.Telegram.WebApp.initData,owner=String(JSON.parse(new URLSearchParams(data).get('user')).id);if(!/^\d+$/.test(owner))return null;
+   const k='mkty_pending_v2_'+owner,raw=window.MKTYStorage?.readItem?window.MKTYStorage.readItem(k):localStorage.getItem(k),items=JSON.parse(raw||'[]');
+   if(window.MKTYStorage?.persistent===false||data!==window.Telegram.WebApp.initData||(window.MKTYStorage?.identity&&owner!==String(window.MKTYStorage.identity()))||!Array.isArray(items)||items.some(item=>!item||!['life.complete','lives.spend'].includes(item.action)||!item.payload||item.action==='life.complete'&&(!Number.isInteger(item.payload.life)||item.payload.life<1||item.payload.life>9)))return null;
+   return items.some(item=>item?.action==='life.complete'&&item.payload.life===Number(n));
+  }catch{return null;}
+ }
+ function retryReward(n){
+  const owner=account();if(rewardRetry?.n===n&&rewardRetry.owner===owner)return rewardRetry.promise;
+  const job={n,owner,promise:null};rewardRetry=job;render();
+  job.promise=(async()=>{try{
+   if(completionPending(n)===null)window.MKTYStorage?.retry?.();
+   if(owner===account())await window.MKTYRewards?.syncPlayer?.();
+  }catch{}finally{
+   if(rewardRetry===job){rewardRetry=null;
+    if(owner===account()&&current===n&&root.classList.contains('active'))render();
+   }
+  }return false;})();return job.promise;
+ }
  const checkpointKeys=n=>['mkty_operations_'+n+'_v1','mkty_campaign_checkpoint_'+n,'mkty_field_finale_'+n+'_v1',...(n===5?['mkty_reactor5_checkpoint_v2']:n===6?['mkty_liftoff6_checkpoint_v1']:[])];
  function archive(n){
   // Preserve the complete original run, including finale checkpoints, before a
@@ -30,6 +54,7 @@ window.MKTYStory=(()=>{
  function onScreen(id){if(id!=='storyPlan'){navigation++;request=null;}}
  function ensureRoute(n,reset=false){
   const owner=account();if(request?.n===n&&request.owner===owner)return request.promise;
+  if(reset&&completionPending(n)!==false)return retryReward(n);
   if(reset&&!archive(n)){routeState='storage';render();return Promise.resolve(false);}
   const job={n,owner,token:++navigation,promise:null};request=job;routeState='loading';render();
   const active=()=>request===job&&navigation===job.token&&current===n&&owner===account()&&root.classList.contains('active');
@@ -78,6 +103,14 @@ window.MKTYStory=(()=>{
   $('storyCore').disabled=blocked||s.done.length!==8;$('storyCore').textContent=s.phase==='complete'?tr('ОТКРЫТЬ ФИНАЛ ГЛАВЫ','OPEN CHAPTER FINALE'):s.done.length===8?tr('ПЕРЕЙТИ К ФИНАЛЬНОЙ МИССИИ →','START FINAL MISSION →'):tr('ФИНАЛ ПОСЛЕ ВОСЬМИ ЭТАПОВ','FINALE AFTER EIGHT STAGES');$('storySave').textContent=storageOK?tr('Каждый ход и вылет сохраняются на этом устройстве. Указанный темп — ориентир первого прохождения, а не таймер.','Every move and flight is saved on this device. Pacing is a first-play target, not a timer.'):tr('Хранилище недоступно. Прогресс текущего этапа может не сохраниться.','Storage unavailable. This stage may not be saved.');
   if(blocked){$('storyHint').textContent=routeState==='loading'?tr('Получаем проверенный маршрут. Этапы откроются после сохранения ответа сервера.','Getting a verified route. Stages unlock after the server response is saved.'):routeState==='legacy'?tr('Этот маршрут сохранён в архиве на устройстве. Для награды выберите новый проверенный маршрут. Подтверждённые достижения и баланс сохранены.','This route is archived on this device. Choose a new verified route to earn its reward. Confirmed achievements and balance are preserved.'):routeState==='storage'?tr('Не удалось сохранить маршрут или архив. Восстановите сохранение на устройстве и повторите.','The route or archive could not be saved. Restore device saving, then retry.'):tr('Не удалось получить проверенный маршрут. Прогресс сохранён. Проверьте соединение и повторите.','Could not get a verified route. Progress is preserved. Check your connection and retry.');
    $('storyReplay').textContent=routeState==='legacy'?tr('СОХРАНИТЬ АРХИВ И НАЧАТЬ НОВЫЙ МАРШРУТ','KEEP ARCHIVE AND START A NEW ROUTE'):tr('ПОВТОРИТЬ ПОДКЛЮЧЕНИЕ','RETRY CONNECTION');}
+  const waiting=completionPending(current),retrying=rewardRetry?.n===current&&rewardRetry.owner===account();
+  $('storyReplay').dataset.rewardRetry=String(waiting!==false||retrying);
+  if(waiting!==false||retrying){
+   $('storyReplay').hidden=false;$('storyReplay').disabled=!!retrying;
+   $('storyReplay').textContent=retrying?tr('ПРОВЕРКА НАГРАДЫ…','CHECKING REWARD…'):tr('ПОВТОРИТЬ СИНХРОНИЗАЦИЮ НАГРАДЫ','RETRY REWARD SYNC');
+   $('storySave').textContent=waiting===null?tr('Не удалось прочитать очередь наград. Восстановите сохранение на устройстве и повторите. Текущий маршрут сохранён.','The reward queue could not be read. Restore device saving and retry. Your current route is preserved.'):tr('Награда за эту главу ожидает синхронизации. Повторите синхронизацию перед созданием нового маршрута. Текущий маршрут сохранён.','This chapter reward is awaiting sync. Retry reward sync before starting a new route. Your current route is preserved.');
+   $('storyHint').textContent=$('storySave').textContent;
+  }
   renderNext(s,blocked);
   $('storyArchive').hidden=!localStorage.getItem('mkty_story_archive_latest_'+current);$('storyArchive').textContent=tr('СКАЧАТЬ СОХРАНЁННЫЙ МАРШРУТ','DOWNLOAD SAVED ROUTE');
  }
@@ -97,12 +130,13 @@ window.MKTYStory=(()=>{
  function replay(n){
   if(request)return request.promise;
   current=n;show('storyPlan');
+  if(completionPending(n)!==false)return retryReward(n);
   if(requiresRoute())return ensureRoute(n,true);
   if(!archive(n)){routeState='storage';render();return;}
   for(const k of checkpointKeys(n))localStorage.removeItem(k);write(P.fresh(n,crypto.getRandomValues(new Uint32Array(1))[0],2));window.MKTYRewards?.prepareRoute?.(n,true).catch(()=>{});routeState='ready';menu(n);
  }
  $('storyArchive').onclick=exportArchive;
- $('storyReplay').onclick=()=>routeState==='legacy'||ready(current)?replay(current):ensureRoute(current);
+ $('storyReplay').onclick=()=> $('storyReplay').dataset.rewardRetry==='true'?retryReward(current):routeState==='legacy'||ready(current)?replay(current):ensureRoute(current);
  $('storyBack').onclick=()=>show('chapters');$('storyCore').onclick=()=>activatePlan('core');
  for(let n=1;n<=9;n++){const card=$('life'+n+'Complete'),button=document.createElement('button');button.className='story-secondary';button.setAttribute('translate','no');button.textContent=tr('НОВЫЙ МАРШРУТ ГЛАВЫ','NEW CHAPTER ROUTE');button.onclick=()=>replay(n);card?.append(button);original[n]=window[entry[n]];window[entry[n]]=()=>open(n);}
  const summary=document.createElement('div');summary.className='story-campaign-summary';summary.setAttribute('translate','no');$('chapterList').before(summary);
