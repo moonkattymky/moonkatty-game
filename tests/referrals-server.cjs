@@ -1,10 +1,9 @@
 const {atomicFixture}=require('./atomic-rpc-fixture.cjs');
 const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
-(async()=>{
+async function scenario(now){
  const {createHandler,verifyTelegram,parseReferrer}=await import('../server/rewards/core.mjs');
  const keys=await webcrypto.subtle.generateKey({name:'Ed25519'},true,['sign','verify']);
  const pub=Buffer.from(await crypto.subtle.exportKey('raw',keys.publicKey)).toString('hex');
- const now=Date.now();
  const signed=async(id,start)=>{
   const o={auth_date:String(Math.floor(now/1000)),user:JSON.stringify({id,first_name:'P'+id})};if(start)o.start_param=start;
   const p=new URLSearchParams(o);
@@ -24,7 +23,7 @@ const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
   if(!rows)return new Response('no',{status:404});
   if(m==='GET')return new Response(JSON.stringify(rows.filter(r=>match(r,u))));
   if(m==='POST'){if(rows.some(r=>uniq[t].every(k=>r[k]===body[k])))return new Response('{}',{status:409});
-   const row={referred_by:null,next_life_at:null,final_balance:null,balance_locked_at:null,...body,created_at:new Date(fakeTime-600000).toISOString()};rows.push(row);return new Response(JSON.stringify([row]));}
+   const row={referred_by:null,next_life_at:null,final_balance:null,balance_locked_at:null,created_at:new Date(fakeTime-600000).toISOString(),...body};rows.push(row);return new Response(JSON.stringify([row]));}
   if(m==='PATCH'){const hit=rows.filter(r=>match(r,u));hit.forEach(r=>Object.assign(r,body));return new Response(JSON.stringify(hit));}
  };
  const handler=createHandler({url:'https://example.supabase.co',key:'k',verify:x=>verifyTelegram(x,now,pub),fetcher:atomicFixture(fetcher),clock:()=>new Date(fakeTime),referralDailyCap:2});
@@ -68,5 +67,10 @@ const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
  await call(403,'ref_100','player'); await call(403,null,'life.complete',{life:1}); assert.equal(pl(100).moon_points,1100);
  // stats for a guest without referrals
  const s2=await call(201,null,'referrals.stats'); assert.equal(s2.referrals.invited,0);
- console.log('PASS: referrals — signed start_param attribution, no self/loop/re-attribution, paid once after LIFE #1, daily cap, stats');
+}
+(async()=>{
+ // REST defaults must not replace the RPC's explicit event timestamp. Exercise
+ // both UTC boundaries as well as midday; the next-day reset remains explicit.
+ for(const time of ['2026-10-10T00:01:00Z','2026-10-10T12:00:00Z','2026-10-10T23:59:00Z'])await scenario(Date.parse(time));
+ console.log('PASS: referrals — signed attribution, once-only payments, UTC boundary daily cap and next-day reset at three fixed clocks');
 })().catch(e=>{console.error(e);process.exitCode=1;});
