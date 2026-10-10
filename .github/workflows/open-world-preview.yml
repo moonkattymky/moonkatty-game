@@ -27,7 +27,11 @@ jobs:
       - name: Package an isolated offline playable review copy
         run: node open-world/tools/package-preview.cjs
       - name: Capture actual WebGL controls, screenshots and video
+        timeout-minutes: 12
         run: node open-world/tests/browser.cjs
+      - name: Install the standard Ubuntu video encoder
+        if: always()
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - name: Convert captured gameplay video for mobile review
         if: always()
         run: |
