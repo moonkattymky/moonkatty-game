@@ -145,11 +145,30 @@
   return payload.snapshot&&!result.conflict?result:validatedRemote(result);
  }
  function blocked(remote){conflict=remote;status(ru()?'На другом устройстве есть более новое сохранение. Текущий маршрут сохранён на этом устройстве; облачная копия не перезаписана.':'A newer save exists on another device. This route stays on this device; the cloud copy has not been overwritten.',true);}
+ function acknowledgeExact(remote,account,before){
+  // A lost write receipt can leave the exact committed checkpoint marked dirty.
+  // Reconcile metadata only; recovery choices and every progress byte stay intact.
+  if(account!==scope()||generation!==before||guardUnreadable||applying||selectingRestore)return false;
+  durable();
+  if([restoreKey,transactionKey,retryGuardKey].some(key=>stored(key)!==null)||!dirty())return false;
+  const local=revision();if(!Number.isSafeInteger(local)||local<0||remote.revision<=local)return false;
+  const current=snapshot(),keys=Object.keys(current);durable();
+  if(keys.length!==Object.keys(remote.snapshot).length||keys.some(key=>typeof current[key]!=='string'||!Object.prototype.hasOwnProperty.call(remote.snapshot,key)||current[key]!==remote.snapshot[key]))return false;
+  if(account!==scope()||generation!==before)return false;
+  try{
+   localStorage.setItem('mkty_cloud_revision',String(remote.revision));durable();
+   if(account!==scope()||generation!==before)return false;
+   localStorage.removeItem('mkty_cloud_dirty');durable();
+  }catch(error){if(account===scope())localStorage.setItem('mkty_cloud_dirty','yes');throw error;}
+  if(account!==scope()||generation!==before)return false;
+  conflict=null;status('');return true;
+ }
  async function load(){
   if(!enabled())return;if(guardUnreadable){storageWarning();return;}const account=scope();if(loaded)return;if(loading)return loading;
+  const before=generation;
   loading=(async()=>{try{const r=await request({});if(account!==scope()||!r?.ok)return;
    const remote=Number(r.revision||0),local=revision(),active=document.querySelector('.screen.active')?.id;
-   if(remote>local){
+   if(remote>local&&!acknowledgeExact(r,account,before)){
     const playing=active&&!['home','language','chapters'].includes(active);
     if(dirty()||playing)blocked(r);else apply(r);
    }
@@ -177,7 +196,7 @@
   busy=true;const before=generation;
   let tooLarge=false;
   try{const r=await request({revision:revision(),snapshot:localSnapshot});if(account!==scope())return;
-   if(r?.conflict){blocked(r);return;}
+   if(r?.conflict){if(!acknowledgeExact(r,account,before))blocked(r);return;}
    durable();localStorage.setItem('mkty_cloud_revision',String(r.revision));if(generation===before)localStorage.removeItem('mkty_cloud_dirty');status('');
   }catch(error){if(account!==scope())return;
    if(['storage','storage_read'].includes(error?.message)){tooLarge=true;storageWarning();}
