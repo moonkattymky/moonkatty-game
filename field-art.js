@@ -71,7 +71,7 @@ window.FieldArt=(()=>{
   return `<svg viewBox="0 0 600 450" xmlns="http://www.w3.org/2000/svg" aria-label="Mission 2 space" class="field-svg" data-renderer="crew-workshop-rebuilt-v1">${a}</svg>`.replaceAll('fa-','fa-scene-');
  }
 
- function scene(s,chapter=0){if(s.n===2)return crewWorkshop(s,FieldRules.layout(s));if(s.n===1)return lunarWorksite(s,FieldRules.layout(s));const b=FieldRules.layout(s),n=s.n,grid=[1,4,7].includes(n),h=grid?600:450,own=SCENERY[chapter],site=chapter===4&&n===4&&s.mods&&Number.isInteger(s.mods.site)?s.mods.site:-1;
+ function scene(s,chapter=0){if(chapter===1&&s.n===1&&window.MKTYCinematicArt)return MKTYCinematicArt.scene(s,FieldRules.layout(s));if(s.n===2)return crewWorkshop(s,FieldRules.layout(s));if(s.n===1)return lunarWorksite(s,FieldRules.layout(s));const b=FieldRules.layout(s),n=s.n,grid=[1,4,7].includes(n),h=grid?600:450,own=SCENERY[chapter],site=chapter===4&&n===4&&s.mods&&Number.isInteger(s.mods.site)?s.mods.site:-1;
   const img=own?own[0]:site===1?'life4-landing':[1,4].includes(n)?'world-surface':n===5?'life5-reactor-v2':n===7?'life7-void':'world-orbital',op=own?own[1]:site===1?.6:n===5?.65:.86,tint=own?own[2]:site===0?'#8fc8ee33':site===1?'#a5703a40':'#0b2a3726';
   let a=background(n,h)+`<image pointer-events="none" href="art/${img}.webp" width="600" height="${h}" preserveAspectRatio="xMidYMid slice" opacity="${op}"/><rect pointer-events="none" width="600" height="${h}" fill="${tint}"/>`;
   if(n===1||n===7){

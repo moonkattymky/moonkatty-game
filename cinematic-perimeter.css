@@ -1,0 +1,99 @@
+/* Reference-led cinematic skin. Scoped to the new chapter-1 renderer only. */
+#fieldMission.cinematic-mission{position:relative;isolation:isolate;max-width:600px!important;overflow:visible;background:#071522!important;color:#ecf3f8}
+#fieldMission.cinematic-mission .field-head{position:absolute;inset:0 0 auto;z-index:3;background:linear-gradient(90deg,#071522ae,transparent);backdrop-filter:none;border:0;padding:calc(17px + env(safe-area-inset-top)) 20px 18px;align-items:flex-start;pointer-events:none}
+#fieldMission.cinematic-mission .field-head>div{min-width:0;max-width:calc(100% - 56px)}
+#fieldMission.cinematic-mission .field-head>div::before{content:'MOONKATTY';display:block;font:750 15px/1.3 system-ui;letter-spacing:2.1px;color:#f6dfb7;margin-bottom:5px}
+#fieldMission.cinematic-mission .field-head small{font:11px/1.4 system-ui;letter-spacing:.4px;color:#ccdce9}
+#fieldMission.cinematic-mission .field-head h1{font:700 24px/1.1 system-ui;letter-spacing:.6px;margin-top:4px;color:#e5f4fc;text-shadow:0 2px 5px #051321}
+#fieldMission.cinematic-mission #fieldPause{pointer-events:auto;min-width:44px;min-height:44px;border-radius:50%;border:1px solid #9bb7ce80;background:linear-gradient(135deg,#30485e,#0c1f31);box-shadow:inset 0 1px 2px #d5e8ef50,0 3px 12px #020b14a0}
+#fieldMission.cinematic-mission .field-route{display:none}
+#fieldMission.cinematic-mission .field-world{aspect-ratio:600/910;width:100%;margin:0;max-width:none;background:#071522;border:0;box-shadow:none;overflow:hidden}
+#fieldMission.cinematic-mission .field-world::after{display:none}
+#fieldMission.cinematic-mission .cinematic-perimeter{background:#071522}
+#fieldMission.cinematic-mission .field-telemetry{position:absolute;inset:119px 18px auto;z-index:3;grid-template-columns:1fr 1fr 1fr;padding:6px 12px;gap:8px;border:1px solid #759bb780;border-radius:28px;background:linear-gradient(115deg,#112c40,#081d30);box-shadow:inset 0 1px #b8d4df24,0 3px 15px #02101d80;color:#eaf7fb}
+#fieldMission.cinematic-mission .field-telemetry>div{flex-direction:column;gap:2px;align-items:center;padding-right:6px;border-color:#6c94ad50}
+#fieldMission.cinematic-mission .field-telemetry small{color:#bdcfdb;font:11px/1.2 system-ui;letter-spacing:0;overflow-wrap:normal}
+#fieldMission.cinematic-mission .field-telemetry strong{color:#ffe0a0;font:750 16px/1.1 system-ui}
+#fieldMission.cinematic-mission .field-deck{position:relative;padding:3px 14px 7px;background:#071522;color:#d5e3eb}
+#fieldMission.cinematic-mission .field-objective{padding:0;margin:0 0 4px;border:0}
+#fieldMission.cinematic-mission .field-objective>div,#fieldMission.cinematic-mission .field-objective progress{display:none}
+#fieldMission.cinematic-mission #fieldControlHint{font:11px/1.4 system-ui;color:#c6dae6;margin:0;padding:2px 0;letter-spacing:0;text-align:center}
+#fieldMission.cinematic-mission #fieldControls{display:flex;align-items:center;justify-content:space-between;gap:100px;flex-wrap:nowrap;min-height:106px}
+#fieldMission.cinematic-mission #fieldControls>button{flex:none;min-width:96px;max-width:116px;min-height:96px;padding:6px;border-radius:50%;border:2px solid #76dfff;color:#dcf7ff;background:linear-gradient(135deg,#123d57,#072036);box-shadow:inset 0 1px #c6fcff70,inset 0 0 15px #57b6e338,0 0 12px #29b9f326;font:650 11px/1.2 system-ui;letter-spacing:0;overflow-wrap:anywhere}
+#fieldMission.cinematic-mission #fieldControls>[data-field-action=scan]::before{content:'';display:block;width:43px;height:43px;margin:0 auto 5px;border-radius:50%;border:2px solid #88eafa;background:linear-gradient(125deg,transparent 48%,#b0f7ff 49% 53%,transparent 54%),repeating-radial-gradient(circle at center,transparent 0 9px,#58bade80 10px 11px);box-shadow:0 0 10px #56d8ff38}
+#fieldMission.cinematic-mission #fieldControls>.cinematic-joystick{order:-1;width:106px;height:106px;max-width:106px;min-width:106px;border:1px solid #8aa7bd80;background:linear-gradient(140deg,#243c50,#0c1a29);color:#b4c7d7;touch-action:manipulation;box-shadow:inset 0 1px #c7d8e63d,0 5px 20px #010b14}
+.joystick-ring{display:block;position:relative;width:100%;height:100%;border-radius:50%;border:1px solid #7291a570;pointer-events:none}
+.joystick-ring i{position:absolute;inset:28%;border-radius:50%;background:linear-gradient(135deg,#afbecb,#617489);border:1px solid #d3e2ed90;box-shadow:0 3px 9px #030e1c}
+.joystick-ring b{position:absolute;font:500 23px/1 system-ui;pointer-events:none}
+.joystick-ring .north{top:3%;left:40%}.joystick-ring .south{bottom:3%;left:40%}.joystick-ring .west{left:4%;top:35%}.joystick-ring .east{right:4%;top:35%}
+#fieldMission.cinematic-mission .field-guide{position:absolute;z-index:4;left:50%;bottom:27px;transform:translateX(-50%);width:102px;margin:0;padding:0;border:0;text-align:center}
+#fieldMission.cinematic-mission .field-guide summary{list-style:none;min-height:48px;padding:5px 2px;align-content:center;white-space:normal;overflow-wrap:anywhere;font:600 11px/1.3 system-ui;color:#efcf91;border:1px solid #a28c5b60;border-radius:12px;background:#142637}
+#fieldMission.cinematic-mission .field-guide summary::-webkit-details-marker{display:none}
+#fieldMission.cinematic-mission .field-guide[open]{position:relative;left:auto;bottom:auto;transform:none;width:100%;margin:8px 0}
+#fieldMission.cinematic-mission .field-guide[open] p{color:#c6dae6;background:#142637;padding:9px;border-radius:8px;font-size:12px}
+#fieldMission.cinematic-mission .field-footer{position:static;padding:5px 14px calc(12px + env(safe-area-inset-bottom));background:#071522;border-top:1px solid #5b79944d;backdrop-filter:none}
+#fieldMission.cinematic-mission .field-footer p{color:#b8cddb;font:11px/1.35 system-ui;min-height:0;margin:0 0 5px;text-align:center}
+#fieldMission.cinematic-mission .field-footer button{border-radius:22px!important;background:linear-gradient(115deg,#f4d695,#cba45a);border-color:#ffdf95;color:#102539;min-height:44px;font:700 12px/1.2 system-ui;box-shadow:inset 0 1px #fff3cf,0 0 13px #eabc5020}
+#fieldMission.cinematic-mission .field-footer button:disabled{opacity:1;background:linear-gradient(115deg,#142b3e,#0d2032)!important;border-color:#6f8ea66b!important;color:#bacbd9!important;box-shadow:none}
+#fieldMission.cinematic-mission .cinematic-navigation{display:flex;align-items:stretch;gap:8px}
+#fieldMission.cinematic-mission .cinematic-navigation #fieldSubmit{flex:1;width:auto;min-width:0}
+#fieldMission.cinematic-mission .cinematic-navigation .cinematic-nav-button{flex:0 0 56px;min-width:56px;width:56px;min-height:44px;padding:3px;background:#0b2133;border:1px solid #6c8aa253;box-shadow:none;color:#bdcfdb;border-radius:8px!important;font:650 11px/1.3 system-ui}
+#fieldMission.cinematic-mission .cinematic-nav-button::before{content:'';display:block;width:18px;height:17px;margin:0 auto 2px;border:1px solid #bdd1df;border-radius:3px}
+#fieldMission.cinematic-mission .cinematic-map-button::before{transform:skewY(-9deg);background:linear-gradient(90deg,transparent 29%,#bdd1df 30% 35%,transparent 36% 64%,#bdd1df 65% 70%,transparent 71%)}
+#fieldMission.cinematic-mission .cinematic-tasks-button::before{background:repeating-linear-gradient(transparent 0 3px,#bdd1df 4px 5px,transparent 6px 7px);background-size:11px 12px;background-position:center;background-repeat:no-repeat}
+#fieldMission.cinematic-mission .cinematic-map-button[aria-pressed=true]{color:#ffdf97;border-color:#debd7870}
+#fieldMission.cinematic-mission.cinematic-map-view{display:grid;grid-template-columns:100%;grid-template-areas:'head' 'telemetry' 'world' 'deck' 'footer'}
+#fieldMission.cinematic-mission.cinematic-map-view .field-head{grid-area:head;position:relative;inset:auto;padding:8px 14px;background:#0b2133}
+#fieldMission.cinematic-mission.cinematic-map-view .field-head>div::before{display:none}
+#fieldMission.cinematic-mission.cinematic-map-view .field-telemetry{grid-area:telemetry;position:relative;inset:auto;margin:3px 14px;padding:4px 12px}
+#fieldMission.cinematic-mission.cinematic-map-view .field-world{grid-area:world;aspect-ratio:1;width:100%;max-width:100%}
+#fieldMission.cinematic-mission.cinematic-map-view .field-deck{grid-area:deck}
+#fieldMission.cinematic-mission.cinematic-map-view .field-footer{grid-area:footer}
+#fieldMission.cinematic-mission button:focus-visible,#fieldMission.cinematic-mission summary:focus-visible{outline:3px solid #fff0b8;outline-offset:3px}
+#fieldMission.cinematic-mission .cinematic-perimeter text{paint-order:normal;stroke:none}
+#fieldMission.cinematic-mission .cinematic-perimeter .lunar-hit{fill:transparent;stroke:none}
+#fieldMission.cinematic-mission .cinematic-perimeter .field-map-cell:is(:hover,:focus-visible)>.lunar-hit{fill:#d4ebf519;stroke:#fff0b8;stroke-width:3}
+#fieldMission.cinematic-mission .cinematic-perimeter .field-map-cell.obstacle>.lunar-hit{fill:transparent;stroke:none}
+@keyframes cinematic-walk{0%,100%{transform:translateX(0)}25%{transform:translateX(-256px)}50%{transform:translateX(-512px)}75%{transform:translateX(-768px)}}
+.cinematic-cat.walking .cinematic-cat-frames{animation:cinematic-walk 190ms steps(1,end) 1}
+#fieldMission.cinematic-mission[data-complete=true] .field-review{background:#15343b;border-color:#80d4c17a;color:#e5f6ec;margin:6px 0}
+@media(orientation:portrait) and (max-height:700px){
+ #fieldMission.cinematic-mission .field-world{width:284px;max-width:100%;margin-inline:auto;aspect-ratio:600/800}
+ #fieldMission.cinematic-mission .field-head{padding:8px 12px 12px}
+ #fieldMission.cinematic-mission .field-head>div::before{font-size:11px;letter-spacing:1px;margin-bottom:2px}
+ #fieldMission.cinematic-mission .field-head small{font-size:11px}
+ #fieldMission.cinematic-mission .field-head h1{font-size:18px;margin-top:2px}
+ #fieldMission.cinematic-mission .field-telemetry{inset:72px 12px auto;padding:4px 10px;gap:5px}
+ #fieldMission.cinematic-mission .field-telemetry strong{font-size:13px}
+ #fieldMission.cinematic-mission .field-deck{padding:3px 12px 5px}
+ #fieldMission.cinematic-mission #fieldControls{min-height:56px;gap:100px}
+ #fieldMission.cinematic-mission #fieldControls>button{min-width:56px;max-width:56px;min-height:56px;padding:4px}
+ #fieldMission.cinematic-mission #fieldControls>.cinematic-joystick{min-width:56px;max-width:56px;width:56px;height:56px}
+ #fieldMission.cinematic-mission #fieldControls>[data-field-action=scan]::before{width:21px;height:21px;margin-bottom:2px}
+ #fieldMission.cinematic-mission .field-guide{bottom:10px;width:130px}
+ #fieldMission.cinematic-mission .joystick-ring b{font-size:17px}
+ #fieldMission.cinematic-mission .field-footer{padding:2px 12px calc(4px + env(safe-area-inset-bottom))}
+}
+@media(orientation:landscape) and (max-height:600px){
+ #fieldMission.cinematic-mission.active{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);grid-template-rows:48px auto 1fr auto;height:var(--mk-vh,100dvh);min-height:0;max-width:1100px!important;overflow:hidden}
+ #fieldMission.cinematic-mission .field-head{position:relative;grid-column:1/-1;padding:3px 12px;background:#0b2133;align-items:center}
+ #fieldMission.cinematic-mission .field-head>div{display:flex;align-items:center;gap:8px;max-width:calc(100% - 50px)}
+ #fieldMission.cinematic-mission .field-head>div::before{font-size:11px;margin:0;letter-spacing:.5px}
+ #fieldMission.cinematic-mission .field-head small{display:none}
+ #fieldMission.cinematic-mission .field-head h1{font-size:16px;margin:0}
+ #fieldMission.cinematic-mission .field-world{grid-column:1;grid-row:2/5;aspect-ratio:auto!important;min-height:0;width:100%}
+ #fieldMission.cinematic-mission .field-telemetry{position:relative;inset:auto;grid-column:2;grid-row:2;margin:4px 8px 0;padding:5px 8px;border-radius:12px}
+ #fieldMission.cinematic-mission .field-telemetry strong{font-size:13px}
+ #fieldMission.cinematic-mission .field-deck{grid-column:2;grid-row:3;padding:3px 8px;overflow:auto;min-height:0}
+ #fieldMission.cinematic-mission #fieldControls{min-height:74px;gap:90px}
+ #fieldMission.cinematic-mission #fieldControls>button{min-width:74px;max-width:74px;min-height:74px}
+ #fieldMission.cinematic-mission #fieldControls>.cinematic-joystick{min-width:74px;max-width:74px;width:74px;height:74px}
+ #fieldMission.cinematic-mission #fieldControls>[data-field-action=scan]::before{width:27px;height:27px;margin-bottom:2px}
+ #fieldMission.cinematic-mission .field-guide{bottom:auto;top:52px;width:90px}
+ #fieldMission.cinematic-mission .field-guide[open]{top:auto}
+ #fieldMission.cinematic-mission .field-footer{grid-column:2;grid-row:4;padding:4px 8px}
+ #fieldMission.cinematic-mission .field-footer p{display:none}
+ #fieldMission.cinematic-mission.cinematic-map-view.active{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);grid-template-rows:48px auto 1fr auto;grid-template-areas:'head head' 'world telemetry' 'world deck' 'world footer'}
+ #fieldMission.cinematic-mission.cinematic-map-view .field-world{aspect-ratio:auto!important}
+}
+@media(prefers-reduced-motion:reduce){.cinematic-cat.walking .cinematic-cat-frames{animation:none}}
