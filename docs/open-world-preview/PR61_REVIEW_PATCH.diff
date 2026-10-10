@@ -1,0 +1,15 @@
+diff --git a/tests/preview-entry-source.cjs b/tests/preview-entry-source.cjs
+index 5725828..915f9bb 100644
+--- a/tests/preview-entry-source.cjs
++++ b/tests/preview-entry-source.cjs
+@@ -17,8 +17,8 @@ const hashes={
+   "server/rewards/campaign.mjs": "eaa67e2e4ba4753d15fb45e94cf2e10489c659756bd10ec3da4699329e0e9326",
+   "server/rewards/models/field-model.mjs": "4bca76e0605f5e549ec4f07e91ef89470b7cb6dc80979b6069545ce6ddc0dbba",
+   "graphics-preview/index.html": "e53823f9a85936988d34077bdb904f547c60d2d908e090e610afd684da04949a",
+-  "graphics-preview/world.css": "e1feac708b376349e63d89b3ccff53bc322c7c231ea862d346e3cdc1388894fd",
+-  "graphics-preview/scene.js": "75070efc6d60b7f586d28755b0232c94d165bb042db1ac25ac9529a55ec24786",
++  "graphics-preview/world.css": "6ee2ce83813c634abf3554f878c4aa457d51ad74de1020724147180e2020b8c2",
++  "graphics-preview/scene.js": "18e8819656b548b547f80a20a942a585fc12150586fb09ad8ce2af372a0c791e",
+   "graphics-preview/art/earth.webp": "fc617c8bc5f8e229046dae41d216a10de79e0e3503b0c664e8b2b086984b765c",
+   "graphics-preview/art/regolith.webp": "e59688577b0d09644a426e7ccf5656626028500904e9a14352d3d4a1c534f933",
+   "graphics-preview/vendor/three-r170.module.min.js": "08fd7545d13d2c7fb65ab691530a802dafefd638596501854f267d0fb13c39e7",
