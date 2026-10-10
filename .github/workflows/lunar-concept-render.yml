@@ -26,7 +26,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npx playwright install --with-deps chromium
       - name: Check new isolated scene source
-        run: node --check lunar-slice/world.js && node --check lunar-slice/hero.js && node --check lunar-slice/app.js && node --check lunar-slice/tests/render.cjs
+        run: node --check lunar-slice/world.js && node --check lunar-slice/hero.js && node --check lunar-slice/app.js && node --check lunar-slice/tests/render.cjs && node lunar-slice/tests/framing.mjs
       - name: Package independent offline playable file
         run: node lunar-slice/tools/pack-standalone.cjs /tmp/moonkatty-lunar-concept/MOONKATTY-lunar-observatory-playable.html
       - name: Render review frames first
