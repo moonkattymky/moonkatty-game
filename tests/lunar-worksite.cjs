@@ -3,9 +3,10 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),crypto=require('node:crypto'),zlib=require('node:zlib'),path=require('node:path');
 const root=path.resolve(__dirname,'..'),source=fs.readFileSync(path.join(root,'field-art.js'),'utf8'),R=require('../field-model.js');
 const baseHashes={
- // Intentional separate convoy, Echo and closing-gate checkpoint corrections; rendering and all other baseline sources stay pinned.
+ // Intentional checkpoint fixes and optional paused-only art loading hook; rules/saves remain pinned.
+ // The field-missions change only prepares optional art and guards a board repaint; no game/save paths change.
  'field-model.js':'94ab25d49258d5ca64cdf391eccdaadd3b3f10370b363295a4c3bd3a58aea7a8',
- 'field-missions.js':'87ae7505443efcaa76ec1cf8c9b0293493a8d3b32ded761d08f8fae280bbf168',
+ 'field-missions.js':'f0c8c011d84f507070c3b5a821cee95cfc757562f141044089fd91d1520092c8',
  'story-plan.js':'fd4683463fc1bcf72862b33478a6d4d1036036632ccff88a049798428d583474',
  'story.js':'56e308ab4dac53df7a37f3df8714535ec19afbae8766bdbbc17fb28c0e0e3a6f',
  'storage.js':'c8a4becffdff791e36ce0a709a8cd8dba2cfa5a4f4e8cde4732ab2565a9261c9',

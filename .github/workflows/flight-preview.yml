@@ -1,0 +1,64 @@
+name: Review artifacts - rebuilt flight scene
+on:
+  pull_request:
+    paths:
+      - 'field-art.js'
+      - 'field-art-loader.js'
+      - 'art-scenes/**'
+      - 'field-model.js'
+      - 'field-missions.js'
+      - 'field-missions.css'
+      - 'index.html'
+      - 'art/life6-orbit-v2.webp'
+      - 'moonkatty-life4-ship.webp'
+      - 'tests/field-art-module-helper.cjs'
+      - 'tests/field-art-modules.cjs'
+      - 'tests/flight-scene.cjs'
+      - 'tests/field-control-helper.cjs'
+      - 'tests/lunar-worksite.cjs'
+      - 'tests/crew-workshop.cjs'
+      - 'tools/render-flight-preview.cjs'
+      - '.github/workflows/flight-preview.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: flight-preview-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  flight-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx --no-install playwright install --with-deps chromium
+      - name: Check out exact public PR54 comparison tree
+        run: |
+          git fetch --no-tags origin c52df881d4a256dd962073d3eba1298aa1327095
+          test "$(git rev-parse c52df881d4a256dd962073d3eba1298aa1327095^{tree})" = "955e4417b8d658efdb3fa538b8f9a3d9d76d44e6"
+          git worktree add --detach /tmp/moonkatty-pr54-before c52df881d4a256dd962073d3eba1298aa1327095
+      - name: Preserve original scene guards and verify optional module invariants
+        run: |
+          node tests/lunar-worksite.cjs
+          node tests/crew-workshop.cjs
+          node tests/field-art-modules.cjs
+          node tests/flight-scene.cjs
+      - name: Render real Chapter 3 gameplay and exercise module lifecycle
+        run: node tools/render-flight-preview.cjs --before=/tmp/moonkatty-pr54-before --out=/tmp/moonkatty-flight-preview
+      - name: Retain evidence without deployment
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: moonkatty-flight-preview-${{ github.sha }}
+          path: /tmp/moonkatty-flight-preview
+          retention-days: 7
+          if-no-files-found: warn
