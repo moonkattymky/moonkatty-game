@@ -1,0 +1,40 @@
+name: One-time pre-openworld backup tag
+on:
+  push:
+    branches: [open-world]
+    paths: ['.github/workflows/open-world-backup-once.yml']
+permissions:
+  contents: read
+jobs:
+  backup:
+    if: github.repository == 'moonkattymky/moonkatty-game' && github.event_name == 'push' && github.ref == 'refs/heads/open-world'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: write
+    steps:
+      - name: Create the exact approved backup tag, never overwrite
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const owner = 'moonkattymky';
+            const repo = 'moonkatty-game';
+            const expected = '00e391ffe0bb2ed663a7e3136cf382b0030857b4';
+            const ref = 'refs/tags/pre-openworld-backup';
+            const main = await github.rest.git.getRef({owner, repo, ref: 'heads/main'});
+            if (main.data.object.sha !== expected) throw new Error('Main changed; backup requires fresh inspection.');
+            let existing;
+            try {
+              existing = await github.rest.git.getRef({owner, repo, ref: 'tags/pre-openworld-backup'});
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            if (existing) {
+              if (existing.data.object.sha !== expected) throw new Error('Backup tag exists at another SHA; never overwrite.');
+              core.info('The exact backup tag already exists; no mutation.');
+              return;
+            }
+            await github.rest.git.createRef({owner, repo, ref, sha: expected});
+            const verified = await github.rest.git.getRef({owner, repo, ref: 'tags/pre-openworld-backup'});
+            if (verified.data.object.sha !== expected) throw new Error('Backup verification failed.');
+            core.info('Verified pre-openworld-backup at ' + expected);
