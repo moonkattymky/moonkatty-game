@@ -26,7 +26,7 @@ const hashes={
 };
 for(const [p,sha]of Object.entries(hashes))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(root,p))).digest('hex'),sha,p+' stays byte-identical to the reviewed source');
 const index=read('index.html'),host=read('preview-entry.js'),embedded=read('graphics-preview/embed.html');
-assert(index.includes('id="preview3DEntry"'));assert(!/<iframe|(?:src|href)="graphics-preview\//.test(index),'root loads no 3D document/module/texture');
+assert(index.includes('id="preview3DEntry"'));assert(index.indexOf('id="preview3DEntry"')>index.indexOf('<nav class="mk-bottom-nav"'),'optional entry follows the unchanged primary navigation');assert(!/<iframe|(?:src|href)="graphics-preview\//.test(index),'root loads no 3D document/module/texture');
 assert(!/initData|localStorage|MKTYRewards|authenticatedFetch|fetch\(/.test(host),'host does not copy auth, touch campaign storage or call game APIs');
 assert(host.includes("document.getElementById('home')?.classList.contains('active')"));
 assert(host.includes('event.origin!==location.origin||event.source!==frame.contentWindow'),'current frame and origin are required');

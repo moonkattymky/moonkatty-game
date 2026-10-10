@@ -16,7 +16,7 @@ const out = process.env.MKTY_TEST_OUTPUT || '/tmp/mkty-preview-entry-ui-direct';
 const previewKey = 'mkty_graphics_3d_preview_v1';
 const types = {'.html':'text/html', '.js':'application/javascript', '.css':'text/css', '.json':'application/json', '.webp':'image/webp', '.png':'image/png', '.svg':'image/svg+xml', '.mp4':'video/mp4'};
 fs.mkdirSync(out, {recursive:true});
-const report = {checks:[], layouts:[], requests:[], errors:[], fixtureCalls:[], device:'Chromium mobile emulation / SwiftShader, not a physical Telegram phone'};
+const report = {checks:[], layouts:[], requests:[], errors:[], fixtureCalls:[], cloudRequests:[], cloudCheckpoints:[], device:'Chromium mobile emulation / SwiftShader, not a physical Telegram phone'};
 const server = http.createServer((req, res) => {
   const pathname = new URL(req.url, 'http://fixture').pathname;
   const file = path.join(root, pathname.endsWith('/') ? pathname + 'index.html' : pathname);
@@ -44,6 +44,27 @@ async function waitForHeld(label) {
   const deadline = Date.now() + 15000;
   while (!held && Date.now() < deadline) await new Promise(resolve => setTimeout(resolve, 20));
   assert(held, label + ': the actual request reached the delay fixture');
+}
+async function cloudCheckpoint(label) {
+  const state = await page.evaluate(() => ({
+    account:MKTYStorage.identity(), revision:Number(localStorage.getItem('mkty_cloud_revision') || 0),
+    dirty:localStorage.getItem('mkty_cloud_dirty'), persistent:MKTYStorage.persistent,
+    screen:document.querySelector('.screen.active')?.id,
+    conflict:!!document.querySelector('#cloudSaveStatus button'),
+    status:document.getElementById('cloudSaveStatus')?.textContent || '',
+    keys:Object.keys(MKTYCloud.snapshot()).sort()
+  }));
+  report.cloudCheckpoints.push({label, serverRevision:cloud.revision, ...state});
+  return state;
+}
+async function savedCloud(label) {
+  try { await waitForCloud(page, 'saved', {label}); }
+  catch (error) { await cloudCheckpoint(label + ' FAILED'); throw error; }
+  const state = await cloudCheckpoint(label);
+  assert.notEqual(state.dirty, 'yes', label + ': client acknowledgement is durable');
+  assert.equal(state.conflict, false, label + ': no fixture conflict is bypassed');
+  assert.equal(state.revision, cloud.revision, label + ': client and server agree on the committed revision');
+  assert.deepEqual(await page.evaluate(() => MKTYCloud.snapshot()), cloud.snapshot, label + ': exact campaign snapshot is acknowledged');
 }
 
 function installFixture({seed, previewKey}) {
@@ -242,8 +263,14 @@ async function launch() {
       if (action === 'session') data = {ok:true, session:{token:'synthetic-fixture-101', expires_at:Date.now() + 86400000}};
       if (action === 'player') data = {ok:true, player, pace:{next_life:2, locked:false, skips:0}};
       if (action === 'campaign.cloud') {
-        if (body.snapshot) cloud = {revision:cloud.revision + 1, snapshot:body.snapshot};
-        data = {ok:true, ...cloud};
+        const beforeRevision = cloud.revision;
+        if (body.snapshot && body.revision !== cloud.revision) data = {ok:true, conflict:true, ...cloud};
+        else {
+          if (body.snapshot) cloud = {revision:cloud.revision + 1, snapshot:body.snapshot};
+          data = {ok:true, ...cloud};
+        }
+        report.cloudRequests.push({kind:body.snapshot ? 'write' : 'read', requestedRevision:body.revision ?? null,
+          beforeRevision, afterRevision:cloud.revision, conflict:!!data.conflict, keys:Object.keys(body.snapshot || cloud.snapshot).sort()});
       }
       return route.fulfill({contentType:'application/json', body:JSON.stringify(data)});
     }
@@ -254,7 +281,12 @@ async function launch() {
   await page.goto(base + '/?entry-fixture=1#telegram-launch-fixture', {waitUntil:'load'});
   await page.waitForFunction(() => window.MKTYStory && window.MKTYHub && MKTYRewards.getLastPlayer()?.telegram_id === 101);
   await page.evaluate(() => mktyAuthPromise);
-  await waitForCloud(page, 'saved', {label:'synthetic existing-account initial save'});
+  // Prepare the real idle controller once, before the first save barrier. Its
+  // unconditional pagehide save must not introduce an unrelated new checkpoint
+  // whose upload acknowledgement can be lost as the root document is destroyed.
+  // cloud-acknowledgement.cjs separately proves that lost receipts retain conflict.
+  await page.evaluate(() => localStorage.setItem('mkty_expeditions_v1', JSON.stringify(MKTYExpedition.snapshot())));
+  await savedCloud('synthetic existing-account initial save');
   await page.waitForLoadState('networkidle');
   assert.equal(await page.locator('.screen.active').getAttribute('id'), 'home');
   assert.equal(await page.evaluate(() => __previewFixture.seededThisDocument), true);
@@ -326,6 +358,8 @@ async function launch() {
   try { await frame.waitForFunction(yaw => MKTYOpenWorld.snapshot().camera.yaw > yaw + .3, start.camera.yaw, {timeout:15000}); }
   finally { await page.keyboard.up('e'); }
   assert((await snap(frame)).camera.yaw > start.camera.yaw + .3, 'ordinary camera input produces a non-default saved angle');
+  assert.equal((await snap(frame)).paused, false);
+  await page.screenshot({path:path.join(out, 'host-scene.png')});
   await frame.locator('#pause').click();
   const paused = await snap(frame);
   assert(paused.paused);
@@ -476,8 +510,16 @@ async function launch() {
   assert.deepEqual(await page.evaluate(() => __previewFixture.childStorage), []);
 
   // Reload the real root after returning, without recreating its fixture saves.
-  // The root's own pagehide handler may add an idle expedition checkpoint; every
-  // already-existing campaign value must still match exactly after rehydration.
+  // Prove its idle pagehide checkpoint is already unchanged and acknowledged;
+  // an unrelated lost-ack race must not substitute for this persistence check.
+  assert.equal(await page.evaluate(() => localStorage.getItem('mkty_expeditions_v1')), baseline.campaign.mkty_expeditions_v1,
+    'preview lifecycle never changes the prepared idle expedition checkpoint');
+  assert.equal(await page.evaluate(() => JSON.stringify(MKTYExpedition.snapshot())), baseline.campaign.mkty_expeditions_v1,
+    'real pagehide will save the identical already-persisted controller state');
+  await savedCloud('synthetic existing-account before root reload');
+  await preserved('acknowledged before root reload');
+  const revisionBeforeReload = cloud.revision;
+  const writesBeforeReload = report.cloudRequests.filter(r => r.kind === 'write').length;
   const durableKeys = {protected:Object.keys(baseline.protected), campaign:Object.keys(baseline.campaign)};
   function durableState(keys) {
     const native = __previewFixture.nativeStorage;
@@ -495,7 +537,7 @@ async function launch() {
   await page.reload({waitUntil:'load'});
   await page.waitForFunction(() => window.MKTYStory && window.MKTYHub && MKTYRewards.getLastPlayer()?.telegram_id === 101);
   await page.evaluate(() => mktyAuthPromise);
-  await waitForCloud(page, 'saved', {label:'synthetic existing-account after root reload'});
+  await savedCloud('synthetic existing-account after root reload');
   await page.waitForLoadState('networkidle');
   assert.equal(await page.evaluate(() => __previewFixture.seededThisDocument), false, 'reload cannot mask lost data by reseeding');
   assert.equal(await page.evaluate(() => performance.getEntriesByType('navigation')[0].type), 'reload', 'an actual root reload occurred');
@@ -504,6 +546,8 @@ async function launch() {
   assert.equal(await page.evaluate(() => typeof window.MKTYOpenWorld), 'undefined');
   assert.equal(previewRequests().length, previewCountBeforeReload, 'root reload makes zero new preview/Three/art requests');
   assert.deepEqual(await page.evaluate(durableState, durableKeys), beforeReload, 'real reload preserves campaign, checkpoint, auth account and preview session');
+  assert.equal(cloud.revision, revisionBeforeReload, 'prepared pagehide/reload does not create an unrelated cloud write');
+  assert.equal(report.cloudRequests.filter(r => r.kind === 'write').length, writesBeforeReload);
   assert.equal(report.requests.filter(r => r.type === 'document' && !r.child).length, 2, 'only the requested final root reload adds a root document');
   await sdkRestored();
   assert.deepEqual(unexpectedRemote, []);
