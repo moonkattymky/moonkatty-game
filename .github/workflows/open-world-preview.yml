@@ -1,0 +1,60 @@
+name: Open-world stage 1 · read-only visual evidence
+on:
+  push:
+    branches: [open-world]
+    paths: ['open-world/**', '.github/workflows/open-world-preview.yml']
+  pull_request:
+    paths: ['open-world/**', '.github/workflows/open-world-preview.yml']
+permissions:
+  contents: read
+concurrency:
+  group: open-world-preview-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - name: Check original asset identity and presentation isolation
+        run: node open-world/tests/static.cjs && node open-world/tests/lifecycle.cjs .
+      - name: Package an isolated offline playable review copy
+        run: node open-world/tools/package-preview.cjs
+      - name: Capture actual WebGL controls, screenshots and video
+        run: node open-world/tests/browser.cjs
+      - name: Convert captured gameplay video for mobile review
+        if: always()
+        run: |
+          video=$(find /tmp/moonkatty-open-world/video -name '*.webm' -print -quit)
+          if [ -n "$video" ]; then
+            ffmpeg -y -i "$video" -c:v libx264 -preset fast -crf 23 -pix_fmt yuv420p -movflags +faststart /tmp/moonkatty-open-world/06-actual-gameplay.mp4
+          fi
+      - name: Retain evidence and isolated playable copy
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: moonkatty-open-world-${{ github.sha }}
+          path: |
+            /tmp/moonkatty-open-world
+            open-world
+          retention-days: 14
+          if-no-files-found: error
+  baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - name: All existing 77 main-game suites
+        run: npm test

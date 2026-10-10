@@ -1,0 +1,197 @@
+{
+  "repository": "https://github.com/moonkattymky/moonkatty-horizons-play",
+  "commit": "aefb189a133aefd5d28f5acf0a1292506687ebca",
+  "permission": "Owner explicitly authorized copying this owned game code and images on 2026-10-10.",
+  "scope": "Visual renderer/model/texture/character sources only. The upstream game controller, save routines, economy UI and server features are not loaded.",
+  "files": [
+    {
+      "path": "core.js",
+      "sha256": "b0d8edd31619da8ec90a27e7042c819c3d783aa67e8ad734f02aeaf629af36ed",
+      "bytes": 34929
+    },
+    {
+      "path": "renderer.js",
+      "sha256": "1f8b7f9c1e4410dece468a958d4f159109ec612f178e46a59295783bb6b4ffac",
+      "bytes": 48087
+    },
+    {
+      "path": "sculpted-meshes.js",
+      "sha256": "decc681699a750e7141ee266ca02951cbd23ccdb49e25199e0b7b25da337cbd8",
+      "bytes": 2029376
+    },
+    {
+      "path": "world-models.js",
+      "sha256": "7a24cdf0a59a69b339e3f62933afe7fa190cb37b0517d2105e2e70af5831d088",
+      "bytes": 22187
+    },
+    {
+      "path": "golden-outpost.js",
+      "sha256": "55c03bb2aeb5eb347cb44ca8f777436a8c2ecf30c4ca7c61df9070fda5687fdc",
+      "bytes": 13221
+    },
+    {
+      "path": "model-detail.js",
+      "sha256": "e85afac6bcd6eea14256e2b94ab2372d8b7b83c1de7463bedb8e4a2164e643c7",
+      "bytes": 9935
+    },
+    {
+      "path": "world-polish.js",
+      "sha256": "0b4dc2c01c9f403c6644b73298620db98f657150479c6e7f5f82a342437fdf3d",
+      "bytes": 4003
+    },
+    {
+      "path": "sign-lettering.js",
+      "sha256": "8d79b558690da50817fd6d5f7e26889aa7baa959af1e7a289ece729001ec0f44",
+      "bytes": 108526
+    },
+    {
+      "path": "concept-outpost.js",
+      "sha256": "dc547ca68a285e23e35dbd38ca407e0236f239eb4f5ff92b6647710932c759a0",
+      "bytes": 16572
+    },
+    {
+      "path": "lunar-footprints.js",
+      "sha256": "5e1acff3d08726803769a704cc1501d9d11ec116eabffe6fc326ba69b9e98c9b",
+      "bytes": 4641
+    },
+    {
+      "path": "character-atlas.js",
+      "sha256": "fd620ac5334d091bb83d9f870c3718b9a8cc38ae550ce17bb9bc8f30c4b19856",
+      "bytes": 3111
+    },
+    {
+      "path": "character-walk-v18.js",
+      "sha256": "68d8fd69a97f6f265917fd2640ede3c1a7c2d717f09424c79cb724dd70d0e22e",
+      "bytes": 2424
+    },
+    {
+      "path": "character-sprites.js",
+      "sha256": "61fca8fdbd0722edafaa0a7b45d96044a64ae59e2201882caa1198816dee28cf",
+      "bytes": 12548
+    },
+    {
+      "path": "solid-world.js",
+      "sha256": "13d3c5bc202a751581e26d5144f1888c0a81e9ff4397dd02e16cd526a02d1766",
+      "bytes": 3380
+    },
+    {
+      "path": "premium-world.js",
+      "sha256": "3d102e709c7d365badb1ff224d0dbda816e67da5c5663e03e5b109dc96f0632c",
+      "bytes": 7994
+    },
+    {
+      "path": "open-world.js",
+      "sha256": "e8abd74fe11217b3fa2bb4fb9916c66c916046fd82088cbc1dc8817c54213fcb",
+      "bytes": 5685
+    },
+    {
+      "path": "world-atmosphere.js",
+      "sha256": "c9750b37b45819bde59269fed02e6fa7d28539738da581e2cd7e0fdc16cac37b",
+      "bytes": 9161
+    },
+    {
+      "path": "world-horizons.js",
+      "sha256": "19c4440358a91089f9ceddced5ad5183e6fd020739f34457d2001b00b765c164",
+      "bytes": 29085
+    },
+    {
+      "path": "assets/character-head-v08.jpg",
+      "sha256": "26c08087508efc76e12d7fa1d424a1fc45263eeba9f27c160fdb7edbf8f2887d",
+      "bytes": 294214
+    },
+    {
+      "path": "assets/character-suit-v08.jpg",
+      "sha256": "0d8f73402f12c453c290918d8b6e5512aad62141ed9fb6a35cef6c740199e6a7",
+      "bytes": 154739
+    },
+    {
+      "path": "assets/cliff-v42.jpg",
+      "sha256": "97e86cdf3eacd56650063b45e537f74780d0218e837b6a22fc68c528583b6f36",
+      "bytes": 174645
+    },
+    {
+      "path": "assets/concept-sky-v15.jpg",
+      "sha256": "5bfd93e13f36aea483d0cbccf1f49d27b52b3f25244f28aa0ee586184290be83",
+      "bytes": 627924
+    },
+    {
+      "path": "assets/interior-atlas-v44.jpg",
+      "sha256": "e97dd524c1a07ccf8836e8ab3a9733a6444a11e6b03f1dd397adfc01e3dd1306",
+      "bytes": 292602
+    },
+    {
+      "path": "assets/lunar-bootprint-v44.webp",
+      "sha256": "3f369c1f07d0b0cb9cc7448e610b0a1f95aec2b815b3a177b491c01e883abaeb",
+      "bytes": 35172
+    },
+    {
+      "path": "assets/moonkatty-idle-v44.webp",
+      "sha256": "dc00f947387a25ae42aab0fb1f32a195389c6dcb55fc4011acaff855b990627c",
+      "bytes": 76146
+    },
+    {
+      "path": "assets/moonkatty-walk-down-v44.webp",
+      "sha256": "6230dbf35c5944f763ddb7dd7af22834a7dd1eefbf8eed0f1567a91c833b10b3",
+      "bytes": 169122
+    },
+    {
+      "path": "assets/moonkatty-walk-left-v44.webp",
+      "sha256": "16d23d4712bd61ba6b7b265c9aa2d2aabb67f77ba2ad6d169fbdc8dc8bed12df",
+      "bytes": 164262
+    },
+    {
+      "path": "assets/moonkatty-walk-right-v44.webp",
+      "sha256": "8dff76b29f29603f50b1321caa4bca5ed4ba38fa88ddba721d736b026f5efb01",
+      "bytes": 173202
+    },
+    {
+      "path": "assets/moonkatty-walk-up-v44.webp",
+      "sha256": "61a1a4766dec6ce64eb7ecc3847268f838a5011318225bf7589a30fdbe43d428",
+      "bytes": 141500
+    },
+    {
+      "path": "assets/moonkatty-walk-v44.webp",
+      "sha256": "2d7ec6a1a6bf1e63401adaf66b214834a3f3d34c2176a59f538541e9df731b54",
+      "bytes": 171298
+    },
+    {
+      "path": "assets/outpost-surface-v44.jpg",
+      "sha256": "12bbcdbda82fb90e8b7aa98fde728554a93ee47a347957c08a9c13d4269db680",
+      "bytes": 243048
+    },
+    {
+      "path": "assets/regolith-v42.jpg",
+      "sha256": "bca126d1909612990749f706f8ce946f39a59d9cab1fff3c0379622447dadf56",
+      "bytes": 363319
+    },
+    {
+      "path": "assets/ridges-v42.jpg",
+      "sha256": "8ff00c6483a37aeedf0f79214f39b469357731db69a7e80220bafe9f66a3c585",
+      "bytes": 94829
+    },
+    {
+      "path": "assets/tabby-fur-v07.jpg",
+      "sha256": "82435129be859b8e9a6bb8a90a243fa6e34207477c5212b983a0ad3a846d89c8",
+      "bytes": 107330
+    }
+  ],
+  "local_changes": {
+    "renderer.js": "Defer allocation of terrain2 until a chapter other than 1 is rendered. No other upstream visual changes.",
+    "new_files": [
+      "UPSTREAM-PROVENANCE.json",
+      "docs/LIFE1-INTEGRATION.md",
+      "docs/STAGE1-ARCHITECTURE.md",
+      "index.html",
+      "preview-i18n.js",
+      "preview.css",
+      "preview.js",
+      "tests/bootstrap-policy.cjs",
+      "tests/browser.cjs",
+      "tests/lifecycle.cjs",
+      "tests/static.cjs",
+      "tools/package-preview.cjs",
+      "visual-core.js"
+    ],
+    "runtime_boundary": "The original core module is replaced immediately with a frozen rendering-only adapter before any visual module loads."
+  }
+}
