@@ -1,4 +1,4 @@
-import bpy, math, json, base64, struct, os, random, sys
+import bpy, bmesh, math, json, base64, struct, os, random, sys
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 random.seed(37)
@@ -27,7 +27,7 @@ def cyl(name,m,loc,r,depth,n=64,bev=.035):
 def uvball(name,m,loc,scale):
  bpy.ops.mesh.primitive_uv_sphere_add(segments=20,ring_count=12,location=loc);o=bpy.context.object;o.scale=scale;return finish(o,name,m,0,True)
 def custom(name,m,v,f,bev=.035,smooth=False):
- g=bpy.data.meshes.new(name);g.from_pydata(v,[],f);g.update();o=bpy.data.objects.new(name,g);bpy.context.collection.objects.link(o);return finish(o,name,m,bev,smooth)
+ g=bpy.data.meshes.new(name);g.from_pydata(v,[],f);g.update();bm=bmesh.new();bm.from_mesh(g);bmesh.ops.recalc_face_normals(bm,faces=bm.faces);bm.to_mesh(g);bm.free();o=bpy.data.objects.new(name,g);bpy.context.collection.objects.link(o);return finish(o,name,m,bev,smooth)
 def rail(name,m,points,r=.04):
  cu=bpy.data.curves.new(name,'CURVE');cu.dimensions='3D';cu.resolution_u=12;cu.bevel_depth=r;cu.bevel_resolution=2;s=cu.splines.new('POLY');s.points.add(len(points)-1)
  for p,co in zip(s.points,points):p.co=(*co,1)

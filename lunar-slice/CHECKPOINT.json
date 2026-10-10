@@ -1,0 +1,9 @@
+{
+  "repository": "moonkattymky/moonkatty-game",
+  "branch": "visual/lunar-concept-20261010",
+  "base": "00e391ffe0bb2ed663a7e3136cf382b0030857b4",
+  "render_commit": "ba7dae9bf31dc7c05bcdebad6d8d05b147d37e3b",
+  "status": "Authored observatory three-angle WebGL proof passed at 494e98ac. Normal orientation correction and sculpted V2 hero integration ready for next pixel test.",
+  "latest_local": "Authored observatory, quantized V2 hero, composed forecourt and new lighting, preserving previous implementation sources.",
+  "last_verified_render": "494e98acfcf14c2ea65feda4a94a94eafed4bfd4"
+}
