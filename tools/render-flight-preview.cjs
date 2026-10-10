@@ -427,6 +427,7 @@ async function lifecycle(){
  await lifecycleCase('rapid-navigation-other-chapter',async(p,gate)=>{
   await enter(p,3,{resume:false});await until(()=>moduleStatus(p),s=>s==='loading','request held before navigation');
   await exitToPlan(p);await enter(p,4,{resume:false});
+  await until(()=>p.evaluate(()=>MKTYFieldArtModules.status(4)),s=>s!=='loading','destination optional artwork settles independently before releasing stale Chapter 3');
   const state=await snap(p),scene=await p.locator('#fieldWorld').innerHTML(),title=await p.locator('#fieldDialogTitle').innerText();
   gate.release();await until(()=>moduleStatus(p),s=>s==='ready','old Chapter 3 request finishes after Chapter 4 opens');
   assert.deepEqual(await snap(p),state,'stale ready callback never changes newer Chapter 4 state');
