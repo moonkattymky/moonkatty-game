@@ -1,0 +1,1329 @@
+{
+  "checks": [
+    "cold root has zero preview/Three/preview-asset requests and a preserved existing-account checkpoint",
+    "introduction stays lazy; repeated entry and native dialog cancellation are safe",
+    "real movement, pause, Telegram deactivation, child return, disposal and 320px/landscape host geometry",
+    "slow load remains recoverable after 30s; early deactivation, reopen persistence and embedded Escape work",
+    "Telegram BackButton callback and both prior visibility states are restored",
+    "aborted document keeps host return; synthetic iframe error event covers the host error branch",
+    "blocked world module announces failure and leaves the persistent host return usable",
+    "actual WebGL2 creation failure exposes a working child fallback and host return",
+    "close during load removes the frame and invalidates late work/messages/watchdogs",
+    "entry is home-only, leaving home closes the host without undoing the newer screen or scroll reset",
+    "actual root reload remains closed/lazy and preserves existing campaign/account plus preview session without reseeding"
+  ],
+  "layouts": [
+    {
+      "label": "intro",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "button": {
+        "x": 220,
+        "y": 8,
+        "width": 162,
+        "height": 44
+      },
+      "reachable": true,
+      "dialog": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "dialogOverflow": false,
+      "rootWidth": 390,
+      "frame": null,
+      "headerBottom": 52
+    },
+    {
+      "label": "paused-320x568",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "button": {
+        "x": 150,
+        "y": 8,
+        "width": 162,
+        "height": 44
+      },
+      "reachable": true,
+      "dialog": {
+        "x": 0,
+        "y": 0,
+        "width": 320,
+        "height": 568
+      },
+      "dialogOverflow": false,
+      "rootWidth": 320,
+      "frame": {
+        "x": 8,
+        "y": 101.78125,
+        "width": 304,
+        "height": 458.21875
+      },
+      "headerBottom": 52,
+      "content": {
+        "width": 304,
+        "height": 458,
+        "scrollWidth": 304,
+        "scrollHeight": 458,
+        "worldWidth": 304,
+        "worldHeight": 458
+      }
+    },
+    {
+      "label": "paused-568x320",
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "button": {
+        "x": 398,
+        "y": 8,
+        "width": 162,
+        "height": 44
+      },
+      "reachable": true,
+      "dialog": {
+        "x": 0,
+        "y": 0,
+        "width": 568,
+        "height": 320
+      },
+      "dialogOverflow": false,
+      "rootWidth": 568,
+      "frame": {
+        "x": 8,
+        "y": 84.890625,
+        "width": 552,
+        "height": 227.109375
+      },
+      "headerBottom": 52,
+      "content": {
+        "width": 552,
+        "height": 227,
+        "scrollWidth": 552,
+        "scrollHeight": 227,
+        "worldWidth": 552,
+        "worldHeight": 227
+      }
+    },
+    {
+      "label": "delayed-module",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "button": {
+        "x": 220,
+        "y": 8,
+        "width": 162,
+        "height": 44
+      },
+      "reachable": true,
+      "dialog": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "dialogOverflow": false,
+      "rootWidth": 390,
+      "frame": {
+        "x": 8,
+        "y": 101.78125,
+        "width": 374,
+        "height": 734.21875
+      },
+      "headerBottom": 52,
+      "content": {
+        "width": 374,
+        "height": 734,
+        "scrollWidth": 374,
+        "scrollHeight": 734,
+        "worldWidth": 374,
+        "worldHeight": 734
+      }
+    },
+    {
+      "label": "aborted-document",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "button": {
+        "x": 220,
+        "y": 8,
+        "width": 162,
+        "height": 44
+      },
+      "reachable": true,
+      "dialog": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "dialogOverflow": false,
+      "rootWidth": 390,
+      "frame": {
+        "x": 8,
+        "y": 101.78125,
+        "width": 374,
+        "height": 734.21875
+      },
+      "headerBottom": 52
+    },
+    {
+      "label": "blocked-module",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "button": {
+        "x": 220,
+        "y": 8,
+        "width": 162,
+        "height": 44
+      },
+      "reachable": true,
+      "dialog": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "dialogOverflow": false,
+      "rootWidth": 390,
+      "frame": {
+        "x": 8,
+        "y": 84.890625,
+        "width": 374,
+        "height": 751.109375
+      },
+      "headerBottom": 52,
+      "content": {
+        "width": 374,
+        "height": 751,
+        "scrollWidth": 374,
+        "scrollHeight": 751,
+        "worldWidth": 374,
+        "worldHeight": 751
+      }
+    },
+    {
+      "label": "WebGL-unsupported",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "button": {
+        "x": 220,
+        "y": 8,
+        "width": 162,
+        "height": 44
+      },
+      "reachable": true,
+      "dialog": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "dialogOverflow": false,
+      "rootWidth": 390,
+      "frame": {
+        "x": 8,
+        "y": 84.890625,
+        "width": 374,
+        "height": 751.109375
+      },
+      "headerBottom": 52,
+      "content": {
+        "width": 374,
+        "height": 751,
+        "scrollWidth": 374,
+        "scrollHeight": 751,
+        "worldWidth": 374,
+        "worldHeight": 751
+      }
+    }
+  ],
+  "requests": [
+    {
+      "url": "http://127.0.0.1:38337/?entry-fixture=1",
+      "type": "document",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/styles.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/chapters-1-4.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/crew-scene.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/launch-console.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/mission-polish.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/reactor5.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/campaign.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/experience.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/liftoff6.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/void7.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/mission-instruments.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/operations.css?v=20261009-guidance-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/expedition.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/story.css?v=20261009-guidance-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "https://telegram.org/js/telegram-web-app.js",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/preview-entry.css?v=20261010-3d-test-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/storage.js?v=20261009-trace-v1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/viewport.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/field-missions.css?v=20261009-guidance-2",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/legacy.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/worlds.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/mission-control.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/daily-retention.css?v=20261009-recovery-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/social.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/growth.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/creator.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/viewport.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/pacing.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/visual-system.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/visual-preview.css?v=20261009-visual-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/touch.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/art/moonkatty-game-mark.webp",
+      "type": "image",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/art/moonkatty-hero.webp",
+      "type": "image",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/moonkatty-life4-ship.webp",
+      "type": "image",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/locale-loader.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/i18n.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/trace-codec.js?v=20261009-trace-v1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/rewards-client.js?v=20261010-account-lifecycle-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/cloud-save.js?v=20261009-trace-v1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/pacing.js?v=20261009-recovery-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/app.js?v=20261010-account-lifecycle-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/reactor5-fx.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/reactor5.js?v=20261010-valid-checkpoints-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/liftoff6-fx.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/liftoff6.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/void7-fx.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/void7.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/continuation.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/campaign.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/experience.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/field-model.js?v=20261010-compatible-convoy-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/field-art.js?v=20261010-rebuilt-crew-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/field-missions.js?v=20261009-guidance-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/legacy.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/chapter-space.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/mission-rules.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/operations-art.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/operations.js?v=20261009-guidance-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/expedition-model.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/expedition.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/story-plan.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/story.js?v=20261010-client-release-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/creator.js?v=20261009-admission-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/mission-control.js?v=20261009-recovery-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/daily-retention.js?v=20261009-recovery-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/growth.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/social.js?v=20261009-admission-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/preview-entry.js?v=20261010-3d-test-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/locales/runtime/ru.js?v=20261008-integrity-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/rewards",
+      "type": "fetch",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/art/life1-base.webp",
+      "type": "image",
+      "child": false
+    },
+    {
+      "url": "https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/rewards",
+      "type": "fetch",
+      "child": false
+    },
+    {
+      "url": "https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/rewards",
+      "type": "fetch",
+      "child": false
+    },
+    {
+      "url": "https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/rewards",
+      "type": "fetch",
+      "child": false
+    },
+    {
+      "url": "https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/rewards",
+      "type": "fetch",
+      "child": false
+    },
+    {
+      "url": "https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/rewards",
+      "type": "fetch",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/embed.html?v=20261010-3d-test-1",
+      "type": "document",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/world.css?v=20261010-world-1",
+      "type": "stylesheet",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/embed.js?v=20261010-3d-test-1",
+      "type": "script",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/world.js?v=20261010-world-1",
+      "type": "script",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/scene.js?v=20261010-world-1",
+      "type": "script",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/vendor/three-r170.module.min.js",
+      "type": "script",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/art/regolith.webp?v=20261010-world-1",
+      "type": "image",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/art/earth.webp?v=20261010-world-1",
+      "type": "image",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/embed.html?v=20261010-3d-test-1",
+      "type": "document",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/world.css?v=20261010-world-1",
+      "type": "stylesheet",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/embed.js?v=20261010-3d-test-1",
+      "type": "script",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/world.js?v=20261010-world-1",
+      "type": "script",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/scene.js?v=20261010-world-1",
+      "type": "script",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/vendor/three-r170.module.min.js",
+      "type": "script",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/art/regolith.webp?v=20261010-world-1",
+      "type": "image",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/art/earth.webp?v=20261010-world-1",
+      "type": "image",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/embed.html?v=20261010-3d-test-1",
+      "type": "document",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/embed.html?v=20261010-3d-test-1",
+      "type": "document",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/world.css?v=20261010-world-1",
+      "type": "stylesheet",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/embed.js?v=20261010-3d-test-1",
+      "type": "script",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/world.js?v=20261010-world-1",
+      "type": "script",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/embed.html?v=20261010-3d-test-1",
+      "type": "document",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/world.css?v=20261010-world-1",
+      "type": "stylesheet",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/embed.js?v=20261010-3d-test-1",
+      "type": "script",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/world.js?v=20261010-world-1",
+      "type": "script",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/scene.js?v=20261010-world-1",
+      "type": "script",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/vendor/three-r170.module.min.js",
+      "type": "script",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/embed.html?v=20261010-3d-test-1",
+      "type": "document",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/art/crew-bridge-v3.webp",
+      "type": "image",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/art/launch-bridge-v3.webp",
+      "type": "image",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/art/life4-landing.webp",
+      "type": "image",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/art/life5-reactor-v2.webp",
+      "type": "image",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/art/life6-launchpad.webp",
+      "type": "image",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/art/life7-void.webp",
+      "type": "image",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/art/orbit-v2.webp",
+      "type": "image",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/embed.html?v=20261010-3d-test-1",
+      "type": "document",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/world.css?v=20261010-world-1",
+      "type": "stylesheet",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/embed.js?v=20261010-3d-test-1",
+      "type": "script",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/graphics-preview/world.js?v=20261010-world-1",
+      "type": "script",
+      "child": true
+    },
+    {
+      "url": "http://127.0.0.1:38337/?entry-fixture=1",
+      "type": "document",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/styles.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/chapters-1-4.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/crew-scene.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/launch-console.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/mission-polish.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/reactor5.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/campaign.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/experience.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/liftoff6.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/void7.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/mission-instruments.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/operations.css?v=20261009-guidance-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/expedition.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/story.css?v=20261009-guidance-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "https://telegram.org/js/telegram-web-app.js",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/preview-entry.css?v=20261010-3d-test-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/storage.js?v=20261009-trace-v1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/viewport.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/field-missions.css?v=20261009-guidance-2",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/legacy.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/worlds.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/mission-control.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/daily-retention.css?v=20261009-recovery-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/social.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/growth.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/creator.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/viewport.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/pacing.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/visual-system.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/visual-preview.css?v=20261009-visual-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/touch.css?v=20261009-prelaunch-1",
+      "type": "stylesheet",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/art/moonkatty-game-mark.webp",
+      "type": "image",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/art/moonkatty-hero.webp",
+      "type": "image",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/moonkatty-life4-ship.webp",
+      "type": "image",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/locale-loader.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/i18n.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/trace-codec.js?v=20261009-trace-v1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/rewards-client.js?v=20261010-account-lifecycle-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/cloud-save.js?v=20261009-trace-v1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/pacing.js?v=20261009-recovery-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/app.js?v=20261010-account-lifecycle-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/reactor5-fx.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/reactor5.js?v=20261010-valid-checkpoints-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/liftoff6-fx.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/liftoff6.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/void7-fx.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/void7.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/continuation.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/campaign.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/experience.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/field-model.js?v=20261010-compatible-convoy-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/field-art.js?v=20261010-rebuilt-crew-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/field-missions.js?v=20261009-guidance-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/legacy.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/chapter-space.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/mission-rules.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/operations-art.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/operations.js?v=20261009-guidance-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/expedition-model.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/expedition.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/story-plan.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/story.js?v=20261010-client-release-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/creator.js?v=20261009-admission-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/mission-control.js?v=20261009-recovery-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/daily-retention.js?v=20261009-recovery-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/growth.js?v=20261009-prelaunch-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/social.js?v=20261009-admission-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/preview-entry.js?v=20261010-3d-test-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/locales/runtime/ru.js?v=20261008-integrity-1",
+      "type": "script",
+      "child": false
+    },
+    {
+      "url": "https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/rewards",
+      "type": "fetch",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:38337/art/life1-base.webp",
+      "type": "image",
+      "child": false
+    },
+    {
+      "url": "https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/rewards",
+      "type": "fetch",
+      "child": false
+    },
+    {
+      "url": "https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/rewards",
+      "type": "fetch",
+      "child": false
+    },
+    {
+      "url": "https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/rewards",
+      "type": "fetch",
+      "child": false
+    }
+  ],
+  "errors": [],
+  "fixtureCalls": [
+    "session",
+    "player",
+    "daily.status",
+    "social.status",
+    "campaign.cloud",
+    "campaign.cloud",
+    "player",
+    "campaign.cloud",
+    "daily.status",
+    "social.status"
+  ],
+  "cloudRequests": [
+    {
+      "kind": "read",
+      "requestedRevision": null,
+      "beforeRevision": 0,
+      "afterRevision": 0,
+      "conflict": false,
+      "keys": []
+    },
+    {
+      "kind": "write",
+      "requestedRevision": 0,
+      "beforeRevision": 0,
+      "afterRevision": 1,
+      "conflict": false,
+      "keys": [
+        "mkty_campaign_checkpoint_2",
+        "mkty_current_chapter",
+        "mkty_expeditions_v1",
+        "mkty_life1_memory_code",
+        "mkty_story_plan_2_v1"
+      ]
+    },
+    {
+      "kind": "read",
+      "requestedRevision": null,
+      "beforeRevision": 1,
+      "afterRevision": 1,
+      "conflict": false,
+      "keys": [
+        "mkty_campaign_checkpoint_2",
+        "mkty_current_chapter",
+        "mkty_expeditions_v1",
+        "mkty_life1_memory_code",
+        "mkty_story_plan_2_v1"
+      ]
+    }
+  ],
+  "cloudCheckpoints": [
+    {
+      "label": "synthetic existing-account initial save",
+      "serverRevision": 1,
+      "account": "101",
+      "revision": 1,
+      "dirty": null,
+      "persistent": true,
+      "screen": "home",
+      "conflict": false,
+      "status": "",
+      "keys": [
+        "mkty_campaign_checkpoint_2",
+        "mkty_current_chapter",
+        "mkty_expeditions_v1",
+        "mkty_life1_memory_code",
+        "mkty_story_plan_2_v1"
+      ]
+    },
+    {
+      "label": "synthetic existing-account before root reload",
+      "serverRevision": 1,
+      "account": "101",
+      "revision": 1,
+      "dirty": null,
+      "persistent": true,
+      "screen": "home",
+      "conflict": false,
+      "status": "",
+      "keys": [
+        "mkty_campaign_checkpoint_2",
+        "mkty_current_chapter",
+        "mkty_expeditions_v1",
+        "mkty_life1_memory_code",
+        "mkty_story_plan_2_v1"
+      ]
+    },
+    {
+      "label": "synthetic existing-account after root reload",
+      "serverRevision": 1,
+      "account": "101",
+      "revision": 1,
+      "dirty": null,
+      "persistent": true,
+      "screen": "home",
+      "conflict": false,
+      "status": "",
+      "keys": [
+        "mkty_campaign_checkpoint_2",
+        "mkty_current_chapter",
+        "mkty_expeditions_v1",
+        "mkty_life1_memory_code",
+        "mkty_story_plan_2_v1"
+      ]
+    }
+  ],
+  "device": "Chromium mobile emulation / SwiftShader, not a physical Telegram phone",
+  "previewDocuments": 7,
+  "reviewBuild": {
+    "basePR61": "3779a5f0424751a3b2eab0ab4479186fedae24d1",
+    "graphicsSource": "bd8636b827f6a708ea756033068aeac8a65f5d41",
+    "testProposal": "PR61_REVIEW_PATCH.diff",
+    "physicalPhone": false,
+    "productionAccount": false,
+    "rootIntegrationModifiedByGraphics": false
+  }
+}

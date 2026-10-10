@@ -611,7 +611,7 @@
     "touch cancel clears movement",
     "physical collision and nearby inspection",
     "all three demo objectives reached through actual walking",
-    "full 360° camera",
+    "full 360\u00b0 camera",
     "outdoor orbit keeps usable camera distance",
     "pause is an input barrier",
     "map and task panels pause correctly",
@@ -623,9 +623,10 @@
     "Telegram SDK viewport/back/deactivation contract (emulated)"
   ],
   "metrics": {
-    "drawCalls": 66,
-    "triangles": 118914,
+    "drawCalls": 69,
+    "triangles": 108752,
     "device": "Chromium mobile emulation, software WebGL; not a physical Telegram phone"
   },
-  "firstLoadBytes": 1458550
+  "firstLoadBytes": 1462601,
+  "sourceCommit": "bd8636b827f6a708ea756033068aeac8a65f5d41"
 }

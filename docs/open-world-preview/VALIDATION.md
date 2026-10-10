@@ -1,105 +1,150 @@
-# First open 3D lunar-base sample — validation evidence
+# Open 3D lunar-base sample — current validation evidence
 
-Production base: `00e391ffe0bb2ed663a7e3136cf382b0030857b4` (PR60).
-Graphics work: PR59, `feat/lunar-expedition-20261010`.
-Playable source checkpoint: `f7f3a9c2797eb58a08e6b2261b946f83d797a1be`.
+Checked 10 October 2026. Production base: main
+`00e391ffe0bb2ed663a7e3136cf382b0030857b4` (PR60).
+Graphics PR59: `feat/lunar-expedition-20261010`.
+Final playable source checkpoint: `bd8636b827f6a708ea756033068aeac8a65f5d41`.
 
-## Scope and production boundary
+## What is actually built
 
-One actual WebGL2 location with continuous analog walking, a full-volume animated
-tabby astronaut, 360° camera orbit, collision, open airlock, reactor, relay,
-generator, rover, scanner and three local inspections. This is a bounded first
-location, not a finished nine-chapter 3D campaign or a final cinematic mascot.
+One actual WebGL2 location with continuous analog walking, an animated full-volume
+brown tabby astronaut, 360° camera orbit, colliding rocks/equipment, an open
+airlock/ramp, reactor, relay, generator, rover, solar array, scanner, map, tasks
+and three local inspections. The cyan reactor core is no longer hidden behind
+an opaque cylinder. Terrain/rock texture, distant ridges, metal seams/clamps,
+solar cells, hoses, rover cabin/tire tracks and the mascot's gold insignia have
+been refined. This is a bounded first location, not a finished nine-chapter 3D
+campaign. The procedural mascot and lighting still fall short of the cinematic
+reference; this document does not award a 9/10 or declare release readiness.
+
 Run from the repository root with `python3 -m http.server 8000` and open
 `http://localhost:8000/graphics-preview/`.
 
-All 329 files already tracked by the published main have the same content in
-the graphics candidate. Auth/account switching, retries, convoy restoration,
-reward/backend code and save formats were not edited. Compressed writes remain
-disabled. The new page does not load campaign controllers or call game APIs.
-Its own per-tab `sessionStorage` position and inspection list are only for the
-sample; they do not grant or migrate campaign progress.
+## Production boundary and interrupted work
 
-## Regression evidence
+All **329 files already tracked by the published main remain byte-identical**.
+Auth/account switching, stage retries, Convoy restoration, rewards, backend,
+campaign controllers and save formats were not edited. Compressed writes remain
+explicitly disabled (`traceTransport:false`). The sample does not load campaign
+controllers or call game APIs. Its own per-tab sessionStorage position/camera/
+inspection data never grants or migrates campaign progress.
+
+No service-level reason for the interrupted chat run is available. Git history,
+saved source and test evidence survived. Earlier interrupted local long tests
+were completed. A separate reproducible PR61 CI test failure was diagnosed below;
+that is not proof of why the chat itself stopped.
+
+## Tests and evidence
 
 `main-regression.json` maps all **77 existing main test programs** to passing
-results. `main-first-run.log` contains 75 main passes and the earlier 3D timeout
-under concurrent software rendering; the interrupted long `story.cjs` and
-`worlds.cjs` programs passed in `main-resumed-run.log`. This is the completion of
-an interrupted run, not a claim of one uninterrupted 78/78 process. No main test
-or test runner was weakened or modified.
+results. The earlier long `story.cjs` and `worlds.cjs` runs completed in the resumed
+log; no existing main test or runner was weakened. The graphics checkpoint
+`7aa18d79026755bf0ac7b93e9ef4685b2c2dd8a5` passed the full GitHub suite in
+[run 38071929789](https://github.com/moonkattymky/moonkatty-game/actions/runs/38071929789).
+The next checkpoint changes only the mascot's insignia and compatibility docs;
+its full CI is tracked separately and must be checked before publication.
 
-The separate final real-render test **passed all 17 scenario groups**, with no
-JavaScript errors; `graphics-regression.json` records the seven layouts and
-individual hit targets. The sample requests **1,458,550 bytes** before HTTP
-compression. The test uses actual keyboard and native touch input,
-not state setters or teleports. It covers seven sizes from 320×568 through
-768×1024, portrait/landscape layouts, 44 px controls and unobstructed hit targets,
-simultaneous walking/looking, pinch/cancel, collision, all three inspections
-reached by walking, a full camera revolution and minimum outdoor framing, pause,
-map/tasks, reload, untouched campaign storage/API boundary, BFCache lifecycle,
-backgrounding, economy mode, lost GPU context and failed-asset recovery. Telegram
-SDK ready/expand/stable viewport/BackButton/deactivation are checked with a local
-fixture, not a signed-in physical Telegram client.
+The final actual-render test **passes all 17 scenario groups** on **seven layouts**
+(320×568, 360×640, 390×844, 430×932, 568×320, 844×390, 768×1024), with no JavaScript
+errors. `graphics-regression.json` records source SHA, hit targets and results.
+It uses actual keyboard/native touch events, not teleports or state setters:
+continuous camera-relative walking, simultaneous walking/looking, pinch/cancel,
+collision, all three inspections reached by walking, full orbit and outdoor
+camera clearance, pause input barrier, map/tasks, reload, untouched campaign
+storage/API boundary, BFCache lifecycle, backgrounding, economy mode, lost GPU
+context and failed-asset recovery. Controls retain 44 px minimum hit areas and
+unobstructed mobile/landscape targets. Telegram SDK viewport, BackButton and
+deactivation use a synthetic fixture; a signed-in physical Telegram client was
+not tested.
 
-## Measured software-renderer limits
+The first-load sample resources total **1,462,601 bytes** before HTTP
+compression. The regression viewpoint renders 69 draw calls /
+108,752 triangles; counts vary with viewpoint.
 
-`performance-software-webgl.json` is a fresh isolated benchmark from the final
-source. Chromium 145.0.7632.6 uses ANGLE / SwiftShader, without a physical GPU or phone.
-Cold cache loading uses 4 Mbit/s, 150 ms network latency and 4× CPU throttling.
-CPU throttling is removed for the subsequent interaction sample; no other WebGL
-workload runs concurrently. All stalls are retained.
+## Fresh isolated software-WebGL performance
+
+`performance-software-webgl.json` measures the final source in Chromium
+145.0.7632.6, ANGLE/SwiftShader, viewport 390×844, device scale 2, adaptive render
+ratio 0.85. No other WebGL workload runs concurrently. Cold cache uses 4 Mbit/s,
+150 ms latency and 4× CPU throttling; interaction restores CPU rate 1 and removes
+network throttling. All frame stalls remain in the sample. Percentiles use nearest
+rank. Six input trials include automation dispatch/polling overhead.
 
 | Measurement | Result in this environment |
 | --- | --- |
-| Ready after cold load | 8,488 ms |
-| Frame interval median / p95 | 233.3 / 566.6 ms (45 samples) |
-| Input to first observed movement median / p95 | 745.3 / 1,260.6 ms (6 samples; includes automation overhead) |
-| Visible scene at benchmark position | 69 draw calls / 120,974 triangles |
-| Automatic pixel ratio | 0.85 |
+| Ready after cold load | 8,943 ms |
+| Frame interval p50 / p95 | 183.4 / 450.0 ms (46 samples) |
+| Input to first observed movement p50 / p95 | 251.2 / 1249.1 ms (6 samples) |
+| Benchmark viewpoint | 75 draw calls / 109,968 triangles |
 | JavaScript errors | 0 |
 
-These results **do not pass a smooth-play release criterion on this software
-renderer** and must not be presented as phone frame rates. Full-scene shadow
-sampling was removed, terrain AO is baked, rough terrain uses vertex lighting,
-repeated station geometry is instanced and opaque mascot meshes are merged per
-animated rig part. Metal/glass materials and character geometry are retained.
-The sample remains a graphics prototype pending device validation.
+These results **do not pass smooth-play release criteria on this software
+renderer** and must not be represented as phone performance. Do not infer an FPS
+improvement from two short runs on this variable host. Full-scene shadow sampling
+is removed; terrain AO/vertex lighting, station instancing, per-rig-part mesh
+merging and fewer invisible subdivisions reduce rendering work without changing
+colliders, floor height, walking or preview saves.
 
-Suggested physical-device release checks: frame median ≤33.3 ms and p95 ≤50 ms,
-touch response median ≤100 ms and p95 ≤200 ms, and a 10-minute walk/orbit session
-inside Telegram on representative Android and iPhone devices. Check minimize /
-return, orientation and safe areas, simultaneous joystick/camera, pause, reload,
-reconnect and sustained performance. Browser emulation cannot complete these
-checks.
+`RENDERER_PROPOSAL.md` and `renderer-readback-diagnostic.json` identify the MSAA
+framebuffer's cost in an isolated 12-frame diagnostic with synchronous pixel
+readback. These are render/readback timings, not gameplay/phone FPS. The shared
+`world.js` antialias option remains unchanged pending PR61/logic coordination;
+its pause/dispose/loading hooks must be retained.
 
-## Authentic screenshots and recording
+Physical-device acceptance remains open: median frame ≤33.3 ms / p95 ≤50 ms,
+touch response median ≤100 ms / p95 ≤200 ms, a 10-minute walk/orbit session inside
+Telegram on representative Android/iPhone, minimize/return, orientation/safe
+areas, simultaneous walking/look, pause, reload and sustained performance.
 
-The accompanying PNGs and separately delivered MP4 are captured from the actual local build at
-390×844 with native touch input. The recording shows walking to a module,
-inspection, camera orbit, map, pause/resume and further walking. Initial loading
-is trimmed; playback speed is unchanged. The MP4 container rate is not a measured
-render rate. `capture.json` records the capture environment and final snapshot.
-The complete MP4 is also included under `review/` in the downloadable stage
-archive. Reproduce with `tools/record-open-world-preview.cjs`; rerun the benchmark with
-`tools/benchmark-open-world-preview.cjs`.
+## PR61 compatibility — concrete review proposal
 
-## Integration and publication
+PR61 remains separate, head `3779a5f0424751a3b2eab0ab4479186fedae24d1`.
+A detached compatibility build overlays **only scene.js and world.css**, preserving
+PR61's root entry and world.js lifecycle. The unchanged PR61 baseline reproduces
+its reload-test TypeError because Navigation Timing is empty; the same error is
+present in [run 38071207661](https://github.com/moonkattymky/moonkatty-game/actions/runs/38071207661)
+(79/80 full-suite result). No browser-cause diagnosis is claimed.
 
-PR59 remains a draft; no production Pages deployment or main replacement is made.
-The required shared controller/input/checkpoint decisions are listed in
-`docs/OPEN_WORLD_GRAPHICS_20261010.md`. This is a coordination document; it has
-not been claimed as delivered to or agreed with the other chat. Exact 3D campaign
-coordinates must not silently become a new save schema. After agreement and
-device validation, combine with the newest main and rerun the combined checks.
+With the exact proposed patch in `PR61_REVIEW_PATCH.diff`, the combined graphics
+build passes both entry source/UI tests (**2/2**), including account/save reload,
+close while loading, return/reopen and narrow/landscape hosting. Only two reviewed
+visual asset hashes change; all other frozen files and storage/account checks stay
+intact. Root reload is proven with the main-frame navigation event and successful
+network navigation response, replacing the unavailable timing entry. See
+`PR61_COMPATIBILITY.md`, the baseline/passing logs and synthetic-fixture report.
+This proposal is **not applied to PR61** and has not been claimed as delivered to
+or agreed with the other chat. The full 80-test combined candidate is not claimed
+as completed; it must run after the entry/test patch is approved and integrated.
 
-Rollback: the sample is entirely additive. Remove/revert its graphics-only
-changes while retaining all newer logic fixes; no save migration is required.
-Texture originals, pinned engine license, editable rig/scene code, tests and
-capture helpers are included in the source archive.
+## Actual screenshots and recording
 
-![Actual first frame at 390×844](mobile-first-frame.png)
+The PNGs and **84.4-second MP4** are captured from the actual local
+build at 390×844 with native touch. Footage shows walking to the generator and
+reactor, inspection, pinch, >360° orbit, map, pause/resume and further walking.
+Only initial loading is trimmed; playback speed is unchanged. The MP4's 25 fps
+container rate is not measured render FPS. `capture.json` includes source hashes,
+video hash and capture state. The MP4 is delivered separately and under `review/`
+in the source backup. Capture/benchmark helpers reproduce the procedure.
 
-![Actual orbit beside the inspected generator](mobile-orbit.png)
+## Publication and remaining work
 
-![Actual pause dialog](mobile-pause.png)
+PR59 remains a draft; main and production Pages have not been overwritten or
+published by this work. Before publication, review the latest main/PR61, retain
+all approved controller lifecycle changes, coordinate the shared renderer option,
+complete the full combined tests and physical Telegram acceptance. Then verify
+actual deployed resources and cache/version behavior. Expand other 3D locations
+only after this one passes device acceptance and its visual style is approved.
+
+Rollback is additive: revert graphics-only additions while keeping newer logic
+fixes. No save migration is required. Editable scene/rig, texture originals,
+pinned engine license, tests, measurements and recording helpers are preserved.
+
+![Actual mobile first frame](mobile-first-frame.png)
+
+![Actual reactor detail and mascot](mobile-reactor-detail.png)
+
+![Actual camera orbit](mobile-orbit.png)
+
+![Actual pause](mobile-pause.png)
+
+![Actual scene hosted by the PR61 synthetic fixture](pr61-test-entry-real-scene.png)
