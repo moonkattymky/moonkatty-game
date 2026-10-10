@@ -32,12 +32,15 @@
  apply();
  window.addEventListener('resize',apply);
  window.addEventListener('orientationchange',function(){setTimeout(apply,250);});
- // Block page-level pull/bounce: only allow touchmove inside a scroll container that can actually scroll.
+ // Block page-level pull/bounce, while preserving native range and real scroll gestures.
  var startY=0;
  document.addEventListener('touchstart',function(e){if(e.touches.length===1)startY=e.touches[0].clientY;},{passive:true});
  document.addEventListener('touchmove',function(e){
   if(e.touches.length!==1)return;
   var t=e.target;
+  // Canceling touchmove also cancels native range dragging in iOS WebViews.
+  // The control owns this gesture; its touch-action CSS still prevents page panning.
+  if(t.closest&&t.closest('input[type="range"]:enabled'))return;
   if(t.closest&&t.closest('.l1-joystick,.exp-joystick,.exp-controls,canvas,[data-mk-no-scroll]')){if(e.cancelable)e.preventDefault();return;}
   var dy=e.touches[0].clientY-startY;
   for(var n=t;n&&n!==document.body&&n.nodeType===1;n=n.parentElement){

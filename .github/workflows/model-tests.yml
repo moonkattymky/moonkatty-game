@@ -19,5 +19,17 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npx playwright install --with-deps chromium
+      - name: Native antenna touchscreen regression
+        env:
+          MKTY_TEST_OUTPUT: /tmp/moonkatty-antenna-native
+        run: node tests/antenna-native-touch.cjs
+      - name: Preserve native antenna diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-antenna-touch
+          path: /tmp/moonkatty-antenna-native
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Every model, browser, campaign and security regression
         run: npm test
