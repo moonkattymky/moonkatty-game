@@ -13,7 +13,13 @@ window.MKTYField=(()=>{
  function save(){if(s&&task)task.save(structuredClone(s));}
  function release(){held.clear();input.x=input.y=0;root.querySelectorAll('.held').forEach(e=>e.classList.remove('held'));}
  function stop(){accumulator=0;paused=true;release();cancelAnimationFrame(frame);frame=0;last=0;root.getAnimations({subtree:true}).forEach(a=>a.finish());save();}
- function open(t,saved){if(!saved&&window.MKTYLegacy?.before(t,()=>open(t,saved)))return;stop();if($('fieldDialog').open)$('fieldDialog').close();show('fieldMission');task=t;const mech=t.mechanic||t.chapter,mods=(t.legacy||t.core)&&!t.daily&&window.MKTYLegacy?MKTYLegacy.mods(t.chapter,mech):undefined;s=R.restore(saved,mech,t.fieldStage,t.seed)||R.create(mech,t.fieldStage,t.seed,mods);s.trace=Array.isArray(saved?.trace)?structuredClone(saved.trace):[];root.dataset.chapter=s.n;root.dataset.kind=s.kind;if(!t.daily)localStorage.setItem('mkty_current_chapter',String(t.chapter));render(true);save();if(s.failed){breach();return;}pause();}
+ // Optional art readiness may repaint only the same paused task behind its dialog.
+ let artGeneration=0;
+ function prepareArtwork(){
+  const generation=++artGeneration,owner=task,state=s,n=s.n;
+  try{const request=FieldArt.prepareScene?.(n);request?.then(loaded=>{if(loaded&&generation===artGeneration&&task===owner&&s===state&&s.n===n&&active()&&paused&&$('fieldDialog').open)$('fieldWorld').innerHTML=FieldArt.scene(s,task.daily?0:task.chapter);}).catch(()=>{});}catch{}
+ }
+ function open(t,saved){if(!saved&&window.MKTYLegacy?.before(t,()=>open(t,saved)))return;stop();if($('fieldDialog').open)$('fieldDialog').close();show('fieldMission');task=t;const mech=t.mechanic||t.chapter,mods=(t.legacy||t.core)&&!t.daily&&window.MKTYLegacy?MKTYLegacy.mods(t.chapter,mech):undefined;s=R.restore(saved,mech,t.fieldStage,t.seed)||R.create(mech,t.fieldStage,t.seed,mods);s.trace=Array.isArray(saved?.trace)?structuredClone(saved.trace):[];root.dataset.chapter=s.n;root.dataset.kind=s.kind;if(!t.daily)localStorage.setItem('mkty_current_chapter',String(t.chapter));render(true);save();if(s.failed){breach();return;}pause();prepareArtwork();}
  function pause(){if(!s)return;stop();$('fieldDialogTitle').textContent=tr(...titles[s.n]);$('fieldDialogText').textContent=briefing();$('fieldResume').textContent=tr('ПРОДОЛЖИТЬ','CONTINUE');$('fieldExit').textContent=task.daily?tr('К ТРЕНИРОВКАМ','TRAINING CENTRE'):tr('К ПЛАНУ ГЛАВЫ','CHAPTER PLAN');if(!$('fieldDialog').open)$('fieldDialog').showModal();}
  /* Chapter 6 docking: a destroyed hull fails the attempt. Story and finale attempts cost one life (training is free); the operation restarts from the first port. */
  function breach(){if(!s?.failed||!task)return;stop();const prev=s,attempt=(prev.attempt||0)+1,key='field:'+(task.daily?'daily':task.chapter)+':'+task.id+':'+task.seed+':'+(prev.attempt||0);
