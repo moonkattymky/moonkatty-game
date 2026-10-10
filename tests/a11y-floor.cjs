@@ -31,7 +31,7 @@ const metrics=([minFont,minTap])=>{const out=[];const act=document.querySelector
   await p.addInitScript(()=>{if(sessionStorage.getItem('a11y'))return;sessionStorage.setItem('a11y','1');localStorage.setItem('mkty_lang','en');localStorage.setItem('mkty_test_no_pacing','yes');});
   await p.goto(url);await p.waitForTimeout(600);
   const rec=async tag=>{await p.waitForTimeout(250);const out=await p.evaluate(metrics,[MIN_FONT,MIN_TAP]);checks++;for(const o of out)fails.push(`${w}x${h} ${tag}: ${o}`);};
-  await p.evaluate(()=>show('home'));await rec('home');await p.evaluate(()=>show('chapters'));await rec('chapters');
+  await p.evaluate(()=>show('home'));await rec('home');const dailyInk=await p.locator('.dops-title small').evaluateAll(es=>es.map(e=>({font:parseFloat(getComputedStyle(e).fontSize),color:getComputedStyle(e).color})));assert(dailyInk.length>0&&dailyInk.every(x=>x.font>=13&&x.color==='rgb(184, 202, 219)'),'daily instructions keep readable size and contrast');await p.evaluate(()=>show('chapters'));await rec('chapters');
   for(let n=1;n<=9;n++)for(const step of ['plan',0,'finale']){
    await p.evaluate(([n,step])=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());show('chapters');for(let i=1;i<=9;i++){if(i<n)localStorage.setItem('mkty_life'+i,'complete');else localStorage.removeItem('mkty_life'+i);}
     localStorage.setItem('mkty_life1_code_presented','yes');localStorage.setItem('mkty_life3_memory_verified','yes');localStorage.setItem('mkty_legacy_v1',JSON.stringify({version:1,lead:'scout',airlock:'cargo',events:{1:'scan',3:'shield',4:'north',5:'vent',6:'clear',7:'rescue',9:'wait'}}));

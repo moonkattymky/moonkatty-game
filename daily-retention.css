@@ -6,7 +6,7 @@
 .daily-ops.is-demo .dops-mode{color:var(--gold);border-color:#e9bd5855}
 .dops-card{margin-top:10px;padding:11px;border:1px solid #27374d;border-radius:13px;background:#08101bcc}
 .dops-title{display:flex;align-items:center;gap:9px}.dops-title>span{flex:none;width:30px;height:30px;display:grid;place-items:center;border:1px solid #40536d;border-radius:50%;color:var(--gold);font-size:14px}
-.dops-title>div{flex:1;display:grid;gap:3px;min-width:0}.dops-title strong{font-size:11px;letter-spacing:1px}.dops-title small{font-size:11px;line-height:1.4;color:#75849a}
+.dops-title>div{flex:1;display:grid;gap:3px;min-width:0}.dops-title strong{font-size:11px;letter-spacing:1px}.dops-title small{font-size:13px;line-height:1.45;color:#b8cadb}
 .dops-title>b{flex:none;font-size:11px;color:var(--gold);letter-spacing:.5px;text-align:right;max-width:34%}
 .streak-pips{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:10px 0 8px}
 .streak-pip{display:grid;gap:2px;justify-items:center;padding:6px 0;border:1px solid #26354a;border-radius:9px;background:#0a1320}

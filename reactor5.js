@@ -160,7 +160,8 @@ const Reactor5 = (() => {
   if(state.pulseState==='ready'||state.pulseState==='miss'){startPulse();render();return;}
   if(state.pulseState!=='running')return;
   if(Math.abs(state.pulsePosition-pulseCenters[state.pulses])>10){const forward=(state.pulseTime*42)%200<=100,early=forward?state.pulsePosition<pulseCenters[state.pulses]:state.pulsePosition>pulseCenters[state.pulses];state.pulseState='miss';root.dataset.pulseResult='miss';effects.signal('miss');setStatus(early?'Too early. Fire when the marker enters green. Previous pulses are saved.':'Too late. Fire before the marker leaves green. Previous pulses are saved.');tg?.HapticFeedback?.notificationOccurred?.('error');}
-  else{state.pulses++;root.dataset.pulseResult='hit';effects.signal('pulse');saveCheckpoint();tg?.HapticFeedback?.impactOccurred?.('medium');if(state.pulses===3){state.startup=0;enter('startup','Three pulses accepted. Reactor coming online…');}else{state.pulseState='settle';state.pulseDelay=.65;setStatus('Pulse accepted. Prepare for the next green window.');}}
+  // Save only restorable phases: enter('startup') owns the third-pulse write.
+  else{state.pulses++;root.dataset.pulseResult='hit';effects.signal('pulse');if(state.pulses<3)saveCheckpoint();tg?.HapticFeedback?.impactOccurred?.('medium');if(state.pulses===3){state.startup=0;enter('startup','Three pulses accepted. Reactor coming online…');}else{state.pulseState='settle';state.pulseDelay=.65;setStatus('Pulse accepted. Prepare for the next green window.');}}
   render();
  }
  function finish(){
