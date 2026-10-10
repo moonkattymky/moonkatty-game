@@ -9,7 +9,7 @@ function unchangedExceptBoard(f,before,cursor,label,expected=0){assert.equal(f.o
 (async()=>{
  await check('numeric manifest IDs; fixed loader-relative same-origin URL; no eager requests',async()=>{
   const f=fixture();assert.equal(f.scripts.length,0);
-  for(const n of ['3','trajectory','../trajectory',null,undefined,NaN,Infinity,3.5,0,1,2,4,11,{},[3]])assert.equal(await f.art.prepareScene(n),false);
+  for(const n of ['3','trajectory','../trajectory',null,undefined,NaN,Infinity,3.5,0,1,2,11,{},[3]])assert.equal(await f.art.prepareScene(n),false);
   assert.equal(f.scripts.length,0);assert.equal(f.register(()=>'<svg ></svg>',{script:{},n:3}),false,'unrequested registration rejected');
   const a=f.art.prepareScene(3),b=f.art.prepareScene(3);assert.equal(a,b,'in-flight work is shared');assert.equal(f.scripts.length,1);assert.equal(f.scripts[0].src,'https://preview.example/game/art-scenes/trajectory.js?v=20261010-flight-1');assert.equal(f.scripts[0].async,true);assert.equal(f.modules.status(3),'loading');assert.equal([...f.timers.values()][0].ms,5000);
   f.load();assert.equal(await a,true);assert.equal(await b,true);assert.equal(f.modules.status(3),'ready');assert(f.art.scene(R.create(3,0,401),3).includes(MARK),'actual trajectory module loaded');assert.equal(await f.art.prepareScene(3),true);assert.equal(f.scripts.length,1);assert.equal(f.timers.size,0);
@@ -23,7 +23,7 @@ function unchangedExceptBoard(f,before,cursor,label,expected=0){assert.equal(f.o
   assert.equal(f.register((s,b,h,ch)=>{got={s,b,h,ch};return '<svg data-test="first"></svg>';}),true);
   assert.equal(f.art.scene(state,3),old,'before onload keeps synchronous fallback');assert.equal(f.register(()=>'<svg data-test="duplicate"></svg>'),false);script.onload();assert.equal(await p,true);
   for(const chapter of [0,3,9]){assert.equal(f.art.scene(state,chapter),'<svg data-test="first"></svg>');assert.equal(got.s,state);assert.equal(got.ch,chapter);assert.equal(JSON.stringify(got.b),JSON.stringify(R.layout(state)));}
-  assert.deepEqual(Object.keys(got.h).sort(),['FieldRules','escape','localize']);assert.deepEqual(Object.keys(got.h.FieldRules).sort(),['condition','flightPoint']);assert(Object.isFrozen(got.h)&&Object.isFrozen(got.h.FieldRules));assert.equal(got.h.FieldRules.flightPoint,R.flightPoint);assert.equal(got.h.escape('<a&"\''),'&lt;a&amp;&quot;&#39;');
+  assert.deepEqual(Object.keys(got.h).sort(),['FieldRules','escape','localize']);assert.deepEqual(Object.keys(got.h.FieldRules).sort(),['condition','flightPoint','footprint']);assert(Object.isFrozen(got.h)&&Object.isFrozen(got.h.FieldRules));assert.equal(got.h.FieldRules.flightPoint,R.flightPoint);assert.equal(got.h.escape('<a&"\''),'&lt;a&amp;&quot;&#39;');
   assert(Object.isFrozen(f.modules));assert.equal(f.register(()=>'<svg data-test="late"></svg>'),false);script.onload();script.onerror();assert.equal(f.modules.status(3),'ready');assert.equal(f.art.scene(state,3),'<svg data-test="first"></svg>');
  });
  await check('offline failure retries only on explicit request; two-attempt bound',async()=>{

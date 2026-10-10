@@ -99,3 +99,7 @@
  #fieldMission[data-kind=trajectory] .field-footer{position:static}
  #fieldMission[data-kind=trajectory] :is(#fieldControls button,#fieldControls input,#fieldGuideTitle,#fieldSubmit){scroll-margin-block:calc(80px + env(safe-area-inset-top)) 6px}
 }
+
+/* Survey targets keep their original model geometry at a readable phone scale. */
+@media(orientation:portrait) and (max-height:700px){#fieldMission[data-kind=survey] .field-world{width:100%}}
+@media(orientation:portrait){#fieldMission[data-kind=survey] .field-footer{position:static;background:#e6eceb}}

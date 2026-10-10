@@ -1,0 +1,69 @@
+name: Review artifacts - rebuilt landing scene
+on:
+  pull_request:
+    paths:
+      - 'field-art.js'
+      - 'field-art-loader.js'
+      - 'art-scenes/**'
+      - 'field-model.js'
+      - 'field-missions.js'
+      - 'field-missions.css'
+      - 'story.js'
+      - 'story-plan.js'
+      - 'legacy.js'
+      - 'index.html'
+      - 'art/world-surface.webp'
+      - 'art/life4-landing.webp'
+      - 'art/lunar-worksite-*.webp'
+      - 'tests/field-art-module-helper.cjs'
+      - 'tests/field-art-modules.cjs'
+      - 'tests/field-control-helper.cjs'
+      - 'tests/landing-scene.cjs'
+      - 'tools/render-landing-preview.cjs'
+      - '.github/workflows/landing-preview.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: landing-preview-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  landing-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx --no-install playwright install --with-deps chromium
+      - name: Check out exact reviewed PR55 comparison tree
+        run: |
+          git fetch --no-tags origin b51fa73edd882cf696d6cfdecca92081022289cd
+          test "$(git rev-parse b51fa73edd882cf696d6cfdecca92081022289cd^{tree})" = "afb488d13c1e91d7a1769aa8158543114991201c"
+          git worktree add --detach /tmp/moonkatty-pr55-before b51fa73edd882cf696d6cfdecca92081022289cd
+      - name: Verify original core guards and both real optional modules
+        run: |
+          mkdir -p /tmp/moonkatty-landing-preview
+          set -o pipefail
+          node tests/lunar-worksite.cjs 2>&1 | tee /tmp/moonkatty-landing-preview/lunar-source.txt
+          node tests/crew-workshop.cjs 2>&1 | tee /tmp/moonkatty-landing-preview/crew-source.txt
+          node tests/field-art-modules.cjs 2>&1 | tee /tmp/moonkatty-landing-preview/loader-source.txt
+          node tests/flight-scene.cjs 2>&1 | tee /tmp/moonkatty-landing-preview/flight-source.json
+          node tests/landing-scene.cjs 2>&1 | tee /tmp/moonkatty-landing-preview/landing-source.json
+      - name: Render actual Chapter 4 gameplay and checkpoint recovery
+        run: node tools/render-landing-preview.cjs --before=/tmp/moonkatty-pr55-before --out=/tmp/moonkatty-landing-preview
+      - name: Retain honest evidence without deployment
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: moonkatty-landing-preview-${{ github.sha }}
+          path: /tmp/moonkatty-landing-preview
+          retention-days: 7
+          if-no-files-found: warn

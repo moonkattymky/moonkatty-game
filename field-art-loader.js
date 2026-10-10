@@ -2,12 +2,12 @@
 (()=>{
  'use strict';
  const art=window.FieldArt,base=art.scene,model=window.FieldRules;
- const catalog=Object.freeze({3:Object.freeze({file:'art-scenes/trajectory.js?v=20261010-flight-1',version:'20261010-flight-1'})});
+ const catalog=Object.freeze({3:Object.freeze({file:'art-scenes/trajectory.js?v=20261010-flight-1',version:'20261010-flight-1'}),4:Object.freeze({file:'art-scenes/landing.js?v=20261010-landing-1',version:'20261010-landing-1'})});
  const root=new URL('.',document.currentScript?.src||document.baseURI),pending=new Map(),ready=new Map(),attempts=new Map(),states=new Map();
  const helpers=Object.freeze({
   escape:v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),
   localize:v=>{const t=window.MKTYI18n?.t?.(v);return String(t==null?v:t).replace(/[&<>"']/g,'');},
-  FieldRules:Object.freeze({condition:model.condition,flightPoint:model.flightPoint})
+  FieldRules:Object.freeze({condition:model.condition,flightPoint:model.flightPoint,footprint:model.footprint})
  });
  const known=n=>Number.isInteger(n)&&Object.hasOwn(catalog,n);
  window.MKTYFieldArtModules=Object.freeze({
