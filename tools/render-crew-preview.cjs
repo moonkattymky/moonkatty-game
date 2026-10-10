@@ -11,7 +11,7 @@ const args=process.argv.slice(2),get=k=>args.find(a=>a.startsWith('--'+k+'='))?.
 const after=path.resolve(__dirname,'..'),before=get('before'),out=path.resolve(get('out')||'/tmp/moonkatty-crew-preview');
 assert(before,'--before must identify the exact PR53 checkout');fs.mkdirSync(out,{recursive:true});
 const variants=[['before',path.resolve(before)],['after',after]],views=[[390,844],[320,568]],languages=['ru','en','ar'];
-const report={baseline:'2e15ef6417b92996f5678550a9b2319c53931f4b',purpose:'Real Chapter 2 scene and controller browser checks; local seeded fixtures, no deployment, account, reward or authenticated traffic.',semantics:'Enter Chapter 2 through MKTYStory.menu(2), then actual Start, crew council, Resume, station, specialist, Assign, Pause, Escape, Exit, Resume and Complete controls. Expected transitions come from the unchanged FieldRules model. Only initial local fixture state and the clock are seeded; no renderer/controller replacement.',screenshots:[],checks:[],geometry:[],graphics:[],transitions:[],failures:[],externalRequestsBlocked:0};
+const report={baseline:'2e15ef6417b92996f5678550a9b2319c53931f4b',purpose:'Real Chapter 2 scene and controller browser checks; local seeded fixtures, no deployment, account, reward or authenticated traffic.',semantics:'Enter Chapter 2 through MKTYStory.menu(2), then actual Start, crew council, Resume, station, specialist, Assign, Pause, Escape, Exit, Resume and Complete controls. Expected transitions come from the unchanged FieldRules model. Only initial local fixture state and the clock are seeded; no renderer/controller replacement.',screenshots:[],checks:[],geometry:[],labelBounds:[],navigation:[],graphics:[],transitions:[],failures:[],externalRequestsBlocked:0};
 const types={'.html':'text/html','.js':'application/javascript','.css':'text/css','.webp':'image/webp','.png':'image/png','.svg':'image/svg+xml','.json':'application/json','.mp4':'video/mp4'};
 const server=http.createServer((req,res)=>{
  const u=new URL(req.url,'http://localhost'),m=u.pathname.match(/^\/(before|after)(\/.*)?$/),variant=variants.find(v=>v[0]===m?.[1]);
@@ -88,9 +88,10 @@ async function targets(p,label,variant){
  if(variant==='after')for(const b of boxes){check(b.w>=44&&b.h>=44,label+' station '+b.id+' portrait target >=44px');check(Math.abs(b.w-b.rw)<.1&&Math.abs(b.h-b.rh)<.1&&b.x===b.rx&&b.y===b.ry&&b.sw===108&&b.sh===110,label+' station '+b.id+' exact original rectangle bounds');}
 }
 async function labels(p,label){
- const boxes=await p.locator('#fieldWorld .crew-station').evaluateAll(es=>es.flatMap(e=>{const plate=e.querySelector('rect'),r=plate.getBBox();return [...e.querySelectorAll('text')].map(t=>{const b=t.getBBox();return {id:e.dataset.station,text:t.textContent,x:b.x,right:b.x+b.width,y:b.y,bottom:b.y+b.height,plateLeft:r.x,plateRight:r.x+r.width,plateTop:r.y,plateBottom:r.y+r.height};});}));
+ const boxes=await p.locator('#fieldWorld .crew-station').evaluateAll(es=>es.flatMap(e=>{const plate=e.querySelector('rect'),r=plate.getBBox();return [...e.querySelectorAll('text')].map(t=>{const b=t.getBBox(),style=getComputedStyle(t);return {fontSize:style.fontSize,fontFamily:style.fontFamily,fontWeight:style.fontWeight,id:e.dataset.station,text:t.textContent,x:b.x,right:b.x+b.width,y:b.y,bottom:b.y+b.height,plateLeft:r.x,plateRight:r.x+r.width,plateTop:r.y,plateBottom:r.y+r.height};});}));
+ report.labelBounds.push({label,boxes});
  check(boxes.length===12,label+' twelve legible station number/role labels');
- for(const b of boxes)check(b.x>=b.plateLeft-.5&&b.right<=b.plateRight+.5&&b.y>=b.plateTop-1&&b.bottom<=b.plateBottom+1,label+' station '+b.id+' translated label stays on opaque plate: '+b.text);
+ for(const b of boxes)check(b.x>=b.plateLeft-.5&&b.right<=b.plateRight+.5&&b.y>=b.plateTop-1&&b.bottom<=b.plateBottom+1,label+' station '+b.id+' translated label stays on opaque plate: '+JSON.stringify(b));
 }
 async function exercise(p,label,variant,lang,view){
  const snap=()=>p.evaluate(()=>MKTYField.snapshot());
@@ -99,7 +100,29 @@ async function exercise(p,label,variant,lang,view){
   await perform();const actual=await snap();assert.deepEqual(actual,expected,label+' real '+name+' transition matches unchanged model');
   report.transitions.push({label,action:name,value:value??null,accepted,selected:actual.selected,jobs:actual.jobs.slice(),energy:actual.energy,moves:actual.moves,errors:actual.errors,notice:actual.notice});return actual;
  }
- const select=(id,key)=>step('select',id,async()=>{const cell=p.locator(`[data-field-cell="${id}"]`);await cell.scrollIntoViewIfNeeded();if(variant==='after')await assertReachable(cell,label+' station '+id);if(key){await cell.focus();await p.keyboard.press(key);}else await cell.click();});
+ const select=async(id,key)=>{
+  // Assign may leave the panel scrolled beneath the sticky header. Return to the
+  // board with ordinary wheel input, then prove all five target points are clear.
+  // Do this before the model snapshot: advancing the fixture clock may legitimately
+  // tick the controller's elapsed time while a user navigates the scroll panel.
+  const before=await p.locator('#app').evaluate(e=>e.scrollTop);let after=before,attempts=0;
+  if(after>.5)await p.mouse.move(view[0]/2,view[1]/2);
+  while(after>.5&&attempts<8){
+   await p.mouse.wheel(0,-view[1]*2);await p.clock.runFor(64);
+   after=await p.locator('#app').evaluate(e=>e.scrollTop);attempts++;
+  }
+  const geometry=await p.locator('#fieldWorld').evaluate(e=>{
+   const b=e.getBoundingClientRect(),h=document.querySelector('#fieldMission .field-head').getBoundingClientRect();
+   return {board:{top:b.top,bottom:b.bottom},header:{top:h.top,bottom:h.bottom}};
+  });
+  const navigation={label,id,before,after,attempts,input:'mouse.wheel',...geometry};report.navigation.push(navigation);
+  check(after<=.5,label+' native wheel returns the app to the board: '+JSON.stringify(navigation));
+  return step('select',id,async()=>{
+   const cell=p.locator(`[data-field-cell="${id}"]`);
+   if(variant==='after')await assertReachable(cell,label+' station '+id);
+   if(key){await cell.focus();await p.keyboard.press(key);}else await cell.click();
+  });
+ };
  const role=id=>step('role',id,()=>p.locator(`[data-field-action="role"][data-value="${id}"]`).click());
  const assign=()=>step('assign',undefined,async()=>{const button=p.locator('#fieldSubmit');await button.scrollIntoViewIfNeeded();if(variant==='after')await assertReachable(button,label+' assign');await button.click();});
  // Every real station is selectable. Alternating mouse, Enter and Space also exercise
