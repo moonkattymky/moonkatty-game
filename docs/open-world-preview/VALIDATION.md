@@ -41,8 +41,9 @@ results. The earlier long `story.cjs` and `worlds.cjs` runs completed in the res
 log; no existing main test or runner was weakened. The graphics checkpoint
 `7aa18d79026755bf0ac7b93e9ef4685b2c2dd8a5` passed the full GitHub suite in
 [run 38071929789](https://github.com/moonkattymky/moonkatty-game/actions/runs/38071929789).
-The next checkpoint changes only the mascot's insignia and compatibility docs;
-its full CI is tracked separately and must be checked before publication.
+The final playable checkpoint `bd8636b827f6a708ea756033068aeac8a65f5d41` also passes
+the full GitHub suite in [run 38072875747](https://github.com/moonkattymky/moonkatty-game/actions/runs/38072875747).
+Later checkpoint commits update evidence and handoff documents only.
 
 The final actual-render test **passes all 17 scenario groups** on **seven layouts**
 (320×568, 360×640, 390×844, 430×932, 568×320, 844×390, 768×1024), with no JavaScript
@@ -96,25 +97,27 @@ touch response median ≤100 ms / p95 ≤200 ms, a 10-minute walk/orbit session 
 Telegram on representative Android/iPhone, minimize/return, orientation/safe
 areas, simultaneous walking/look, pause, reload and sustained performance.
 
-## PR61 compatibility — concrete review proposal
+## PR61 compatibility — latest entry checked
 
-PR61 remains separate, head `3779a5f0424751a3b2eab0ab4479186fedae24d1`.
-A detached compatibility build overlays **only scene.js and world.css**, preserving
-PR61's root entry and world.js lifecycle. The unchanged PR61 baseline reproduces
-its reload-test TypeError because Navigation Timing is empty; the same error is
-present in [run 38071207661](https://github.com/moonkattymky/moonkatty-game/actions/runs/38071207661)
-(79/80 full-suite result). No browser-cause diagnosis is claimed.
+PR61 remains separate and unmerged, latest checked head
+`9af41ee97e704bbf77353787aff24971c040cd4d`. A detached compatibility build overlays
+**only scene.js and world.css**, preserving PR61's root entry and world.js lifecycle.
+It passes both entry source/UI tests (**2/2**), including account/save reload,
+close while loading, return/reopen and narrow/landscape hosting.
 
-With the exact proposed patch in `PR61_REVIEW_PATCH.diff`, the combined graphics
-build passes both entry source/UI tests (**2/2**), including account/save reload,
-close while loading, return/reopen and narrow/landscape hosting. Only two reviewed
-visual asset hashes change; all other frozen files and storage/account checks stay
-intact. Root reload is proven with the main-frame navigation event and successful
-network navigation response, replacing the unavailable timing entry. See
-`PR61_COMPATIBILITY.md`, the baseline/passing logs and synthetic-fixture report.
-This proposal is **not applied to PR61** and has not been claimed as delivered to
-or agreed with the other chat. The full 80-test combined candidate is not claimed
-as completed; it must run after the entry/test patch is approved and integrated.
+`PR61_REVIEW_PATCH.diff` now proposes **only two reviewed visual SHA256 updates**;
+all other frozen files and storage/account checks remain intact. The previous
+reload failure in head 3779a5f was reproduced without graphics and recorded in
+[run 38071207661](https://github.com/moonkattymky/moonkatty-game/actions/runs/38071207661)
+(79/80). The PR61 owner independently fixed it in head 9af41ee using a fresh root
+document token instead of the mocked Performance timeline. The latest review uses
+that updated UI test unchanged; do not reapply our older alternate reload proposal.
+See `PR61_COMPATIBILITY.md`, `pr61-latest-compat.log`, baseline/historical logs and
+the synthetic-fixture report.
+
+No actual PR61 source or branch was overwritten, and no cross-chat agreement is
+assumed. The full 80-test combined candidate must run after approved integration;
+it is not claimed as completed here.
 
 ## Actual screenshots and recording
 

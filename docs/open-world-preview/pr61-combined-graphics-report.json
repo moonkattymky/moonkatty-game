@@ -254,77 +254,77 @@
   ],
   "requests": [
     {
-      "url": "http://127.0.0.1:38337/?entry-fixture=1",
+      "url": "http://127.0.0.1:44001/?entry-fixture=1",
       "type": "document",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/styles.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/styles.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/chapters-1-4.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/chapters-1-4.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/crew-scene.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/crew-scene.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/launch-console.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/launch-console.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/mission-polish.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/mission-polish.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/reactor5.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/reactor5.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/campaign.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/campaign.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/experience.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/experience.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/liftoff6.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/liftoff6.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/void7.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/void7.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/mission-instruments.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/mission-instruments.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/operations.css?v=20261009-guidance-1",
+      "url": "http://127.0.0.1:44001/operations.css?v=20261009-guidance-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/expedition.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/expedition.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/story.css?v=20261009-guidance-1",
+      "url": "http://127.0.0.1:44001/story.css?v=20261009-guidance-1",
       "type": "stylesheet",
       "child": false
     },
@@ -334,272 +334,272 @@
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/preview-entry.css?v=20261010-3d-test-1",
+      "url": "http://127.0.0.1:44001/preview-entry.css?v=20261010-3d-test-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/storage.js?v=20261009-trace-v1",
+      "url": "http://127.0.0.1:44001/storage.js?v=20261009-trace-v1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/viewport.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/viewport.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/field-missions.css?v=20261009-guidance-2",
+      "url": "http://127.0.0.1:44001/field-missions.css?v=20261009-guidance-2",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/legacy.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/legacy.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/worlds.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/worlds.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/mission-control.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/mission-control.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/daily-retention.css?v=20261009-recovery-1",
+      "url": "http://127.0.0.1:44001/daily-retention.css?v=20261009-recovery-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/social.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/social.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/growth.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/growth.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/creator.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/creator.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/viewport.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/viewport.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/pacing.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/pacing.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/visual-system.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/visual-system.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/visual-preview.css?v=20261009-visual-1",
+      "url": "http://127.0.0.1:44001/visual-preview.css?v=20261009-visual-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/touch.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/touch.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/art/moonkatty-game-mark.webp",
+      "url": "http://127.0.0.1:44001/art/moonkatty-game-mark.webp",
       "type": "image",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/art/moonkatty-hero.webp",
+      "url": "http://127.0.0.1:44001/art/moonkatty-hero.webp",
       "type": "image",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/moonkatty-life4-ship.webp",
+      "url": "http://127.0.0.1:44001/moonkatty-life4-ship.webp",
       "type": "image",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/locale-loader.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/locale-loader.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/i18n.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/i18n.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/trace-codec.js?v=20261009-trace-v1",
+      "url": "http://127.0.0.1:44001/trace-codec.js?v=20261009-trace-v1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/rewards-client.js?v=20261010-account-lifecycle-1",
+      "url": "http://127.0.0.1:44001/rewards-client.js?v=20261010-account-lifecycle-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/cloud-save.js?v=20261009-trace-v1",
+      "url": "http://127.0.0.1:44001/cloud-save.js?v=20261009-trace-v1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/pacing.js?v=20261009-recovery-1",
+      "url": "http://127.0.0.1:44001/pacing.js?v=20261009-recovery-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/app.js?v=20261010-account-lifecycle-1",
+      "url": "http://127.0.0.1:44001/app.js?v=20261010-account-lifecycle-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/reactor5-fx.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/reactor5-fx.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/reactor5.js?v=20261010-valid-checkpoints-1",
+      "url": "http://127.0.0.1:44001/reactor5.js?v=20261010-valid-checkpoints-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/liftoff6-fx.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/liftoff6-fx.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/liftoff6.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/liftoff6.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/void7-fx.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/void7-fx.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/void7.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/void7.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/continuation.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/continuation.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/campaign.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/campaign.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/experience.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/experience.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/field-model.js?v=20261010-compatible-convoy-1",
+      "url": "http://127.0.0.1:44001/field-model.js?v=20261010-compatible-convoy-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/field-art.js?v=20261010-rebuilt-crew-1",
+      "url": "http://127.0.0.1:44001/field-art.js?v=20261010-rebuilt-crew-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/field-missions.js?v=20261009-guidance-1",
+      "url": "http://127.0.0.1:44001/field-missions.js?v=20261009-guidance-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/legacy.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/legacy.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/chapter-space.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/chapter-space.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/mission-rules.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/mission-rules.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/operations-art.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/operations-art.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/operations.js?v=20261009-guidance-1",
+      "url": "http://127.0.0.1:44001/operations.js?v=20261009-guidance-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/expedition-model.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/expedition-model.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/expedition.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/expedition.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/story-plan.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/story-plan.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/story.js?v=20261010-client-release-1",
+      "url": "http://127.0.0.1:44001/story.js?v=20261010-client-release-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/creator.js?v=20261009-admission-1",
+      "url": "http://127.0.0.1:44001/creator.js?v=20261009-admission-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/mission-control.js?v=20261009-recovery-1",
+      "url": "http://127.0.0.1:44001/mission-control.js?v=20261009-recovery-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/daily-retention.js?v=20261009-recovery-1",
+      "url": "http://127.0.0.1:44001/daily-retention.js?v=20261009-recovery-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/growth.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/growth.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/social.js?v=20261009-admission-1",
+      "url": "http://127.0.0.1:44001/social.js?v=20261009-admission-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/preview-entry.js?v=20261010-3d-test-1",
+      "url": "http://127.0.0.1:44001/preview-entry.js?v=20261010-3d-test-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/locales/runtime/ru.js?v=20261008-integrity-1",
+      "url": "http://127.0.0.1:44001/locales/runtime/ru.js?v=20261008-integrity-1",
       "type": "script",
       "child": false
     },
@@ -609,18 +609,8 @@
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/art/life1-base.webp",
+      "url": "http://127.0.0.1:44001/art/life1-base.webp",
       "type": "image",
-      "child": false
-    },
-    {
-      "url": "https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/rewards",
-      "type": "fetch",
-      "child": false
-    },
-    {
-      "url": "https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/rewards",
-      "type": "fetch",
       "child": false
     },
     {
@@ -639,272 +629,282 @@
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/embed.html?v=20261010-3d-test-1",
+      "url": "https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/rewards",
+      "type": "fetch",
+      "child": false
+    },
+    {
+      "url": "https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/rewards",
+      "type": "fetch",
+      "child": false
+    },
+    {
+      "url": "http://127.0.0.1:44001/graphics-preview/embed.html?v=20261010-3d-test-1",
       "type": "document",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/world.css?v=20261010-world-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/world.css?v=20261010-world-1",
       "type": "stylesheet",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/embed.js?v=20261010-3d-test-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/embed.js?v=20261010-3d-test-1",
       "type": "script",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/world.js?v=20261010-world-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/world.js?v=20261010-world-1",
       "type": "script",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/scene.js?v=20261010-world-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/scene.js?v=20261010-world-1",
       "type": "script",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/vendor/three-r170.module.min.js",
+      "url": "http://127.0.0.1:44001/graphics-preview/vendor/three-r170.module.min.js",
       "type": "script",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/art/regolith.webp?v=20261010-world-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/art/regolith.webp?v=20261010-world-1",
       "type": "image",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/art/earth.webp?v=20261010-world-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/art/earth.webp?v=20261010-world-1",
       "type": "image",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/embed.html?v=20261010-3d-test-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/embed.html?v=20261010-3d-test-1",
       "type": "document",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/world.css?v=20261010-world-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/world.css?v=20261010-world-1",
       "type": "stylesheet",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/embed.js?v=20261010-3d-test-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/embed.js?v=20261010-3d-test-1",
       "type": "script",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/world.js?v=20261010-world-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/world.js?v=20261010-world-1",
       "type": "script",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/scene.js?v=20261010-world-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/scene.js?v=20261010-world-1",
       "type": "script",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/vendor/three-r170.module.min.js",
+      "url": "http://127.0.0.1:44001/graphics-preview/vendor/three-r170.module.min.js",
       "type": "script",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/art/regolith.webp?v=20261010-world-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/art/regolith.webp?v=20261010-world-1",
       "type": "image",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/art/earth.webp?v=20261010-world-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/art/earth.webp?v=20261010-world-1",
       "type": "image",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/embed.html?v=20261010-3d-test-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/embed.html?v=20261010-3d-test-1",
       "type": "document",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/embed.html?v=20261010-3d-test-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/embed.html?v=20261010-3d-test-1",
       "type": "document",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/world.css?v=20261010-world-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/world.css?v=20261010-world-1",
       "type": "stylesheet",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/embed.js?v=20261010-3d-test-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/embed.js?v=20261010-3d-test-1",
       "type": "script",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/world.js?v=20261010-world-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/world.js?v=20261010-world-1",
       "type": "script",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/embed.html?v=20261010-3d-test-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/embed.html?v=20261010-3d-test-1",
       "type": "document",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/world.css?v=20261010-world-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/world.css?v=20261010-world-1",
       "type": "stylesheet",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/embed.js?v=20261010-3d-test-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/embed.js?v=20261010-3d-test-1",
       "type": "script",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/world.js?v=20261010-world-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/world.js?v=20261010-world-1",
       "type": "script",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/scene.js?v=20261010-world-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/scene.js?v=20261010-world-1",
       "type": "script",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/vendor/three-r170.module.min.js",
+      "url": "http://127.0.0.1:44001/graphics-preview/vendor/three-r170.module.min.js",
       "type": "script",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/embed.html?v=20261010-3d-test-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/embed.html?v=20261010-3d-test-1",
       "type": "document",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/art/crew-bridge-v3.webp",
+      "url": "http://127.0.0.1:44001/art/crew-bridge-v3.webp",
       "type": "image",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/art/launch-bridge-v3.webp",
+      "url": "http://127.0.0.1:44001/art/launch-bridge-v3.webp",
       "type": "image",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/art/life4-landing.webp",
+      "url": "http://127.0.0.1:44001/art/life4-landing.webp",
       "type": "image",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/art/life5-reactor-v2.webp",
+      "url": "http://127.0.0.1:44001/art/life5-reactor-v2.webp",
       "type": "image",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/art/life6-launchpad.webp",
+      "url": "http://127.0.0.1:44001/art/life6-launchpad.webp",
       "type": "image",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/art/life7-void.webp",
+      "url": "http://127.0.0.1:44001/art/life7-void.webp",
       "type": "image",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/art/orbit-v2.webp",
+      "url": "http://127.0.0.1:44001/art/orbit-v2.webp",
       "type": "image",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/embed.html?v=20261010-3d-test-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/embed.html?v=20261010-3d-test-1",
       "type": "document",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/world.css?v=20261010-world-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/world.css?v=20261010-world-1",
       "type": "stylesheet",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/embed.js?v=20261010-3d-test-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/embed.js?v=20261010-3d-test-1",
       "type": "script",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/graphics-preview/world.js?v=20261010-world-1",
+      "url": "http://127.0.0.1:44001/graphics-preview/world.js?v=20261010-world-1",
       "type": "script",
       "child": true
     },
     {
-      "url": "http://127.0.0.1:38337/?entry-fixture=1",
+      "url": "http://127.0.0.1:44001/?entry-fixture=1",
       "type": "document",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/styles.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/styles.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/chapters-1-4.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/chapters-1-4.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/crew-scene.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/crew-scene.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/launch-console.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/launch-console.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/mission-polish.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/mission-polish.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/reactor5.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/reactor5.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/campaign.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/campaign.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/experience.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/experience.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/liftoff6.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/liftoff6.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/void7.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/void7.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/mission-instruments.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/mission-instruments.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/operations.css?v=20261009-guidance-1",
+      "url": "http://127.0.0.1:44001/operations.css?v=20261009-guidance-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/expedition.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/expedition.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/story.css?v=20261009-guidance-1",
+      "url": "http://127.0.0.1:44001/story.css?v=20261009-guidance-1",
       "type": "stylesheet",
       "child": false
     },
@@ -914,272 +914,272 @@
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/preview-entry.css?v=20261010-3d-test-1",
+      "url": "http://127.0.0.1:44001/preview-entry.css?v=20261010-3d-test-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/storage.js?v=20261009-trace-v1",
+      "url": "http://127.0.0.1:44001/storage.js?v=20261009-trace-v1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/viewport.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/viewport.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/field-missions.css?v=20261009-guidance-2",
+      "url": "http://127.0.0.1:44001/field-missions.css?v=20261009-guidance-2",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/legacy.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/legacy.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/worlds.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/worlds.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/mission-control.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/mission-control.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/daily-retention.css?v=20261009-recovery-1",
+      "url": "http://127.0.0.1:44001/daily-retention.css?v=20261009-recovery-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/social.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/social.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/growth.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/growth.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/creator.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/creator.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/viewport.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/viewport.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/pacing.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/pacing.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/visual-system.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/visual-system.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/visual-preview.css?v=20261009-visual-1",
+      "url": "http://127.0.0.1:44001/visual-preview.css?v=20261009-visual-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/touch.css?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/touch.css?v=20261009-prelaunch-1",
       "type": "stylesheet",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/art/moonkatty-game-mark.webp",
+      "url": "http://127.0.0.1:44001/art/moonkatty-game-mark.webp",
       "type": "image",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/art/moonkatty-hero.webp",
+      "url": "http://127.0.0.1:44001/art/moonkatty-hero.webp",
       "type": "image",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/moonkatty-life4-ship.webp",
+      "url": "http://127.0.0.1:44001/moonkatty-life4-ship.webp",
       "type": "image",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/locale-loader.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/locale-loader.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/i18n.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/i18n.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/trace-codec.js?v=20261009-trace-v1",
+      "url": "http://127.0.0.1:44001/trace-codec.js?v=20261009-trace-v1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/rewards-client.js?v=20261010-account-lifecycle-1",
+      "url": "http://127.0.0.1:44001/rewards-client.js?v=20261010-account-lifecycle-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/cloud-save.js?v=20261009-trace-v1",
+      "url": "http://127.0.0.1:44001/cloud-save.js?v=20261009-trace-v1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/pacing.js?v=20261009-recovery-1",
+      "url": "http://127.0.0.1:44001/pacing.js?v=20261009-recovery-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/app.js?v=20261010-account-lifecycle-1",
+      "url": "http://127.0.0.1:44001/app.js?v=20261010-account-lifecycle-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/reactor5-fx.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/reactor5-fx.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/reactor5.js?v=20261010-valid-checkpoints-1",
+      "url": "http://127.0.0.1:44001/reactor5.js?v=20261010-valid-checkpoints-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/liftoff6-fx.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/liftoff6-fx.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/liftoff6.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/liftoff6.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/void7-fx.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/void7-fx.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/void7.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/void7.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/continuation.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/continuation.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/campaign.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/campaign.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/experience.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/experience.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/field-model.js?v=20261010-compatible-convoy-1",
+      "url": "http://127.0.0.1:44001/field-model.js?v=20261010-compatible-convoy-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/field-art.js?v=20261010-rebuilt-crew-1",
+      "url": "http://127.0.0.1:44001/field-art.js?v=20261010-rebuilt-crew-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/field-missions.js?v=20261009-guidance-1",
+      "url": "http://127.0.0.1:44001/field-missions.js?v=20261009-guidance-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/legacy.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/legacy.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/chapter-space.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/chapter-space.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/mission-rules.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/mission-rules.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/operations-art.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/operations-art.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/operations.js?v=20261009-guidance-1",
+      "url": "http://127.0.0.1:44001/operations.js?v=20261009-guidance-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/expedition-model.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/expedition-model.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/expedition.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/expedition.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/story-plan.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/story-plan.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/story.js?v=20261010-client-release-1",
+      "url": "http://127.0.0.1:44001/story.js?v=20261010-client-release-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/creator.js?v=20261009-admission-1",
+      "url": "http://127.0.0.1:44001/creator.js?v=20261009-admission-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/mission-control.js?v=20261009-recovery-1",
+      "url": "http://127.0.0.1:44001/mission-control.js?v=20261009-recovery-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/daily-retention.js?v=20261009-recovery-1",
+      "url": "http://127.0.0.1:44001/daily-retention.js?v=20261009-recovery-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/growth.js?v=20261009-prelaunch-1",
+      "url": "http://127.0.0.1:44001/growth.js?v=20261009-prelaunch-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/social.js?v=20261009-admission-1",
+      "url": "http://127.0.0.1:44001/social.js?v=20261009-admission-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/preview-entry.js?v=20261010-3d-test-1",
+      "url": "http://127.0.0.1:44001/preview-entry.js?v=20261010-3d-test-1",
       "type": "script",
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/locales/runtime/ru.js?v=20261008-integrity-1",
+      "url": "http://127.0.0.1:44001/locales/runtime/ru.js?v=20261008-integrity-1",
       "type": "script",
       "child": false
     },
@@ -1189,7 +1189,7 @@
       "child": false
     },
     {
-      "url": "http://127.0.0.1:38337/art/life1-base.webp",
+      "url": "http://127.0.0.1:44001/art/life1-base.webp",
       "type": "image",
       "child": false
     },
@@ -1319,9 +1319,9 @@
   "device": "Chromium mobile emulation / SwiftShader, not a physical Telegram phone",
   "previewDocuments": 7,
   "reviewBuild": {
-    "basePR61": "3779a5f0424751a3b2eab0ab4479186fedae24d1",
+    "basePR61": "9af41ee97e704bbf77353787aff24971c040cd4d",
     "graphicsSource": "bd8636b827f6a708ea756033068aeac8a65f5d41",
-    "testProposal": "PR61_REVIEW_PATCH.diff",
+    "testProposal": "PR61_REVIEW_PATCH.diff (two reviewed art hashes only)",
     "physicalPhone": false,
     "productionAccount": false,
     "rootIntegrationModifiedByGraphics": false
