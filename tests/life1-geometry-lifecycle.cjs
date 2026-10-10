@@ -51,7 +51,7 @@ function harness() {
   const context = vm.createContext({document, $: get, window: {scrollTo() {}}, console, activeCinematic: null,
     ResizeObserver: class { constructor(callback) { this.callback = callback; } observe(el) { observed.push({el, callback: this.callback}); } },
     requestAnimationFrame(fn) { frames.set(++frame, fn); return frame; }, cancelAnimationFrame(id) { frames.delete(id); },
-    leaveMission() {}, life1Stage: 0
+    leaveMission() {}, life1Stage: 0, l1JoystickActive: false
   });
   vm.runInContext(controller + '\n' + show + '\nfunction stopLife1Stick(){l1MoveX=0;l1MoveY=0;l1Walking=false;}', context);
   const run = code => vm.runInContext(code, context), snapshot = () => JSON.parse(run('JSON.stringify(l1Geometry)'));

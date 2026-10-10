@@ -193,7 +193,7 @@ function life1MoveLoop(now){
  l1LastFrame=now;
  if(!$('mission1').classList.contains('active'))return;
  const active=!document.hidden&&!window.MKTYExperience?.paused&&$('repairPanel').hidden&&$('antennaPanel').hidden&&$('life1Complete').hidden;
- if(!active){if(l1Walking||l1MoveX||l1MoveY)stopLife1Stick(null);l1MoveFrame=requestAnimationFrame(life1MoveLoop);return;}
+ if(!active){if(l1JoystickActive||l1Walking||l1MoveX||l1MoveY)stopLife1Stick(null);l1MoveFrame=requestAnimationFrame(life1MoveLoop);return;}
  const magnitude=Math.hypot(l1MoveX,l1MoveY);
  l1Walking=false;
  if(active&&magnitude>.08){
