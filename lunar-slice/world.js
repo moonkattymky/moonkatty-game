@@ -34,7 +34,7 @@ function rockyGeo(detail=2){const geo=new T.IcosahedronGeometry(1,detail);const 
 const rocks=[rockyGeo(5),rockyGeo(4),rockyGeo(3),rockyGeo(7)];
 for(let i=0;i<90;i++){const x=(rnd()-.5)*140,z=(rnd()-.5)*130;if(Math.hypot(x,z)<25||Math.abs(x)<8&&z<30)continue;const s=.2+rnd()*1.8;const o=mesh(rocks[i%4],mat.rock,staticRoot,x,ground(x,z)+s*.25,z,s,s*.6,s*.9);o.rotation.set(rnd(),rnd()*PI,rnd());o.castShadow=s>1;}
 // Small geological detail is instanced and does not add hundreds of draw calls.
-const gravel=new T.InstancedMesh(rocks[2],mat.rock,750);const dummy=new T.Object3D();for(let i=0;i<750;i++){let a=rnd()*PI*2,r=15+rnd()*32,x=Math.sin(a)*r,z=10+Math.cos(a)*r,s=.025+rnd()*.105;dummy.position.set(x,ground(x,z)+.03,z);dummy.scale.set(s,s*.55,s*.8);dummy.rotation.set(rnd(),rnd()*PI,rnd());dummy.updateMatrix();gravel.setMatrixAt(i,dummy.matrix);}gravel.receiveShadow=true;scene.add(gravel);
+const gravelMaterial=mat.rock.clone();gravelMaterial.vertexColors=false;const gravel=new T.InstancedMesh(new T.IcosahedronGeometry(1,0),gravelMaterial,750);const dummy=new T.Object3D();for(let i=0;i<750;i++){let a=rnd()*PI*2,r=15+rnd()*32,x=Math.sin(a)*r,z=10+Math.cos(a)*r,s=.025+rnd()*.105;dummy.position.set(x,ground(x,z)+.03,z);dummy.scale.set(s,s*.55,s*.8);dummy.rotation.set(rnd(),rnd()*PI,rnd());dummy.updateMatrix();gravel.setMatrixAt(i,dummy.matrix);}gravel.receiveShadow=true;scene.add(gravel);
 // Circular promenade, inlaid gold rings and segmented ceramic paving.
 const plaza=cyl(staticRoot,mat.dark,0,-.16,-12,15.5,.26);const top=cyl(staticRoot,mat.path,0,-.025,-12,15.3,.16);
 for(const rr of [15.25,14.8]){const r=ring(staticRoot,mat.gold,0,.105,-12,rr,.10);r.rotation.x=-PI/2;}

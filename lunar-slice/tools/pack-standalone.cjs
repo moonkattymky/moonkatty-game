@@ -1,0 +1,11 @@
+const fs=require('node:fs'),path=require('node:path');
+const root=path.resolve(__dirname,'..');const destination=process.argv[2]||path.join(root,'MOONKATTY-lunar-observatory-playable.html');
+const text=p=>fs.readFileSync(path.join(root,p),'utf8');const data=(p,type)=>`data:${type};base64,${fs.readFileSync(path.join(root,p)).toString('base64')}`;
+const moduleData=s=>'data:text/javascript;base64,'+Buffer.from(s).toString('base64');
+let world=text('world.js').replace("'./vendor/three-r170.module.min.js'","'three'");for(const p of ['earth','regolith'])world=world.replace(`'./art/${p}.webp'`,JSON.stringify(data(`art/${p}.webp`,'image/webp')));
+const hero=text('hero.js').replace("'./vendor/three-r170.module.min.js'","'three'");
+const app=text('app.js').replace("'./vendor/three-r170.module.min.js'","'three'").replace("'./world.js'","'world'").replace("'./hero.js'","'hero'");
+const imports={three:moduleData(text('vendor/three-r170.module.min.js')),world:moduleData(world),hero:moduleData(hero),app:moduleData(app)};
+let html=text('index.html').replace('<link rel="stylesheet" href="./style.css">',`<style>${text('style.css')}</style>`).replace('<script type="module" src="./app.js"></script>',`<script type="importmap">${JSON.stringify({imports})}</script><script type="module">import 'app';</script>`);
+html=html.replace('</head>',`<!-- Standalone local visual slice. Three.js MIT license follows.\n${text('vendor/THREE-LICENSE.txt')}\n--></head>`);
+fs.mkdirSync(path.dirname(destination),{recursive:true});fs.writeFileSync(destination,html);console.log(JSON.stringify({path:destination,bytes:Buffer.byteLength(html),externalDependencies:false}));
