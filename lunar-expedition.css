@@ -48,3 +48,18 @@
  #fieldMission:has(.lunar-expedition) #fieldControls>button{height:44px}
 }
 @media(prefers-reduced-motion:reduce){.lunar-walking{animation:none!important}}
+/* Narrow portrait keeps the six-column map at a usable scale by sharing one control row. */
+@media(orientation:portrait) and (max-height:700px){
+ #fieldMission:has(.lunar-expedition) .field-head{padding:4px 12px}
+ #fieldMission:has(.lunar-expedition) .field-telemetry{padding:4px 12px}
+ #fieldMission:has(.lunar-expedition) .field-telemetry>div{gap:2px}
+ #fieldMission:has(.lunar-expedition) .field-telemetry strong{font-size:15px}
+ #fieldMission:has(.lunar-expedition) .field-deck{display:grid;grid-template-columns:minmax(0,1fr) 90px;column-gap:6px;align-items:center;padding-block:4px}
+ #fieldMission:has(.lunar-expedition) .field-objective{grid-column:1/-1;padding-bottom:3px;margin-bottom:3px}
+ #fieldMission:has(.lunar-expedition) .field-guide{grid-column:1;margin:0}
+ #fieldMission:has(.lunar-expedition) #fieldControls{grid-column:2}
+ #fieldMission:has(.lunar-expedition) .field-review{grid-column:1/-1}
+ #fieldMission:has(.lunar-expedition) .field-footer p{white-space:normal;overflow-wrap:anywhere;margin-bottom:4px}
+}
+#fieldMission:has(.lunar-expedition)>*{min-width:0}
+@media(orientation:portrait){#fieldMission.active:has(.lunar-expedition){grid-template-columns:minmax(0,1fr)}}
