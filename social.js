@@ -16,7 +16,6 @@ window.MKTYSocial=(()=>{
   return await window.MKTYRewards?.call?.(action,payload)||{ok:false,error:'unavailable'};
  }
  function openLink(url){if(url.startsWith('https://t.me/')&&tg()?.openTelegramLink)tg().openTelegramLink(url);else if(tg()?.openLink)tg().openLink(url);else window.open(url,'_blank','noopener');}
- const setPts=p=>{if(typeof p?.moon_points==='number'){localStorage.setItem('mkty_points',String(p.moon_points));const el=document.getElementById('points');if(el)el.textContent=p.moon_points+' ⭐';}};
  const subFor=(pl,kind)=>{const d=st.data,today=d?.today;return (d?.submissions||[]).find(s=>s.platform===pl&&s.kind===kind&&(kind==='follow'?s.status!=='rejected':s.day===today));};
  const badge=s=>s?`<em class="sv-badge sv-${esc(s.status)}">${s.status==='approved'?t('APPROVED')+' ✓':s.status==='pending'?t('ON REVIEW'):t('REJECTED')}</em>`:'';
  function codeCard(pl){
@@ -50,7 +49,8 @@ ${codeCard('x')}${codeCard('tiktok')}
   if(box.contains(document.activeElement)&&document.activeElement.tagName==='INPUT'&&lang===st.lastLang)return;
   st.lastLang=lang;box.innerHTML=html();
  }
- async function load(){if(!initData()||st.loading)return render();st.loading=true;const r=await call('social.status');st.loading=false;if(r.ok){st.data=r;setPts(r.player);}render();}
+ // Player points are applied only by the ordered reward client, including locks.
+ async function load(){if(!initData()||st.loading)return render();st.loading=true;const r=await call('social.status');st.loading=false;if(r.ok){st.data=r;}render();}
  document.addEventListener('click',async e=>{
   const box=document.getElementById('dailyMissions');if(!box||!box.contains(e.target))return;
   const o=e.target.closest('[data-open]');
@@ -59,7 +59,7 @@ ${codeCard('x')}${codeCard('tiktok')}
   if(e.target.closest('[data-tgcheck]')){
    st.busy=true;st.msg.telegram=t('Checking…');render();
    const r=await call('social.telegram.verify');st.busy=false;
-   if(r.ok&&r.verified){st.msg.telegram=r.awarded?t('Subscription confirmed! +{n} ⭐',{n:r.points}):t('Subscription confirmed ✓');setPts(r.player);}
+   if(r.ok&&r.verified){st.msg.telegram=r.awarded?t('Subscription confirmed! +{n} ⭐',{n:r.points}):t('Subscription confirmed ✓');}
    else st.msg.telegram=t(ERR[r.status||r.error]||ERR.unavailable);
    await load();return;
   }
