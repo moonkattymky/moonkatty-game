@@ -1,0 +1,50 @@
+/* Presentation scoped to the Chapter 1 renderer. The production controller is unchanged. */
+#fieldMission:has(.lunar-expedition){background:#091d2c!important;color:#eaf4fb}
+#fieldMission:has(.lunar-expedition) .field-head{background:linear-gradient(120deg,#173c50,#0a1e30);padding:calc(12px + env(safe-area-inset-top)) 16px 12px}
+#fieldMission:has(.lunar-expedition) .field-head small{color:#dbbb79;font-size:11px}
+#fieldMission:has(.lunar-expedition) .field-head h1{font-size:23px;font-weight:700}
+#fieldMission:has(.lunar-expedition) .field-route{padding:8px 16px;background:#102b3c}
+#fieldMission:has(.lunar-expedition) .field-world{background:#0b2435;border-bottom:1px solid #c89c4e;box-shadow:none;width:100%;margin:0}
+#fieldMission:has(.lunar-expedition) .field-world:after{display:none}
+#fieldMission:has(.lunar-expedition) .lunar-worksite{background:#0b2435}
+#fieldMission:has(.lunar-expedition) .field-telemetry{padding:10px 16px;background:linear-gradient(100deg,#17384b,#0c2536);color:#e6f8ff;border-color:#a4c8db28}
+#fieldMission:has(.lunar-expedition) .field-telemetry small{color:#a8c9d8;font-size:11px}
+#fieldMission:has(.lunar-expedition) .field-telemetry strong{color:#ffe1a0;font-size:17px}
+#fieldMission:has(.lunar-expedition) .field-deck{background:#0d2638;padding:8px 16px}
+#fieldMission:has(.lunar-expedition) .field-objective{padding:0 0 7px;margin:0 0 5px;border-color:#a5cfde26}
+#fieldMission:has(.lunar-expedition) .field-objective>div,#fieldMission:has(.lunar-expedition) .field-objective>progress{display:none}
+#fieldMission:has(.lunar-expedition) .field-control-hint{color:#bad6e3;font-size:12px;line-height:1.4;margin:0}
+#fieldMission:has(.lunar-expedition) .field-guide{border-color:#a5cfde26;margin:0 0 5px;padding:0}
+#fieldMission:has(.lunar-expedition) .field-guide summary{color:#c0dce9;font-size:11px;min-height:44px}
+#fieldMission:has(.lunar-expedition) .field-guide p{color:#bad6e3}
+#fieldMission:has(.lunar-expedition) #fieldControls{justify-content:flex-end}
+#fieldMission:has(.lunar-expedition) #fieldControls>button{width:80px;height:64px;flex:none;border-radius:18px;border:2px solid #74cde6;background:radial-gradient(circle at 35% 25%,#285875,#102b43);color:#d4f8ff;font-size:12px;font-weight:700}
+#fieldMission:has(.lunar-expedition) .field-footer{position:static;background:#091d2cf5;padding:6px 16px calc(7px + env(safe-area-inset-bottom));border-color:#a5cfde26}
+#fieldMission:has(.lunar-expedition) .field-footer p{min-height:0;font-size:11px;color:#bad4e1}
+#fieldMission:has(.lunar-expedition) .field-footer button{min-height:44px;border-radius:12px}
+@keyframes lunar-step-cycle{0%{transform:translateX(0)}25%{transform:translateX(-256px)}50%{transform:translateX(-512px)}75%{transform:translateX(-768px)}100%{transform:translateX(0)}}
+.lunar-walking{animation:lunar-step-cycle 190ms steps(1,end) 1}
+@media(orientation:portrait){
+ #fieldMission.active:has(.lunar-expedition){display:grid;grid-template-columns:1fr;grid-template-rows:auto auto minmax(160px,1fr) auto auto auto;height:var(--mk-vh,100dvh);min-height:0;overflow:auto}
+ #fieldMission:has(.lunar-expedition) .field-head{grid-row:1}
+ #fieldMission:has(.lunar-expedition) .field-route{grid-row:2}
+ #fieldMission:has(.lunar-expedition) .field-world{grid-row:3;min-height:0;aspect-ratio:auto}
+ #fieldMission:has(.lunar-expedition) .field-telemetry{grid-row:4}
+ #fieldMission:has(.lunar-expedition) .field-deck{grid-row:5}
+ #fieldMission:has(.lunar-expedition) .field-footer{grid-row:6;margin:0}
+}
+@media(orientation:portrait) and (max-height:700px){
+ #fieldMission:has(.lunar-expedition) .field-head{padding:7px 12px}
+ #fieldMission:has(.lunar-expedition) .field-head h1{font-size:19px}
+ #fieldMission:has(.lunar-expedition) .field-route{display:none}
+ #fieldMission:has(.lunar-expedition) .field-telemetry{padding:6px 12px}
+ #fieldMission:has(.lunar-expedition) .field-control-hint{font-size:11px}
+ #fieldMission:has(.lunar-expedition) #fieldControls>button{height:44px}
+ #fieldMission:has(.lunar-expedition) .field-footer p{margin-bottom:4px}
+}
+@media(orientation:landscape) and (max-height:600px){
+ #fieldMission:has(.lunar-expedition) .field-world{width:auto;aspect-ratio:auto}
+ #fieldMission:has(.lunar-expedition) .field-control-hint{font-size:11px}
+ #fieldMission:has(.lunar-expedition) #fieldControls>button{height:44px}
+}
+@media(prefers-reduced-motion:reduce){.lunar-walking{animation:none!important}}

@@ -142,3 +142,10 @@ Revision prompt: preserve those sixteen designs and materials, but fit complete 
 Ground prompt: an empty square production lunar ground plate under a fixed elevated orthographic camera, luminous silver regolith and restrained champagne/blue lighting, detailed but calm central play area, shallow rock erosion mainly near the edges. No horizon, sky, buildings, equipment, characters, grids, paths, pads, marks, controls or collectible positions.
 
 Performance budgets enforced by `tests/lunar-worksite.cjs`: under 850 KB combined image transfer, two shared image resources, under 650 SVG nodes, under 48 KB generated SVG per redraw, under 15 KB gzip for the complete shared field renderer, no full-frame filters or decorative animation, deterministic non-mutating rendering. CI source-generation timing is not a physical-phone or Telegram performance certification.
+
+## Lunar expedition concept implementation — 10 October 2026
+
+- `lunar-ground-v1.webp`: 1024×1024, 382276 bytes. Generated ground plate derived from the reviewed white/gold lunar concept; all obstacles/objectives are placed by the existing renderer, with no baked mission markers.
+- `moonkatty-walk-v1.webp`: 1024×341 RGBA, 96802 bytes. Four tabby astronaut poses generated using the original `moonkatty-hero.webp` identity reference. Four frames are selected by an SVG viewport and short CSS animation only when the displayed position changes.
+
+Generated with imagegen, converted/resized to WebP for mobile. Ground prompt: near overhead lunar regolith, warm station edge light and cold ambient fill, open center, no interface/character/objectives. Walk prompt: one row of four full-body transparent walking poses, same tabby astronaut, white/gold suit and helmet, consistent size/light, side-facing movement. These are first-prototype assets, not photorealistic 3D geometry.
