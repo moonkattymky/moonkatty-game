@@ -13,7 +13,7 @@
    const x=i%6*100,y=Math.floor(i/6)*100,seen=s.scans.includes(i),sample=seen&&s.samples.includes(i),t=b.tiles[i],bad=seen&&(t.slope>b.maxSlope||t.wind>b.maxWind||(sample&&t.strength<b.requiredStrength)),done=confirmed.includes(i),sel=selected.includes(i),color=bad?'#624b36':sample?'#174e50':'#284f65';
    a+=`<g class="landing-cell${sel?' selected':''}${done?' confirmed':''}" data-survey-cell="${i}"><path d="M${x+5} ${y+12}v-7h7" fill="none" stroke="#42677b" stroke-opacity=".35"/><rect x="${x+10}" y="${y+7}" width="35" height="34" rx="5" fill="${sel?'#245365':'#d9e6df'}" stroke="#789493" stroke-width=".5"/>${text(x+27.5,y+31,i+1,sel?'#ffe5a7':'#295365',23)}`;
    if(sample)a+=`<ellipse cx="${x+65}" cy="${y+40}" rx="13" ry="3" fill="#244653" opacity=".32"/><svg x="${x+47}" y="${y+2}" width="34" height="40" viewBox="650 644 257 287"><g clip-path="url(#fa-landing-sample)"><use href="#fa-landing-atlas"/></g></svg>`;
-   if(seen){const label=sample?t.strength+' kPa':'? kPa';a+=`<rect x="${x+5}" y="${y+45}" width="91" height="50" rx="7" fill="${color}" stroke="#d8e4d1" stroke-width=".7"/>${text(x+50.5,y+67,t.slope+'° / '+t.wind)}${text(x+50.5,y+88,label,sample?'#ffe0a0':'#c7e1e4',21)}`;}
+   if(seen){const label=sample?t.strength+' kPa':'? kPa';a+=`<rect x="${x+5}" y="${y+45}" width="91" height="50" rx="7" fill="${color}" stroke="#d8e4d1" stroke-width=".7"/>${text(x+50.5,y+67,t.slope+'°/'+t.wind)}${text(x+50.5,y+88,label,sample?'#ffe0a0':'#c7e1e4',21)}`;}
    if(done)a+=`<circle cx="${x+84}" cy="${y+25}" r="10" fill="#216353" stroke="#dcf2d2"/>${text(x+84,y+32,'✓','#eff8d6',20)}`;
    else if(bad)a+=`<path d="M${x+83} ${y+9}l11 23h-22Z" fill="#f5cc86" stroke="#6d502f"/>${text(x+83,y+28,'!','#513e2b',18)}`;
    a+='</g>';

@@ -102,3 +102,4 @@
 
 /* Survey targets keep their original model geometry at a readable phone scale. */
 @media(orientation:portrait) and (max-height:700px){#fieldMission[data-kind=survey] .field-world{width:100%}}
+@media(orientation:portrait){#fieldMission[data-kind=survey] .field-footer{position:static;background:#e6eceb}}
