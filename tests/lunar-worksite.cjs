@@ -3,8 +3,8 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),crypto=require('node:crypto'),zlib=require('node:zlib'),path=require('node:path');
 const root=path.resolve(__dirname,'..'),source=fs.readFileSync(path.join(root,'field-art.js'),'utf8'),R=require('../field-model.js');
 const baseHashes={
- // Client-only release composition: live route handshake and Convoy bounds retained; Echo/Gate terminal recovery included.
- 'field-model.js':'5fdb5a58cdb3d48a09da6cc2c63aa3d7f3f3f7a663fa7410b42279d68485b513',
+ // Client-only release composition: live route handshake retained; reviewed Convoy/Echo/Gate recovery bounds included.
+ 'field-model.js':'94ab25d49258d5ca64cdf391eccdaadd3b3f10370b363295a4c3bd3a58aea7a8',
  'field-missions.js':'87ae7505443efcaa76ec1cf8c9b0293493a8d3b32ded761d08f8fae280bbf168',
  'story-plan.js':'fd4683463fc1bcf72862b33478a6d4d1036036632ccff88a049798428d583474',
  'story.js':'82f189960b85d245550e322b4dbd53cb182dfadc60e2a33d164abf45a5e90086',
