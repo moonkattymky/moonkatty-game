@@ -105,7 +105,7 @@ function installFixture({seed, previewKey}) {
   }
   const events = new Map(), backs = new Set();
   const fixture = window.__previewFixture = {
-    nativeStorage, events, backs, seededThisDocument, ready:0, expand:0, rootBackHits:0,
+    nativeStorage, events, backs, seededThisDocument, documentToken:crypto.randomUUID(), ready:0, expand:0, rootBackHits:0,
     rootDeactivatedHits:0, childStorage:[], noWebGL:false,
     emit(name) { for (const fn of [...(events.get(name) || [])]) fn(); },
     back() { for (const fn of [...backs]) fn(); }
@@ -532,6 +532,7 @@ async function launch() {
       otherAccount:native.getItem('mkty_account_v3_202:mkty_points'), guest:native.getItem('mkty_campaign_sentinel')};
   }
   const beforeReload = await page.evaluate(durableState, durableKeys);
+  const documentTokenBeforeReload = await page.evaluate(() => __previewFixture.documentToken);
   assert(beforeReload.previewSession, 'walked preview session exists before root reload');
   const previewCountBeforeReload = previewRequests().length;
   await page.reload({waitUntil:'load'});
@@ -540,7 +541,9 @@ async function launch() {
   await savedCloud('synthetic existing-account after root reload');
   await page.waitForLoadState('networkidle');
   assert.equal(await page.evaluate(() => __previewFixture.seededThisDocument), false, 'reload cannot mask lost data by reseeding');
-  assert.equal(await page.evaluate(() => performance.getEntriesByType('navigation')[0].type), 'reload', 'an actual root reload occurred');
+  // Playwright's installed clock stubs Performance entries, including navigation.
+  // A fresh top-only document token plus the exact root-request count proves reload.
+  assert.notEqual(await page.evaluate(() => __previewFixture.documentToken), documentTokenBeforeReload, 'reload creates a genuinely new root document');
   assert.equal(await page.locator('.screen.active').getAttribute('id'), 'home');
   assert.equal(await page.locator('#preview3DDialog, #preview3DFrame').count(), 0, 'root reload keeps the preview closed');
   assert.equal(await page.evaluate(() => typeof window.MKTYOpenWorld), 'undefined');
