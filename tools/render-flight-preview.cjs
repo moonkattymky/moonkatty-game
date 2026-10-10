@@ -25,7 +25,7 @@ const report={baseline:BASE,baselineTree:TREE,renderer:MARKER,
  purpose:'Real Chapter 3 gameplay, 48 source-comparison screenshots, and optional-module lifecycle checks. No deployment or authenticated traffic.',
  semantics:'Actual MKTYStory.menu entry followed by native Start, Resume, range keyboard input, Execute, Pause, Escape, Exit, checkpoint Resume, and Complete. Every gameplay input is checked against the unchanged FieldRules model. The application and optional module load from the real source files; no renderer/controller/rules substitution.',
  limits:'Chromium portrait emulation, not physical-device, Telegram-client, GPU, or human-playtime certification. Pure source-render resource limits are checked separately by flight-scene.cjs.',
- screenshots:[],checks:[],geometry:[],navigation:[],graphics:[],transitions:[],lifecycle:[],failures:[],externalRequestsBlocked:0,
+ screenshots:[],checks:[],geometry:[],navigation:[],graphics:[],labelBounds:[],transitions:[],lifecycle:[],failures:[],externalRequestsBlocked:0,
  network:{method:'Actual BrowserContext request, response, requestfinished and requestfailed events. Sizes are response.body() decoded-body bytes measured only after requestfinished, excluding headers and transport overhead. The CI source server sends Cache-Control: no-store with no Content-Encoding; these are uncompressed CI response bytes, not production transfer estimates. Actual repeated responses remain counted and summed. The separately reported deduplicated cold image union is comparable to the source-suite unique-asset cap and is not a total download count. External responses are intercepted by the preview isolation policy and counted separately.',contexts:[]}};
 const MONITORED=['field-art.js','field-art-loader.js','art-scenes/trajectory.js','art/launch-bridge-v3.webp','art/life6-orbit-v2.webp','moonkatty-life4-ship.webp'];
 const COLD_IMAGES=MONITORED.slice(3),networkByContext=new WeakMap(),networkByPage=new WeakMap();
@@ -215,7 +215,18 @@ async function nativeWheelAudit(p,label){
   const wheel=async(g,delta,phase)=>{
    const a=g.wheelArea;assert(a.right>a.left&&a.bottom>a.top,label+' '+selector+' has a visible native wheel area');
    await p.mouse.move((a.left+a.right)/2,(a.top+a.bottom)/2);await p.mouse.wheel(0,delta);await p.clock.runFor(64);
-   const after=await read();attempts.push({phase,delta,before:g,after});return after;
+   // Wheel delivery/compositor scrolling is asynchronous and is not awaited by
+   // advancing Playwright's frozen page clock. Poll observable real geometry on
+   // the driver clock; only call it stationary after the native event had time.
+   const started=performance.now(),deadline=started+2000,samples=[];let after=await read(),motionObserved=false,stableAt=started,polls=0;
+   const movement=(x,y)=>Math.abs(x.panel.scrollTop-y.panel.scrollTop)+Math.abs(x.appScrollTop-y.appScrollTop)+Math.abs(x.deckScrollTop-y.deckScrollTop)+Math.abs(x.target.top-y.target.top);
+   if(movement(after,g)>.1){motionObserved=true;stableAt=performance.now();samples.push({afterMs:performance.now()-started,geometry:after});}
+   while(performance.now()<deadline){
+    await delay(25);const next=await read();polls++;
+    if(movement(next,after)>.1){motionObserved=true;stableAt=performance.now();samples.push({afterMs:performance.now()-started,geometry:next});}
+    after=next;if(motionObserved&&performance.now()-stableAt>=100)break;
+   }
+   attempts.push({phase,delta,before:g,after,motionObserved,polls,waitedMs:performance.now()-started,samples});return after;
   };
   let g=await read();
   for(let i=0;g.panel.scrollTop>.5&&i<12;i++)g=await wheel(g,-220,'rewind-panel');
@@ -263,32 +274,44 @@ async function layout(p,label){
  report.geometry.push({label,...data});
 }
 async function graphics(p,label){
- const s=await snap(p),b=R.layout(s),g=await p.locator('#fieldWorld>svg').evaluate(svg=>({
-  renderer:svg.dataset.renderer,nodes:svg.querySelectorAll('*').length,filters:svg.querySelectorAll('filter').length,
-  ids:[...svg.querySelectorAll('[id]')].map(e=>e.id),images:[...svg.querySelectorAll('image')].map(e=>e.getAttribute('href')),
-  preview:[...svg.querySelectorAll('.trajectory-preview')].map(e=>e.getAttribute('d')),
-  trails:[...svg.querySelectorAll('.trajectory-trail')].map(e=>e.getAttribute('d')),
-  receiver:svg.querySelector('.trajectory-receiver')?.getAttribute('transform'),radius:svg.querySelector('.trajectory-target')?.getAttribute('r'),
-  relay:svg.querySelector('.trajectory-relay')?.getAttribute('transform'),relayRadius:svg.querySelector('.trajectory-relay circle')?.getAttribute('r'),
-  labels:[...svg.querySelectorAll('text')].map(e=>{const b=e.getBBox();return{text:e.textContent,x:b.x,y:b.y,w:b.width,h:b.height};})
- }));
+ // The actual page owns both rendered geometry and the unchanged FieldRules
+ // implementation. Comparing its exact samples avoids cross-engine Math.sin/cos
+ // differences without rounding, epsilon, or a substituted model.
+ await p.evaluate(()=>document.fonts.ready);
+ const g=await p.locator('#fieldWorld>svg').evaluate(svg=>{
+  const state=MKTYField.snapshot(),layout=FieldRules.layout(state),points=(trail,preview)=>Array.from({length:41},(_,i)=>FieldRules.flightPoint(trail.angle,trail.power,i/10,preview?FieldRules.condition(state):{wind:trail.wind||0,gravity:trail.gravity||4},preview?state.trim||0:trail.trim||0));
+  const box=b=>({x:b.x,y:b.y,width:b.width,height:b.height,right:b.x+b.width,bottom:b.y+b.height});
+  return{state,layout,expectedPreview:state.complete?null:points(state,true),expectedTrails:state.trails.map(trail=>points(trail,false)),
+   renderer:svg.dataset.renderer,nodes:svg.querySelectorAll('*').length,filters:svg.querySelectorAll('filter').length,
+   ids:[...svg.querySelectorAll('[id]')].map(e=>e.id),images:[...svg.querySelectorAll('image')].map(e=>e.getAttribute('href')),
+   preview:[...svg.querySelectorAll('.trajectory-preview')].map(e=>e.getAttribute('d')),
+   trails:[...svg.querySelectorAll('.trajectory-trail')].map(e=>e.getAttribute('d')),
+   receiver:svg.querySelector('.trajectory-receiver')?.getAttribute('transform'),radius:svg.querySelector('.trajectory-target')?.getAttribute('r'),
+   relay:svg.querySelector('.trajectory-relay')?.getAttribute('transform'),relayRadius:svg.querySelector('.trajectory-relay circle')?.getAttribute('r'),
+   labels:[...svg.querySelectorAll('text')].map(e=>{const plate=[...e.parentElement.children].find(n=>n.tagName.toLowerCase()==='rect'),style=getComputedStyle(e),paint=plate&&getComputedStyle(plate);let opacity=1;for(let n=plate;n;n=n.parentElement)opacity*=Number(getComputedStyle(n).opacity);return{text:e.textContent,textBounds:box(e.getBBox()),plateBounds:plate?box(plate.getBBox()):null,platePaint:paint?{fill:paint.fill,fillOpacity:Number(paint.fillOpacity),effectiveOpacity:opacity}:null,fontSize:style.fontSize,fontFamily:style.fontFamily,fontWeight:style.fontWeight,group:e.parentElement.getAttribute('class'),transform:e.parentElement.getAttribute('transform')};})
+  };
+ });
+ const s=g.state,b=g.layout;
+ // Preserve measured text/plate bounds even if strict containment fails below.
+ report.graphics.push({label,...g,burn:s.burn,complete:s.complete});report.labelBounds.push({label,labels:g.labels});
  check(g.renderer===MARKER,label+' rebuilt module is mounted');
  check(g.nodes<400&&g.filters===0&&new Set(g.ids).size===g.ids.length,label+' bounded scene DOM, no SVG filters, unique resource ids');
- assert.equal(g.receiver,`translate(${b.target.x} ${b.target.y})`,label+' capture center exactly matches FieldRules');
- assert.equal(+g.radius,b.target.radius,label+' capture radius exactly matches FieldRules');
- if(b.target.relay){assert.equal(g.relay,`translate(${b.target.relay.x} ${b.target.relay.y})`,label+' relay center exactly matches FieldRules');assert.equal(+g.relayRadius,14+(s.mods.radius||0),label+' relay radius exactly matches acceptance rules');}
- const points=(trail,preview)=>Array.from({length:41},(_,i)=>R.flightPoint(trail.angle,trail.power,i/10,preview?R.condition(s):{wind:trail.wind||0,gravity:trail.gravity||4},preview?s.trim||0:trail.trim||0));
+ assert.equal(g.receiver,`translate(${b.target.x} ${b.target.y})`,label+' capture center exactly matches actual browser FieldRules');
+ assert.equal(+g.radius,b.target.radius,label+' capture radius exactly matches actual browser FieldRules');
+ if(b.target.relay){assert.equal(g.relay,`translate(${b.target.relay.x} ${b.target.relay.y})`,label+' relay center exactly matches actual browser FieldRules');assert.equal(+g.relayRadius,14+(s.mods.radius||0),label+' relay radius exactly matches acceptance rules');}
  function exactPath(actual,expected,description){
   assert(actual&&!/NaN|undefined|Infinity/.test(actual),description+' finite path');
   assert.deepEqual((actual.match(/[ML]/g)||[]),Array.from({length:41},(_,i)=>i?'L':'M'),description+' original 41-point sample structure');
-  assert.deepEqual(actual.match(/[-+]?(?:\d*\.)?\d+(?:e[-+]?\d+)?/gi).map(Number),expected.flatMap(q=>[q.x,q.y]),description+' exact model flight coordinates');
+  assert.deepEqual(actual.match(/[-+]?(?:\d*\.)?\d+(?:e[-+]?\d+)?/gi).map(Number),expected.flatMap(q=>[q.x,q.y]),description+' exact actual-browser model flight coordinates');
  }
  assert.equal(g.preview.length,s.complete?0:1,label+' completed stage has no fourth predicted maneuver');
- if(!s.complete)exactPath(g.preview[0],points(s,true),label+' preview');
+ if(!s.complete)exactPath(g.preview[0],g.expectedPreview,label+' preview');
  assert.equal(g.trails.length,s.trails.length,label+' recorded trails count equals accepted/rejected attempts');
- g.trails.forEach((d,i)=>exactPath(d,points(s.trails[i],false),label+' stored trail '+i));
- report.graphics.push({label,...g,burn:s.burn,complete:s.complete});
+ g.trails.forEach((d,i)=>exactPath(d,g.expectedTrails[i],label+' stored trail '+i));
+ assert.equal(g.labels.length,b.target.relay?1:0,label+' expected relay label count');
+ for(const row of g.labels){const t=row.textBounds,p=row.plateBounds,paint=row.platePaint;assert(p,label+' SVG label has its own plate: '+JSON.stringify(row));assert(paint&&/^rgb\([\d.,\s]+\)$/.test(paint.fill)&&paint.fillOpacity===1&&paint.effectiveOpacity===1,label+' label plate is fully opaque: '+JSON.stringify(row));check(t.x>=p.x+2&&t.right<=p.right-2&&t.y>=p.y+2&&t.bottom<=p.bottom-2,label+' SVG label stays inside its plate with 2-unit padding: '+JSON.stringify(row));}
 }
+
 async function exercise(p,label,variant,lang,view){
  const rebuilt=variant==='after';
  assert.equal((await snap(p)).version,2,label+' real new Chapter 3 assignments use the current rules');
@@ -422,7 +445,11 @@ async function lifecycle(){
   try{const page=await pageFor(variant,lang,view);ctx=page.ctx;const p=page.p;
    await enter(p,3,{ready:variant==='after'});await capture(p,variant,lang,view,'chapter3-initial');
    if(variant==='after'){await layout(p,label+'/initial');await graphics(p,label+'/initial');}
-   if(variant==='after'&&view[0]===320)await nativeWheelAudit(p,label);
+   if(view[0]===320){
+    // A strict wheel failure still fails the job. Continue the independent
+    // gameplay matrix so baseline/candidate comparison images remain available.
+    try{await nativeWheelAudit(p,label);}catch(e){report.failures.push(label+'/native-wheel: '+e.stack);}
+   }
    if(lang==='ar')check(await p.locator('html').getAttribute('dir')==='rtl',label+' Arabic document direction retained');
    await exercise(p,label,variant,lang,view);
   }catch(e){report.failures.push(label+': '+e.stack);}finally{if(ctx)await closeContext(ctx,label);}
