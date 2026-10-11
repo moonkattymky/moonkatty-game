@@ -142,7 +142,7 @@ window.MKTYStory=(()=>{
  $('storyArchive').onclick=exportArchive;
  $('storyReplay').onclick=()=> $('storyReplay').dataset.rewardRetry==='true'?retryReward(current):routeState==='legacy'||ready(current)?replay(current):ensureRoute(current);
  $('storyBack').onclick=()=>show('chapters');$('storyCore').onclick=()=>activatePlan('core');
- for(let n=1;n<=9;n++){const card=$('life'+n+'Complete'),button=document.createElement('button');button.className='story-secondary';button.setAttribute('translate','no');button.textContent=tr('НОВЫЙ МАРШРУТ ГЛАВЫ','NEW CHAPTER ROUTE');button.onclick=()=>replay(n);card?.append(button);original[n]=window[entry[n]];window[entry[n]]=()=>open(n);}
+ for(let n=1;n<=9;n++){const card=$('life'+n+'Complete'),button=document.createElement('button');button.className='story-secondary';button.textContent='NEW CHAPTER ROUTE';button.onclick=()=>replay(n);card?.append(button);original[n]=window[entry[n]];window[entry[n]]=()=>open(n);}
  const summary=document.createElement('div');summary.className='story-campaign-summary';summary.setAttribute('translate','no');$('chapterList').before(summary);
  function overview(){summary.innerHTML=`<strong>${tr('НОВЫЕ МИРЫ / 9 ГЛАВ','NEW WORLDS / 9 CHAPTERS')}</strong><span>${tr('9 пространств · 9 игровых специальностей','9 spaces · 9 mission disciplines')}</span><small>${tr('Одна новая глава в день: следующая открывается в 00:00 UTC. Вся история — около 9 дней.','One new chapter per day: the next one opens at 00:00 UTC. The full story takes about 9 days.')}</small>`;}
  overview();new MutationObserver(overview).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});

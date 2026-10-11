@@ -19,6 +19,10 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npx playwright install --with-deps chromium
+      - name: Native immediate language refresh regression
+        env:
+          MKTY_TEST_OUTPUT: /tmp/mkty-language-hot-switch-ui-preflight
+        run: node tests/language-hot-switch-ui.cjs
       - name: Native antenna touchscreen regression
         env:
           MKTY_TEST_OUTPUT: /tmp/moonkatty-antenna-native
@@ -83,5 +87,21 @@ jobs:
         with:
           name: gated-intro-navigation
           path: /tmp/mkty-locked-intro-browser-*/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Preserve language switch diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: language-hot-switch
+          path: /tmp/mkty-language-hot-switch-ui-*/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Preserve life restoration copy diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: life-restoration-copy
+          path: /tmp/mkty-life-restore-copy-ui-*/
           if-no-files-found: ignore
           retention-days: 7

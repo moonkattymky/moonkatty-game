@@ -1,0 +1,146 @@
+{
+ "keys": [
+  "Every failed board, flight or finale costs 1 life. Lives restore one at a time: 1 life every 12 hours, up to 9. Daily Missions stay open.",
+  "Failing a board, flight or chapter finale in this chapter costs 1 global life. Training and saved progress stay free. Lives restore one at a time: 1 life every 12 hours, up to 9.",
+  "Complete LIFE #1 through LIFE #9 — one new chapter per day: after you finish a chapter, the next one opens at 00:00 UTC (an invited friend who completes LIFE #1 can open one chapter early). You have 9 global lives: every failed board, flight or chapter finale costs 1 life (training and the first LIFE #1 tutorial are free). At 0 lives missions pause until a life restores. Lives restore one at a time: 1 life every 12 hours, up to 9.",
+  "You have up to 9 global lives. Every failed board, flight or chapter finale costs 1 life; training and your first LIFE #1 run are free. Lives restore one at a time: 1 life every 12 hours, up to 9. At 0 lives missions are paused until a life restores."
+ ],
+ "legacyKeys": [
+  "Every failed board, flight or finale costs 1 life. Each life restores 12 hours after it was spent. Daily Missions stay open.",
+  "Failing a board, flight or chapter finale in this chapter costs 1 global life. Training and saved progress stay free. Lives restore 12 hours after they are spent.",
+  "Complete LIFE #1 through LIFE #9 — one new chapter per day: after you finish a chapter, the next one opens at 00:00 UTC (an invited friend who completes LIFE #1 can open one chapter early). You have 9 global lives: every failed board, flight or chapter finale costs 1 life (training and the first LIFE #1 tutorial are free). At 0 lives missions pause until a life restores — each spent life restores after 12 hours.",
+  "You have up to 9 global lives. Every failed board, flight or chapter finale costs 1 life; training and your first LIFE #1 run are free. Each spent life restores automatically 12 hours later. At 0 lives missions are paused until a life restores."
+ ],
+ "clauses": {
+  "en": [
+   "Lives restore one at a time: 1 life every 12 hours, up to 9.",
+   [
+    "Each life restores 12 hours after it was spent.",
+    "Lives restore 12 hours after they are spent.",
+    " — each spent life restores after 12 hours.",
+    "Each spent life restores automatically 12 hours later."
+   ],
+   ". "
+  ],
+  "ru": [
+   "Жизни восстанавливаются по очереди: 1 жизнь каждые 12 часов, максимум 9.",
+   [
+    "Жизнь восстанавливается через 12 часов.",
+    "Жизни восстанавливаются через 12 часов.",
+    " — каждая потраченная жизнь возвращается через 12 часов.",
+    "Каждая потраченная жизнь восстанавливается автоматически через 12 часов."
+   ],
+   ". "
+  ],
+  "uk": [
+   "Життя відновлюються по черзі: 1 життя кожні 12 годин, максимум 9.",
+   [
+    "Життя відновлюється через 12 годин.",
+    "Життя відновлюються через 12 годин.",
+    " — кожне витрачене життя повертається через 12 годин.",
+    "Кожне витрачене життя відновлюється автоматично через 12 годин."
+   ],
+   ". "
+  ],
+  "es": [
+   "Las vidas se recuperan de una en una: 1 vida cada 12 horas, hasta un máximo de 9.",
+   [
+    "Cada vida se recupera 12 horas después de gastarla.",
+    "Las vidas se recuperan 12 horas después de gastarse.",
+    "; cada vida gastada se recupera a las 12 horas.",
+    "Cada vida gastada se recupera automáticamente 12 horas después."
+   ],
+   ". "
+  ],
+  "pt": [
+   "As vidas voltam uma de cada vez: 1 vida a cada 12 horas, até o máximo de 9.",
+   [
+    "Cada vida volta 12 horas depois de gasta.",
+    "As vidas voltam 12 horas depois de gastas.",
+    " — cada vida gasta volta após 12 horas.",
+    "Cada vida gasta volta automaticamente 12 horas depois."
+   ],
+   ". "
+  ],
+  "de": [
+   "Leben werden nacheinander aufgefüllt: 1 Leben alle 12 Stunden, bis zu maximal 9.",
+   [
+    "Jedes Leben kehrt 12 Stunden nach dem Verbrauch zurück.",
+    "Leben kehren 12 Stunden nach dem Verbrauch zurück.",
+    " — jedes verbrauchte Leben kehrt nach 12 Stunden zurück.",
+    "Jedes verbrauchte Leben kehrt nach 12 Stunden automatisch zurück."
+   ],
+   ". "
+  ],
+  "fr": [
+   "Les vies reviennent une par une : 1 vie toutes les 12 heures, jusqu’à un maximum de 9.",
+   [
+    "Chaque vie revient 12 heures après avoir été dépensée.",
+    "Les vies reviennent 12 heures après avoir été dépensées.",
+    " — chaque vie dépensée revient après 12 heures.",
+    "Chaque vie dépensée revient automatiquement 12 heures plus tard."
+   ],
+   ". "
+  ],
+  "it": [
+   "Le vite tornano una alla volta: 1 vita ogni 12 ore, fino a un massimo di 9.",
+   [
+    "Ogni vita torna 12 ore dopo essere stata spesa.",
+    "Le vite tornano 12 ore dopo essere state spese.",
+    " — ogni vita spesa torna dopo 12 ore.",
+    "Ogni vita spesa torna automaticamente dopo 12 ore."
+   ],
+   ". "
+  ],
+  "tr": [
+   "Canlar sırayla yenilenir: her 12 saatte 1 can, en fazla 9 can.",
+   [
+    "Her can harcandıktan 12 saat sonra geri gelir.",
+    "Canlar harcandıktan 12 saat sonra geri gelir.",
+    " — harcanan her can 12 saat sonra geri gelir.",
+    "Harcanan her can 12 saat sonra otomatik geri gelir."
+   ],
+   ". "
+  ],
+  "he": [
+   "החיים מתחדשים בזה אחר זה: יחידת חיים אחת בכל 12 שעות, עד למקסימום של 9.",
+   [
+    "כל חיים חוזרים 12 שעות אחרי שנוצלו.",
+    "חיים חוזרים 12 שעות אחרי שנוצלו.",
+    " — כל חיים שנוצלו חוזרים אחרי 12 שעות.",
+    "כל חיים שנוצלו חוזרים אוטומטית אחרי 12 שעות."
+   ],
+   ". "
+  ],
+  "ar": [
+   "تعود الأرواح واحدة تلو الأخرى: روح واحدة كل 12 ساعة، حتى 9 أرواح كحد أقصى.",
+   [
+    "تعود كل روح بعد 12 ساعة من إنفاقها.",
+    "تعود الأرواح بعد 12 ساعة من إنفاقها.",
+    " — كل روح مُنفقة تعود بعد 12 ساعة.",
+    "تعود كل روح مُنفقة تلقائيًا بعد 12 ساعة."
+   ],
+   ". "
+  ],
+  "ko": [
+   "생명은 한 번에 1개씩 회복됩니다: 12시간마다 1개, 최대 9개까지.",
+   [
+    "생명은 소모 후 12시간 뒤에 회복됩니다.",
+    "생명은 소모 후 12시간 뒤에 회복됩니다.",
+    "며, 소모된 생명은 12시간 후 회복됩니다.",
+    "소모된 생명은 12시간 후 자동으로 회복됩니다."
+   ],
+   "됩니다. "
+  ],
+  "zh": [
+   "生命逐条恢复：每 12 小时恢复 1 条，最多 9 条。",
+   [
+    "每条生命在消耗 12 小时后恢复。",
+    "生命在消耗 12 小时后恢复。",
+    "——每条消耗的生命在 12 小时后恢复。",
+    "每条消耗的生命会在 12 小时后自动恢复。"
+   ],
+   "。"
+  ]
+ }
+}

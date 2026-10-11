@@ -35,7 +35,7 @@ const server=http.createServer((req,res)=>{const file=path.join(root,new URL(req
   await p.reload();await p.waitForFunction(lang=>window.MKTYHub&&window.MKTYI18n?.getLanguage()===lang,lang);await p.evaluate(()=>MKTYHub.open('more'));
   assert.equal(await p.locator('#hubBody [data-support-link]').innerText(),label,lang+' support survives saved-language reload');
   assert.equal(await p.evaluate(()=>localStorage.getItem('mkty_support_persistence_test')),'preserved','no data clearing needed');
-  if(lang!=='en')assert.equal(await p.locator('script[src*="locales/runtime/'+lang+'.js"]').getAttribute('src'),'locales/runtime/'+lang+'.js?v=20261011-guidance-locales-1','saved preference uses the fresh runtime pack URL');
+  if(lang!=='en')assert.equal(await p.locator('script[src*="locales/runtime/'+lang+'.js"]').getAttribute('src'),'locales/runtime/'+lang+'.js?v=20261011-language-clarity-1','saved preference uses the fresh runtime pack URL');
  }
  for(const file of ['app.js','social.js']){const source=fs.readFileSync(path.join(root,file),'utf8');assert(source.includes('https://www.youtube.com/@moonkattymky'));assert(!source.includes('youtube.com/@moonkattymkty'));}
  const workflow=fs.readFileSync(path.join(root,'.github/workflows/deploy-pages.yml'),'utf8');assert(workflow.includes('|admin.html|'),'admin page excluded from deployed artifact');

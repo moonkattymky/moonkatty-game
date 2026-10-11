@@ -16,7 +16,9 @@
  const locked = () => localStorage.getItem('mkty_life9') === 'complete';
  const online = () => !!window.Telegram?.WebApp?.initData && !!window.MKTYRewards;
 
- let state = null, input = [], letters = [], busy = false, flash = '';
+ // Keep message keys/values so retained results translate again on a language change.
+ const message = (key, vars) => ({ key, vars });
+ let state = null, input = [], letters = [], busy = false, flash = null, videoMessage = null;
 
  // ---------- DEMO (local only) ----------
  function demo() {
@@ -77,6 +79,7 @@
 
  // ---------- render ----------
  function setText(el, s) { if (el && el.textContent !== s) el.textContent = s; }
+ function setMessage(el, value) { setText(el, value ? T(value.key, value.vars) : ''); }
  function render() {
   if (!state) return;
   const box = $('dailyOps'); if (!box) return;
@@ -109,42 +112,44 @@
   box.querySelector('.cipher-card').classList.toggle('solved', c.solved);
   for (const b of box.querySelectorAll('[data-morse],#cipherSubmit,#cipherText')) b.disabled = done || busy || state.offline;
   setText(sub, c.solved ? T('SIGNAL DECODED ✓') : c.attempts_left <= 0 ? T('NO ATTEMPTS — NEW SIGNAL AT 00:00 UTC') : T('TRANSMIT ANSWER +{n} ⭐', { n: c.points }));
-  setText($('dopsFlash'), flash);
+  setMessage($('dopsFlash'), flash);
+  if (videoMessage) setMessage($('ytMsg'), videoMessage);
  }
  function word() { return letters.map(x => x || '').join(''); }
  function commitLetter() {
   const L = FROM[input.join('')]; input = [];
-  if (!L) { flash = T('Unknown Morse letter — try again'); render(); return; }
+  if (!L) { flash = message('Unknown Morse letter — try again'); render(); return; }
   const i = letters.findIndex(x => !x); const at = i < 0 ? letters.length : i; if (at >= state.cipher.length) return;
-  letters[at] = L; $('cipherText').value = word(); flash = ''; render();
+  letters[at] = L; $('cipherText').value = word(); flash = null; render();
  }
  async function submitCipher() {
   const ans = ($('cipherText').value || word()).toUpperCase().replace(/[^A-Z]/g, '');
-  if (ans.length !== state.cipher.length) { flash = T('Need {n} letters', { n: state.cipher.length }); render(); return; }
+  if (ans.length !== state.cipher.length) { flash = message('Need {n} letters', { n: state.cipher.length }); render(); return; }
   busy = true; render();
   const r = state.demo && !online() ? demoSolve(ans) : await api('cipher.solve', { answer: ans });
   busy = false;
-  if (r?.error === 'no_attempts') flash = T('No attempts left today');
-  else if (r?.correct) { flash = r.awarded ? T('Signal decoded! +{n} ⭐', { n: r.points }) : T('Already decoded today'); }
-  else if (r && 'correct' in r) { flash = T('Wrong word — signal distorted'); letters = []; $('cipherText').value = ''; }
-  else flash = T('Connection lost — try again');
+  if (r?.error === 'no_attempts') flash = message('No attempts left today');
+  else if (r?.correct) { flash = r.awarded ? message('Signal decoded! +{n} ⭐', { n: r.points }) : message('Already decoded today'); }
+  else if (r && 'correct' in r) { flash = message('Wrong word — signal distorted'); letters = []; $('cipherText').value = ''; }
+  else flash = message('Connection lost — try again');
   await load();
  }
  async function checkin() {
   busy = true; render();
   const r = state.demo && !online() ? demoCheckin() : await api('streak.checkin');
   busy = false;
-  flash = r?.awarded ? (r.shield_used ? T('Shield saved your streak! +{n} ⭐', { n: r.points }) : T('Check-in +{n} ⭐', { n: r.points })) : r?.duplicate ? T('Already checked in today') : T('Connection lost — try again');
+  flash = r?.awarded ? (r.shield_used ? message('Shield saved your streak! +{n} ⭐', { n: r.points }) : message('Check-in +{n} ⭐', { n: r.points })) : r?.duplicate ? message('Already checked in today') : message('Connection lost — try again');
   await load();
  }
  async function redeem() {
   const code = ($('ytCode').value || '').normalize('NFKC').trim().toUpperCase().replace(/[\s\-_.]+/g, '');
   const msg = $('ytMsg');
-  if (!/^[A-Z0-9]{3,32}$/.test(code)) { setText(msg, T('Enter the code word from the video')); return; }
+  if (!/^[A-Z0-9]{3,32}$/.test(code)) { videoMessage = message('Enter the code word from the video'); setMessage(msg, videoMessage); return; }
   $('ytBtn').disabled = true;
   const r = state?.demo && !online() ? demoRedeem(code) : await api('youtube.redeem', { code });
   $('ytBtn').disabled = false;
-  setText(msg, r?.awarded ? T('Code accepted! +{n} ⭐', { n: r.points }) : r?.duplicate ? T('You already used this code') : r && r.valid === false ? T('Unknown or expired code') : r?.error === 'locked' ? T('BALANCE LOCKED') : r?.error === 'no_attempts' ? T('No attempts left today') : T('Connection lost — try again'));
+  videoMessage = r?.awarded ? message('Code accepted! +{n} ⭐', { n: r.points }) : r?.duplicate ? message('You already used this code') : r && r.valid === false ? message('Unknown or expired code') : r?.error === 'locked' ? message('BALANCE LOCKED') : r?.error === 'no_attempts' ? message('No attempts left today') : message('Connection lost — try again');
+  setMessage(msg, videoMessage);
   $('ytMsg').classList.toggle('ok', !!r?.awarded);
   if (r?.awarded) $('ytCode').value = '';
  }
@@ -176,6 +181,8 @@
   setTimeout(() => el.classList.remove('playing'), t);
   try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred?.('light'); } catch {}
  }
+ // A language refresh is render-only: never reload, claim, or reset inputs.
+ window.addEventListener('mkty:language', render);
  window.MKTYDaily = { reload: load, _demoStatus: demoStatus, MORSE };
  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();

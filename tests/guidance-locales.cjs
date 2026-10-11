@@ -2,7 +2,7 @@
 'use strict';
 const assert=require('node:assert/strict'),path=require('node:path'),vm=require('node:vm');
 const {LANGS,BUNDLES,SCOPES,scopedKeys,missing,readSource}=require('./guidance-locale-helper.cjs');
-const read=readSource(path.resolve(__dirname,'..')),keys=scopedKeys(read),tag='20261011-guidance-locales-1';
+const read=readSource(path.resolve(__dirname,'..')),keys=scopedKeys(read),tag='20261011-language-clarity-1';
 assert(read('field-missions.css').includes('grid-template-columns:repeat(4,minmax(44px,1fr)) minmax(44px,max-content)'), 'Docking arrows retain 44px targets while the localized brake label gets its intrinsic width');
 assert(read('index.html').includes('field-missions.css?v=20261011-localized-controls-1'), 'The corrected control layout has a new public cache pin');
 assert(read('field-missions.css').includes('#fieldMission[data-kind=docking]{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}'), 'Landscape docking columns fit the actual app width');
