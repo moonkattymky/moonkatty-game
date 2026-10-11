@@ -1641,3 +1641,4 @@
 })(typeof globalThis!=="undefined"?globalThis:window);
 
 Object.assign(globalThis.MKTYLocales["ko"].strings,{"Terms of use": "이용 약관", "Privacy policy": "개인정보 처리방침"});
+Object.assign(globalThis.MKTYLocales["ko"].strings,{"Support": "고객 지원", "Questions or data requests:": "문의 또는 데이터 요청:"});

@@ -1,19 +1,19 @@
 # MOONKATTY backend contract
 
-The browser/localStorage is UI cache only. Real rewards must be authorized by a backend after validating Telegram Mini App initData.
+The client keeps local game progress and cached account data. Confirmed rewards are authorized by the backend after validating Telegram Mini App sign-in or a server-issued game session; local progress is not reward evidence.
 
 Core rules:
 - Telegram ID is the player identity.
 - 9 global lives; one spent life restores every 12 hours. Every failed board / flight / chapter finale costs 1 life (training and the first LIFE #1 run are free); at 0 lives missions are paused.
 - Chapter pacing: after LIFE #N is completed, LIFE #N+1 unlocks at the next 00:00 UTC. `life.complete` for a chapter that is not unlocked yet returns `409 chapter_locked` with `unlock_at`. Completed chapters and completions before `PACING_SINCE` are grandfathered.
 - Reward events are idempotent: the same event_key can pay once.
-- Referral count is unlimited. Eligible verified referral mission/video events can pay the inviter +1 Moon Point.
-- Referral reward emission has a configurable daily cap. Initial product setting is 40/day; keep this server-side and changeable.
+- Invitations are not capped, but inviter payouts are: at most 10 verified referral events per UTC day and 100 overall. The configured daily cap can be lower; the database clamps it to 10.
+- Activation and eligible verified activity payouts share those inviter limits. Activity bonuses require the invited player to have completed LIFE #1; the invitee's own activation award is independent of the inviter's cap.
 - Self-referrals and duplicate referral events are rejected.
 - Completing LIFE #9 atomically records final_balance and balance_locked_at.
 - Once balance_locked_at is set, no endpoint may increase that player's Moon Points.
 - Daily/community actions must never pay merely because a client button was pressed.
-- Future MKTY distribution must use the locked server balance and the official launch distribution rules; there is no fixed conversion rate in this contract.
+- Moon Points are in-game points with no monetary value. They are not sold or exchanged for money and do not guarantee prizes, payments or property rights. See the published [terms](https://moonkattymky.github.io/moonkatty-game/terms.html).
 
 Suggested API:
 POST /api/auth/telegram
@@ -34,8 +34,13 @@ Validate Telegram initData server-side, rate-limit writes, keep secrets outside 
   ordered by Moon Points and completed chapters; equal results share a rank.
 - `POST` with `{ "initData": "..." }` additionally returns the current player's
   position after checking Telegram's Ed25519 signature and a ten-minute expiry.
-- The public response contains HMAC-derived callsigns, points and chapter counts.
-  It excludes Telegram IDs, first names and usernames. No writes are performed.
+- The public response can contain the player's Telegram display name and profile photo,
+  points and completed-chapter count. A player who opts out is shown with a callsign
+  and no photo. Telegram IDs are not returned. The display name normally uses the
+  Telegram name, with a username fallback if no first or last name is available;
+  there is no separate username field in the response.
+  Reading standings does not award points; the separate authenticated privacy action
+  saves the player's visibility choice. See the published [privacy policy](https://moonkattymky.github.io/moonkatty-game/privacy.html).
 - The gateway JWT check is disabled because public standings are readable without
   login and the optional personal view has custom Telegram signature validation.
   The service-role credential exists only in the function environment.
@@ -47,10 +52,9 @@ Validate Telegram initData server-side, rate-limit writes, keep secrets outside 
   `node tests/mission-control-server.cjs`. The deployed endpoint was checked for
   successful public responses and rejection of a forged Telegram signature.
 
-No database policies or schema were changed. Existing RLS remains enabled on all
-three game tables. The advisor still reports the pre-existing public execute
-privilege on `rls_auto_enable()`; this release does not use that function. See
-[Supabase's SECURITY DEFINER guidance](https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable).
+The deployment and advisor observations from the original 2026-10-05 release are
+historical, not a current security assessment. This document update changes no
+database policies, configuration or deployed function.
 
 
 ## Rewards / lives Edge Function (current release)
@@ -60,9 +64,9 @@ privilege on `rls_auto_enable()`; this release does not use that function. See
 Deploy as Edge Function name **`rewards`** with env:
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY` (never commit)
-- optional `REFERRAL_DAILY_CAP` (default 40)
+- optional `REFERRAL_DAILY_CAP` (default 10; effective maximum 10 per UTC day and 100 inviter payout events overall)
 
-Contract (POST JSON, Telegram `initData` required except GET probe):
+Contract (POST JSON, verified Telegram `initData` or a server-issued game session; GET is a public health probe):
 
 | action | purpose |
 |--------|---------|
@@ -74,7 +78,7 @@ Contract (POST JSON, Telegram `initData` required except GET probe):
 | `lives.spend` | idempotent life spend (`event_key`, e.g. `life:fail:c4:board:…`) |
 | `chapter.status` | `{next_life, unlock_at, locked, skips}` (also returned as `pace` by `player` / `life.complete`) |
 | `chapter.skip` | spend one referral pass (friend completed LIFE #1) to open the next chapter early |
-| `referrals.claim` | inviter +1 with daily cap; rejects self-referral / duplicates |
+| `referrals.claim` | eligible inviter +1 after invitee LIFE #1, within shared daily/overall caps; rejects self-referral / duplicates |
 
 Rules enforced server-side: initData Ed25519 verify (10 min), unique `(telegram_id, event_key)`, LIFE #9 sets `final_balance` + `balance_locked_at`, no further point increases after lock.
 
@@ -99,9 +103,11 @@ Tests: `node tests/rewards-server.cjs` (no live secrets).
 ## Referrals (2026-10-07)
 - Invite link: `https://t.me/<bot>?startapp=ref_<telegram_id>` (bot username in `<meta name="mkty-bot">`, index.html).
 - `start_param` is read only from Ed25519-verified initData. `players.referred_by` is set once, only while the invitee has `story_life=0`; self-invites, unknown inviters and A↔B loops are ignored.
-- When the invitee's first `life.complete` for LIFE #1 is recorded, the invitee gets +200 (`referral:invitee:life1`) and the inviter +200 (`referral_events` source `life1`, reward key `referral:<invitee>:life1`). Inviter payouts share the `REFERRAL_DAILY_CAP` (rows/day, default 40); locked (LIFE #9) balances are not credited.
-- `referrals.stats` → `{invited, activated, earned, today, daily_cap}`. `referrals.claim` now requires the referral to actually be referred by the caller.
-- Tests: `node tests/referrals-server.cjs`.
+- When the invitee's first `life.complete` for LIFE #1 is recorded, the invitee's +200 award (`referral:invitee:life1`) is independent of the inviter's remaining cap. The inviter's eligible +200 award (`referral_events` source `life1`, reward key `referral:<invitee>:life1`) shares the limits below with activity payouts. Locked (LIFE #9) balances are not credited.
+- Inviter payouts use `REFERRAL_DAILY_CAP` (default 10, database-clamped to at most 10 per UTC day) and a hard overall limit of 100 payout events. These are event limits, not a promise of 100 rewarded friends. At the cap, another inviter payout is not guaranteed; the friend can still play.
+- `referrals.stats` includes `{invited, activated, earned, today, daily_cap, total_cap}`. `referrals.claim` requires the referral to actually be referred by the caller and to have completed LIFE #1.
+- Sources: `rewards/core.mjs` (`REFERRAL_DAILY_CAP`, `referralStats`) and `../supabase/migrations/20261009120925_prelaunch_referral_caps.sql` (`mkty_referral`).
+- Tests: `node tests/referrals-server.cjs` and `node tests/prelaunch-security.cjs` (synthetic fixtures; not a new production audit).
 ## Creator rewards (2026-10-07)
 
 Actions on the `rewards` function (`server/rewards/creator.mjs`, table `creator_submissions`, migration `server/migrations/20261007_creator_rewards.sql`):
@@ -118,7 +124,12 @@ Points (server constants): base 250, 1k views +250, 10k views +500; paid via `re
 
 Admins: function secret `ADMIN_TG_IDS` (comma-separated Telegram user ids), e.g.
 `supabase secrets set ADMIN_TG_IDS=<YOUR_ADMIN_ID> --project-ref lswbmgoeinblzuqzakvi`.
-Admin UI: `admin.html` (no secrets; every call is checked server-side). Open inside Telegram via `https://t.me/<bot>?startapp=admin`, or More → Creator rewards → “Open admin review” (visible to admins only). Non-admins see 403 and their own Telegram ID.
+`admin.html` is excluded from GitHub Pages, and the public client no longer links or
+redirects to it. Do not use the old `startapp=admin` / More-menu instructions as a
+working public review route. Creator moderation requires existing private operator
+tooling and server authorization. The separately prepared bot webhook supports
+on-demand X/TikTok review, not creator-video tier moderation; see [bot/README.md](bot/README.md).
+The presence of that source does not mean the webhook or commands are activated.
 Tests: `node tests/creator-server.cjs`.
 
 ## Verified social missions (2026-10-07)
@@ -134,7 +145,7 @@ Opening a link never pays. `rewards.verify` now rejects `daily.*`, `social.*`, `
   (migration `20261007_social_verify.sql`). follow: once per platform; daily: once per platform per UTC day;
   max 3 pending; each proof once globally.
 - `admin.social.list` / `admin.social.review` — ADMIN_TG_IDS only (403 otherwise); approval pays +5
-  (`social:<platform>:follow` or `social:<platform>:daily:<day>`), idempotent. UI: admin.html → tab «Соцсети».
+  (`social:<platform>:follow` or `social:<platform>:daily:<day>`), idempotent. Use existing private operator tooling; `admin.html` is not a published Pages route. The prepared bot's `/review` command is available only after its separate activation.
 - `social.youtube.verify` — Google OAuth subscription check, disabled until `YOUTUBE_OAUTH_ENABLED=true`
   plus GOOGLE_CLIENT_ID/SECRET, YOUTUBE_CHANNEL_ID, YOUTUBE_REDIRECT_URI. See `youtube-oauth.md`.
 Tests: `node tests/social-server.cjs`.

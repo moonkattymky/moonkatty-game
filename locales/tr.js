@@ -1641,3 +1641,4 @@
 })(typeof globalThis!=="undefined"?globalThis:window);
 
 Object.assign(globalThis.MKTYLocales["tr"].strings,{"Terms of use": "Kullanım koşulları", "Privacy policy": "Gizlilik politikası"});
+Object.assign(globalThis.MKTYLocales["tr"].strings,{"Support": "Destek", "Questions or data requests:": "Sorular veya veri talepleri:"});
