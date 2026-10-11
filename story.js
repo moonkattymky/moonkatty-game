@@ -75,7 +75,11 @@ window.MKTYStory=(()=>{
  }
  function open(n){
   if(n>1&&!done(n-1)){show('chapters');return;}
-  if(window.MKTYPace&&!MKTYPace.gate(n))return;
+  if(window.MKTYPace&&!MKTYPace.gate(n)){
+   // A finished intro has already released Skip; keep a live destination behind the gate.
+   if($('life'+n)?.classList.contains('active'))show('chapters');
+   return;
+  }
   if(n===3&&!done(3)&&localStorage.getItem('mkty_life3_memory_verified')!=='yes'){original[3]();return;}
   // The existing ten-second code reveal must remain reachable immediately after chapter 1.
   if(n===1&&done(1)&&typeof remainingLife1CodeTime==='function'&&remainingLife1CodeTime()>0){original[1]();return;}
