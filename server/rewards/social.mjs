@@ -107,19 +107,10 @@ export function createSocial({rest,clock,insertReward,applyPoints,isAdmin,secret
   if(platform!=='x'&&platform!=='tiktok')throw Error('platform');
   if(kind!=='follow'&&kind!=='daily')throw Error('kind');
   const {proof,proof_norm}=normalizeProof(platform,kind,body.proof);
-  const today=day();
-  const rows=await rest('/rest/v1/social_submissions',{params:{select:'id,platform,kind,day,status',telegram_id:tid(p)}})||[];
-  if(rows.filter(r=>r.status==='pending').length>=SOCIAL_PENDING_MAX)throw Error('pending_limit');
-  const same=rows.filter(r=>r.platform===platform&&r.kind===kind&&r.status!=='rejected');
-  if(kind==='follow'&&same.length)throw Error('already');
-  if(kind==='daily'&&same.some(r=>r.day===today))throw Error('daily_limit');
   const code=await playerCode(p.telegram_id,secret);
-  let row;
-  try{
-   const out=await rest('/rest/v1/social_submissions',{method:'POST',body:JSON.stringify({telegram_id:p.telegram_id,platform,kind,proof,proof_norm,code,day:today,status:'pending'})});
-   row=Array.isArray(out)?out[0]:out;
-  }catch(e){const msg=String(e.message||e);if(msg==='duplicate'||msg.includes('23505'))throw Error('duplicate_proof');throw e;}
-  return {submission:pub(row),...await mine(p)};
+  const r=await rest('/rest/v1/rpc/mkty_social_submit',{method:'POST',body:JSON.stringify({p_id:p.telegram_id,p_platform:platform,p_kind:kind,p_proof:proof,p_proof_norm:proof_norm,p_code:code,p_now:clock().toISOString()})});
+  if(r.error)throw Error(r.error);
+  return {submission:pub(r.submission),duplicate:!!r.duplicate,...await mine(p)};
  }
 
  async function adminList(user,body){
