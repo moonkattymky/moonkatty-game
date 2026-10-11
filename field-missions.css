@@ -89,3 +89,12 @@
 /* Leave room for the whole 44px target and its focus ring when the compact deck scrolls. */
 #fieldMission #fieldControls :is(button,input){scroll-margin-block:6px}
 @media(orientation:landscape) and (max-height:600px){#fieldMission .field-deck{padding-block-end:6px;scroll-padding-block:6px}}
+
+/* The app can remain 520px wide on a wider landscape viewport. Docking controls
+   must fit that actual panel, with full-size arrows and a readable brake label. */
+@media(orientation:landscape) and (max-height:600px){
+#fieldMission[data-kind=docking]{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}
+#fieldMission[data-kind=docking] .field-steering{display:flex;flex-wrap:wrap}
+#fieldMission[data-kind=docking] .field-steering button{flex:1 1 44px;min-width:44px}
+#fieldMission[data-kind=docking] .field-steering button:last-child{flex-basis:auto}
+}

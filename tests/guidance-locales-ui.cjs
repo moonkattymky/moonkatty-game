@@ -120,9 +120,10 @@ async function screenshot(name){
  await page.screenshot({path:path.join(out,file)});report.screenshots.push(file);
 }
 async function noOverflow(){
- const sizes=await page.evaluate(()=>({document:document.documentElement.scrollWidth,app:document.getElementById('app').scrollWidth,width:innerWidth}));
+ const sizes=await page.evaluate(()=>{const row=document.querySelector('#fieldMission.active[data-kind=docking] .field-steering');return {document:document.documentElement.scrollWidth,app:document.getElementById('app').scrollWidth,width:innerWidth,docking:row?[row,row.closest('.field-deck')].map(e=>({name:e.className,width:e.clientWidth,scrollWidth:e.scrollWidth})):[]};});
  assert.equal(sizes.document,sizes.width,`${label()}: document overflow ${JSON.stringify(sizes)}`);
  assert(sizes.app<=sizes.width,`${label()}: app overflow ${JSON.stringify(sizes)}`);
+ for(const box of sizes.docking)assert(box.scrollWidth<=box.width,`${label()}: docking controls must not require horizontal scrolling ${JSON.stringify(box)}`);
 }
 // Full text line boxes, not just element centers, must fit every clipping ancestor.
 // The existing control helper separately enforces complete 44px targets and five-point hit testing.
@@ -382,6 +383,7 @@ async function fieldViews(){
    await slider.focus();await page.keyboard.press('ArrowRight');assert.equal(Number(await slider.inputValue()),before+1,`${label()}: slider ArrowRight remains physical right in RTL`);
   }
   if(n===6){
+   await screenshot('steering-controls');
    for(const [direction,key] of [['up','Up'],['left','Left'],['down','Down'],['right','Right']]){
     await text(`[data-field-steer="${direction}"]`,key,{attribute:'aria-label'});
     assert.equal(await page.getByRole('button',{name:expected(key),exact:true}).count(),1);
