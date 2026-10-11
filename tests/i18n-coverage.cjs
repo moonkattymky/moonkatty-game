@@ -1,9 +1,10 @@
-// Every locale must cover every UI string key (main packs + social/daily-retention/pacing/creator/leaderboard bundles),
-// with no broken glyphs (U+FFFD), leaked MT placeholders (⟦P3…) or code fragments.
+// Cross-pack parity for existing keys (base packs and all feature bundles), with no
+// broken glyphs (U+FFFD), leaked MT placeholders (⟦P3…) or code fragments.
+// guidance-locales.cjs independently derives required keys from scoped UI callsites.
 const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert');
 const dir=path.join(__dirname,'..','locales');
 const LANGS=['ru','uk','es','pt','de','fr','it','tr','he','ar','ko','zh'];
-const BUNDLES=['daily-retention','creator','leaderboard','social','pacing'];
+const BUNDLES=['daily-retention','creator','leaderboard','social','pacing','guidance'];
 const html=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8');
 assert(html.includes('locale-loader.js'),'single locale loader');
 for(const l of LANGS)assert(fs.existsSync(path.join(dir,'runtime',l+'.js')),`runtime locale ${l}`);

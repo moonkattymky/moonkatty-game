@@ -23,5 +23,5 @@ for(const [lang,[label,questions]] of Object.entries(labels)){
  assert.equal(button?.text,label,lang+' support button');assert(rendered.includes(questions),lang+' contact description');assert(address?.attrs.includes('dir="ltr"'),lang+' email remains LTR');assert(address?.attrs.includes('translate="no"'),lang+' email is never translated');
  assert(rendered.includes('href="terms.html"')&&rendered.includes('href="privacy.html"'),'legal links retained');
 }
-const loader=read('locale-loader.js');assert(loader.includes('20261011-support-1'));assert(html.includes('locale-loader.js?v=20261011-support-1')&&html.includes('mission-control.js?v=20261011-support-1'),'updated UI and runtime packs invalidate their old cache URLs');
+const loader=read('locale-loader.js');assert(loader.includes('20261011-guidance-locales-1'));assert(html.includes('locale-loader.js?v=20261011-guidance-locales-1')&&html.includes('mission-control.js?v=20261011-support-1'),'updated UI and runtime packs invalidate their old cache URLs');
 console.log('PASS: project-only mailto links, RU/EN legal contacts, all 13 support translations, RTL/LTR email isolation and updated cache URLs');
