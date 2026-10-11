@@ -3,6 +3,8 @@
 const assert=require('node:assert/strict'),path=require('node:path'),vm=require('node:vm');
 const {LANGS,BUNDLES,SCOPES,scopedKeys,missing,readSource}=require('./guidance-locale-helper.cjs');
 const read=readSource(path.resolve(__dirname,'..')),keys=scopedKeys(read),tag='20261011-guidance-locales-1';
+assert(read('field-missions.css').includes('grid-template-columns:repeat(4,minmax(44px,1fr)) minmax(44px,max-content)'), 'Docking arrows retain 44px targets while the localized brake label gets its intrinsic width');
+assert(read('index.html').includes('field-missions.css?v=20261011-localized-controls-1'), 'The corrected control layout has a new public cache pin');
 const source=vm.createContext({});
 for(const name of [...LANGS,...BUNDLES])vm.runInContext(read('locales/'+name+'.js'),source,{filename:name+'.js'});
 assert.deepEqual(missing(source.MKTYLocales,keys),[],'All scoped source callsites need translations, even if absent from every existing pack');
