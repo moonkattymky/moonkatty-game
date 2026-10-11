@@ -200,7 +200,12 @@ async function readable(target,{scroll=true}={}){
 }
 async function reachable(target,{disabled=false}={}){
  const locator=typeof target==='string'?page.locator(target):target;
- await locator.scrollIntoViewIfNeeded();
+ // Playwright's nearest scroll/click only needs the center to be clear. We test
+ // the entire 44px target, so first expose it within the real scrollable panel.
+ const before=await readableState(locator);
+ await locator.evaluate(e=>e.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'}));
+ const after=await readableState(locator);scrollableMovement(before,after);
+ report.scrolls.push({lang,...viewport,mode:'control-native-center',before,after});
  if(!disabled)await locator.click({trial:true});
  await assertFieldControlReachable(locator,`${label()} ${await locator.getAttribute('id')||await locator.getAttribute('data-field-action')||'control'}`);
  if((await locator.textContent()).trim())await readable(locator,{scroll:false});
