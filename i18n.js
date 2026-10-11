@@ -5,7 +5,7 @@
 (() => {
  const locales = () => (typeof MKTYLocales === 'object' && MKTYLocales) || {};
  const sources = new WeakMap(), rendered = new WeakMap(), attrs = new WeakMap();
- let language = 'en';
+ let language = 'en', languageRequest = 0;
  const RTL_LANGS = ['he','ar'];
  const PACK_LANGS = ['ru','uk','es','pt','de','fr','it','tr','he','ar','ko','zh'];
 
@@ -324,7 +324,15 @@
  }
 
  function setLanguage(code) {
-  if(PACK_LANGS.includes(code)&&!pack(code))return window.MKTYLocaleLoader?.load(code).then(()=>setLanguage(code)).catch(()=>{});
+  const request = ++languageRequest;
+  if(PACK_LANGS.includes(code)&&!pack(code))return window.MKTYLocaleLoader?.load(code).then(()=>{
+   // A slower earlier selection must not replace the user's latest language.
+   if(request===languageRequest)applyLanguage(code);
+  }).catch(()=>{});
+  applyLanguage(code);
+ }
+
+ function applyLanguage(code) {
   observer.disconnect();
   language = code || 'en';
   for (const c of PACK_LANGS) document.body.classList.toggle('mkty-' + c, language === c);

@@ -57,13 +57,13 @@
    $('paceCancel').textContent=T('GOT IT');
   }else if(kind==='lives'){
    $('paceKicker').textContent=T('LIVES');$('paceTitle').textContent=T('Out of lives. Next life in');
-   $('paceText').textContent=T('Every failed board, flight or finale costs 1 life. Each life restores 12 hours after it was spent. Daily Missions stay open.');
+   $('paceText').textContent=T('Every failed board, flight or finale costs 1 life. Lives restore one at a time: 1 life every 12 hours, up to 9. Daily Missions stay open.');
    $('paceGo').textContent=T('📡 DAILY MISSIONS');onGo=()=>{show('home');setTimeout(()=>$('dailyOps')?.scrollIntoView({behavior:'smooth',block:'start'}),60);};
    $('paceCancel').textContent=T('GOT IT');
   }else{
    $('paceKicker').textContent=T('CHAPTER {n} / 09',{n:String(n).padStart(2,'0')});$('paceTitle').textContent=T('Risky attempt');
    $('paceClock').textContent='−1 ❤️';
-   $('paceText').textContent=T('Failing a board, flight or chapter finale in this chapter costs 1 global life. Training and saved progress stay free. Lives restore 12 hours after they are spent.');
+   $('paceText').textContent=T('Failing a board, flight or chapter finale in this chapter costs 1 global life. Training and saved progress stay free. Lives restore one at a time: 1 life every 12 hours, up to 9.');
    $('paceGo').textContent=T('START ▶');$('paceCancel').textContent=T('CANCEL');
   }
   paint();clearInterval(tick);if(kind!=='risk')tick=setInterval(paint,1000);

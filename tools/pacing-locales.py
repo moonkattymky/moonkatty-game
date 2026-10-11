@@ -39,12 +39,38 @@ L['ru']=["ГЛАВА {n} / 09","Следующая глава через","Но�
 "Когда открывается следующая глава?",
 "Одна новая глава в день: после прохождения главы следующая открывается в 00:00 UTC — как и ежедневные задания. Пройденные главы всегда доступны. Друг, который пришёл по вашей ссылке и прошёл LIFE #1, даёт один пропуск ожидания. Вся история занимает около 9 дней.",
 "Одна новая глава в день: следующая открывается в 00:00 UTC. Вся история — около 9 дней."]
-L['uk']=["РОЗДІЛ {n} / 09","Наступний розділ через","Новий розділ відкривається щодня о 00:00 UTC. А поки виконай щоденні місії, розгадай Сигнал Місяця і збережи стрик.","📡 ЩОДЕННІ МІСІЇ","👥 Запроси друга — відкривай розділи раніше","🎟 Відкрити зараз · перепусток: {n}","ЗРОЗУМІЛО","ЖИТТЯ","Життя закінчились. Наступне через","Кожен провалений етап — дошка, виліт або фінал — коштує 1 життя. Життя відновлюється через 12 годин. Щоденні місії залишаються доступними.","Ризикована спроба","Провал дошки, вильоту або фіналу в цьому розділі коштує 1 спільне життя. Тренування і збережений прогрес безкоштовні. Життя відновлюються через 12 годин.","ПОЧАТИ ▶","СКАСУВАТИ","Розділ відкрито перепусткою за друга 🎟","Перепусток за друзів поки немає","Навчання: у першому проходженні LIFE #1 життя не витрачаються","−1 життя · залишилось {n} / 9","Наступний розділ через {t}","А поки — щоденні місії та шифр Сигналу Місяця","Життя закінчились. Наступне через {t}","ВІДКРИЄТЬСЯ ЧЕРЕЗ {t}","🎓 Навчальний розділ: помилки в першому проходженні LIFE #1 не коштують життів. Життя: {n} / 9","⚠️ Провал дошки, вильоту або фіналу коштує 1 ❤️ · тренування безкоштовні · Життя: {n} / 9","🌙 РОЗДІЛ {n} ЧЕРЕЗ {t}",
-"Пройди LIFE #1–LIFE #9 — по одному новому розділу на день: після проходження розділу наступний відкривається о 00:00 UTC (друг, який прийшов за твоїм посиланням і пройшов LIFE #1, відкриває один розділ раніше). У тебе 9 спільних життів: кожен провалений етап — дошка, виліт або фінал розділу — коштує 1 життя (тренування і перше навчання LIFE #1 безкоштовні). При 0 життів місії на паузі, доки життя не відновиться — кожне витрачене життя повертається через 12 годин.",
-"У вас до 9 спільних життів. Кожен провалений етап (дошка, виліт або фінал розділу) коштує 1 життя; тренування і перше проходження LIFE #1 безкоштовні. Кожне витрачене життя відновлюється автоматично через 12 годин. При 0 життів місії недоступні до відновлення.",
-"Коли відкривається наступний розділ?",
-"Один новий розділ на день: після проходження розділу наступний відкривається о 00:00 UTC — як і щоденні завдання. Пройдені розділи завжди доступні. Друг, який прийшов за вашим посиланням і пройшов LIFE #1, дає одну перепустку без очікування. Уся історія займає близько 9 днів.",
-"Один новий розділ на день: наступний відкривається о 00:00 UTC. Уся історія — близько 9 днів."]
+L['uk']=[
+ "ГЛАВА {n} / 09",
+ "Наступна глава через",
+ "Нова глава відкривається щодня о 00:00 UTC. А поки виконай щоденні місії, розгадай Сигнал Місяця і збережи стрик.",
+ "📡 ЩОДЕННІ МІСІЇ",
+ "👥 Запроси друга — відкривай глави раніше",
+ "🎟 Відкрити зараз · перепусток: {n}",
+ "ЗРОЗУМІЛО",
+ "ЖИТТЯ",
+ "Життя закінчились. Наступне через",
+ "Кожен провалений етап — дошка, виліт або фінал — коштує 1 життя. Життя відновлюється через 12 годин. Щоденні місії залишаються доступними.",
+ "Ризикована спроба",
+ "Провал дошки, вильоту або фіналу у цій главі коштує 1 спільне життя. Тренування і збережений прогрес безкоштовні. Життя відновлюються через 12 годин.",
+ "ПОЧАТИ ▶",
+ "СКАСУВАТИ",
+ "Главу відкрито перепусткою за друга 🎟",
+ "Перепусток за друзів поки немає",
+ "Навчання: у першому проходженні LIFE #1 життя не витрачаються",
+ "−1 життя · залишилось {n} / 9",
+ "Наступна глава через {t}",
+ "А поки — щоденні місії та шифр Сигналу Місяця",
+ "Життя закінчились. Наступне через {t}",
+ "ВІДКРИЄТЬСЯ ЧЕРЕЗ {t}",
+ "🎓 Навчальна глава: помилки в першому проходженні LIFE #1 не коштують життів. Життя: {n} / 9",
+ "⚠️ Провал дошки, вильоту або фіналу коштує 1 ❤️ · тренування безкоштовні · Життя: {n} / 9",
+ "🌙 ГЛАВА {n} ЧЕРЕЗ {t}",
+ "Пройди LIFE #1–LIFE #9 — по одній новій главі на день: після проходження глави наступна відкривається о 00:00 UTC (друг, який прийшов за твоїм посиланням і пройшов LIFE #1, відкриває одну главу раніше). У тебе 9 спільних життів: кожен провалений етап — дошка, виліт або фінал глави — коштує 1 життя (тренування і перше навчання LIFE #1 безкоштовні). При 0 життів місії на паузі, доки життя не відновиться — кожне витрачене життя повертається через 12 годин.",
+ "У вас до 9 спільних життів. Кожен провалений етап (дошка, виліт або фінал глави) коштує 1 життя; тренування і перше проходження LIFE #1 безкоштовні. Кожне витрачене життя відновлюється автоматично через 12 годин. При 0 життів місії недоступні до відновлення.",
+ "Коли відкривається наступна глава?",
+ "Одна нова глава на день: після проходження глави наступна відкривається о 00:00 UTC — як і щоденні завдання. Пройдені глави завжди доступні. Друг, який прийшов за вашим посиланням і пройшов LIFE #1, дає одну перепустку без очікування. Уся історія займає близько 9 днів.",
+ "Одна нова глава на день: наступна відкривається о 00:00 UTC. Уся історія — близько 9 днів."
+]
 L['es']=["CAPÍTULO {n} / 09","Próximo capítulo en","Cada día a las 00:00 UTC se abre un capítulo nuevo. Mientras tanto, completa las Misiones diarias, descifra la Señal Lunar y mantén tu racha.","📡 MISIONES DIARIAS","👥 Invita a un amigo: abre capítulos antes","🎟 Abrir ya · pases de referido: {n}","ENTENDIDO","VIDAS","Sin vidas. Próxima vida en","Cada tablero, vuelo o final fallado cuesta 1 vida. Cada vida se recupera 12 horas después de gastarla. Las Misiones diarias siguen abiertas.","Intento arriesgado","Fallar un tablero, un vuelo o el final de este capítulo cuesta 1 vida global. El entrenamiento y el progreso guardado son gratis. Las vidas se recuperan 12 horas después de gastarse.","EMPEZAR ▶","CANCELAR","Capítulo abierto con un pase de referido 🎟","Aún no tienes pases de referido","Tutorial: no pierdes vidas en tu primera LIFE #1","−1 vida · quedan {n} / 9","Próximo capítulo en {t}","Mientras tanto: Misiones diarias y el cifrado de la Señal Lunar","Sin vidas. Próxima vida en {t}","SE ABRE EN {t}","🎓 Capítulo tutorial: los fallos en tu primera LIFE #1 no cuestan vidas. Vidas: {n} / 9","⚠️ Un tablero, vuelo o final fallado cuesta 1 ❤️ · el entrenamiento es gratis · Vidas: {n} / 9","🌙 CAPÍTULO {n} EN {t}",
 "Completa de LIFE #1 a LIFE #9: un capítulo nuevo al día. Al terminar un capítulo, el siguiente se abre a las 00:00 UTC (un amigo invitado que complete LIFE #1 puede abrir un capítulo antes). Tienes 9 vidas globales: cada tablero, vuelo o final de capítulo fallado cuesta 1 vida (el entrenamiento y el primer tutorial de LIFE #1 son gratis). Con 0 vidas las misiones se pausan hasta que se recupere una vida; cada vida gastada se recupera a las 12 horas.",
 "Tienes hasta 9 vidas globales. Cada tablero, vuelo o final de capítulo fallado cuesta 1 vida; el entrenamiento y tu primera partida de LIFE #1 son gratis. Cada vida gastada se recupera automáticamente 12 horas después. Con 0 vidas las misiones se pausan hasta que se recupere una vida.",
@@ -100,6 +126,150 @@ L['zh']=["第 {n} 章 / 09","下一章开放倒计时","每天 00:00 UTC 开放�
 "下一章什么时候开放？",
 "每天一个新章节：完成一章后，下一章在 00:00 UTC 开放——与每日任务同一时间重置。已完成的章节始终开放。通过你的链接加入并完成 LIFE #1 的好友，可为你提供一次跳过等待的通行证。完整故事大约需要 9 天。",
 "每天一个新章节：下一章在 00:00 UTC 开放。完整故事大约需要 9 天。"]
+# Preserve the legacy keys and translations for older cached callers. Add only the four
+# active paragraphs, with the actual sequential (rather than per-loss) restoration rule.
+RESTORE_COPY = {
+ "en": [
+  "Lives restore one at a time: 1 life every 12 hours, up to 9.",
+  [
+   "Each life restores 12 hours after it was spent.",
+   "Lives restore 12 hours after they are spent.",
+   " — each spent life restores after 12 hours.",
+   "Each spent life restores automatically 12 hours later."
+  ],
+  ". "
+ ],
+ "ru": [
+  "Жизни восстанавливаются по очереди: 1 жизнь каждые 12 часов, максимум 9.",
+  [
+   "Жизнь восстанавливается через 12 часов.",
+   "Жизни восстанавливаются через 12 часов.",
+   " — каждая потраченная жизнь возвращается через 12 часов.",
+   "Каждая потраченная жизнь восстанавливается автоматически через 12 часов."
+  ],
+  ". "
+ ],
+ "uk": [
+  "Життя відновлюються по черзі: 1 життя кожні 12 годин, максимум 9.",
+  [
+   "Життя відновлюється через 12 годин.",
+   "Життя відновлюються через 12 годин.",
+   " — кожне витрачене життя повертається через 12 годин.",
+   "Кожне витрачене життя відновлюється автоматично через 12 годин."
+  ],
+  ". "
+ ],
+ "es": [
+  "Las vidas se recuperan de una en una: 1 vida cada 12 horas, hasta un máximo de 9.",
+  [
+   "Cada vida se recupera 12 horas después de gastarla.",
+   "Las vidas se recuperan 12 horas después de gastarse.",
+   "; cada vida gastada se recupera a las 12 horas.",
+   "Cada vida gastada se recupera automáticamente 12 horas después."
+  ],
+  ". "
+ ],
+ "pt": [
+  "As vidas voltam uma de cada vez: 1 vida a cada 12 horas, até o máximo de 9.",
+  [
+   "Cada vida volta 12 horas depois de gasta.",
+   "As vidas voltam 12 horas depois de gastas.",
+   " — cada vida gasta volta após 12 horas.",
+   "Cada vida gasta volta automaticamente 12 horas depois."
+  ],
+  ". "
+ ],
+ "de": [
+  "Leben werden nacheinander aufgefüllt: 1 Leben alle 12 Stunden, bis zu maximal 9.",
+  [
+   "Jedes Leben kehrt 12 Stunden nach dem Verbrauch zurück.",
+   "Leben kehren 12 Stunden nach dem Verbrauch zurück.",
+   " — jedes verbrauchte Leben kehrt nach 12 Stunden zurück.",
+   "Jedes verbrauchte Leben kehrt nach 12 Stunden automatisch zurück."
+  ],
+  ". "
+ ],
+ "fr": [
+  "Les vies reviennent une par une : 1 vie toutes les 12 heures, jusqu’à un maximum de 9.",
+  [
+   "Chaque vie revient 12 heures après avoir été dépensée.",
+   "Les vies reviennent 12 heures après avoir été dépensées.",
+   " — chaque vie dépensée revient après 12 heures.",
+   "Chaque vie dépensée revient automatiquement 12 heures plus tard."
+  ],
+  ". "
+ ],
+ "it": [
+  "Le vite tornano una alla volta: 1 vita ogni 12 ore, fino a un massimo di 9.",
+  [
+   "Ogni vita torna 12 ore dopo essere stata spesa.",
+   "Le vite tornano 12 ore dopo essere state spese.",
+   " — ogni vita spesa torna dopo 12 ore.",
+   "Ogni vita spesa torna automaticamente dopo 12 ore."
+  ],
+  ". "
+ ],
+ "tr": [
+  "Canlar sırayla yenilenir: her 12 saatte 1 can, en fazla 9 can.",
+  [
+   "Her can harcandıktan 12 saat sonra geri gelir.",
+   "Canlar harcandıktan 12 saat sonra geri gelir.",
+   " — harcanan her can 12 saat sonra geri gelir.",
+   "Harcanan her can 12 saat sonra otomatik geri gelir."
+  ],
+  ". "
+ ],
+ "he": [
+  "החיים מתחדשים בזה אחר זה: יחידת חיים אחת בכל 12 שעות, עד למקסימום של 9.",
+  [
+   "כל חיים חוזרים 12 שעות אחרי שנוצלו.",
+   "חיים חוזרים 12 שעות אחרי שנוצלו.",
+   " — כל חיים שנוצלו חוזרים אחרי 12 שעות.",
+   "כל חיים שנוצלו חוזרים אוטומטית אחרי 12 שעות."
+  ],
+  ". "
+ ],
+ "ar": [
+  "تعود الأرواح واحدة تلو الأخرى: روح واحدة كل 12 ساعة، حتى 9 أرواح كحد أقصى.",
+  [
+   "تعود كل روح بعد 12 ساعة من إنفاقها.",
+   "تعود الأرواح بعد 12 ساعة من إنفاقها.",
+   " — كل روح مُنفقة تعود بعد 12 ساعة.",
+   "تعود كل روح مُنفقة تلقائيًا بعد 12 ساعة."
+  ],
+  ". "
+ ],
+ "ko": [
+  "생명은 한 번에 1개씩 회복됩니다: 12시간마다 1개, 최대 9개까지.",
+  [
+   "생명은 소모 후 12시간 뒤에 회복됩니다.",
+   "생명은 소모 후 12시간 뒤에 회복됩니다.",
+   "며, 소모된 생명은 12시간 후 회복됩니다.",
+   "소모된 생명은 12시간 후 자동으로 회복됩니다."
+  ],
+  "됩니다. "
+ ],
+ "zh": [
+  "生命逐条恢复：每 12 小时恢复 1 条，最多 9 条。",
+  [
+   "每条生命在消耗 12 小时后恢复。",
+   "生命在消耗 12 小时后恢复。",
+   "——每条消耗的生命在 12 小时后恢复。",
+   "每条消耗的生命会在 12 小时后自动恢复。"
+  ],
+  "。"
+ ]
+}
+restore_indices = (9, 11, 25, 26)
+def restore_paragraph(text, language, surface):
+ sentence, old_clauses, separator = RESTORE_COPY[language]
+ old = old_clauses[surface]
+ assert text.count(old) == 1, (language, surface, old)
+ return text.replace(old, (separator if surface == 2 else '') + sentence)
+new_keys = [restore_paragraph(K[index], 'en', surface) for surface, index in enumerate(restore_indices)]
+for language, values in L.items():
+ values.extend(restore_paragraph(values[index], language, surface) for surface, index in enumerate(restore_indices))
+K.extend(new_keys)
 for c,v in L.items(): assert len(v)==len(K),(c,len(v),len(K))
 out=['/* MOONKATTY chapter pacing + life-loss strings. Generated by tools/pacing-locales.py */','(function(root){','\'use strict\';','const L=root.MKTYLocales=root.MKTYLocales||{};','const D='+json.dumps({c:dict(zip(K,v)) for c,v in L.items()},ensure_ascii=False,indent=1)+';','for(const c of Object.keys(D)){L[c]=L[c]||{};L[c].strings=Object.assign(L[c].strings||{},D[c]);}','})(typeof globalThis!==\'undefined\'?globalThis:this);']
 open('locales/pacing.js','w').write('\n'.join(out)+'\n')
