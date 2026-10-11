@@ -17,7 +17,8 @@ const origin = 'https://moonkatty-ranges.test';
 const types = {'.html': 'text/html', '.js': 'application/javascript', '.css': 'text/css', '.json': 'application/json',
   '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp', '.jpg': 'image/jpeg', '.ico': 'image/x-icon'};
 
-async function runCase(browser, spec, record, out) {
+// Optional test-only extension keeps edition-1 scenarios separate from the original 13.
+async function runCase(browser, spec, record, out, extension = {}) {
   const context = await browser.newContext({viewport: {width: spec.width, height: spec.height}, isMobile: true,
     hasTouch: true, deviceScaleFactor: 2, serviceWorkers: 'block'});
   const page = await context.newPage();
@@ -37,8 +38,11 @@ async function runCase(browser, spec, record, out) {
       try {return route.fulfill({status: 200, contentType: types[path.extname(file)] || 'application/octet-stream', body: await fs.promises.readFile(file)});}
       catch {return route.fulfill({status: 404, body: ''});}
     });
-    await page.addInitScript(({records, height}) => {
-      for (const [key, value] of Object.entries(records)) localStorage.setItem(key, value);
+    await page.addInitScript(({records, height, onceKey}) => {
+      if (!onceKey || !localStorage.getItem(onceKey)) {
+        for (const [key, value] of Object.entries(records)) localStorage.setItem(key, value);
+        if (onceKey) localStorage.setItem(onceKey, 'yes');
+      }
       window.Telegram = {WebApp: {initData: '', initDataUnsafe: {}, version: '8.0', platform: 'ios',
         viewportHeight: height, viewportStableHeight: height, isFullscreen: true,
         safeAreaInset: {top: 0, bottom: 0, left: 0, right: 0}, contentSafeAreaInset: {top: 46, bottom: 0, left: 0, right: 0},
@@ -55,7 +59,7 @@ async function runCase(browser, spec, record, out) {
             value: Number(event.target.value), x: touch?.clientX, y: touch?.clientY});
         }, {passive: true});
       }
-    }, {records: profile(spec), height: spec.height});
+    }, {records: extension.profile ? extension.profile(spec) : profile(spec), height: spec.height, onceKey: extension.onceKey || ''});
     const session = await context.newCDPSession(page);
     await page.goto(origin + '/', {waitUntil: 'load'});
     await page.waitForFunction(() => window.MKTYCampaign && window.MKTYField && window.MKTYStory && window.MKTYI18n);
@@ -93,6 +97,7 @@ async function runCase(browser, spec, record, out) {
     }
 
     async function sceneReady() {
+      if (extension.assertScene) await extension.assertScene(page, spec);
       assert.equal(await page.locator('.screen.active').getAttribute('id'), spec.mechanic ? 'fieldMission' : 'mission' + spec.chapter);
       if (!spec.mechanic) {
         if (spec.chapter === 3) assert.equal(await page.locator('#mission3').getAttribute('data-phase'), 'fuel');
@@ -109,6 +114,7 @@ async function runCase(browser, spec, record, out) {
       document.getElementById('app').scrollLeft, document.getElementById('app').scrollTop],
       deck: document.querySelector('#fieldMission .field-deck')?.scrollTop || 0}));
     async function modelMatches(control, value) {
+      if (extension.assertModel) return extension.assertModel(page, spec, control, value);
       const expectedReadout = ['reactor', 'liftoff', 'descent'].includes(control.kind) ? value + '%' : String(value);
       assert.equal(await page.locator(control.readout).textContent(), expectedReadout, control.selector + ': real readout follows native input');
       if (control.kind === 'field') {
@@ -208,6 +214,7 @@ async function runCase(browser, spec, record, out) {
       record.controlPairs++;
     }
     for (const control of spec.controls) await bothWays(control, 'initial ' + control.selector);
+    if (extension.afterInitial) await extension.afterInitial({page, spec, record, sceneReady, modelMatches, bothWays});
     if (spec.resume) {
       const reactor = spec.chapter === 5;
       await page.locator(reactor ? '#reactorHelp5' : '#liftoffHelp6').tap();
@@ -273,5 +280,5 @@ async function main() {
   } catch (error) {report.failure = error.stack; process.exitCode = 1; console.error(error);}
   finally {clearTimeout(watchdog); fs.writeFileSync(path.join(out, 'native-range-touch.json'), JSON.stringify(report, null, 2)); await browser?.close();}
 }
-module.exports = {main};
+module.exports = {main, runCase};
 if (require.main === module) main();

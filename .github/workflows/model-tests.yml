@@ -43,5 +43,17 @@ jobs:
           path: /tmp/moonkatty-ranges-native
           if-no-files-found: ignore
           retention-days: 7
+      - name: Native legacy range touchscreen regression
+        env:
+          MKTY_TEST_OUTPUT: /tmp/moonkatty-legacy-ranges-native
+        run: node tests/legacy-range-native-touch.cjs
+      - name: Preserve native legacy range diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-legacy-ranges
+          path: /tmp/moonkatty-legacy-ranges-native
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Every model, browser, campaign and security regression
         run: npm test
