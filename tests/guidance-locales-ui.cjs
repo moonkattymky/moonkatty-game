@@ -464,6 +464,18 @@ async function fieldViews(){
    await page.setViewportSize(viewport);
    await planViews();await routeAndRewardViews();await boardViews();await fieldViews();
   }
+  // The brake's intrinsic text width must also fit both existing landscape
+  // layouts. Preserve physical LTR steering even when the surrounding UI is RTL.
+  for(viewport of [{width:568,height:320},{width:650,height:480}]){
+   await page.setViewportSize(viewport);await openField(6);
+   await text('#fieldControlHint',fieldHints[6]);await readable('#fieldControlHint');
+   assert.equal(await page.locator('.field-steering').evaluate(e=>getComputedStyle(e).direction),'ltr');
+   const controls=page.locator('.field-steering button');assert.equal(await controls.count(),5);
+   for(let i=0;i<5;i++)await reachable(controls.nth(i));
+   await noOverflow();await screenshot('steering-landscape');
+   report.layouts.push({lang,...viewport,kind:'localized-steering',targets:5});
+   await page.locator('#fieldPause').click();await page.locator('#fieldExit').click();
+  }
   assert.deepEqual(requiredKeys.filter(key=>!renderedKeys.has(key)),[],`${code}: required strings must reach their real production DOM paths`);
   // Parser-time reload must also choose the saved locale without reverting to English.
   await page.reload();await page.waitForFunction(c=>window.MKTYStory&&MKTYI18n.getLanguage()===c,code);await plan();

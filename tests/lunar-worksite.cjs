@@ -7,7 +7,8 @@ const baseHashes={
  'field-model.js':'94ab25d49258d5ca64cdf391eccdaadd3b3f10370b363295a4c3bd3a58aea7a8',
  'field-missions.js':'87ae7505443efcaa76ec1cf8c9b0293493a8d3b32ded761d08f8fae280bbf168',
  'story-plan.js':'fd4683463fc1bcf72862b33478a6d4d1036036632ccff88a049798428d583474',
- 'story.js':'98544c3dd645f76cd47188184ee5a80a9443b96faf13545b31356b11a29cb42e',
+ // Nonvisual locked-intro return; pacing, route state and rewards remain unchanged.
+ 'story.js':'d16efb32b4ab96f4aaf623c9f537877a009dd0b6fb5507e15dac68270d209f5c',
  'storage.js':'c8a4becffdff791e36ce0a709a8cd8dba2cfa5a4f4e8cde4732ab2565a9261c9',
  'trace-codec.js':'baba00a4cc9a4ab309382220d3e37b7b35ddc925a582012d8d4d622c124ea865',
  'rewards-client.js':'e4444f4248d6389a650833dbd5a77c60985ba2ca64a37f342ca5dd340536758c',

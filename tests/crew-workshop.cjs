@@ -94,5 +94,5 @@ const p95=times.sort((a,b)=>a-b)[Math.floor(times.length*.95)];assert(p95<15,'so
 const gzip=zlib.gzipSync(source).byteLength;
 // This duplicates, never replaces or relaxes, the reviewed PR53 shared-renderer guard.
 assert(gzip<15000,'complete shared renderer <15KB gzip (original PR53 limit)');
-assert.equal(sha(fs.readFileSync(path.join(root,'tests/lunar-worksite.cjs'))),'41f763caddc9048531ac5eca6e4a6e93b587cf5759f8ff33e1ed5cd7c866dabe','reviewed release-composition hash pins and unchanged 15 KB artwork guard');
+assert.equal(sha(fs.readFileSync(path.join(root,'tests/lunar-worksite.cjs'))),'91847b06c061c4cedac22bdf7971692be0a94d25182dd8e522ef33d7da0eba3d','reviewed release-composition hash pins and unchanged 15 KB artwork guard');
 console.log(JSON.stringify({baseline:BASE,baselineSource,unchangedScenes,unchangedMaps,exactMixedCalls,localizedScenes,labelContrast,crewScenes:scenes,maxBytes,maxNodes,renderP95ms:+p95.toFixed(3),rendererGzipBytes:gzip,existingAssetBytes:assetBytes,limits:'Source-only checks. Real DOM/controller, paint, multilingual layout and touch geometry are separate GitHub CI checks; no physical-device certification.'},null,2));
