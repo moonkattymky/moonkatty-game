@@ -1642,3 +1642,4 @@
 })(typeof globalThis!=='undefined'?globalThis:this);
 
 Object.assign(globalThis.MKTYLocales["uk"].strings,{"Terms of use": "Умови використання", "Privacy policy": "Політика конфіденційності"});
+Object.assign(globalThis.MKTYLocales["uk"].strings,{"Support": "Підтримка", "Questions or data requests:": "Питання та запити щодо даних:"});

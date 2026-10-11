@@ -1641,3 +1641,4 @@
 })(typeof globalThis!=="undefined"?globalThis:window);
 
 Object.assign(globalThis.MKTYLocales["zh"].strings,{"Terms of use": "使用条款", "Privacy policy": "隐私政策"});
+Object.assign(globalThis.MKTYLocales["zh"].strings,{"Support": "支持", "Questions or data requests:": "问题或数据请求："});

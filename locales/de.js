@@ -1645,3 +1645,4 @@
 })(typeof globalThis!=="undefined"?globalThis:window);
 
 Object.assign(globalThis.MKTYLocales["de"].strings,{"Terms of use": "Nutzungsbedingungen", "Privacy policy": "Datenschutzerklärung"});
+Object.assign(globalThis.MKTYLocales["de"].strings,{"Support": "Hilfe", "Questions or data requests:": "Fragen oder Datenanfragen:"});

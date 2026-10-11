@@ -1642,3 +1642,4 @@
 })(typeof globalThis!=='undefined'?globalThis:this);
 
 Object.assign(globalThis.MKTYLocales["ru"].strings,{"Terms of use": "Условия использования", "Privacy policy": "Политика конфиденциальности"});
+Object.assign(globalThis.MKTYLocales["ru"].strings,{"Support": "Поддержка", "Questions or data requests:": "Вопросы и запросы о данных:"});

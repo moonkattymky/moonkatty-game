@@ -1642,3 +1642,4 @@
 })(typeof globalThis!=='undefined'?globalThis:this);
 
 Object.assign(globalThis.MKTYLocales["pt"].strings,{"Terms of use": "Termos de uso", "Privacy policy": "Política de privacidade"});
+Object.assign(globalThis.MKTYLocales["pt"].strings,{"Support": "Suporte", "Questions or data requests:": "Dúvidas ou solicitações sobre dados:"});

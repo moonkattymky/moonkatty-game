@@ -1641,3 +1641,4 @@
 })(typeof globalThis!=="undefined"?globalThis:window);
 
 Object.assign(globalThis.MKTYLocales["he"].strings,{"Terms of use": "תנאי שימוש", "Privacy policy": "מדיניות פרטיות"});
+Object.assign(globalThis.MKTYLocales["he"].strings,{"Support": "תמיכה", "Questions or data requests:": "שאלות או בקשות בנוגע למידע:"});
