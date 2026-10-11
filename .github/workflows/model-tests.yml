@@ -57,3 +57,11 @@ jobs:
           retention-days: 7
       - name: Every model, browser, campaign and security regression
         run: npm test
+      - name: Preserve gated intro navigation diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gated-intro-navigation
+          path: /tmp/mkty-locked-intro-browser-*/
+          if-no-files-found: ignore
+          retention-days: 7
