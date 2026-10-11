@@ -1,5 +1,5 @@
-/* Optional save/proof transport contract. Actual current and pre-codec clients
- * call actual current and pinned legacy handlers through an in-process fetch.
+/* Activated save/proof transport contract. Actual current and pre-codec clients
+ * call the shipping entrypoint, explicit rollback and pinned historical handlers.
  * Only a disposable PGlite database and synthetic/golden model data are used.
  * No sockets, browser launch, real accounts, deployment, or external requests. */
 'use strict';
@@ -17,9 +17,25 @@ function moduleURL(text,file,overrides={}){
  return 'data:text/javascript;base64,'+Buffer.from(absolute).toString('base64');
 }
 
-function client(handler,id=101,{legacy=false}={}){
+// Execute the actual source entrypoint with only its dependencies substituted.
+// Environment flag values are deliberate decoys; only URL and key may be read.
+function entrypoint(createHandler,dependencies={},flag){
+ let options,handler;const reads=[];
+ const input=source('server/rewards/index.ts'),importLine="import {createHandler} from './core.mjs';";
+ assert(input.includes(importLine),'the fixture must substitute only the real handler import');
+ vm.runInNewContext(input.replace(importLine,''),{
+  Deno:{env:{get:name=>{reads.push(name);return name==='SUPABASE_URL'?'https://db.test':name==='SUPABASE_SERVICE_ROLE_KEY'?'synthetic-local-fixture-key':flag;}},serve:value=>{assert.equal(handler,undefined);handler=value;}},
+  createHandler:value=>{options=plain(value);return createHandler({...dependencies,...value});}
+ },{filename:'server/rewards/index.ts'});
+ assert.deepEqual(reads,['SUPABASE_URL','SUPABASE_SERVICE_ROLE_KEY']);
+ assert.deepEqual(options,{url:'https://db.test',key:'synthetic-local-fixture-key',traceTransport:true},'activation is source-pinned and independent of env flags');
+ assert.equal(typeof handler,'function');return handler;
+}
+
+function client(handler,id=101,{legacy=false,stores=new Map()}={}){
  let owner=String(id),active='home',random=golden.route.seed,timerId=0,reloads=0;
- const stores=new Map(),sessions=new Map(),elements=new Map(),events=new Map(),timers=new Map(),pending=new Set(),calls=[],responses=[],launches=[];
+ const sessions=new Map(),elements=new Map(),events=new Map(),timers=new Map(),pending=new Set(),calls=[],responses=[],launches=[],lostResponses=[];
+ let loseNext=null;
  const data=()=>stores.get(owner)||stores.set(owner,new Map()).get(owner);
  const on=(name,fn)=>events.set(name,[...(events.get(name)||[]),fn]);
  const emit=(name,event={})=>{for(const fn of events.get(name)||[])fn(event);};
@@ -43,13 +59,13 @@ function client(handler,id=101,{legacy=false}={}){
  const context={window,document,localStorage:storage,sessionStorage:{getItem:k=>sessions.get(k)||null,setItem:(k,v)=>sessions.set(k,v),removeItem:k=>sessions.delete(k)},console,URLSearchParams,AbortController,AbortSignal,URL,Blob,Node:{DOCUMENT_POSITION_FOLLOWING:4},MouseEvent:class{constructor(type){this.type=type;}},CustomEvent:class{constructor(type,options){this.type=type;this.detail=options?.detail;}},MutationObserver:class{observe(){}},
   crypto:{getRandomValues:a=>{a[0]=random++;return a;}},setTimeout:(fn,ms)=>(timers.set(++timerId,{fn,ms}),timerId),clearTimeout:id=>timers.delete(id),setInterval(){},queueMicrotask(){},location:{reload(){reloads++;}},
   StoryPlan:P,FieldRules:Field,MissionRules:Board,ExpeditionRules:Flight,MKTYPace:window.MKTYPace,FieldArt:{map:(_n,steps)=>steps.map(t=>`<g data-map-step="${t.id}"></g>`).join('')},show,remainingLife1CodeTime:()=>0,MKTYOps:{openTask:launch,pending:()=>false},MKTYField:{open:launch},MKTYExpedition:{openStory:launch},
-  fetch:(url,opt)=>{assert.equal(url,window.MKTYRewards.endpoint,'only the injected in-process handler may be called');const body=JSON.parse(opt.body);calls.push({body,raw:opt.body,owner});const work=(async()=>{const r=await handler(new Request('https://in-process.test/rewards',{method:'POST',headers:opt.headers,body:opt.body}));const value=await r.json();responses.push({action:body.action,body:plain(value)});return {ok:r.ok,status:r.status,json:async()=>value};})();pending.add(work);return work.finally(()=>pending.delete(work));}
+  fetch:(url,opt)=>{assert.equal(url,window.MKTYRewards.endpoint,'only the injected in-process handler may be called');const body=JSON.parse(opt.body);calls.push({body,raw:opt.body,owner});const work=(async()=>{const r=await handler(new Request('https://in-process.test/rewards',{method:'POST',headers:opt.headers,body:opt.body}));const value=await r.json(),receipt={action:body.action,body:plain(value)};responses.push(receipt);if(loseNext?.(body)){loseNext=null;lostResponses.push(receipt);throw Error('synthetic lost receipt after handler completion');}return {ok:r.ok,status:r.status,json:async()=>value};})();pending.add(work);return work.finally(()=>pending.delete(work));}
  };
  for(const [i,name]of ['openMission','openMission2','openLife3MemoryGate','openMission4','openMission5','openMission6','openMission7','openMission8','openMission9'].entries())window[name]=()=>show('mission'+(i+1));
  vm.createContext(context);for(const file of ['rewards-client.js','cloud-save.js','story.js']){const input=legacy&&file!=='story.js'?'tests/fixtures/legacy-'+file.replace('.js','-61b514c.js'):file;vm.runInContext(source(input),context,{filename:input});}
  const seed=s=>storage.setItem('mkty_story_plan_'+s.n+'_v1',JSON.stringify(s));
  const settle=async()=>{do{await Promise.all([...pending]);await turn();}while(pending.size);};
- return {window,storage,calls,responses,launches,get,seed,show,stores,settle,owner:setOwner,active:()=>active,reloads:()=>reloads,text:id=>get(id).children[0]?.textContent||get(id).textContent||''};
+ return {window,storage,calls,responses,lostResponses,launches,get,seed,show,stores,settle,useHandler:value=>{handler=value;},loseResponseOnce:predicate=>{assert.equal(loseNext,null);loseNext=predicate;},owner:setOwner,active:()=>active,reloads:()=>reloads,text:id=>get(id).children[0]?.textContent||get(id).textContent||''};
 }
 
 
@@ -77,11 +93,11 @@ async function database(){
  const {createHandler:createLegacyHandler}=await import(moduleURL(source('tests/fixtures/legacy-core-61b514c.mjs'),'server/rewards/core.mjs',{'./campaign.mjs':campaignURL}));
  const noNetwork=()=>{throw Error('external network is forbidden in this fixture');};
  const options={url:'https://db.test',key:'synthetic-local-fixture-key',fetcher,tgFetcher:noNetwork,ytFetcher:noNetwork,verify:async initData=>({id:JSON.parse(new URLSearchParams(initData).get('user')).id}),clock:()=>now};
- const handler=createHandler({...options,traceTransport:true}),decoderHandler=createHandler(options),legacyHandler=createLegacyHandler(options);
+ const handler=entrypoint(createHandler,options),decoderHandler=createHandler({...options,traceTransport:false}),legacyHandler=createLegacyHandler(options);
  return {db,handler,decoderHandler,legacyHandler,writes,advance:ms=>{now=new Date(now.getTime()+ms);}};
 }
 
-async function goldenFlow(fixture,h,compact){
+async function prepareGolden(fixture,h){
  const R=h.window.MKTYRewards,S=h.window.MKTYStory,account=h.window.MKTYStorage.identity();
  assert.equal(R.requiresRoute,undefined);assert.equal(R.routeReady,undefined);
  await S.open(1);await h.settle();
@@ -99,6 +115,11 @@ async function goldenFlow(fixture,h,compact){
  }
  h.get('storyNext').click();assert.equal(S.read(1).phase,'core');
  fixture.advance(600000);
+ return {R,S,account,route};
+}
+
+async function goldenFlow(fixture,h,compact){
+ const {R,S,account,route}=await prepareGolden(fixture,h);
  const first=await R.completeLife(1,500);assert.equal(first.source,'server');assert.equal(first.pts,500);
  const payout=h.calls.find(x=>x.body.action.startsWith('life.complete'));
  assert.equal(payout.body.action,compact?'life.complete.v2':'life.complete');
@@ -118,6 +139,97 @@ async function goldenFlow(fixture,h,compact){
  return decoded.tasks;
 }
 
+async function lostCompletion(fixture){
+ const id=106,h=client(fixture.handler,id),{R,route}=await prepareGolden(fixture,h);
+ const state=async()=>({
+  player:(await fixture.db.query('select moon_points,story_life from players where telegram_id=$1',[id])).rows[0],
+  events:(await fixture.db.query('select event_key,event_type,points from reward_events where telegram_id=$1 order by event_key',[id])).rows
+ });
+ assert.deepEqual(await state(),{player:{moon_points:0,story_life:0},events:[]});
+ const proof={route:route.route,tasks:golden.proof.tasks},plan=h.storage.getItem('mkty_story_plan_1_v1');
+ h.loseResponseOnce(body=>body.action==='life.complete.v2');
+ const missing=await R.completeLife(1,500);
+ assert.equal(missing.source,'pending');assert.equal(missing.pending,true);assert.equal(missing.error,'unavailable');assert.equal(missing.pts,0);
+ assert.equal(h.lostResponses.length,1);assert.equal(h.lostResponses[0].body.awarded,true);assert.equal(h.lostResponses[0].body.protocol,Codec.PROTOCOL);
+ const committed={player:{moon_points:500,story_life:1},events:[{event_key:'life:1:complete',event_type:'life.complete',points:500}]};
+ assert.deepEqual(await state(),committed,'the real reward SQL committed before its receipt was lost');
+ const pending=[{id:'life:1:complete',action:'life.complete',payload:{life:1,event_key:'life:1:complete',proof}}],queueKey='mkty_pending_v2_'+id;
+ assert.deepEqual(JSON.parse(h.storage.getItem(queueKey)),pending,'the durable queue retains the exact original proof');
+ assert.equal(R.pendingCompletion(1),true);assert.equal(h.storage.getItem('mkty_life1_awarded'),null);assert.equal(h.storage.getItem('mkty_story_plan_1_v1'),plan);
+ assert.deepEqual(Codec.unpackProof(h.calls.find(x=>x.body.action==='life.complete.v2').body.proof),proof);
+ const reopened=client(fixture.handler,id,{stores:h.stores}),retry=reopened.window.MKTYRewards;
+ assert.deepEqual(JSON.parse(reopened.storage.getItem(queueKey)),pending,'reload retains every proof row');
+ await retry.syncPlayer();
+ const sent=reopened.calls.filter(x=>x.body.action==='life.complete.v2');assert.equal(sent.length,1);assert.deepEqual(Codec.unpackProof(sent[0].body.proof),proof);
+ const receipt=reopened.responses.find(x=>x.action==='life.complete.v2').body;
+ assert.equal(receipt.ok,true);assert.equal(receipt.awarded,false);assert.equal(receipt.protocol,Codec.PROTOCOL);
+ assert.equal(reopened.storage.getItem(queueKey),'[]');assert.equal(reopened.storage.getItem('mkty_points'),'500');assert.equal(reopened.storage.getItem('mkty_life1_awarded'),'yes');
+ assert.equal(reopened.storage.getItem('mkty_story_plan_1_v1'),plan);assert.equal(retry.pendingCompletion(1),false);assert.deepEqual(await state(),committed);
+ await retry.syncPlayer();assert.equal(reopened.calls.filter(x=>x.body.action==='life.complete.v2').length,1,'a cleared queue cannot resend');
+ const repeated=await retry.completeLife(1,500);assert.equal(repeated.source,'server-idempotent');assert.equal(repeated.pts,500);assert.deepEqual(await state(),committed,'retries never add a second event or 500 points');
+}
+
+async function lostCloudReceipts(fixture,saved,key,raw,nextRaw){
+ let id=300;
+ for(const different of [false,true])for(const recovery of ['retry','reload']){
+  id++;const initial=client(fixture.handler,id);initial.storage.setItem(key,raw);
+  initial.loseResponseOnce(body=>body.action==='campaign.cloud.v2'&&!!body.snapshot);
+  await initial.window.MKTYCloud.flush();
+  assert.equal(initial.lostResponses.length,1);assert.equal(initial.lostResponses[0].body.ok,true);assert.equal(initial.lostResponses[0].body.revision,1);
+  const committed=plain(await saved(id));assert.equal(committed.revision,1);assert.deepEqual(committed.snapshot,Codec.packSnapshot({[key]:raw}),'SQL has the compact save before the simulated disconnect');
+  assert.equal(initial.storage.getItem(key),raw);assert.equal(initial.storage.getItem('mkty_cloud_dirty'),'yes');assert.equal(initial.storage.getItem('mkty_cloud_revision'),null);
+  if(different)initial.storage.setItem(key,nextRaw);
+  const local=different?nextRaw:raw,writeCount=fixture.writes.length;
+  const h=recovery==='reload'?client(fixture.handler,id,{stores:initial.stores}):initial;
+  if(recovery==='reload')await h.window.MKTYCloud.load();else await h.window.MKTYCloud.flush();
+  assert.equal(fixture.writes.length,writeCount+(recovery==='retry'?1:0),'retry reaches real CAS; reload only reads');
+  const response=h.responses.filter(x=>x.action==='campaign.cloud.v2').at(-1).body;
+  assert.equal(response.revision,1);assert.equal(response.protocol,Codec.PROTOCOL);assert.equal(response.conflict,recovery==='retry'?true:undefined);
+  assert.equal(Codec.unpackSnapshot(response.snapshot)[key],raw);assert.deepEqual(plain(await saved(id)),committed,'lost receipt reconciliation creates no extra revision');
+  assert.equal(h.storage.getItem(key),local);
+  if(!different){
+   assert.equal(h.storage.getItem('mkty_cloud_dirty'),null);assert.equal(h.storage.getItem('mkty_cloud_revision'),'1');assert.equal(h.text('cloudSaveStatus'),'');
+   for(const name of ['mkty_cloud_recovery','mkty_cloud_restore_pending','mkty_cloud_restore_transaction'])assert.equal(h.storage.getItem(name),null,'exact acknowledgement changes metadata only');
+   assert.equal(h.reloads(),0);
+   const reopened=client(fixture.handler,id,{stores:h.stores});await reopened.window.MKTYCloud.load();assert.equal(reopened.storage.getItem(key),raw);assert.equal(reopened.storage.getItem('mkty_cloud_dirty'),null);
+  }else{
+   assert.equal(h.storage.getItem('mkty_cloud_dirty'),'yes');assert.equal(h.storage.getItem('mkty_cloud_revision'),null);assert.match(h.text('cloudSaveStatus'),/newer save/);
+   const choose=h.get('cloudSaveStatus').children.find(node=>node.onclick);assert(choose);choose.onclick();
+   assert.equal(h.reloads(),1);assert.equal(h.storage.getItem(key),nextRaw,'choosing cloud does not replace the live checkpoint');
+   assert.equal(Codec.unpackSnapshot(JSON.parse(h.storage.getItem('mkty_cloud_restore_pending')).snapshot)[key],raw);
+   const reopened=client(fixture.handler,id,{stores:h.stores});
+   assert.equal(reopened.storage.getItem(key),raw);assert.equal(JSON.parse(reopened.storage.getItem('mkty_cloud_recovery'))[key],nextRaw,'reload preserves the differing outgoing checkpoint');
+   assert.equal(reopened.storage.getItem('mkty_cloud_revision'),'1');assert.equal(reopened.storage.getItem('mkty_cloud_dirty'),null);assert.equal(reopened.storage.getItem('mkty_cloud_restore_pending'),null);
+   await reopened.window.MKTYCloud.load();assert.equal(reopened.storage.getItem(key),raw);
+  }
+  assert.deepEqual(plain(await saved(id)),committed);
+ }
+}
+
+async function cachedRollback(fixture,saved,key,smallRaw,raw){
+ const id=305,h=client(fixture.handler,id),R=h.window.MKTYRewards,C=h.window.MKTYCloud;
+ await C.load();assert.equal(await R.traceProtocol(),Codec.PROTOCOL);
+ h.useHandler(fixture.decoderHandler);h.storage.setItem(key,smallRaw);
+ const before=fixture.writes.length;await C.flush();
+ const rejected=h.responses.filter(x=>x.action==='campaign.cloud.v2').at(-1).body;
+ assert.equal(rejected.ok,false);assert.equal(rejected.error,'action');assert.equal(rejected.protocol,undefined);assert.equal(fixture.writes.length,before);assert.equal(await saved(id),undefined);
+ assert.equal(h.storage.getItem(key),smallRaw);assert.equal(h.storage.getItem('mkty_cloud_dirty'),'yes');assert.equal(h.storage.getItem('mkty_cloud_revision'),null);assert.match(h.text('cloudSaveStatus'),/could not be verified/);assert.equal(await R.traceProtocol(),null);
+ await C.flush();
+ const rawWrite=h.calls.filter(x=>x.body.snapshot).at(-1);
+ assert.equal(rawWrite.body.action,'campaign.cloud');assert.equal(rawWrite.body.protocol,undefined);assert.equal(rawWrite.body.snapshot[key],smallRaw);assert(!rawWrite.raw.includes('mkty-trace'));
+ const committed=plain(await saved(id));assert.equal(committed.revision,1);assert.equal(committed.snapshot[key],smallRaw);assert.equal(h.storage.getItem('mkty_cloud_dirty'),null);
+ const requests=h.calls.length,writes=fixture.writes.length;
+ h.storage.setItem(key,raw);await C.flush();
+ assert.equal(h.calls.length,requests,'oversized raw data is retained without sending');assert.equal(fixture.writes.length,writes);assert.equal(h.storage.getItem(key),raw);assert.equal(h.storage.getItem('mkty_cloud_dirty'),'yes');assert.equal(h.storage.getItem('mkty_cloud_revision'),'1');assert.match(h.text('cloudSaveStatus'),/too large/);assert.deepEqual(plain(await saved(id)),committed);
+ h.useHandler(fixture.handler);await C.flush();assert.equal(h.calls.length,requests,'cached false stays safe until capability refresh');assert.deepEqual(plain(await saved(id)),committed);
+ await R.call('player');assert.equal(h.responses.at(-1).body.capabilities.trace_codec,Codec.PROTOCOL);assert.equal(await R.traceProtocol(),Codec.PROTOCOL);
+ await C.flush();
+ const retried=h.calls.filter(x=>x.body.snapshot).at(-1);
+ assert.equal(retried.body.action,'campaign.cloud.v2');assert.equal(retried.body.protocol,Codec.PROTOCOL);assert.equal(retried.body.revision,1);assert.equal(Codec.unpackSnapshot(retried.body.snapshot)[key],raw);
+ assert.equal((await saved(id)).revision,2);assert.deepEqual((await saved(id)).snapshot,Codec.packSnapshot({[key]:raw}));assert.equal(h.storage.getItem(key),raw);assert.equal(h.storage.getItem('mkty_cloud_dirty'),null);assert.equal(h.storage.getItem('mkty_cloud_revision'),'2');
+ const reopened=client(fixture.handler,id);await reopened.window.MKTYCloud.load();assert.equal(reopened.storage.getItem(key),raw);assert.equal(reopened.storage.getItem('mkty_cloud_revision'),'2');
+}
+
 function replayFlight(trace){
  const profile=Flight.profile(),run=Flight.create(456,'rescue',1,profile);
  for(const row of trace)for(let i=0;i<row[1];i++)Flight.step(run,profile,{x:row[2],y:row[3],boost:row[4],action:row[5]},.02);
@@ -125,38 +237,33 @@ function replayFlight(trace){
 }
 
 (async()=>{
- // Exercise the shipping entrypoint, not just the handler's optional defaults.
- // An unknown pre-existing environment flag must never activate compact writes.
+ // All three cases execute index.ts, so an env value cannot undo activation.
  const {createHandler}=await import('../server/rewards/core.mjs');
  for(const flag of [undefined,'off','on']){
-  let options,handler,requests=0;const reads=[];
-  vm.runInNewContext(source('server/rewards/index.ts').replace(/^import .*;\s*$/m,''),{
-   Deno:{env:{get:name=>{reads.push(name);return name==='SUPABASE_URL'?'https://db.test':name==='SUPABASE_SERVICE_ROLE_KEY'?'synthetic-key':flag;}},serve:value=>{handler=value;}},
-   createHandler:value=>{options=value;return createHandler({...value,verify:async()=>{throw Error('auth');},fetcher:async()=>{requests++;throw Error('unexpected database request');}});}
-  },{filename:'server/rewards/index.ts'});
-  assert.equal(options.traceTransport,false);assert.deepEqual(reads,['SUPABASE_URL','SUPABASE_SERVICE_ROLE_KEY']);
+  let requests=0;
+  const handler=entrypoint(createHandler,{verify:async()=>{throw Error('auth');},fetcher:async()=>{requests++;throw Error('unexpected database request');}},flag);
   assert.equal((await handler(new Request('https://entrypoint.test'))).status,200);
-  for(const action of ['campaign.cloud.v2','life.complete.v2']){
+  for(const action of ['campaign.cloud.v2','life.complete.v2','campaign.cloud','life.complete']){
    const response=await handler(new Request('https://entrypoint.test',{method:'POST',body:JSON.stringify({action,protocol:Codec.PROTOCOL})}));
-   assert.equal(response.status,400);assert.deepEqual(await response.json(),{ok:false,error:'action'});
+   assert.equal(response.status,401);assert.deepEqual(await response.json(),{ok:false,error:'auth',...(action.endsWith('.v2')?{protocol:Codec.PROTOCOL}:{})});
   }
-  const legacy=await handler(new Request('https://entrypoint.test',{method:'POST',body:JSON.stringify({action:'campaign.cloud'})}));
-  assert.equal(legacy.status,401);assert.deepEqual(await legacy.json(),{ok:false,error:'auth'});assert.equal(requests,0);
+  assert.equal(requests,0);
  }
  assert.deepEqual(Codec.LIMITS,{maxRows:25000,maxTicks:200000,snapshotEntryBytes:180000,snapshotBytes:350000,decodedEntryBytes:1000000,decodedSnapshotBytes:2000000,proofBytes:1000000,transportBytes:400000,maxDepth:64,maxLiteralBytes:65536},'compatibility must not increase any codec budget');
  const fixture=await database();
  try{
-  const current=client(fixture.handler,101),old=client(fixture.handler,102,{legacy:true}),fallback=client(fixture.legacyHandler,103),decoderProof=client(fixture.decoderHandler,104);
+  const current=client(fixture.handler,101),old=client(fixture.handler,102,{legacy:true}),fallback=client(fixture.legacyHandler,103),decoderProof=client(fixture.decoderHandler,104),decoderOldProof=client(fixture.decoderHandler,105,{legacy:true});
   assert.equal(await current.window.MKTYRewards.traceProtocol(),Codec.PROTOCOL);
   await current.window.MKTYRewards.call('player');
   for(const action of ['session','player'])assert.equal(current.responses.find(r=>r.action===action).body.capabilities.trace_codec,Codec.PROTOCOL);
   assert.equal(old.window.MKTYTraceCodec,undefined,'historical clients must work without loading the codec');
   const proofs=[];
-  for(const [h,compact]of [[current,true],[old,false],[fallback,false],[decoderProof,false]])proofs.push(await goldenFlow(fixture,h,compact));
+  for(const [h,compact]of [[current,true],[old,false],[fallback,false],[decoderProof,false],[decoderOldProof,false]])proofs.push(await goldenFlow(fixture,h,compact));
   for(const proof of proofs.slice(1))assert.deepEqual(proofs[0],proof);
+  await lostCompletion(fixture);
   assert.equal(await fallback.window.MKTYRewards.traceProtocol(),null);
   for(const r of fallback.responses.filter(x=>['session','player'].includes(x.action)))assert.equal(r.body.capabilities,undefined);
-  for(const h of [old,fallback,decoderProof])for(const call of h.calls){assert(!call.body.action.endsWith('.v2'));assert.equal(call.body.protocol,undefined);assert(!call.raw.includes('mkty-trace'));}
+  for(const h of [old,fallback,decoderProof,decoderOldProof])for(const call of h.calls){assert(!call.body.action.endsWith('.v2'));assert.equal(call.body.protocol,undefined);assert(!call.raw.includes('mkty-trace'));}
 
   // Four model minutes of tiny alternating input keep this real flight active.
   // Every 20 ms tick is retained; no coalescing, reward flags, or fabricated state.
@@ -213,6 +320,9 @@ function replayFlight(trace){
   assert.equal(legacyCloud.calls.filter(x=>x.body.snapshot).length,legacyWrites);assert.equal(legacyCloud.storage.getItem(key),raw);assert.equal(legacyCloud.storage.getItem('mkty_cloud_dirty'),'yes');assert.deepEqual(await saved(203),legacyStored);
   for(const call of legacyCloud.calls){assert(!call.body.action.endsWith('.v2'));assert.equal(call.body.protocol,undefined);assert(!call.raw.includes('mkty-trace'));}
 
+  await lostCloudReceipts(fixture,saved,key,raw,nextRaw);
+  await cachedRollback(fixture,saved,key,smallRaw,raw);
+
   // Ordinary size/corruption failures reject the entire save before the write RPC.
   const valid='mkty_current_chapter',badFrame=JSON.parse(stored.snapshot[key]);badFrame.trace[0][4]=badFrame.trace[0][4].slice(0,-4);
   const excessiveRows=JSON.parse(stored.snapshot[key]);excessiveRows.trace[0][2]=Codec.LIMITS.maxRows+1;
@@ -237,8 +347,8 @@ function replayFlight(trace){
   assert(oversizedBody.length<400000&&Buffer.byteLength(oversizedBody)>400000);
   const oversized=await fixture.handler(new Request('https://in-process.test/rewards',{method:'POST',body:oversizedBody}));
   assert.equal(oversized.status,413);assert.equal((await oversized.json()).error,'body');assert.equal(fixture.writes.length,writes);assert.deepEqual(plain(await saved(201)),before);
-  // A default deployment decodes existing compact saves but cannot write new
-  // compact records or advertise the feature until a separate source release.
+  // The explicit false rollback retains the decoder for existing packed saves,
+  // while withdrawing capability advertisement and new compact writes.
   const decoder=client(fixture.decoderHandler,201),D=decoder.window.MKTYRewards;
   assert.equal(await D.traceProtocol(),null);await D.call('player');
   for(const response of decoder.responses.filter(x=>['session','player'].includes(x.action)))assert.equal(response.body.capabilities,undefined);
@@ -272,6 +382,6 @@ function replayFlight(trace){
   }
   assert.equal((await fixture.db.query('select count(*)::int count from reward_events where telegram_id=204')).rows[0].count,0);
   for(const h of [decoder,decoderOld,decoderWriter])for(const call of h.calls){assert(!call.body.action.endsWith('.v2'));assert.equal(call.body.protocol,undefined);}
-  console.log(JSON.stringify({test:'save-transport-compatibility',clientServerMatrix:['current/opt-in','precodec/opt-in','current/legacy','current/default'],goldenProofs:4,rewardPoints:500,idempotent:true,routeHandshake:'seed/edition/reset unchanged',flightSeconds:240,traceRows:trace.length,rawBytes:Codec.utf8Bytes(raw),packedBytes:Codec.utf8Bytes(sent.body.snapshot[key]),continuationTicks:600,legacyRawReadsAndConflicts:true,canonicalPrefixAndTail:true,allOrNothingRejections:cases.length*2,utf8RequestLimit:true,defaultDecoderOnly:true,isolatedDatabase:true,externalRequests:0}));
+  console.log(JSON.stringify({test:'save-transport-compatibility',clientServerMatrix:['current/shipping-entrypoint','precodec/shipping-entrypoint','current/historical-precodec','current/explicit-false-rollback','precodec/explicit-false-rollback'],entrypointFlagCases:3,goldenProofs:5,rewardPoints:500,idempotent:true,routeHandshake:'seed/edition/reset unchanged',flightSeconds:240,traceRows:trace.length,rawBytes:Codec.utf8Bytes(raw),packedBytes:Codec.utf8Bytes(sent.body.snapshot[key]),continuationTicks:600,legacyRawReadsAndConflicts:true,canonicalPrefixAndTail:true,allOrNothingRejections:cases.length*2,utf8RequestLimit:true,explicitFalseDecoderRollback:true,lostCloudReceipts:4,lostRewardReceiptExactlyOnce:true,cachedRollbackAndReenable:true,isolatedDatabase:true,externalRequests:0}));
  }finally{await fixture.db.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});
