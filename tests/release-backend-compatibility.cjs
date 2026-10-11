@@ -34,12 +34,28 @@ const pinned={
  'tests/fixtures/legacy-rewards-client-61b514c.js':'5f1c33d03b493f6902722cc483c3c1726cd1ca07',
  'tests/fixtures/legacy-cloud-save-61b514c.js':'904b5341e9656dfa8ad5714e18fea02472889521'
 };
+// Source pin additions must never implicitly expand this legacy backend fixture.
+const legacySqlFiles=Object.freeze([
+ 'server/schema.sql',
+ 'server/migrations/20261007_social_verify.sql',
+ 'supabase/migrations/20261007200800_reward_integrity_sessions.sql',
+ 'supabase/migrations/20261008201825_launch_campaign_integrity.sql'
+]);
+// Validate staged source without adding it to the legacy database's SQL inputs.
+// This exact reviewed file is permitted here; its activation is a separate decision.
+const sourceOnlyPinned={
+ 'supabase/migrations/20261009153246_atomic_submission_admission.sql':'c3b5200ba8fa2f7bdc427c72d69ae3ecd2178479'
+};
 function checkReleaseSources(){
- for(const [file,sha]of Object.entries(pinned)){
+ for(const file of legacySqlFiles){
+  assert(Object.hasOwn(pinned,file),'legacy fixture SQL must stay pinned: '+file);
+  assert(!Object.hasOwn(sourceOnlyPinned,file),'source-only SQL cannot enter the legacy fixture: '+file);
+ }
+ for(const [file,sha]of Object.entries({...pinned,...sourceOnlyPinned})){
   const bytes=file==='server/rewards/campaign.mjs'?Buffer.from(legacyCampaign):file==='server/rewards/core.mjs'?Buffer.from(legacyCore):fs.readFileSync(path.join(root,file));
   assert.equal(crypto.createHash('sha1').update('blob '+bytes.length+'\0').update(bytes).digest('hex'),sha,'legacy contract changed: '+file);
  }
- for(const file of ['20261009151834_trusted_campaign_routes.sql','20261009153246_atomic_submission_admission.sql'])assert(!fs.existsSync(path.join(root,'supabase/migrations',file)),'unapproved rollout migration is outside this client release');
+ assert(!fs.existsSync(path.join(root,'supabase/migrations/20261009151834_trusted_campaign_routes.sql')),'unapproved rollout migration is outside this client release');
  const deploy=source('.github/workflows/deploy-pages.yml');
  const exclusion=deploy.match(/^\s+(_site\|[^\n]+)\) continue ;;/m);assert(exclusion,'Pages must use its reviewed client-only artifact exclusions');
  const excluded=new Set(exclusion[1].split('|'));
@@ -88,7 +104,7 @@ function browser(handler,id=101){
 
 async function database(){
  const db=new PGlite();await db.exec('create role anon;create role authenticated;create role service_role;create function public.rls_auto_enable() returns event_trigger language plpgsql as $$begin end$$;');
- for(const file of Object.keys(pinned).filter(x=>x.endsWith('.sql')))await db.exec(source(file));
+ for(const file of legacySqlFiles)await db.exec(source(file));
  let now=new Date();
  const fetcher=async(url,opt={})=>{
   const u=new URL(url),name=u.pathname.split('/').pop(),body=opt.body?JSON.parse(opt.body):null,method=opt.method||'GET';assert.equal(u.hostname,'db.test');

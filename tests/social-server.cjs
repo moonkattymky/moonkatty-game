@@ -69,6 +69,7 @@ const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
  assert.equal((await call(10,'social.submit',{platform:'x',kind:'follow',proof:'bad handle!'})).body.error,'proof');
  assert.equal((await call(10,'social.submit',{platform:'instagram',kind:'follow',proof:'@a'})).body.error,'platform');
  const f=await call(10,'social.submit',{platform:'x',kind:'follow',proof:'@catfan'});assert.equal(f.status,200);assert.equal(f.body.submission.status,'pending');
+ const retry=await call(10,'social.submit',{platform:'x',kind:'follow',proof:'https://x.com/CatFan'});assert.equal(retry.body.duplicate,true);assert.equal(retry.body.submission.id,f.body.submission.id);assert.equal(db.subs.length,1);
  assert.equal(db.players.get(10).moon_points,0,'pending pays nothing');
  assert.equal((await call(10,'social.submit',{platform:'x',kind:'follow',proof:'@catfan2'})).status,409,'follow once');
  const d1=await call(10,'social.submit',{platform:'x',kind:'daily',proof:'https://x.com/catfan/status/1840000000000000001'});assert.equal(d1.status,200);
