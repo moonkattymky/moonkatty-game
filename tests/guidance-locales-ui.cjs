@@ -97,7 +97,7 @@ const server=http.createServer((req,res)=>{
  fs.readFile(file,(error,body)=>{res.writeHead(error?404:200,{'Content-Type':types[path.extname(file)]||'application/octet-stream'});res.end(error?'':body);});
 });
 let browser,context,page,origin,lang,strings,viewport;
-const report={languages:[],layouts:[],screenshots:[],errors:[],badLocalResponses:[],blockedExternalRequests:[]};
+const report={languages:[],layouts:[],screenshots:[],errors:[],badLocalResponses:[],blockedExternalRequests:[],scrolls:[]};
 let renderedKeys=new Set();
 const normalized=value=>String(value).replace(/\s+/gu,' ').trim();
 const label=()=>`${lang} ${viewport.width}×${viewport.height}`;
@@ -126,21 +126,69 @@ async function noOverflow(){
 }
 // Full text line boxes, not just element centers, must fit every clipping ancestor.
 // The existing control helper separately enforces complete 44px targets and five-point hit testing.
-async function readable(target){
- const locator=typeof target==='string'?page.locator(target):target;
- await locator.scrollIntoViewIfNeeded();
- const state=await locator.evaluate(e=>{
+async function readableState(locator){
+ return locator.evaluate(e=>{
   const rect=r=>({left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height});
   const box=e.getBoundingClientRect(),clip={left:0,top:0,right:innerWidth,bottom:innerHeight},ancestors=[];
   for(let a=e;a;a=a.parentElement){const style=getComputedStyle(a),r=a.getBoundingClientRect(),x=/auto|scroll|hidden|clip/.test(style.overflowX),y=/auto|scroll|hidden|clip/.test(style.overflowY);
    if(x){clip.left=Math.max(clip.left,r.left+a.clientLeft);clip.right=Math.min(clip.right,r.left+a.clientLeft+a.clientWidth);}
    if(y){clip.top=Math.max(clip.top,r.top+a.clientTop);clip.bottom=Math.min(clip.bottom,r.top+a.clientTop+a.clientHeight);}
-   if(x||y)ancestors.push({id:a.id,className:a.className,overflow:style.overflow,box:rect(r)});
+   if(x||y)ancestors.push({id:a.id,className:a.className,overflowX:style.overflowX,overflowY:style.overflowY,scrollLeft:a.scrollLeft,scrollTop:a.scrollTop,scrollWidth:a.scrollWidth,scrollHeight:a.scrollHeight,clientWidth:a.clientWidth,clientHeight:a.clientHeight,box:rect(r)});
   }
   const walker=document.createTreeWalker(e,NodeFilter.SHOW_TEXT),lines=[];let node;
-  while((node=walker.nextNode())){if(!node.textContent.trim())continue;const range=document.createRange();range.selectNodeContents(node);for(const r of range.getClientRects())if(r.width&&r.height){const hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);lines.push({...rect(r),uncovered:hit===e||e.contains(hit)});}}
-  return {box:rect(box),clip,ancestors,lines,fontSize:parseFloat(getComputedStyle(e).fontSize),text:e.textContent,scrollWidth:e.scrollWidth,clientWidth:e.clientWidth};
+  while((node=walker.nextNode())){if(!node.textContent.trim())continue;const range=document.createRange();range.selectNodeContents(node);for(const r of range.getClientRects())if(r.width&&r.height){const hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);lines.push({...rect(r),uncovered:hit===e||e.contains(hit),hit:hit?{id:hit.id,tagName:hit.tagName,className:hit.getAttribute('class'),footer:hit.closest('footer')?.className||null}:null});}}
+  return {target:e.id,fieldMechanic:Number(e.closest('#fieldMission')?.dataset.chapter)||null,windowScroll:{x:scrollX,y:scrollY},box:rect(box),clip,ancestors,lines,fontSize:parseFloat(getComputedStyle(e).fontSize),text:e.textContent,scrollWidth:e.scrollWidth,clientWidth:e.clientWidth};
  });
+}
+function scrollableMovement(before,after){
+ assert.equal(after.ancestors.length,before.ancestors.length,`${label()}: scrolling must not change the clipping tree`);
+ assert.deepEqual(after.windowScroll,before.windowScroll,`${label()}: the locked document must not be programmatically scrolled`);
+ for(let i=0;i<before.ancestors.length;i++){
+  const a=before.ancestors[i],b=after.ancestors[i];
+  assert.equal(b.id,a.id,`${label()}: scrolling must preserve ancestor identity`);
+  for(const [offset,overflow,extent,size] of [['scrollTop','overflowY','scrollHeight','clientHeight'],['scrollLeft','overflowX','scrollWidth','clientWidth']]){
+   if(Math.abs(b[offset]-a[offset])<=.5)continue;
+   assert(/^(auto|scroll)$/.test(a[overflow])&&a[extent]>a[size],`${label()}: moved ancestor must support user scrolling: ${JSON.stringify({before:a,after:b,offset})}`);
+  }
+ }
+}
+async function readable(target,{scroll=true}={}){
+ const locator=typeof target==='string'?page.locator(target):target;
+ let state=await readableState(locator);
+ if(scroll){
+  const before=state;let mode='native-center',prepared=null,wheel=null;
+  // Preserve a real-input regression for the original English phone failure: the
+  // old nearest-scroll step could leave the reminder underneath the sticky footer.
+  if(lang==='en'&&viewport.width===320&&viewport.height===480&&before.target==='fieldControlHint'&&before.fieldMechanic===2){
+   await locator.scrollIntoViewIfNeeded();prepared=await readableState(locator);scrollableMovement(before,prepared);
+   if(prepared.lines.some(r=>!r.uncovered&&r.hit?.footer)){
+    wheel=await locator.evaluate(e=>{
+     let scroller=e.parentElement;
+     while(scroller&&(!/^(auto|scroll)$/.test(getComputedStyle(scroller).overflowY)||scroller.scrollHeight<=scroller.clientHeight))scroller=scroller.parentElement;
+     if(!scroller)return null;
+     const r=scroller.getBoundingClientRect(),t=e.getBoundingClientRect(),top=Math.max(0,r.top+scroller.clientTop),bottom=Math.min(innerHeight,r.top+scroller.clientTop+scroller.clientHeight);
+     const x=Math.max(0,r.left)+Math.min(r.width,innerWidth)/2,y=top+(bottom-top)/4,hit=document.elementFromPoint(x,y);
+     return {scroller:scroller.id,x,y,delta:Math.round((t.top+t.bottom)/2-(top+bottom)/2),hit:hit?.id||hit?.tagName,inside:hit===scroller||scroller.contains(hit)};
+    });
+    assert(wheel&&wheel.inside&&wheel.delta>0,`${label()}: a genuine scrollport must receive the uncovering wheel gesture: ${JSON.stringify(wheel)}`);
+    await page.mouse.move(wheel.x,wheel.y);await page.mouse.wheel(0,wheel.delta);
+    // Wheel scrolling is compositor-asynchronous. Poll using Node timers because
+    // the game's virtual clock is paused; never replace a failed gesture with scrollTop.
+    const deadline=Date.now()+2000;
+    do{state=await readableState(locator);if(state.lines.length&&state.lines.every(r=>r.uncovered))break;await new Promise(resolve=>setTimeout(resolve,25));}while(Date.now()<deadline);
+    mode='wheel';
+   }
+  }
+  if(mode!=='wheel'){
+   // Center in the existing scrollport, accounting for sticky sibling overlays
+   // that scrollIntoViewIfNeeded does not consider. No styles or geometry change.
+   await locator.evaluate(e=>e.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'}));
+   state=await readableState(locator);
+  }
+  report.scrolls.push({lang,...viewport,mode,wheel,before,prepared,after:state});
+  scrollableMovement(prepared||before,state);
+  if(mode==='wheel')assert(state.ancestors.some((a,i)=>Math.abs(a.scrollTop-prepared.ancestors[i].scrollTop)>.5),`${label()}: real wheel input must change the user-scrollable panel offset`);
+ }
  const detail=`${label()} readable ${await locator.getAttribute('id')||await locator.getAttribute('class')||'text'} ${JSON.stringify(state)}`;
  assert(state.box.width>0&&state.box.height>0,detail);
  assert(state.fontSize>=11,`minimum 11px type: ${detail}`);
@@ -155,7 +203,7 @@ async function reachable(target,{disabled=false}={}){
  await locator.scrollIntoViewIfNeeded();
  if(!disabled)await locator.click({trial:true});
  await assertFieldControlReachable(locator,`${label()} ${await locator.getAttribute('id')||await locator.getAttribute('data-field-action')||'control'}`);
- if((await locator.textContent()).trim())await readable(locator);
+ if((await locator.textContent()).trim())await readable(locator,{scroll:false});
 }
 async function focusNext(selector,previous){
  await page.locator(previous).focus();await page.keyboard.press('Tab');
@@ -420,6 +468,7 @@ async function fieldViews(){
   await context.close();context=null;page=null;
   console.log(`PASS ${code}: 50 runtime translations, real guidance/status/keyboard views at both compact sizes`);
  }
+ assert(report.scrolls.some(s=>s.mode==='wheel'&&s.lang==='en'&&s.width===320&&s.after.fieldMechanic===2),'original compact English footer occlusion must be resolved by genuine wheel input');
  assert.deepEqual(report.errors,[],'no browser page errors');assert.deepEqual(report.badLocalResponses,[],'no failed local app/locale/assets');
  console.log('PASS: all 13 languages, real lazy and saved locale loading, all 50 guidance strings, 6 boards, 11 fields, RTL, keyboard and unclipped compact controls');
 })().catch(async error=>{

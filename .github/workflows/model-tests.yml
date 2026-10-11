@@ -55,6 +55,18 @@ jobs:
           path: /tmp/moonkatty-legacy-ranges-native
           if-no-files-found: ignore
           retention-days: 7
+      - name: Native localized guidance regression
+        env:
+          MKTY_TEST_OUTPUT: /tmp/moonkatty-guidance-preflight
+        run: node tests/guidance-locales-ui.cjs
+      - name: Preserve localized guidance preflight diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: localized-guidance-preflight
+          path: /tmp/moonkatty-guidance-preflight
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Every model, browser, campaign and security regression
         run: npm test
       - name: Preserve localized guidance diagnostics
