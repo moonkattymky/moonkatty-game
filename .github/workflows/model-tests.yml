@@ -31,5 +31,17 @@ jobs:
           path: /tmp/moonkatty-antenna-native
           if-no-files-found: ignore
           retention-days: 7
+      - name: Native chapter range touchscreen regression
+        env:
+          MKTY_TEST_OUTPUT: /tmp/moonkatty-ranges-native
+        run: node tests/native-range-touch.cjs
+      - name: Preserve native chapter range diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-chapter-ranges
+          path: /tmp/moonkatty-ranges-native
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Every model, browser, campaign and security regression
         run: npm test
