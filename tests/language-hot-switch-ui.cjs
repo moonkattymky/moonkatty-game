@@ -36,6 +36,10 @@ async function waitHeld(code){const until=Date.now()+10000;while(!held.has(code)
  await page.addInitScript(()=>{if(!localStorage.getItem('mkty_lang'))localStorage.setItem('mkty_lang','ru');});
  await page.clock.install({time:new Date('2026-10-11T11:59:00Z')});await page.clock.pauseAt(new Date('2026-10-11T12:00:00Z'));
  await page.goto(url);await installSelectionCapture();await assertUI();
+ // Establish the ordinary empty expedition checkpoint before snapshot comparisons.
+ // Its existing pagehide handler otherwise creates this key on the first reload.
+ await page.evaluate(()=>{document.getElementById('expeditionEntry').click();document.getElementById('expHome').click();});
+ assert.deepEqual(JSON.parse((await checkpoint()).mkty_expeditions_v1),await page.evaluate(()=>ExpeditionRules.restore(null)),'real hangar open/return saves the normal empty expedition state');
  await page.evaluate(()=>{document.getElementById('cipherText').value='M';document.getElementById('cipherText').dispatchEvent(new Event('input'));document.querySelector('[data-morse="."]').click();document.getElementById('ytCode').value='UNSENT';});
  await switchMatrix();report.steps.push('immediate full-picker hot switch preserves daily text, typed word, Morse input and code');
  await page.evaluate(()=>document.getElementById('cipherSubmit').click());const length=await page.evaluate(()=>MKTYDaily._demoStatus().cipher.length);await switchMatrix({key:'Need {n} letters',vars:{n:length}});
