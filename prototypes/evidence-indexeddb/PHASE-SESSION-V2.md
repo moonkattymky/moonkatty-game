@@ -27,6 +27,27 @@ story entry is wrapped; its preceding cinematic/unlock route is not integrated.
 The actual risk dialog's one-use Confirm/Cancel closures remain authoritative.
 Cancel closes the dialog without story writes; duplicate/stale handles are inert.
 
+The actual chapter-space -> operations -> story entry wrapper is included. The
+disposable fixture may explicitly pin both `mkty_operations_8_v1` and
+`mkty_operations_9_v1` in `preState`, using exactly this canonical property order:
+`{"version":1,"n":8,"seed":731,"round":3,"phase":"core","input":null,"confirmed":false,"actions":0,"hints":0,"errors":0,"seconds":0}`
+(chapter 9 changes only `n`). These are synthetic already-prepared prerequisites,
+not evidence that the legacy planning boards were played. No other seed, counter,
+field, property order or whitespace is admitted. Both omitted keys or both explicit
+nulls preserve the old absent-record case; a partial/mixed pair is refused. With
+absent chapter-9 operations, the actual wrapper starts planning and its unexpected
+write is rejected. Planning remains outside this successful session.
+
+Both logical and native operations pins are checked at begin and immediately
+before original callbacks, before `operations.read()` can parse or cache a changed
+record. Each final dispatch allows the unchanged `MKTYOps.complete` phase-only
+`core` -> `complete` rewrite after the life completion timestamp and before the
+story completion rewrite. Prepared finals have twelve observed writes; absent
+records keep the old eleven-write no-op case. The completed chapter-8 record is
+carried through chapter 9, and both completed records are verified through final
+epilogue drain. Extra operations writes, including the original pagehide save
+outside a writer, remain rejected. This does not add reload or pagehide authority.
+
 Chapter-8 context retires only after its exact writer drains. A bounded UTF-16
 SHA-256 witness rechecks its later native correspondence before chapter-9 entry,
 confirmation, opens, continuation and epilogue. Transient read failures retain
@@ -61,6 +82,21 @@ synchronous listeners return, and restores the read lease before original code
 resumes. PLAYING saves also have an enclosing callback/read lease. Raw reservation
 continues through staged successor handoff. Every await checks owner, epoch and
 physical storage state; buffer references are dropped before releasing their slots.
+
+Operations pins and exact expected writes are included in the unchanged 8 KiB
+small-value cap and measured writer/session metadata. Each canonical core record
+is 262 UTF-16 bytes; each complete record is 270 bytes. The existing 32 KiB shared
+metadata reservation now explicitly includes 540 bytes for the original two
+cached parsed records throughout the session (`s` and `run` alias those records),
+plus 540 bytes for a possible pagehide save's stringify argument and facade
+old-value read before its unexpected write is rejected. Each writer also charges
+540 bytes for the fixed-string comparison scratch. The helper retains no parsed
+graph or canonical template string. Original synchronous operations read, cache
+comparison, parse and completion serialization use the existing 196,608-byte
+original-read lease. No limit or total reservation is increased, and the 1,024-byte
+ceiling margin is unchanged. This accounting requires a fresh original operations
+cache containing only these fixed chapter-8/9 records; arbitrary operations,
+planning and assignment boards are excluded.
 
 This ledger is not a browser heap/RSS bound. It excludes object headers, GC timing,
 native storage internals, DOM/render allocations and arbitrary third-party code.

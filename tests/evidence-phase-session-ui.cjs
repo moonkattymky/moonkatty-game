@@ -6,9 +6,9 @@ const {execFileSync}=require('node:child_process');
 const F=require('./evidence-finale-controller-fixture.cjs'),R=require('../field-model.js'),Codec=require('../trace-codec.js');
 const ROOT=F.root,DIR='tests/fixtures/evidence-phase-session/',ORIGIN='https://phase-session-fixture.test';
 const BASELINE={head:'a8253c8af4e8023e2f8ffadbf01819b00b7a07be',tree:'454dee15a78bfe8b1804916bb0b6dec6227ff6bb'};
-// Frozen-B byte pins, generated once from the reviewed local baseline. CI does
-// not need that commit in its ancestry. The pinned manifest covers all runtime.
-const FROZEN_PINS=Object.freeze({
+// Reviewed B byte pins plus the narrow prepared-operations compatibility fix.
+// CI does not need the local baseline commit; the manifest pins original runtime.
+const SOURCE_PINS=Object.freeze({
  'tests/fixtures/evidence-finale-controller/runtime-hashes.json':'318b5fc42c05fbfde5375ebdf50c5aa7e6c9ee81d912eeee37d4ab4a2eb71d88',
  'tests/fixtures/evidence-indexeddb/native-harness.js':'9d22a89077d380c3701b6fd5d4fca2eb282a8a61c28494555c6968d07b989df2',
  'tests/fixtures/evidence-phase-session/input-fence.mjs':'5355469e13dac0f05a5ab0533bce2ceab9c12aa2c1c9c7fd9f8fbcd81f3bd504',
@@ -20,19 +20,20 @@ const FROZEN_PINS=Object.freeze({
  'prototypes/evidence-indexeddb/finale-context-v1.mjs':'18754428cd56a3289ccc259bcf6890dd1eca8e95244ea19298a255383af32386',
  'prototypes/evidence-indexeddb/finale-phase-v2.mjs':'61f493e3e21d55c0bc103ca05fa1697f2ca65ecb4921034e299e70a2ce12cdbb',
  'prototypes/evidence-indexeddb/phase-budget.mjs':'a2276e0d0b3cc05c93f89d805a2a1f5d3c87ceff7beca2837d8656ad7c953be1',
- 'prototypes/evidence-indexeddb/phase-writer-contract.mjs':'4e4aaa6640e5078c1f0b133169f45082ef51e33f80dce317e53e7097d506f1b3',
+ 'prototypes/evidence-indexeddb/phase-writer-contract.mjs':'9d254b2f4e5daf28e37aaa7dea8a5c49529436f738e44de13c24f36c104a8bb8',
+ 'prototypes/evidence-indexeddb/prepared-operations.mjs':'f3237a0ffcef8ffa11ea7df8c1cbdba5dba9d085832784c06065065e7670b899',
  'prototypes/evidence-indexeddb/precision-observation.mjs':'89da70f192f1b3023089083df7a30a6428df67a3ba2397dafdd1a407959e8606',
  'prototypes/evidence-indexeddb/retired-story-witness.mjs':'e749027a900455c62466a49c72eb80c381d3d3738b62b7e428c59aa7a016ff8a',
  'prototypes/evidence-indexeddb/story-rewrite.mjs':'d634cdce6dc0544dda2bde9e45722c5dc1a3c0228269c30292232e5c3e3851b4',
  'prototypes/evidence-indexeddb/synthetic-completion.mjs':'95865216343e99261f72601c18d044147397352eb5774cd18d8e630ae145c63f',
- 'prototypes/evidence-indexeddb/unsaved-result-gate.mjs':'2f64a577aeea174c16ae891c6b8c81424fe8d9a194f0aca3335417022bc5d1ae'
+ 'prototypes/evidence-indexeddb/unsaved-result-gate.mjs':'c86ebe4af961a3fd1b544a5bb44233d5989704c330baf9e5b190075134121332'
 });
 const ORDER=[[8,0,10],[8,1,3],[9,0,9],[9,1,6],[9,2,11]],KEYS=['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
 const out=process.env.MKTY_TEST_OUTPUT||path.join(os.tmpdir(),'mkty-evidence-phase-session-native');
 const report={status:'not-run',phases:[],input:[],network:{fulfilled:0,rejected:[]},pageErrors:[],consoleErrors:[],counts:{contexts:0,pages:0,imports:0,navigations:0,setups:0},qualifications:{
  input:'Model-informed robot using actual DOM controls and read-only model/layout observations; not human playtime evidence.',
- setup:'One synthetic prerequisite seed, including one prior 911-row field proof and a pre-existing same-day chapter-9 pacing skip; neither prerequisites nor unlock are earned here.',
- entry:'Test-only Chapter 9 entry calls unchanged public openMission9 under the reviewed manager. The original unlock/cinematic wrapper is excluded; original risk confirmation is exercised.',
+ setup:'One synthetic prerequisite seed, including one prior 911-row field proof, two already-prepared legacy operations core records and a pre-existing same-day chapter-9 pacing skip; neither preparation rounds, other prerequisites nor unlock are earned here.',
+ entry:'Test-only Chapter 8 entry calls unchanged MKTYOps.open with synthetic chapter7 completion and prepared core records. Chapter 9 calls unchanged public openMission9 through the original operations wrapper. Unlock/cinematic wrappers are excluded; original risk confirmation is exercised.',
  fence:'Test-only CSS exposes existing inactive Field and closed dialog during one pre-append hold. Trusted stale-control events are prevented and blocked diagnostics checked. The old board is already complete/inactive, so unchanged state alone is not a mutation counterfactual. Native pending-new-board OPEN_DRAIN recovery, hidden defaults and active-play fencing remain untested here; OPEN_DRAIN faults have separate source/VM coverage.',
  exclusions:'No authenticated/server rewards, alternate choices, failures/retries, reload authority, power-loss/eviction, physical devices, security certification or continuous native fault matrix.',
  memory:'Fixed encoded-representation ledger only; observer/report copies are separate, not a measured JavaScript heap bound.'}};
@@ -43,9 +44,9 @@ function prepare(){
  F.prepare();const routes=F.resources();
  for(const name of ['fixture.mjs','seed.mjs','fixture.css','input-fence.mjs','native-storage.js'])routes.set('/'+DIR+name,DIR+name);
  const cache=new Map([...new Set(routes.values())].map(file=>[file,fs.readFileSync(path.join(ROOT,file))]));
- const files=[...cache.keys(),...Object.keys(FROZEN_PINS),'tests/evidence-phase-session-ui.cjs','.github/workflows/evidence-indexeddb-tests.yml'];
+ const files=[...cache.keys(),...Object.keys(SOURCE_PINS),'tests/evidence-phase-session-ui.cjs','.github/workflows/evidence-indexeddb-tests.yml'];
  const sourceHashes=Object.fromEntries([...new Set(files)].sort().map(file=>[file,F.sha(fs.readFileSync(path.join(ROOT,file)))]));
- for(const [file,hash]of Object.entries(FROZEN_PINS))assert.equal(sourceHashes[file],hash,'Frozen-B source byte pin '+file);
+ for(const [file,hash]of Object.entries(SOURCE_PINS))assert.equal(sourceHashes[file],hash,'Reviewed prototype source byte pin '+file);
  const runtime=JSON.parse(fs.readFileSync(path.join(ROOT,'tests/fixtures/evidence-finale-controller/runtime-hashes.json'),'utf8'));
  for(const [file,hash]of Object.entries(runtime.hashes))assert.equal(sourceHashes[file],hash,'Frozen reviewed runtime '+file);
  const resourceCache={files:cache.size,bytes:[...cache.values()].reduce((n,b)=>n+b.length,0)};
@@ -165,9 +166,11 @@ function nativeEvidence(f){
  return {peakPhysicalTransactions:peak,digests,ordering};
 }
 function finalEvidence(f,archive){
+ assert.deepEqual(f.rejectedWrites,[],'No hidden original write rejection');
  assert.equal(f.view.state,'DONE');assert.equal(f.saveAuthority.checks,f.counters.save);assert.equal(f.saveAuthority.violations,0);assert.equal(f.saveAuthority.maxRetainedBytes,0);assert.equal(f.activeTransport,0);assert(f.peakTransport<=1);assert.deepEqual(f.nativeObservationErrors,[]);assert.deepEqual([f.counters.captures,f.counters.original,f.counters.open,f.counters.award,f.counters.risk,f.counters.epilogue],[5,5,5,2,1,1]);
  assert.deepEqual([f.view.counters.begins,f.view.counters.contexts,f.view.counters.phases,f.view.counters.done,f.view.counters.retries],[1,2,5,1,0]);
  assert.equal(f.logicalSnapshot.mkty_points,'5100');assert.equal(f.logicalSnapshot.mkty_final_moon_points,'5100');
+ assert.equal(f.logicalSnapshot.mkty_life7,'complete');assert.equal(f.nativeSnapshot.mkty_life7,'complete');
  assert.equal(f.active,'mission9');assert.equal(f.chapterStage,'complete');assert.equal(f.logicalSnapshot.mkty_pace_ack_9,'yes');assert.equal(f.logicalSnapshot.mkty_pace_ack_8,null);
  for(const n of [8,9]){assert.equal(f.logicalSnapshot['mkty_life'+n],'complete');assert.equal(f.logicalSnapshot['mkty_life'+n+'_awarded'],'yes');assert.equal(f.logicalSnapshot[F.sourceKey(n)],null);assert.equal(JSON.parse(f.logicalSnapshot[F.storyKey(n)]).phase,'complete');}
  assert.equal(f.perPhase.length,5);for(const [i,p]of f.perPhase.entries()){assert.deepEqual([p.chapter,p.phase,p.mechanic],ORDER[i]);assert.equal(p.originalArgumentText,p.capturedText,'Original callback receives identical lossless capture');assert.equal(p.capturedText,report.phases[i].checkpointText);}
@@ -175,7 +178,13 @@ function finalEvidence(f,archive){
  equal(f.logicalSnapshot,f.nativeSnapshot);assert(f.targets.length>=13);for(const target of f.targets){equal(target.logical,target.native);assert.equal(target.physicalBusy,false);assert.equal(target.retainedBytes,0);}
  const writerRow=r=>({mode:r.mode,kind:r.kind,key:r.key,value:r.value});assert.deepEqual(f.native.map(writerRow),f.logical.map(writerRow),'Every exact finite native writer record agrees with facade record');
  const counts=prefix=>ORDER.map((_,i)=>f.logical.filter(r=>r.mode===prefix+i).length);
- assert.deepEqual(counts('dispatch-'),[3,11,1,1,11]);assert.deepEqual(counts('open-'),[3,3,4,3,3]);
+ assert.deepEqual(counts('dispatch-'),[3,12,1,1,12]);assert.deepEqual(counts('open-'),[3,3,4,3,3]);
+ for(const n of [8,9]){
+  const initial=f.setupProof.preparedOperations[n],expected=JSON.stringify({...JSON.parse(initial),phase:'complete'}),key=`mkty_operations_${n}_v1`;
+  assert.equal(f.logicalSnapshot[key],expected,'Original operations completion preserves every prerequisite field');
+  const rows=f.logical.filter(r=>r.key===key);assert.equal(rows.length,1,'Exactly one original operations completion write');assert.equal(rows[0].value,expected);
+  assert.equal(rows[0].mode,'dispatch-'+(n===8?1:4));
+ }
  for(const [mode,want]of [['entry-navigation',1],['entry-confirm',2],['epilogue',1]])assert.equal(f.logical.filter(r=>r.mode===mode).length,want);
  for(const row of f.allNative)assert.equal(row.success,true);assert.equal(f.persistent,true);assert(f.budget.peak<=1016832);
  assert.equal(archive.items.length,7);const contexts=archive.items.filter(x=>x.descriptor.run.startsWith('fc1:')),phases=archive.items.filter(x=>x.descriptor.run.startsWith('fp2:'));
@@ -225,7 +234,11 @@ async function run(){
  await click('[data-legacy-choice="done"]');let f=await settled('DONE');const archive=await page.evaluate(()=>H.inspect());f=await facts();
  report.evidence=finalEvidence(f,archive);report.lastFacts=f;report.setupProof=f.setupProof;
  assert.equal(f.setupProof.seedCount,1);assert.equal(f.setupProof.importCount,1);assert.equal(f.setupProof.context911.traceRows,911);assert.equal(f.setupProof.precision.count,1);assert.equal(f.setupProof.precision.total,1);assert.equal(f.setupProof.facadeEqualsNative,true);assert.equal(f.setupProof.persistent,true);assert.equal(f.setupProof.initialSourceCheckpoints,0);
- for(const n of [8,9])assert.deepEqual(f.setupProof.initialSources[n],{version:1,n,phase:0,seed:731,seconds:0});
+ for(const n of [8,9]){
+  assert.deepEqual(f.setupProof.initialSources[n],{version:1,n,phase:0,seed:731,seconds:0});
+  assert.deepEqual(JSON.parse(f.setupProof.preparedOperations[n]),{version:1,n,seed:731,round:3,phase:'core',input:null,confirmed:false,actions:0,hints:0,errors:0,seconds:0});
+ }
+ assert.equal(f.setupProof.preparationRoundsEarnedHere,false);
  assert.deepEqual(report.counts,{contexts:1,pages:1,imports:1,navigations:1,setups:1});diagnostics();assert(!terminal);report.wallMs=Date.now()-started;report.status='passed';save();
 }
 if(require.main===module){

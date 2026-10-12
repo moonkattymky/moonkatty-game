@@ -5,12 +5,12 @@ import {createCoordinator,assemble} from '/prototypes/evidence-indexeddb/coordin
 import {createFinalePhaseSession} from '/prototypes/evidence-indexeddb/unsaved-result-gate.mjs';
 import {createPhaseBudget} from '/prototypes/evidence-indexeddb/phase-budget.mjs';
 import {installPhaseInputFence} from './input-fence.mjs';
-import {createSeed,preState,backgroundKeys,targetKeys,sourceKey,storyKey} from './seed.mjs';
+import {createSeed,preState,backgroundKeys,targetKeys,sourceKey,storyKey,preparedOperations} from './seed.mjs';
 const $=id=>document.getElementById(id),copy=value=>structuredClone(value),N=window.__nativeHarness,S=window.__phaseNative;
 if(!N||!S)throw Error('Native phase instrumentation must precede index');
 window.__phaseFixtureImports=(window.__phaseFixtureImports||0)+1;if(window.__phaseFixtureImports!==1)throw Error('One fixture import only');
 const identity=Object.freeze({scope:'phase-session-native:guest',generation:1,sourceIdentity:'disposable-guest:1'});
-const events=[],transport=[],perPhase=[],logical=[],exactLogical=[],targets=[],trustedInputs=[];
+const events=[],transport=[],perPhase=[],logical=[],exactLogical=[],targets=[],trustedInputs=[],rejectedWrites=[];
 const counters={captures:0,original:0,award:0,open:0,save:0,risk:0,epilogue:0,pace:0,storyComplete:0,rewards:0};
 const saveAuthority={checks:0,violations:0,maxRetainedBytes:0};
 let manager,adapter,base,budget,fence,input,configured=false,started=false,operationSerial=0,activeTransport=0,peakTransport=0;
@@ -51,7 +51,9 @@ for(const [method,op]of [['setItem','set'],['removeItem','remove'],['clear','cle
       if(row.exact){if(exactLogical.length>=160)throw Error('Finite logical observation limit');row.value=operation.value??null;exactLogical.push(row);}
       return original.apply(this,arguments);
     };
-    return manager&&started?manager.write(operation,forward):forward();
+    try{return manager&&started?manager.write(operation,forward):forward();}
+    catch(error){if(rejectedWrites.length<16)rejectedWrites.push({state:state(),mode:mode(),op:operation.op,key:operation.key??null,
+      bytes:operation.value?.length*2||0,error:String(error.message).slice(0,256)});throw error;}
   };
 }
 S.state=state;S.mode=mode;S.targetKeys=new Set(targetKeys);
@@ -135,7 +137,9 @@ window.H={ready:true,settled:true,pending:null,operationError:null,captureError:
     for(const key of targetKeys)if(!Object.hasOwn(seed,key)&&MKTYStorage.readItem(key)!==null)MKTYStorage.removeItem(key);
     if(MKTYStorage.getItem('mkty_expeditions_v1')!==JSON.stringify(MKTYExpedition.snapshot()))throw Error('Idle expedition baseline mismatch');
     const precision=MKTYLegacy.precise();if(precision.count!==1||precision.total!==1)throw Error('Natural precision changed');
-    H.setupEvidence={seedCalls:1,story8Bytes:seed[storyKey(8)].length*2,traceRows:911,precision,skip9:seed.mkty_pace_skip_9,runDate:new Date().toISOString(),syntheticPrerequisites:true};
+    for(const n of [8,9])if(seed[`mkty_operations_${n}_v1`]!==preparedOperations(n)||!MKTYOps.isRun(n))throw Error('Original operations reader rejected prepared prerequisite');
+    H.setupEvidence={seedCalls:1,story8Bytes:seed[storyKey(8)].length*2,traceRows:911,precision,skip9:seed.mkty_pace_skip_9,runDate:new Date().toISOString(),syntheticPrerequisites:true,
+      preparedOperations:Object.fromEntries([8,9].map(n=>[n,seed[`mkty_operations_${n}_v1`]])),preparationRoundsEarnedHere:false};
     H.setupProof={seedCount:1,importCount:window.__phaseFixtureImports,session:'1234567890abcdef1234567890abcdef',context911:{traceRows:911,storyBytes:38628},precision,...H.setupEvidence,
       facadeEqualsNative:targetKeys.every(key=>MKTYStorage.readItem(key)===S.read(key)),persistent:MKTYStorage.persistent,
       initialSources:Object.fromEntries([8,9].map(n=>[n,JSON.parse(seed[sourceKey(n)])])),initialSourceCheckpoints:0};
@@ -149,7 +153,7 @@ window.H={ready:true,settled:true,pending:null,operationError:null,captureError:
     input={mode:'fresh-fixture',session:'1234567890abcdef1234567890abcdef',identity:{...identity},baseSeeds:{8:731,9:731},preState:preState(),background:Object.fromEntries(backgroundKeys.map(key=>[key,seed[key]]))};
     target('setup');render();return copy(H.setupEvidence);
   },
-  start(){if(started)throw Error('One start only');started=true;return observe('start',async()=>{await manager.begin(input);manager.initialEntry(()=>{authority('original-initial-entry');return MKTYSpatialFinale.open(8);});return manager.openStaged();});},
+  start(){if(started)throw Error('One start only');started=true;return observe('start',async()=>{await manager.begin(input);manager.initialEntry(()=>{authority('original-initial-entry');return MKTYOps.open(8);});return manager.openStaged();});},
   continue(){authority('explicit-continue',{chapter:manager.view().chapter,phase:manager.view().phase});return observe('continue',()=>manager.continue());},
   open(){return observe('open',()=>manager.openStaged());},
   entry(){return observe('entry',()=>manager.entryNavigation(()=>{authority('original-entry');return openMission9();}));},
@@ -158,7 +162,7 @@ window.H={ready:true,settled:true,pending:null,operationError:null,captureError:
   view:()=>manager?.view()||null,get model(){return MKTYField.snapshot();},get gate(){return {...gate};},get pendingInputObservations(){return pendingInputObservations;},inspect,
   facts(){const model=MKTYField.snapshot(),view=manager?.view(),source=view?MKTYStorage.readItem(sourceKey(view.chapter)):null,current=snapshots();
     return {view,counters:copy(counters),saveAuthority:copy(saveAuthority),perPhase:copy(perPhase),events:copy(events),transport:copy(transport),nativeEvents:copy(N.log),
-      logical:copy(exactLogical),native:copy(S.exactRows),outsideLogical:copy(logical.filter(row=>!row.exact)),outsideNative:copy(S.rows.filter(row=>!row.exact)),allLogical:copy(logical),allNative:copy(S.rows),nativeObservationErrors:copy(S.errors),
+      logical:copy(exactLogical),native:copy(S.exactRows),outsideLogical:copy(logical.filter(row=>!row.exact)),outsideNative:copy(S.rows.filter(row=>!row.exact)),allLogical:copy(logical),allNative:copy(S.rows),nativeObservationErrors:copy(S.errors),rejectedWrites:copy(rejectedWrites),
       targets:copy(targets),lastTargets:copy(S.lastTargets),logicalSnapshot:current.logical,nativeSnapshot:current.native,...physical(),activeTransport,peakTransport,budget:budget?.snapshot(),
       setupEvidence:copy(H.setupEvidence),setupProof:copy(H.setupProof),gate:{...gate},inputFence:fence?.diagnostics(),trustedInputs:copy(trustedInputs),pendingInputObservations,
       model,savedCheckpoint:source?JSON.parse(source).checkpoint??null:null,active:document.querySelector('.screen.active')?.id,

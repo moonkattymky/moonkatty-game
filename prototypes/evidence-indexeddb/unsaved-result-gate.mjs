@@ -7,6 +7,7 @@ import {createContextStream,createPhaseStream} from './context-stream.mjs';
 import {createPhaseWriterContract} from './phase-writer-contract.mjs';
 import {observePrecision} from './precision-observation.mjs';
 import {deriveRetiredStoryWitness,verifyRetiredStoryWitness} from './retired-story-witness.mjs';
+import {preparedOperationsPhase,PREPARED_OPERATIONS_CACHE_BYTES,PREPARED_OPERATIONS_SCRATCH_BYTES} from './prepared-operations.mjs';
 
 import {assemble} from './coordinator.mjs';
 import {SYNTHETIC_LIMIT,describeSyntheticSummary,describeSyntheticDescriptor,admitSyntheticCompletion} from './synthetic-completion.mjs';
@@ -309,10 +310,13 @@ export function createFinalePhaseSession(options){
   }
 
   function metadata(){
-    const bytes=measureFinaleData([small,identity,config,stats,witness,precision],24576,{nodes:4096})+(writer?.view().metadataBytes||0)+(retiredWriter?.view().metadataBytes||0)+8192;
+    const bytes=measureFinaleData([small,identity,config,stats,witness,precision],24576,{nodes:4096})+(writer?.view().metadataBytes||0)+(retiredWriter?.view().metadataBytes||0)+8192+
+      PREPARED_OPERATIONS_CACHE_BYTES+PREPARED_OPERATIONS_SCRATCH_BYTES;
     if(bytes>32768)C.fail('metadata-limit');budget.allocate('metadata',bytes);
     // 8KiB of the 32KiB metadata envelope remains reserved for local handles,
     // context bindings, digest/reference strings, cursor and fixed descriptors.
+    // Original operations cache graphs (540) and asynchronous save scratch (540)
+    // are separately charged for the entire session, including between writers.
   }
   function backgroundPins(input){
     const keys=['mkty_lang','mkty_control_sound','mkty_light_fx','mkty_expeditions_v1','mkty_daily_demo','mkty_pace_skip_9'];
@@ -330,9 +334,16 @@ export function createFinalePhaseSession(options){
     const required={mkty_points:'100',mkty_global_lives:'9',mkty_life8:null,mkty_life9:null,mkty_life8_awarded:null,mkty_life9_awarded:null,
       mkty_life8_completed_at:null,mkty_life9_completed_at:null,mkty_spatial_report_8:null,mkty_spatial_report_9:null,
       mkty_final_moon_points:null,mkty_points_locked_at:null,mkty_pace_ack_8:null,mkty_pace_ack_9:null,mkty_life9_coordinates:null};
-    if(!C.exact(values,Object.keys(required))||Object.keys(required).some(k=>values[k]!==required[k]))C.fail('session-preconditions');return Object.freeze({...required,mkty_campaign_checkpoint_8:null,mkty_campaign_checkpoint_9:null,mkty_operations_8_v1:null,mkty_operations_9_v1:null,mkty_life_restore_at:null});
+    const keys=['mkty_operations_8_v1','mkty_operations_9_v1'],explicit=keys.some(k=>Object.hasOwn(values,k));
+    if(!C.exact(values,[...Object.keys(required),...(explicit?keys:[])])||Object.keys(required).some(k=>values[k]!==required[k]))C.fail('session-preconditions');
+    const operations=Object.fromEntries(keys.map(key=>[key,explicit?values[key]:null]));
+    const phases=keys.map((key,i)=>preparedOperationsPhase(operations[key],i+8));
+    if(phases[0]!==phases[1]||![null,'core'].includes(phases[0]))C.fail('session-preconditions');
+    return Object.freeze({...required,mkty_campaign_checkpoint_8:null,mkty_campaign_checkpoint_9:null,...operations,mkty_life_restore_at:null});
   }
-  function nativeSmall(){budget.reserve('native-read',65536);try{for(const [key,value]of Object.entries(small)){budget.allocate('native-read',65536);if(readNative(key)!==value)return fail('native-precondition-mismatch');}return isPersistent()===true;}finally{budget.release('native-read',65536);}}
+  function operationsCurrent(){for(const n of [8,9]){const key=`mkty_operations_${n}_v1`;
+    if(readItem(key)!==small[key]||readNative(key)!==small[key])C.fail('operations-precondition-mismatch');}}
+  function nativeSmall(){budget.reserve('native-read',65536);try{budget.allocate('native-read',65536);operationsCurrent();for(const [key,value]of Object.entries(small)){budget.allocate('native-read',65536);if(readNative(key)!==value)return fail('native-precondition-mismatch');}return isPersistent()===true;}finally{budget.release('native-read',65536);}}
   function quiet(){
     const keys=['mkty_cloud_restore_transaction','mkty_cloud_restore_pending','mkty_cloud_restore_retry_guard',
       'mkty_cloud_dirty','mkty_cloud_restore_outgoing','mkty_cloud_recovery','mkty_pending_v2_telegram','mkty_test_no_pacing','mkty_pace_server'];
@@ -393,7 +404,7 @@ export function createFinalePhaseSession(options){
       try{budget.allocate('context-compare-read',132096);if(!matchesContextText(context,readItem(storyKey(8))))C.fail('initial-story-changed');}
       finally{budget.release('context-compare-read',132096);}
       for(const label of slots){held++;budget.reserve(label,65536);budget.allocate(label,65536);}
-      lease.acquire();if(!current()||!idle())return view();state='INITIAL_ENTRY';original();
+      lease.acquire();operationsCurrent();if(!current()||!idle())return view();state='INITIAL_ENTRY';original();
       if(!current()||!staged)C.fail('initial-descriptor-missing');state='INITIAL';
     }catch{fail('initial-entry-unverified');}
     finally{incoming=null;try{lease.release();}catch{fail('initial-read-release');}while(held){const label=slots[--held];try{const n=budget.snapshot().reservations[label];if(n)budget.release(label,n);}catch{fail('initial-entry-budget');}}busy=false;}
@@ -424,7 +435,7 @@ export function createFinalePhaseSession(options){
     try{
       if(!current()||!idle())C.fail('physical-storage-busy');makeWriter(stage,extra,fn=>lease.project(fn));writerActive=true;
       for(const label of slots){held++;budget.reserve(label,65536);budget.allocate(label,65536);}
-      lease.acquire();
+      lease.acquire();operationsCurrent();
       if(stage==='epilogue'||stage==='dispatch'&&index===4||stage==='open'&&order[index][2]===11){
         const seen=observePrecision({readItem,budget,current});if(seen.count!==precision.count||seen.total!==precision.total)C.fail('precision-changed');
       }

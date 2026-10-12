@@ -3,6 +3,7 @@ import * as C from './contract.mjs';
 import * as FieldModule from '../../field-model.js';
 import {describeContext,measureFinaleData,validateContextRewrite} from './finale-context-v1.mjs';
 import {requirePhaseBudget} from './phase-budget.mjs';
+import {preparedOperationsPhase,preparedOperationsText,PREPARED_OPERATIONS_SCRATCH_BYTES} from './prepared-operations.mjs';
 const Field=FieldModule.default||globalThis.FieldRules;
 const SEQUENCE=Object.freeze({8:Object.freeze([10,3]),9:Object.freeze([9,6,11])});
 const STAGES=Object.freeze(['dispatch','open','entry-navigation','entry-confirm','epilogue']);
@@ -22,6 +23,7 @@ function data(value){if(!value||Object.getPrototypeOf(value)!==Object.prototype)
 function json(text,max){bound(text,max);try{return JSON.parse(text);}catch{fail('json');}}
 function smallMap(value={}){const out=data(value);for(const [key,val]of Object.entries(out)){
     if(!KEYS.has(key)||val!==null&&typeof val!=='string')fail('key');if(val!==null)bound(val);}
+  for(const n of [8,9])if(Object.hasOwn(out,`mkty_operations_${n}_v1`))preparedOperationsPhase(out[`mkty_operations_${n}_v1`],n);
   measureFinaleData([out],LIMIT.small);return out;}
 // legacy.js:17 normalizes on each setter; it is not an arbitrary merge.
 function legacy(text){let v;try{v=JSON.parse(text);}catch{}const choices={1:['scan','antenna'],3:['shield','record'],
@@ -90,7 +92,13 @@ export function createPhaseWriterContract(input){
       if(chapter===8){const point=Field.layout(Field.create(8,4,baseSeed)).source;
         set('mkty_life9_coordinates',(point.y/5).toFixed(3)+','+(point.x/4).toFixed(3));}
       dynamic(`mkty_spatial_report_${chapter}`,'report');expected.push(Object.freeze({op:'remove',key:sourceKey,value:null}));
-      dynamic(`mkty_life${chapter}_completed_at`,'timestamp');dynamic(storyKey,'complete');
+      dynamic(`mkty_life${chapter}_completed_at`,'timestamp');
+      // app.js awardLifePoints: Pace.onRecorded -> Ops.complete -> Story.complete.
+      // Null keeps the original no-op case; only the pinned prepared record can
+      // produce this exact phase-only rewrite. No planning writes are admitted.
+      const operationsKey=`mkty_operations_${chapter}_v1`;
+      if(preparedOperationsPhase(small[operationsKey]??null,chapter)==='core')set(operationsKey,preparedOperationsText(chapter,'complete'));
+      dynamic(storyKey,'complete');
       set('mkty_points',chapter===8?'2100':'5100');set(`mkty_life${chapter}_awarded`,'yes');
       set(`mkty_life${chapter}`,'complete');set(`mkty_life${chapter}`,'complete');
       if(chapter===8)set('mkty_current_chapter','8');else{set('mkty_final_moon_points','5100');dynamic('mkty_points_locked_at','timestamp');}}
@@ -100,13 +108,13 @@ export function createPhaseWriterContract(input){
   // values alias raw-capsule slots; story values live only in post-target.
   let rows=expected.map(row=>row.key===sourceKey?{op:row.op,key:row.key}:row);
   let scalars={stage,chapter,phase,baseSeed,mechanic,sourceKey,storyKey,addedSeconds,legacyText,
-    cursor:11,before:Number.MAX_SAFE_INTEGER,lastTimestamp:Number.MAX_SAFE_INTEGER,firstTimestamp:Number.MAX_SAFE_INTEGER};
+    cursor:12,before:Number.MAX_SAFE_INTEGER,lastTimestamp:Number.MAX_SAFE_INTEGER,firstTimestamp:Number.MAX_SAFE_INTEGER};
   let future={...small};let smallPeak=measureFinaleData([future],LIMIT.small);
   for(const row of expected)if(row.key!==sourceKey&&row.key!==storyKey){future[row.key]=row.type==='timestamp'?String(Number.MAX_SAFE_INTEGER):
     row.type==='report'?JSON.stringify({version:1,seconds:addedSeconds,phases:sequence.length,completedAt:Number.MAX_SAFE_INTEGER}):row.value;
     smallPeak=Math.max(smallPeak,measureFinaleData([future],LIMIT.small));}
   scalars.precisionCount=precisionCount;
-  const metadataBytes=measureFinaleData([rows,scalars],LIMIT.metadata)+smallPeak+512;
+  const metadataBytes=measureFinaleData([rows,scalars],LIMIT.metadata)+smallPeak+512+PREPARED_OPERATIONS_SCRATCH_BYTES;
   if(metadataBytes>LIMIT.metadata)fail('metadata');rows=null;scalars=null;future=null;sLegacy=null;budget.allocate('metadata',metadataBytes);
   // These raw source/checkpoint input references must not survive constructor scope through args.
   for(const key of Object.keys(args))delete args[key];

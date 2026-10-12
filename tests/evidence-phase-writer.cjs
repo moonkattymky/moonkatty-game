@@ -10,8 +10,11 @@ const src=file=>fs.readFileSync(path.join(root,file),'utf8');
 const slice=(file,first,last)=>src(file).split('\n').slice(first-1,last).join('\n');
 const clone=v=>JSON.parse(JSON.stringify(v));
 const sig=r=>r.kind+':'+r.key;
-function harness(phase,{staged=false,override={},fault=null}={}){
- const seed={...F.seed(phase),mkty_points:phase.chapter===9?'2100':'100',...override};for(let n=1;n<=9;n++)if(seed[F.storyKey(n)])seed[F.storyKey(n)]=JSON.stringify(F.plan(n));const disk=new Map(Object.entries(seed)),nodes=new Map(),logical=[],native=[],events=[];
+// Already-prepared operations prerequisites are synthetic fixtures, never earned here.
+const operationKey=n=>'mkty_operations_'+n+'_v1',operationRecord=(n,phase='core')=>({version:1,n,seed:731,round:3,phase,input:null,confirmed:false,actions:0,hints:0,errors:0,seconds:0});
+const operationText=(n,phase='core')=>JSON.stringify(operationRecord(n,phase));
+function harness(phase,{staged=false,override={},fault=null,operations='core'}={}){
+ const seed={...F.seed(phase),[operationKey(8)]:operationText(8,phase.chapter===9?'complete':'core'),[operationKey(9)]:operationText(9),mkty_points:phase.chapter===9?'2100':'100',...override};if(operations==='absent')for(const n of [8,9])delete seed[operationKey(n)];for(let n=1;n<=9;n++)if(seed[F.storyKey(n)])seed[F.storyKey(n)]=JSON.stringify(F.plan(n));const disk=new Map(Object.entries(seed)),nodes=new Map(),logical=[],native=[],events=[];
  let observe=null,currentWriter=null,firstTask=null,mode='setup',clock=Date.parse('2026-10-12T12:00:00Z'),faultAt=fault,callback,raw,successor,opened=0,awardCalls=0,originalCalls=0;
  class El{
   constructor(id=''){this.id=id;this.dataset={};this.style={setProperty(){}};this.classes=new Set();this.attributes={};this.children=[];this.open=false;this.textContent='';this.classList={add:(...xs)=>xs.forEach(x=>this.classes.add(x)),remove:(...xs)=>xs.forEach(x=>this.classes.delete(x)),contains:x=>this.classes.has(x),toggle(){}};}
@@ -38,12 +41,12 @@ function harness(phase,{staged=false,override={},fault=null}={}){
  const appAward=c.awardLifePoints;c.awardLifePoints=(...a)=>{awardCalls++;return appAward(...a);};
  run(`window.MKTYPace=(()=>{const ls=localStorage;${slice('pacing.js',33,33)}return {onRecorded,bypass:()=>true};})();`,'pacing.js:33');
  run(`window.MKTYRewards=(()=>{const initData=()=>'',accountContext=()=>({account:'telegram'});${slice('rewards-client.js',227,243)}return {completeLife,accountScope:()=> 'telegram'};})();`,'rewards-client.js:227-243 guest branch');
- run(`window.MKTYOps=(()=>{const cache=new Map(),key=n=>'mkty_operations_'+n+'_v1';function read(n){if(localStorage.getItem(key(n))!==null)throw Error('Excluded operations branch');return null;}const renderReplay=()=>{};${slice('operations.js',56,56)}return {complete,isRun:()=>false,pending:()=>false};})();`,'operations.js:56 absent-only');
  run(src('continuation.js'),'continuation.js');
  run(`window.MKTYCampaign=(()=>{const key=n=>'mkty_campaign_checkpoint_'+n,done=n=>localStorage.getItem('mkty_life'+n)==='complete';let current=0,restoring=false;const render=()=>{};${slice('campaign.js',10,21)}function review(n){MKTYContinuation.review(n);}function restore(n){if(!done(n))throw Error('Probe only calls completed campaign restore');review(n);}${slice('campaign.js',98,103)}return {save,restore,onScreen,render};})();`,'campaign selected source');
  run(src('field-missions.js'),'field-missions.js');run(src('legacy.js'),'legacy.js');run(src('chapter-space.js'),'chapter-space.js');
  for(const name of ['openMission','openMission2','openLife3MemoryGate','openMission4','openMission5','openMission6','openMission7'])c[name]=()=>{};
- run(src('story.js'),'story.js');
+ // Match index.html: chapter-space → operations → story, including unchanged entry/read/complete.
+ for(const file of ['mission-rules.js','operations-art.js','operations.js','story.js'])run(src(file),file);
  const originalOpen=c.MKTYField.open;
  c.MKTYField.open=function(task,saved){
   if((mode==='dispatch'||mode==='entry-confirm')&&staged){assert(!successor);successor={task,saved};events.push('successor-staged');return;}
@@ -86,14 +89,19 @@ function harness(phase,{staged=false,override={},fault=null}={}){
    let current=true;
    function writer(stage='dispatch',phase=p.index,extra={}){const snap=h.snapshot(),sourceText=snap[F.sourceKey(p.chapter)];
      return create({stage,chapter:p.chapter,phase,baseSeed,sourceText,checkpoint:sourceText?JSON.parse(sourceText).checkpoint:undefined,
-       legacyText:snap.mkty_legacy_v1,precisionCount:0,context,budget,now:h.now,isCurrent:()=>current,preState:{mkty_lang:'en',mkty_global_lives:'9'},...extra});}
+       legacyText:snap.mkty_legacy_v1,precisionCount:0,context,budget,now:h.now,isCurrent:()=>current,preState:{mkty_lang:'en',mkty_global_lives:'9',[operationKey(8)]:snap[operationKey(8)]??null,[operationKey(9)]:snap[operationKey(9)]??null},...extra});}
    function run(w,method){for(const label of ['callback-scratch','callback-outer-story','callback-inner-story'])budget.reserve(label,65536);
      try{h[method](w);}finally{for(const label of ['callback-scratch','callback-outer-story','callback-inner-story'])budget.release(label,65536);peak=Math.max(peak,budget.snapshot().peak);}}
    return {h,budget,context,writer,run,current:()=>current,stale(){current=false;}};
  }
  function drain(t,w){return w.drain(t.h.readNative,t.h.persistent);}
- for(const p of phases){const t=setup(p),w=t.writer();t.run(w,'dispatch');ok(drain(t,w).ok);eq(w.view().cursor,[3,11,1,1,11][phases.indexOf(p)]);
+ for(const p of phases){const t=setup(p),w=t.writer();t.run(w,'dispatch');ok(drain(t,w).ok);eq(w.view().cursor,[3,12,1,1,12][phases.indexOf(p)]);
    ok(Object.isFrozen(w.view()));ok(Object.isFrozen(w.smallTargets()));eq(t.h.counts().originalCalls,1);
+   if(p.index===(p.chapter===8?1:2)){const rows=t.h.logical.filter(row=>row.mode==='dispatch'),key=operationKey(p.chapter),at=rows.findIndex(row=>row.key===key);
+     eq(rows[at-1].key,'mkty_life'+p.chapter+'_completed_at');eq(rows[at+1].key,F.storyKey(p.chapter));eq(JSON.parse(rows[at+1].value).phase,'complete');
+     eq(rows.filter(row=>row.key===key).length,1);eq(rows[at].value,operationText(p.chapter,'complete'));eq(w.smallTargets()[key],operationText(p.chapter,'complete'));
+     const after=JSON.parse(rows[at].value);after.phase='core';eq(JSON.stringify(after),operationText(p.chapter));}
+
    if(p.index<(p.chapter===8?1:2)){w.release();const o=t.writer('open',p.index+1);t.run(o,'activate');ok(drain(t,o).ok);eq(o.view().cursor,3);
      const rows=t.h.logical.filter(r=>r.mode==='successor-open');eq(rows[1].value,rows[2].value);o.release();}
    else if(p.chapter===9){ok(w.withStoryTarget(s=>JSON.parse(s).phase)==='complete');w.release();const e=t.writer('epilogue');t.run(e,'epilogue');ok(drain(t,e).ok);eq(e.view().cursor,1);e.release();}
@@ -101,7 +109,7 @@ function harness(phase,{staged=false,override={},fault=null}={}){
    eq(t.budget.snapshot().reservations['post-target'],0);
  }
  groups.push('all five source-derived dispatches, three staged opens and epilogue');
- for(const p of phases)for(let cut=0;cut<(p.index===(p.chapter===8?1:2)?11:p.chapter===8?3:1);cut++){
+ for(const p of phases)for(let cut=0;cut<(p.index===(p.chapter===8?1:2)?12:p.chapter===8?3:1);cut++){
    const t=setup(p,{fault:cut}),w=t.writer();t.run(w,'dispatch');eq(drain(t,w),{ok:false,reason:'persistence'});
    const counts=t.h.counts();ok(t.h.retry());ok(drain(t,w).ok);eq(t.h.counts(),counts);w.release();cuts.dispatch++;
  }
@@ -114,7 +122,7 @@ function harness(phase,{staged=false,override={},fault=null}={}){
  {const t=setup(phases[4],{fault:{mode:'epilogue',cut:0}}),w=t.writer();t.run(w,'dispatch');ok(drain(t,w).ok);w.release();
    const e=t.writer('epilogue');t.run(e,'epilogue');eq(t.h.readNative('mkty_current_chapter'),'9');eq(drain(t,e),{ok:false,reason:'persistence'});
    const counts=t.h.counts();ok(t.h.retry());ok(drain(t,e).ok);eq(t.h.counts(),counts);e.release();cuts.epilogue++;}
- groups.push('27 dispatch, 9 successor and 1 epilogue native cuts, equality failures and exact retry');
+ groups.push('29 dispatch, 9 successor and 1 epilogue native cuts, equality failures and exact retry');
  for(let cut=-1;cut<3;cut++){
    const t=setup(phases[0],{fault:cut<0?null:{mode:'initial-open',cut}}),key=F.sourceKey(8),s=JSON.parse(t.h.snapshot()[key]);delete s.checkpoint;t.h.put(key,JSON.stringify(s));
    const w=t.writer('open',0);t.run(w,'freshOpen');if(cut>=0){eq(drain(t,w),{ok:false,reason:'persistence'});ok(t.h.retry());cuts.initial++;}ok(drain(t,w).ok);w.release();
@@ -166,6 +174,35 @@ function harness(phase,{staged=false,override={},fault=null}={}){
    const held=w.withStoryTarget(text=>new Promise(r=>{resolve=()=>r(text.length);}));bad(()=>w.release());resolve();await assert.rejects(held,/phase-writer-reentrant/);checks++;w.release();eq(w.view().storyBytes,0);}
 
 
+
+ for(const p of [phases[1],phases[4]]){
+   const t=setup(p),key=operationKey(p.chapter);
+   for(const value of [operationText(p.chapter)+' ',operationText(p.chapter,'planning'),JSON.stringify({...operationRecord(p.chapter),seed:732}),JSON.stringify({...operationRecord(p.chapter),seconds:1}),JSON.stringify({...operationRecord(p.chapter),extra:true}),JSON.stringify(Object.fromEntries(Object.entries(operationRecord(p.chapter)).reverse())),false,0,{},'x'.repeat(8193)]){
+     bad(()=>t.writer('dispatch',p.index,{preState:{[key]:value}}),/phase-operations-|phase-writer-/);
+   }
+   // A null/omitted carried target preserves the old eleven-write contract, which
+   // must still reject the real core→complete write rather than widen its permit.
+   const w=t.writer('dispatch',p.index,{preState:{[operationKey(8)]:null,[operationKey(9)]:null}});eq(w.view().expectedOperations,11);
+   bad(()=>t.run(w,'dispatch'),/phase-writer-operation/);eq(w.view().state,'blocked');eq(t.h.readNative(key),operationText(p.chapter));eq(t.h.counts().originalCalls,1);eq(t.h.counts().awardCalls,1);
+   eq(t.h.native.filter(row=>row.mode==='dispatch'&&row.key===key).length,0);eq(t.h.readNative('mkty_points'),p.chapter===8?'100':'2100');
+   let forwarded=0;bad(()=>w.handleWrite({op:'set',key,value:operationText(p.chapter,'complete')},()=>forwarded++));eq(forwarded,0);w.release();
+   const absent=setup(p,{operations:'absent'}),old=absent.writer();eq(old.view().expectedOperations,11);absent.run(old,'dispatch');ok(drain(absent,old).ok);eq(old.view().cursor,11);eq(absent.h.logical.filter(row=>row.mode==='dispatch'&&row.key===key).length,0);old.release();
+ }
+ groups.push('fixed canonical operations inputs and legacy eleven-write null/omitted contract rejects real core completion');
+ for(const p of [phases[1],phases[4]])for(const change of [record=>({...record,phase:'core'}),record=>({...record,phase:'planning'}),record=>({...record,seed:732}),record=>({...record,seconds:1}),record=>({...record,confirmed:true}),record=>({...record,input:[]}),record=>({...record,extra:true}),record=>Object.fromEntries(Object.entries(record).reverse()),record=>JSON.stringify(record)+' ']){
+   const t=setup(p),w=t.writer(),key=operationKey(p.chapter),set=t.h.c.MKTYStorage.setItem,value=change(operationRecord(p.chapter,'complete')),text=typeof value==='string'?value:JSON.stringify(value);
+   t.h.c.MKTYStorage.setItem=function(k,v){return set.call(this,k,k===key?text:v);};bad(()=>t.run(w,'dispatch'),/phase-writer-value/);
+   eq(w.view().state,'blocked');eq(w.view().cursor,p.chapter===8?5:4);eq(t.h.native.filter(row=>row.mode==='dispatch'&&row.key===key).length,0);eq(t.h.readNative(key),operationText(p.chapter));
+   eq(t.h.counts().originalCalls,1);eq(t.h.counts().awardCalls,1);eq(t.h.readNative('mkty_points'),p.chapter===8?'100':'2100');w.release();
+ }
+ groups.push('operations completion rejects changed phase, seed, counters, shape and serialization before forwarding');
+ for(const p of [phases[1],phases[4]]){
+   const t=setup(p),w=t.writer(),key=operationKey(p.chapter);t.run(w,'dispatch');ok(drain(t,w).ok);
+   eq(w.drain(k=>{if(k===key)throw Error('native operations unavailable');return t.h.readNative(k);},()=>true),{ok:false,reason:'native-read'});ok(drain(t,w).ok);
+   t.h.put(key,operationText(p.chapter));bad(()=>drain(t,w),/phase-writer-native-mismatch/);eq(w.view().blocked,'native-mismatch');t.h.put(key,operationText(p.chapter,'complete'));bad(()=>drain(t,w),/phase-writer-native-mismatch/);w.release();
+ }
+ groups.push('completed operations drain targets require exact native bytes and mismatch cannot be repaired by ABA');
+
  const precisionVectors=[];
  for(const precisionCount of [0,1,9,10,64])for(const variant of ['crew-events','cargo-events','cargo-no-events']){
    const p=phases[4],t=setup(p);let left=precisionCount;
@@ -179,7 +216,7 @@ function harness(phase,{staged=false,override={},fault=null}={}){
    const open=t.writer('open',2,{precisionCount});t.run(open,'freshOpen');ok(drain(t,open).ok);
    eq(JSON.parse(t.h.snapshot()[F.sourceKey(9)]).checkpoint.mods,expectedMods);eq(clone(t.h.c.MKTYField.snapshot().mods),expectedMods);open.release();
    const complete=clone(p.state);complete.mods=expectedMods;source.checkpoint=complete;t.h.put(F.sourceKey(9),JSON.stringify(source));
-   const dispatch=t.writer('dispatch',2,{precisionCount});eq(dispatch.view().expectedOperations,11);dispatch.release();
+   const dispatch=t.writer('dispatch',2,{precisionCount});eq(dispatch.view().expectedOperations,12);dispatch.release();
    if(precisionCount<10&&expectedMods.stability<40){bad(()=>t.writer('dispatch',2,{precisionCount:precisionCount+1}),/phase-writer-checkpoint/);}
    precisionVectors.push({count:precisionCount,variant,mods:expectedMods});
  }
@@ -225,7 +262,7 @@ function harness(phase,{staged=false,override={},fault=null}={}){
        eq(t.budget.snapshot().reservations['original-read-workspace'],196608);
      }
    });
-   x.run('dispatch');active=false;t.h.observe(null);eq(x.exchanges(),2);eq(projectionCount,2);eq(w.view().cursor,11);ok(drain(t,w).ok);
+   x.run('dispatch');active=false;t.h.observe(null);eq(x.exchanges(),2);eq(projectionCount,2);eq(w.view().cursor,12);ok(drain(t,w).ok);
    const returns=timeline.map((v,i)=>v==='forward-return:'+F.storyKey(p.chapter)?i:-1).filter(i=>i>=0);
    for(const at of returns){const enter=timeline.indexOf('project:enter',at),release=timeline.indexOf('read:release',enter),projection=timeline.indexOf('project:projection',release),
      acquire=timeline.indexOf('read:reserve',projection),leave=timeline.indexOf('project:leave',acquire),resume=timeline.indexOf('original-resume:'+F.storyKey(p.chapter),leave);
@@ -247,8 +284,8 @@ function harness(phase,{staged=false,override={},fault=null}={}){
      fired=true;if(faultKind==='invalidate')t.stale();else throw Error('injected-read-exchange');}}});
    const x=exchanged(t,'dispatch',1,{exchangeEvent(kind,n){if(kind==='enter'){ordinal=n;inExchange=true;}if(kind==='leave')inExchange=false;}});
    active=true;bad(()=>x.run('dispatch'),/phase-writer-|stale-context|injected-read-exchange/);active=false;ok(fired);
-   eq(x.writer.view().state,'blocked');eq(x.writer.view().provisional,true);eq(x.writer.view().cursor,exchangeAt===1?0:5);
-   eq(t.h.native.filter(r=>r.mode==='dispatch').length,exchangeAt===1?1:6);eq(t.h.readNative('mkty_points'),'100');
+   eq(x.writer.view().state,'blocked');eq(x.writer.view().provisional,true);eq(x.writer.view().cursor,exchangeAt===1?0:6);
+   eq(t.h.native.filter(r=>r.mode==='dispatch').length,exchangeAt===1?1:7);eq(t.h.readNative('mkty_points'),'100');
    if(exchangeAt===2)ok(t.h.logical.some(r=>r.mode==='dispatch'&&r.key==='mkty_points'),'Original Story.write catches the rejected second rewrite; later award invocation still cannot forward');
    let later=0;bad(()=>x.writer.handleWrite({op:'set',key:'mkty_points',value:'2100'},()=>later++));eq(later,0);
    for(const label of [...projectionLabels,...originalLabels,'original-read-workspace'])eq(t.budget.snapshot().reservations[label],0);
@@ -265,6 +302,6 @@ function harness(phase,{staged=false,override={},fault=null}={}){
    eq(t.budget.snapshot().live,1015808);bad(()=>t.budget.reserve('context-parse',65536),/transient-budget/);eq(t.budget.snapshot().reservations['context-parse'],0);
    t.budget.release('original-read-workspace',196608);for(const label of originalLabels)t.budget.release(label,65536);w.release();}
  groups.push('read/projection overlap rejected in both directions and unchanged 1016832-byte ceiling enforced');
- ok(peak<=1016832);eq(cuts,{dispatch:27,open:9,epilogue:1,entry:3,initial:3});
+ ok(peak<=1016832);eq(cuts,{dispatch:29,open:9,epilogue:1,entry:3,initial:3});
  console.log(JSON.stringify({status:'passed',checks,groups,cuts,precisionVectors,exchangeFaults,modeledPeak:peak,qualification:'Source-only deterministic VM, actual unchanged original handlers; synthetic clock/DOM/native Map and completed fixture inputs. No native gameplay, timings, archive or runtime integration claim.'},null,2));
 })().catch(error=>{console.error(error);process.exitCode=1;});

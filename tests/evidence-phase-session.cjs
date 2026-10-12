@@ -11,11 +11,15 @@ const root=path.resolve(__dirname,'..'),url=f=>pathToFileURL(path.join(root,'pro
 const source=f=>fs.readFileSync(path.join(root,f),'utf8'),slice=(f,a,b)=>source(f).split('\n').slice(a-1,b).join('\n');
 const clone=x=>JSON.parse(JSON.stringify(x)),deferred=()=>{let resolve;const promise=new Promise(r=>resolve=r);return {promise,resolve};};
 const SESSION='1234567890abcdef1234567890abcdef',SCOPE='fixture:phase-session';
+// Already-prepared operations prerequisites are synthetic fixtures, never earned here.
+const operationKey=n=>'mkty_operations_'+n+'_v1',operationRecord=(n,phase='core')=>({version:1,n,seed:731,round:3,phase,input:null,confirmed:false,actions:0,hints:0,errors:0,seconds:0});
+const operationText=(n,phase='core')=>JSON.stringify(operationRecord(n,phase));
 let serial=0,checks=0;const groups=[],failures=[],measurements=[];
 const eq=(a,b,n)=>{assert.deepStrictEqual(a,b,n);checks++;},ok=(v,n)=>{assert(v,n);checks++;};
 const preState=()=>({mkty_points:'100',mkty_global_lives:'9',mkty_life8:null,mkty_life9:null,mkty_life8_awarded:null,mkty_life9_awarded:null,
   mkty_life8_completed_at:null,mkty_life9_completed_at:null,mkty_spatial_report_8:null,mkty_spatial_report_9:null,
-  mkty_final_moon_points:null,mkty_points_locked_at:null,mkty_pace_ack_8:null,mkty_pace_ack_9:null,mkty_life9_coordinates:null});
+  mkty_final_moon_points:null,mkty_points_locked_at:null,mkty_pace_ack_8:null,mkty_pace_ack_9:null,mkty_life9_coordinates:null,
+  [operationKey(8)]:operationText(8),[operationKey(9)]:operationText(9)});
 function realLongContext(){
   const full=F.plan(8);for(const task of Story.plan(8,2).steps)full.tasks[task.id]={kind:task.kind,attempt:0,seconds:3,hints:0,errors:0};
   const proof=Field.create(8,0,Story.seedFor(full,0));proof.trace=[];
@@ -26,12 +30,13 @@ function realLongContext(){
   const text=JSON.stringify(full);eq(proof.trace.length,911);eq(text.length*2,38628);eq(full.tasks[0].performance.precise,true);return text;
 }
 function originalVM(options={}){
-  const seed={...F.seed(F.phases[0],{earned:true}),[F.storyKey(9)]:JSON.stringify(F.plan(9)),[F.sourceKey(9)]:JSON.stringify({version:1,n:9,phase:0,seed:731,seconds:0})};
+  const seed={...F.seed(F.phases[0],{earned:true}),mkty_life7:'complete',[operationKey(8)]:operationText(8),[operationKey(9)]:operationText(9),[F.storyKey(9)]:JSON.stringify(F.plan(9)),[F.sourceKey(9)]:JSON.stringify({version:1,n:9,phase:0,seed:731,seconds:0})};
   // This slice pins zero precision; do not import the older sixteen-precision plans.
   for(let n=1;n<=9;n++)seed[F.storyKey(n)]=JSON.stringify(F.plan(n));
   seed.mkty_daily_demo=JSON.stringify({attempts:0,streak:0,solved:false,codes:[],cday:'2026-10-12'});if(options.skip!==null)seed.mkty_pace_skip_9='yes';
+  if(options.operations==='absent')for(const n of [8,9])delete seed[operationKey(n)];
   if(options.story8)seed[F.storyKey(8)]=options.story8;if(options.story9)seed[F.storyKey(9)]=options.story9;
-  const disk=new Map(Object.entries(seed)),nodes=new Map(),logical=[],native=[],handles=[],riskHandles=[];
+  const disk=new Map(Object.entries(seed)),nodes=new Map(),logical=[],native=[],rejections=[],handles=[],riskHandles=[];
   let session=null,mode='setup',clock=Date.parse('2026-10-12T12:00:00Z'),fault=null,awardCalls=0,callbackCalls=0,openCalls=0,lastCapture=null,lastDone=null;
   function listen(type,fn,options={}){this.listeners??=new Map();const rows=this.listeners.get(type)||[];rows.push({fn,capture:options===true||!!options.capture});this.listeners.set(type,rows);}
   function dispatch(event){const route=[];for(let n=this;n;n=n===c?null:n===document?c:n.parentElement||document)route.push(n);event.target=this;event.bubbles??=true;event.cancelable??=true;event.defaultPrevented=false;event.stopped=false;event.immediate=false;event.preventDefault=()=>{if(event.cancelable)event.defaultPrevented=true;};event.stopPropagation=()=>{event.stopped=true;};event.stopImmediatePropagation=()=>{event.immediate=true;event.stopped=true;};event.composedPath=()=>route.slice();const invoke=(node,capture)=>{for(const row of node.listeners?.get(event.type)||[]){if(row.capture===capture)row.fn.call(node,event);if(event.immediate)break;}if(!capture&&!event.immediate&&node['on'+event.type])event.result=node['on'+event.type](event);};for(const node of route.slice().reverse()){invoke(node,true);if(event.stopped)return !event.defaultPrevented;}for(const node of route){invoke(node,false);if(event.stopped||!event.bubbles)break;}return !event.defaultPrevented;}
@@ -53,30 +58,30 @@ function originalVM(options={}){
   const c={console,document,localStorage:nativeStorage,sessionStorage:{length:0},Date:ClockDate,structuredClone,URLSearchParams,Uint32Array,Math,Set,Map,JSON,Node:{DOCUMENT_POSITION_FOLLOWING:4},MutationObserver:class{observe(){}},CustomEvent:class{constructor(type,o){this.type=type;this.detail=o?.detail;}},queueMicrotask(){},setTimeout(){},clearTimeout(){},setInterval(){},clearInterval(){},requestAnimationFrame(fn){animationFrame=fn;return 1;},cancelAnimationFrame(){animationFrame=null;},matchMedia:()=>({matches:true}),addEventListener:listen,dispatchEvent:dispatch,scrollTo(){},crypto:{getRandomValues:a=>{a[0]=731;return a;}},Telegram:{WebApp:{initData:''}},FieldArt:{scene:()=>'',map:()=>''},activeCinematic:null,leaveMission(){},clearMissionDelays(){},renderMissionArchive(){},renderCrewNetwork(){},renderDailyMissions(){},tg:null,remainingLife1CodeTime:()=>0,Blob,URL};c.window=c;c.globalThis=c;document.defaultView=c;
   vm.createContext(c);const run=(s,n)=>vm.runInContext(s,c,{filename:n});
   for(const f of ['storage.js','field-model.js','story-plan.js'])run(source(f),f);
-  for(const [method,op] of [['setItem','set'],['removeItem','remove'],['clear','clear'],['retry','retry']]){const original=c.MKTYStorage[method];c.MKTYStorage[method]=function(key,value){const operation={op,...(key===undefined?{}:{key:String(key)}),...(op==='set'?{value:String(value)}:{})};const forward=()=>{logical.push({mode,...operation});return original.apply(this,arguments);};try{return session?session.write(operation,forward):forward();}catch(error){if(process.env.MKTY_PHASE_SESSION_DEBUG)console.error('WRITE_REJECTION',mode,operation,error.message);throw error;}};}
+  for(const [method,op] of [['setItem','set'],['removeItem','remove'],['clear','clear'],['retry','retry']]){const original=c.MKTYStorage[method];c.MKTYStorage[method]=function(key,value){const operation={op,...(key===undefined?{}:{key:String(key)}),...(op==='set'?{value:String(value)}:{})};const forward=()=>{logical.push({mode,...operation});return original.apply(this,arguments);};try{return session?session.write(operation,forward):forward();}catch(error){rejections.push({mode,operation:clone(operation),reason:error.message});if(process.env.MKTY_PHASE_SESSION_DEBUG)console.error('WRITE_REJECTION',mode,operation,error.message);throw error;}};}
   run('const $=id=>document.getElementById(id);','vm bindings');
   for(const [a,b]of [[94,106],[369,385],[840,847],[850,850],[869,876],[972,986],[473,491]])run(slice('app.js',a,b),'app.js:'+a+'-'+b);
   const award=c.awardLifePoints;c.awardLifePoints=(...a)=>{awardCalls++;return award(...a);};
   c.PaceRules=Pace;
   run(`window.MKTYPace=(()=>{const root=window,Rules=PaceRules;${slice('pacing.js',22,33)}${slice('pacing.js',37,74)}${slice('pacing.js',84,96)}return {onRecorded,bypass,gate,risky};})();`,'original pacing risk and button');
   run(`window.MKTYRewards=(()=>{const initData=()=>'',accountContext=()=>({account:'telegram'});${slice('rewards-client.js',227,243)}return {completeLife,accountScope:()=> 'guest'};})();`,'original guest rewards branch');
-  run(`window.MKTYOps=(()=>{const cache=new Map(),key=n=>'mkty_operations_'+n+'_v1';function read(n){if(localStorage.getItem(key(n))!==null)throw Error('Excluded operations branch');return null;}const renderReplay=()=>{};${slice('operations.js',56,56)}return {complete,isRun:()=>false,pending:()=>false};})();`,'original absent-only operations complete');
   run(source('continuation.js'),'continuation.js');
   run(`window.MKTYCampaign=(()=>{const key=n=>'mkty_campaign_checkpoint_'+n,done=n=>localStorage.getItem('mkty_life'+n)==='complete';let current=0,restoring=false;const render=()=>{};${slice('campaign.js',10,21)}function review(n){MKTYContinuation.review(n);}function restore(n){if(!done(n))throw Error('Only completed campaign restore allowed');review(n);}${slice('campaign.js',98,103)}return {save,restore,onScreen,render};})();`,'original campaign selected functions');
   for(const f of ['field-missions.js','legacy.js','chapter-space.js'])run(source(f),f);
   for(const n of ['openMission','openMission2','openLife3MemoryGate','openMission4','openMission5','openMission6','openMission7'])c[n]=()=>{};
-  run(source('story.js'),'story.js');
+  // Match index.html: chapter-space captures app entries, operations wraps them, story captures operations.
+  for(const f of ['mission-rules.js','operations-art.js','operations.js','story.js'])run(source(f),f);
   const fieldOpen=c.MKTYField.open;c.MKTYField.open=(task,saved)=>{const original=task.complete,save=task.save;task={...task,save(cp){hooks.original?.('save');return save(cp);},complete(cp){callbackCalls++;hooks.original?.('complete');return hooks.complete?hooks.complete(()=>original(cp),task,cp):original(cp);}};if(hooks.descriptor)task=hooks.descriptor(task);return session.stageTask(task,saved);};
   const epilogue=c.MKTYLegacy.epilogue;c.MKTYLegacy.epilogue=done=>{const finish=session.stageEpilogue(()=>{hooks.original?.('epilogue');return done();});return epilogue(()=>{lastDone=finish();return lastDone;});};
   const risky=c.MKTYPace.risky,paceGo=get('paceGo').onclick,paceCancel=get('paceCancel').onclick;
   c.MKTYPace.risky=(...args)=>{const result=risky(...args);if(get('paceDialog').open){let specification={chapter:9,confirm:()=>{hooks.original?.('confirm');return paceGo();},cancel:paceCancel};if(hooks.risk)specification=hooks.risk(specification);if(specification){const handle=session.stageRisk(specification);riskHandles.push(handle);get('paceGo').onclick=handle.confirm;get('paceCancel').onclick=handle.cancel;}}return result;};
   get('home').classes.add('active');
   const under=(name,fn)=>{const old=mode;mode=name;let result;try{result=fn();}catch(error){mode=old;throw error;}if(result&&typeof result.then==='function')return Promise.resolve(result).finally(()=>{mode=old;});mode=old;return result;};
-  return {c,get,document,fire,tick:time=>animationFrame?.(time),disk,logical,native,handles,riskHandles,hooks,background:()=>Object.fromEntries(['mkty_lang','mkty_control_sound','mkty_light_fx','mkty_expeditions_v1','mkty_daily_demo','mkty_pace_skip_9'].map(k=>[k,seed[k]??null])),now:()=>ClockDate.now(),connect(s){session=s;},
+  return {c,get,document,fire,tick:time=>animationFrame?.(time),disk,logical,native,rejections,handles,riskHandles,hooks,background:()=>Object.fromEntries(['mkty_lang','mkty_control_sound','mkty_light_fx','mkty_expeditions_v1','mkty_daily_demo','mkty_pace_skip_9'].map(k=>[k,seed[k]??null])),now:()=>ClockDate.now(),connect(s){session=s;},
     readItem:k=>hooks.readItem?hooks.readItem(k):c.MKTYStorage.readItem(k),readNative:k=>hooks.readNative?hooks.readNative(k):disk.get(k)??null,
     persistent:()=>c.MKTYStorage.persistent,retry:()=>under('retry',()=>c.MKTYStorage.retry()),
     leave(){hooks.leave?.();c.show('vm-result');},open(task,saved){handles.push(task);openCalls++;hooks.original?.('open');return fieldOpen(task,saved);},
-    stageInitial:()=>session.initialEntry(()=>{hooks.original?.('initial');return c.MKTYSpatialFinale.open(8);}),current:()=>handles.at(-1),
+    stageInitial:()=>session.initialEntry(()=>{hooks.original?.('initial');return options.initialSpatial?c.MKTYSpatialFinale.open(8):c.MKTYOps.open(8);}),current:()=>handles.at(-1),
     capture(i){const p=F.phases[i];let cp=clone(p.state);if(i===4){const rebuilt=c.FieldRules.create(p.mechanic,4,p.seed,c.MKTYLegacy.mods(9,11));for(const row of p.state.trace){assert.equal(row[0],'act');c.FieldRules.act(rebuilt,row[1],row[2]);}rebuilt.trace=clone(p.state.trace);rebuilt.seconds=p.state.seconds;assert(rebuilt.complete&&c.FieldRules.won(rebuilt));assert(c.FieldRules.restore(rebuilt,p.mechanic,4,p.seed));cp=clone(rebuilt);assert.equal(cp.mods.stability,15+Math.min(20,c.MKTYLegacy.precise().count*2));}under('save-'+i,()=>handles.at(-1).save(cp));lastCapture=under('capture-'+i,()=>handles.at(-1).complete(cp));return {promise:lastCapture,cp};},
     entry(){return under('entry-navigation',()=>session.entryNavigation(()=>{hooks.original?.('entry');return c.openMission9();}));},
     confirm(){return under('entry-confirm',()=>get('paceGo').click());},
@@ -106,6 +111,7 @@ function originalVM(options={}){
         const page=s?{status:'page',segments:[{...s,payload:new Uint8Array(s.payload)}],payloadBytes:s.length,throughHead:q.throughHead,nextCursor:ordinal<head.ordinal?{captureIdentity:{...q.captureIdentity},throughHead:q.throughHead,afterOrdinal:ordinal}:null}:{status:'refused',reason:'read-failure'};return hooks.read?hooks.read(page,q):page;}};
     const coordinator=createCoordinator(adapter,id),manager=module.createFinalePhaseSession({coordinator,readIdentity:id,readItem:game.readItem,readNative:game.readNative,isPersistent:game.persistent,retryStorage:game.retry,leaveField:game.leave,openField:game.open,budget,crypto:options.crypto||webcrypto,now:game.now});game.connect(manager);const fence=installPhaseInputFence({document:game.document,readView:()=>manager.view()});
     const input={mode:'fresh-fixture',session:SESSION,identity:clone(identity),baseSeeds:{8:731,9:731},preState:preState(),background:game.background()};
+    if(options.operations==='absent')for(const n of [8,9])delete input.preState[operationKey(n)];
     return {module,game,budget,manager,input,fence,coordinator,hooks,requests,stored,heads,commit,id,setIdentity:x=>{identity=x;},identityHook:x=>{identityHook=x;},physical:x=>{physical=x;},setLease:x=>{lease=x;}};
   }
   const group=async(name,fn)=>{if(process.env.MKTY_PHASE_SESSION_GROUP&&!name.includes(process.env.MKTY_PHASE_SESSION_GROUP))return;try{await fn();groups.push(name);}catch(error){failures.push({name,error:error.stack});console.error('FAIL '+name+'\n'+error.stack);}};
@@ -134,20 +140,33 @@ function originalVM(options={}){
   await group('04 complete continuous five-phase original-handler synthetic fixture',async()=>{
     const h=await through(await harness());state(h,'EPILOGUE_READY');eq(h.game.counts(),{awardCalls:2,callbackCalls:5,openCalls:5});eq(h.game.disk.get('mkty_points'),'5100');eq(h.game.disk.get('mkty_pace_ack_8'),undefined);eq(h.game.disk.get('mkty_pace_ack_9'),'yes');
     eq([...h.heads.keys()].filter(k=>k.startsWith('fc1:')).length,2);eq([...h.heads.keys()].filter(k=>k.startsWith('fp2:')).length,5);eq(h.manager.view().counters.contexts,2);eq(h.manager.view().counters.phases,5);
-    const dispatch=[0,1,2,3,4].map(i=>h.game.logical.filter(r=>r.mode==='dispatch-'+i).length);eq(dispatch,[3,11,1,1,11]);
+    const dispatch=[0,1,2,3,4].map(i=>h.game.logical.filter(r=>r.mode==='dispatch-'+i).length);eq(dispatch,[3,12,1,1,12]);
+    for(const n of [8,9]){const rows=h.game.logical.filter(r=>r.mode==='dispatch-'+(n===8?1:4)),at=rows.findIndex(r=>r.key===operationKey(n));eq(rows[at-1].key,'mkty_life'+n+'_completed_at');eq(rows[at+1].key,F.storyKey(n));eq(JSON.parse(rows[at+1].value).phase,'complete');eq(rows.filter(r=>r.key===operationKey(n)).length,1);eq(rows[at].value,operationText(n,'complete'));eq(h.game.disk.get(operationKey(n)),operationText(n,'complete'));eq(h.game.c.MKTYOps.isRun(n),false);eq(h.game.c.MKTYOps.pending(n),false);}
     await h.game.done();state(h,'DONE');eq(h.manager.view().counters.done,1);const before=h.game.counts();await h.game.done();await h.manager.continue();await h.manager.retry();eq(h.game.counts(),before);eq(h.game.disk.get('mkty_final_moon_points'),'5100');
     eq(h.budget.snapshot().live,425984);ok(h.budget.snapshot().peak<=1016832);measurements.push({name:'five-phase-vm',dispatch,archiveRuns:[...h.heads.keys()],budgetPeak:h.budget.snapshot().peak});
   });
   await group('05 every dispatch, open, entry and epilogue native-like write cut drains without replay',async()=>{
     const baseline=await through(await harness());await baseline.game.done();const modes=[...Array.from({length:5},(_,i)=>'dispatch-'+i),...Array.from({length:5},(_,i)=>'open-'+i),'entry-navigation','entry-confirm','epilogue'];
     const cutCounts=Object.fromEntries(modes.map(mode=>[mode,baseline.game.native.filter(row=>row.mode===mode).length]));
+    eq(cutCounts['dispatch-1'],12);eq(cutCounts['dispatch-4'],12);
+    const operationsCuts=[8,9].map(n=>{const mode='dispatch-'+(n===8?1:4),rows=baseline.game.native.filter(row=>row.mode===mode);return {n,mode,cut:rows.findIndex(row=>row.key===operationKey(n))};});
+    eq(operationsCuts.map(row=>row.cut),[5,4]);
+    const reboots=[];
     const matrix=modes.flatMap(mode=>Array.from({length:cutCounts[mode]},(_,cut)=>({mode,cut})));
     for(const fault of matrix){const h=await harness();h.game.cut(fault.mode,fault.cut);let encountered=false;
-      async function barrier(p){await p;if(!h.game.persistent()){encountered=true;eq(h.manager.view().playEnabled,false);const counts=h.game.counts(),target=h.game.snapshot();await h.manager.retry();eq(h.game.counts(),counts);eq(Object.fromEntries(h.game.disk),target);ok(h.game.persistent());}}
+      async function barrier(p){await p;if(!h.game.persistent()){encountered=true;eq(h.manager.view().playEnabled,false);const counts=h.game.counts(),target=h.game.snapshot();
+        const operationCut=operationsCuts.find(row=>row.mode===fault.mode&&(row.cut===fault.cut||row.cut+1===fault.cut));
+        if(operationCut){const {n,cut}=operationCut,key=operationKey(n);eq(target[key],operationText(n,'complete'));eq(h.game.disk.get(key),operationText(n,fault.cut===cut?'core':'complete'));
+          const reboot=await harness();reboot.game.disk.clear();for(const [k,v]of h.game.disk)reboot.game.disk.set(k,v);
+          reboot.hooks.recover=()=>({status:'page',heads:[{untrusted:'inspection-only'}],watermark:h.heads.size,nextCursor:null});const before=Object.fromEntries(reboot.game.disk);
+          eq((await reboot.manager.begin({...reboot.input,mode:'inspection'})).state,'INSPECTION');await reboot.manager.retry();await reboot.manager.continue();await reboot.manager.openStaged();
+          eq(Object.fromEntries(reboot.game.disk),before);eq(reboot.game.counts(),{awardCalls:0,callbackCalls:0,openCalls:0});eq(reboot.game.logical.length,0);reboots.push({chapter:n,cut:fault.cut,operationsNativePhase:fault.cut===cut?'core':'complete'});
+        }
+        await h.manager.retry();eq(h.game.counts(),counts);eq(Object.fromEntries(h.game.disk),target);ok(h.game.persistent());}}
       await h.manager.begin(h.input);h.game.stageInitial();await barrier(h.game.under('open-0',()=>h.manager.openStaged()));state(h,'PLAYING');
       for(let i=0;i<5;i++){eq((await h.game.capture(i).promise).state,'READY');await barrier(h.game.under('dispatch-'+i,()=>h.manager.continue()));if(i===1){state(h,'WAIT_CHAPTER9');await barrier(h.game.entry());state(h,'WAIT_CONFIRM');await barrier(h.game.confirm());}if(i<4){state(h,'OPEN_READY');await barrier(h.game.under('open-'+(i+1),()=>h.manager.openStaged()));state(h,'PLAYING');}}
       await barrier(h.game.done());state(h,'DONE');ok(encountered,JSON.stringify(fault));eq(h.game.counts(),{awardCalls:2,callbackCalls:5,openCalls:5});
-    }measurements.push({name:'original-write-cuts',cases:matrix.length,dispatch:27,open:16,entry:cutCounts['entry-navigation']+cutCounts['entry-confirm'],epilogue:1,cutCounts});
+    }eq(matrix.length,55);eq(reboots.length,4);measurements.push({name:'operations-write-cut-reboots',cases:reboots});measurements.push({name:'original-write-cuts',cases:matrix.length,dispatch:29,open:16,entry:cutCounts['entry-navigation']+cutCounts['entry-confirm'],epilogue:1,cutCounts});
   });
   await group('06 immutable capture and all retired task closures are inert',async()=>{
     const h=await initial(await harness()),old=h.game.current(),entered=deferred(),release=deferred();let first=true;h.hooks.append=async(q,commit)=>{if(first){first=false;entered.resolve();await release.promise;}return commit(q);};
@@ -205,7 +224,7 @@ function originalVM(options={}){
       const original=await harness();if(prefix==='empty-first-append'){await initial(original);original.hooks.append=async()=>({status:'refused',reason:'transaction-aborted'});await original.game.capture(0).promise;}
       else if(prefix==='before-epilogue')await through(original);
       else if(prefix==='after-dispatch'||prefix==='after-open'){await through(original,0);if(prefix==='after-open')await original.manager.openStaged();}
-      else{await initial(original);await phase(original,0);await original.manager.openStaged();await original.game.capture(1).promise;original.game.cut('dispatch-1',prefix==='after-source-remove'?4:7);await original.game.under('dispatch-1',()=>original.manager.continue());ok(!original.game.persistent());if(prefix==='points-before-marker'){eq(original.game.disk.get('mkty_points'),'2100');eq(original.game.disk.get('mkty_life8_awarded'),undefined);}}
+      else{await initial(original);await phase(original,0);await original.manager.openStaged();await original.game.capture(1).promise;original.game.cut('dispatch-1',prefix==='after-source-remove'?4:8);await original.game.under('dispatch-1',()=>original.manager.continue());ok(!original.game.persistent());if(prefix==='points-before-marker'){eq(original.game.disk.get('mkty_points'),'2100');eq(original.game.disk.get('mkty_life8_awarded'),undefined);}}
       const h=await harness();h.game.disk.clear();for(const [k,v] of original.game.disk)h.game.disk.set(k,v);
       h.hooks.recover=()=>({status:'page',heads:original.heads.size?[{untrusted:'inspection-only'}]:[],watermark:original.heads.size,nextCursor:null});
       const before=Object.fromEntries(h.game.disk);eq((await h.manager.begin({...h.input,mode:'inspection'})).state,'INSPECTION');
@@ -241,7 +260,7 @@ function originalVM(options={}){
     }
   });
   await group('20 every initial native ledger key read failure and mismatch prevents PLAYING',async()=>{
-    const keys=[...Object.keys(preState()),'mkty_current_chapter',F.sourceKey(8)];
+    const keys=[...Object.keys(preState()).filter(key=>!key.startsWith('mkty_operations_')),'mkty_current_chapter',F.sourceKey(8)];
     for(const kind of ['throw','mismatch'])for(const key of keys){const h=await harness();await h.manager.begin(h.input);h.game.stageInitial();let once=true;
       h.game.hooks.readNative=k=>{if(k===key&&once){once=false;if(kind==='throw')throw Error('one native read failed');return 'wrong-native-target';}return h.game.disk.get(k)??null;};
       await h.manager.openStaged();ok(!once,key);eq(h.manager.view().playEnabled,false);const count=h.game.counts();h.game.hooks.readNative=null;
@@ -380,6 +399,57 @@ function originalVM(options={}){
     h.game.hooks.readNative=null;const rows=h.game.logical.length;await h.manager.retry();await old.confirm();old.cancel();state(h,'WAIT_CHAPTER9');eq(h.game.logical.length,rows);eq(cancels,1);eq(h.game.disk.get('mkty_pace_ack_9'),undefined);eq(h.budget.snapshot().reservations['context-retained'],0);
     await h.game.entry();const current=h.game.riskHandles.at(-1);ok(current!==old);await current.confirm();state(h,'OPEN_READY');const consumed=h.game.logical.length;current.cancel();await current.confirm();state(h,'OPEN_READY');eq(cancels,1);eq(h.game.logical.length,consumed);await h.manager.openStaged();state(h,'PLAYING');eq(h.game.counts().callbackCalls,before.callbackCalls);
   });
-  const report={status:failures.length?'failed':'passed',checks,groups,measurements,failures,qualifications:['Synthetic fixed disposable guest fixtures only; no real player, browser, IndexedDB, timing or gameplay claim','Full histories and fixture checkpoints are test diagnostics excluded from production modeled representation slots','Five-phase original closure chain and actual selected risk/epilogue/button/storage functions; fixture completion is injected, not earned','Gate checkpoints replay original fixture actions under pinned legacy/existing precision modifiers and preserve explicit fixture controller seconds; the 911-row proof and precise metadata remain unchanged; not earned gameplay','Capture/bubble routing is a source-VM event shim, not proof of native event defaults, touch, ranges, focus, timing or browser behavior','The main same-day synthetic chain explicitly seeds skip9=yes; default skip=null calendar gating is tested separately','Native Step C remains a separate gate'],sourceHashes:Object.fromEntries(['tests/evidence-phase-session.cjs','tests/fixtures/evidence-phase-session/input-fence.mjs','chapter-space.js','field-missions.js','legacy.js','story.js','story-plan.js','app.js','storage.js','pacing.js',...['unsaved-result-gate','adapter','coordinator','phase-budget','phase-writer-contract','story-rewrite','retired-story-witness','finale-context-v1','finale-phase-v2','context-stream'].map(f=>'prototypes/evidence-indexeddb/'+f+'.mjs')].map(f=>[f,createHash('sha256').update(source(f)).digest('hex')]))};
+
+  await group('36 exact prepared-operations input pair is explicit, canonical and fixed',async()=>{
+    const variants=[null,operationText(8,'planning'),operationText(8,'complete'),operationText(8)+' ',JSON.stringify({...operationRecord(8),seed:732}),JSON.stringify({...operationRecord(8),round:2}),JSON.stringify({...operationRecord(8),seconds:1}),JSON.stringify({...operationRecord(8),extra:true}),JSON.stringify(Object.fromEntries(Object.entries(operationRecord(8)).reverse()))];
+    for(const n of [8,9])for(const base of variants){const h=await harness(),value=base===null?null:base.replace('"n":8','"n":'+n);h.input.preState[operationKey(n)]=value;
+      eq((await h.manager.begin(h.input)).state,'EMPTY');eq(h.requests.length,0);eq(h.game.logical.length,0);eq(h.game.counts(),{awardCalls:0,callbackCalls:0,openCalls:0});}
+    for(const n of [8,9]){const h=await harness();delete h.input.preState[operationKey(n)];eq((await h.manager.begin(h.input)).state,'EMPTY');eq(h.requests.length,0);}
+    for(const n of [8,9])for(const field of ['version','n','seed','round','phase','input','confirmed','actions','hints','errors','seconds']){
+      const h=await harness(),record=operationRecord(n);delete record[field];h.input.preState[operationKey(n)]=JSON.stringify(record);eq((await h.manager.begin(h.input)).state,'EMPTY');eq(h.requests.length,0);}
+    for(const n of [8,9])for(const value of [null,operationText(n)+' ',operationText(n,'planning'),JSON.stringify({...operationRecord(n),seconds:1})]){
+      const h=await harness();value===null?h.game.disk.delete(operationKey(n)):h.game.disk.set(operationKey(n),value);eq((await h.manager.begin(h.input)).state,'BLOCKED');eq(h.game.logical.length,0);eq(h.game.counts(),{awardCalls:0,callbackCalls:0,openCalls:0});}
+    const index=source('index.html'),order=['chapter-space.js','operations.js','story.js'].map(file=>index.indexOf('<script src="'+file));ok(order.every(at=>at>=0));ok(order[0]<order[1]&&order[1]<order[2]);
+  });
+  await group('37 real missing operations9 still attempts forbidden planning after original story risk',async()=>{
+    for(const explicitNulls of [false,true]){const h=await harness({operations:'absent',initialSpatial:true});if(explicitNulls)for(const n of [8,9])h.input.preState[operationKey(n)]=null;
+      await through(h,1);state(h,'WAIT_CHAPTER9');eq(h.game.logical.filter(row=>row.mode==='dispatch-1').length,11);await h.game.entry();state(h,'WAIT_CONFIRM');await h.game.confirm();state(h,'BLOCKED');
+      const first=h.game.rejections.find(row=>row.operation.key===operationKey(9));ok(first);eq(first.mode,'entry-confirm');eq(first.reason,'phase-writer-operation');const attempt=JSON.parse(first.operation.value);eq(attempt.n,9);eq(attempt.phase,'planning');eq(attempt.round,0);
+      eq(h.game.logical.filter(row=>row.mode==='entry-confirm').map(row=>row.key),['mkty_pace_ack_9',F.storyKey(9)]);eq(h.game.disk.get(operationKey(9)),undefined);eq(h.game.handles.length,2);eq(h.game.counts(),{awardCalls:1,callbackCalls:2,openCalls:2});
+      const before=h.game.counts(),rows=h.game.logical.length;await h.manager.retry();await h.manager.continue();await h.manager.openStaged();state(h,'BLOCKED');eq(h.game.counts(),before);eq(h.game.logical.length,rows);
+    }
+  });
+  await group('38 completed operations targets remain pinned through entry, Continue and epilogue',async()=>{
+    for(const seam of ['entry','confirm','continue','epilogue'])for(const fault of ['changed','read-error']){
+      const h=await through(await harness(),seam==='epilogue'?4:1),n=seam==='epilogue'?9:8,key=operationKey(n);
+      if(seam==='confirm'||seam==='continue'){await h.game.entry();if(seam==='continue'){await h.game.confirm();await h.manager.openStaged();await h.game.capture(2).promise;}}
+      eq(h.game.disk.get(key),operationText(n,'complete'));eq(h.game.c.MKTYOps.pending(n),false);const counts=h.game.counts(),rows=h.game.logical.length;
+      if(fault==='changed'){h.game.disk.set(key,JSON.stringify({...operationRecord(n,'complete'),seconds:1}));eq(h.game.c.MKTYOps.pending(n),false,'Real cache may accept another complete record; manager must compare exact target');}
+      else h.game.hooks.readNative=k=>{if(k===key)throw Error('temporary operations target read');return h.game.disk.get(k)??null;};
+      const action=()=>seam==='entry'?h.game.entry():seam==='confirm'?h.game.confirm():seam==='continue'?h.manager.continue():h.game.done();await action();eq(h.game.counts(),counts);eq(h.game.logical.length,rows);eq(h.manager.view().playEnabled,false);
+      if(fault==='changed'||seam!=='epilogue'){state(h,'BLOCKED');h.game.hooks.readNative=null;h.game.disk.set(key,operationText(n,'complete'));await h.manager.retry();await action();state(h,'BLOCKED');eq(h.game.counts(),counts);eq(h.game.logical.length,rows);}
+      else{state(h,'WITNESS_RETRY');h.game.hooks.readNative=null;await h.manager.retry();state(h,'DONE');eq(h.game.counts(),counts);}
+    }
+    for(const n of [8,9]){const h=await initial(await harness()),key=operationKey(n);eq(h.game.c.MKTYOps.isRun(n),true);const original=h.game.disk.get(key);let forwarded=0;
+      for(const value of [JSON.stringify({...operationRecord(n),seconds:1}),original])try{h.manager.write({op:'set',key,value},()=>{forwarded++;h.game.disk.set(key,value);});}catch{}
+      state(h,'BLOCKED');eq(forwarded,0);eq(h.game.disk.get(key),original);eq(h.game.c.MKTYOps.isRun(n),true);await h.game.current().complete(clone(F.phases[0].state));eq(h.game.counts().callbackCalls,0);
+    }
+  });
+
+
+  await group('39 operations drift is rejected before original parsing; real pagehide gains no write authority',async()=>{
+    for(const seam of ['initial','confirm','continue'])for(const raw of ['{malformed',operationText(9,'planning'),operationText(9)+' '.repeat(32768)]){
+      const h=await harness(),n=seam==='initial'?8:9,key=operationKey(n);if(seam==='initial')await h.manager.begin(h.input);else{await through(h,1);await h.game.entry();if(seam==='continue'){await h.game.confirm();await h.manager.openStaged();await h.game.capture(2).promise;}}
+      eq(h.game.c.MKTYOps.isRun(n),true);const value=raw.replace('"n":9','"n":'+n);h.game.disk.set(key,value);const before=h.game.counts(),rows=h.game.logical.length,parse=JSON.parse;let parses=0,originals=0;h.game.hooks.original=()=>originals++;
+      JSON.parse=function(text,...args){if(text===value)parses++;return parse(text,...args);};try{if(seam==='initial')h.game.stageInitial();else if(seam==='confirm')await h.game.confirm();else await h.manager.continue();}finally{JSON.parse=parse;}
+      state(h,'BLOCKED');eq(parses,0);eq(originals,0);eq(h.game.counts(),before);eq(h.game.logical.length,rows);eq(h.game.disk.get(key),value);
+    }
+    for(const n of [8,9]){const h=await through(await harness(),n===8?1:2),key=operationKey(n),before=h.game.counts(),rows=h.game.logical.length,value=h.game.disk.get(key);
+      h.game.fire(h.game.c,'pagehide',{bubbles:false});state(h,'BLOCKED');const rejected=h.game.rejections.find(row=>row.operation.key===key);ok(rejected);eq(rejected.operation,{op:'set',key,value});eq(h.game.disk.get(key),value);eq(h.game.logical.length,rows);eq(h.game.counts(),before);
+      await h.manager.retry();await h.manager.continue();eq(h.game.logical.length,rows);eq(h.game.counts(),before);
+    }
+  });
+
+  const report={status:failures.length?'failed':'passed',checks,groups,measurements,failures,qualifications:['Synthetic fixed disposable guest fixtures only; no real player, browser, IndexedDB, timing or gameplay claim','Full histories and fixture checkpoints are test diagnostics excluded from production modeled representation slots','Five-phase original closure chain and actual operations entry/read/complete wrappers in index order; operations8/9 core records are already-prepared synthetic prerequisites, not earned gameplay', 'Actual selected risk/epilogue/button/storage functions; fixture completion is injected, not earned','Gate checkpoints replay original fixture actions under pinned legacy/existing precision modifiers and preserve explicit fixture controller seconds; the 911-row proof and precise metadata remain unchanged; not earned gameplay','Capture/bubble routing is a source-VM event shim, not proof of native event defaults, touch, ranges, focus, timing or browser behavior','The main same-day synthetic chain explicitly seeds skip9=yes; default skip=null calendar gating is tested separately','Native Step C remains a separate gate'],sourceHashes:Object.fromEntries(['tests/evidence-phase-session.cjs','tests/fixtures/evidence-phase-session/input-fence.mjs','chapter-space.js','mission-rules.js','operations-art.js','operations.js','field-missions.js','legacy.js','story.js','story-plan.js','app.js','storage.js','pacing.js',...['unsaved-result-gate','adapter','coordinator','phase-budget','phase-writer-contract','prepared-operations','story-rewrite','retired-story-witness','finale-context-v1','finale-phase-v2','context-stream'].map(f=>'prototypes/evidence-indexeddb/'+f+'.mjs')].map(f=>[f,createHash('sha256').update(source(f)).digest('hex')]))};
   if(process.env.MKTY_PHASE_SESSION_REPORT)fs.writeFileSync(process.env.MKTY_PHASE_SESSION_REPORT,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));if(failures.length)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1;});

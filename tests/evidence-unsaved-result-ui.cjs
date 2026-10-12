@@ -32,7 +32,7 @@ const routeFiles = new Map([
   ['/','tests/fixtures/evidence-unsaved-result/index.html'],
   ...['fixture.css','fixture.mjs','copy.json'].map(file=>['/fixture/'+file,'tests/fixtures/evidence-unsaved-result/'+file]),
   ['/fixture/native-harness.js','tests/fixtures/evidence-indexeddb/native-harness.js'],
-  ...['adapter','contract','coordinator','synthetic-completion','finale-completion','unsaved-result-gate'].map(name=>['/prototypes/evidence-indexeddb/'+name+'.mjs','prototypes/evidence-indexeddb/'+name+'.mjs']),
+  ...F.moduleFiles.map(file=>['/'+file,file]),
   ...['field-model','trace-codec','story-plan'].map(name=>['/'+name+'.js',name+'.js'])
 ]);
 async function page() {
@@ -127,7 +127,7 @@ async function controlledUnknown(p,terminal) {
   const prepared=F.prepare();report.copy=prepared.qualifications;report.sourceHashes=prepared.sourceHashes;
   report.commit=process.env.GITHUB_SHA;assert.match(report.commit||'',/^[a-f0-9]{40}$/);
   report.versions={node:process.version,playwright:require('playwright/package.json').version};assert.equal(report.versions.playwright,'1.58.2');
-  for(const file of ['tests/evidence-unsaved-result-ui.cjs','field-model.js','trace-codec.js','story-plan.js',...['adapter','contract','coordinator','synthetic-completion','finale-completion','unsaved-result-gate'].map(name=>'prototypes/evidence-indexeddb/'+name+'.mjs')])report.sourceHashes[file]=F.sha(fs.readFileSync(path.join(F.root,file)));
+  report.sourceHashes['tests/evidence-unsaved-result-ui.cjs']=F.sha(fs.readFileSync(__filename));
   browser=await bounded(chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH,args:['--no-sandbox']}),'launch pinned Chromium',30000);
   report.versions.chromium=browser.version();report.status='running';
 
