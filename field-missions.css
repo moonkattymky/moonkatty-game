@@ -98,3 +98,6 @@
 #fieldMission[data-kind=docking] .field-steering button{flex:1 1 44px;min-width:44px}
 #fieldMission[data-kind=docking] .field-steering button:last-child{flex-basis:auto}
 }
+
+/* Triangulation keyboard controls must fit the actual app width on short landscape screens. */
+@media(orientation:landscape) and (max-height:600px){#fieldMission[data-kind=signal]{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}}

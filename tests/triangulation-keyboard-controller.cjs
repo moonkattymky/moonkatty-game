@@ -4,7 +4,7 @@
  * for native keyboard activation. No completion or correct pin is pre-seeded.
  * This does not prove native Arrow/Home/End behavior, focus order, accessible
  * name computation, screen-reader announcements, visible reachability or touch. */
-const assert=require('node:assert/strict'),fs=require('node:fs'),crypto=require('node:crypto');
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {fixture,lockBearings,BASELINE,BASELINE_SHA256,R,clone}=require('./triangulation-controller-helper.cjs');
 assert.equal(crypto.createHash('sha256').update(fs.readFileSync(BASELINE)).digest('hex'),BASELINE_SHA256,'Frozen live-tree 8fa209e31d1b9cfa875df197263cd5152963501e controller is unchanged');
 const report={suite:'triangulation-keyboard-controller',baselineSha256:BASELINE_SHA256,browser:false,sockets:false,nativeKeyboardSemanticsTested:false,scenarios:0};
@@ -147,4 +147,5 @@ scenario('keyboard focus reveals a footer-covered Chapter8 control without gamep
  h.context.MKTYField.open({chapter:2,id:0,fieldStage:0,seed:0,title:['Проверка','Fixture'],save:value=>h.saves.push(clone(value)),complete:()=>{},exit:()=>{}},null);h.resume();
  check(target(h.$('fieldControls').querySelector('[data-field-action="role"]')),0,'other chapter');
 });
+assert(fs.readFileSync(path.join(__dirname,'../field-missions.css'),'utf8').includes('#fieldMission[data-kind=signal]{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}'),'triangulation landscape columns fit the actual app width');
 console.log(JSON.stringify({...report,passed:true,fullControlWins:25,limitations:['native keyboard defaults','browser focus order and layout','screen readers','physical touch']}));
