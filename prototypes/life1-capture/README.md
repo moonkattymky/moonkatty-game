@@ -5,6 +5,67 @@ shipped index, changes controller rules, establishes route authority, or replace
 a future server verifier. Callback-count replay verifies consistency of supplied
 events; it does not verify admissible frequency, elapsed real time or a player.
 
+## vNext source-only candidate
+
+`vnext/CONTRACT.md` defines a separate supplied-callback format. Frozen PR47,
+prior recorder/adapter, and the old native reload fixture remain unchanged.
+The implementation separates last-observed live geometry from the collision
+cache, and raw dispatch time from RAF and original timer samples. It preserves
+source arithmetic, including branch-specific action-button versus direct-open
+eligibility and signed zero. A complete outer callback is the atomic journal
+unit; nested checkpoint requests wait for the whole callback to close.
+
+Actually run socket-free:
+
+```
+node tests/life1-recording-vnext-differential.cjs
+node tests/life1-recording-vnext-grammar.cjs
+node tests/life1-recording-vnext-controller.cjs
+node tests/life1-recording-vnext-journal.cjs
+```
+
+The manual source differential has 369 exact state comparisons / 362 immutable
+transitions. Automatic capture has 306 exact comparisons, two-cell repair and
+40% hold recovery across fresh clock epochs, measured live/cache divergence,
+original 135/105 ms hold and 65/35 ms delay callbacks, atomic capacity refusal,
+and post-stage hydration refusal that keeps the old prefix and disarms the fresh
+source. Grammar checks cover 34 refusals. Journal checks cover 192 assertions,
+including a 16,213-entry / 524,281-byte near-ceiling replay in about 0.44 seconds
+on the local test machine (reported measurement, no timing pass threshold).
+The ordinary synthetic completion path uses 272 entries / 24,212 bytes.
+
+Defaults remain 4,096 entries / 196,608 bytes, hard ceilings 16,384 / 524,288,
+and drafts 128 steps / 32,768 bytes. All metadata counts. These are recorder
+resource budgets: exhaustion explicitly retains the accepted prefix while
+original gameplay continues. They neither cap gameplay duration nor establish
+long-session completeness. The independent lossless codec is not integrated.
+
+Fresh hydration uses original source clocks without rebasing old timestamps.
+Panel/status writes precede the actual refresh observations. A complete holding
+recovery requires an explicit original interval rearm; repair recovery forbids
+one. Failure after staging retains old memory/durable bytes, cancels hydration's
+new work, and requires a new paused document. Full DOM rollback is not claimed.
+A future repair-sequence regeneration after cross-document recovery still needs
+an explicit random-source contract; this candidate does not claim that arbitrary
+prior sequence resets can migrate the browser's Math.random state.
+
+The separately selected vNext browser fixture is prepared for coordinator-owned
+CI. Its bounded, one-shot MutationObserver watches the original displayed 40%
+hold progress, then invokes the original pause button handler after that hold
+callback has committed. This is test automation, not evidence of a trusted
+physical gesture; it changes no progress, timer, RAF or geometry value. It has not been executed locally. Exact native layout, complete native
+callback interleaving and fresh-page recovery remain pending until that lane
+passes. The old mixed-clock lane keeps `gatePassed:false`. The old native reload
+failure remains preserved and gets an exact expected-refusal wrapper; other
+failures and unexpected success fail that baseline check. No waiting workaround,
+new tolerance, forced geometry refresh or gameplay-dt change is used to conceal
+the observed gap.
+
+## Frozen baseline documentation
+
+The sections below describe the original single-clock prototype and its known
+refusals. They do not describe the vNext wire format or replace its contract.
+
 ## Provenance and boundaries
 
 The isolated branch starts at actual commit

@@ -20,13 +20,17 @@ jobs:
           node-version: '22'
       - run: node tests/life1-recording-source.cjs
       - run: node tests/life1-recording-controller.cjs
+      - run: node tests/life1-recording-vnext-grammar.cjs
+      - run: node tests/life1-recording-vnext-controller.cjs
+      - run: node tests/life1-recording-vnext-differential.cjs
+      - run: node tests/life1-recording-vnext-journal.cjs
   browser-fixture:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     strategy:
       fail-fast: false
       matrix:
-        lane: [reload, mixed-clock]
+        lane: [baseline-refusal, mixed-clock]
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v5
@@ -39,12 +43,41 @@ jobs:
         env:
           MKTY_C1_NATIVE_LANE: ${{ matrix.lane }}
           MKTY_TEST_OUTPUT: /tmp/mkty-life1-capture
-        run: node tests/life1-recording-browser-fixture.cjs
+        run: |
+          if [ "$MKTY_C1_NATIVE_LANE" = "baseline-refusal" ]; then
+            node tests/life1-recording-baseline-refusal-fixture.cjs
+          else
+            node tests/life1-recording-browser-fixture.cjs
+          fi
       - name: Retain experimental evidence, including known clock limitations
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: life1-capture-${{ matrix.lane }}-${{ github.sha }}
           path: /tmp/mkty-life1-capture
+          if-no-files-found: error
+          retention-days: 7
+  vnext-browser-fixture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - name: Test separately versioned native completion and paused recovery
+        env:
+          MKTY_C1_NATIVE_LANE: vnext
+          MKTY_TEST_OUTPUT: /tmp/mkty-life1-vnext-capture
+        run: node tests/life1-recording-vnext-browser-fixture.cjs
+      - name: Retain exact native vNext callback and geometry evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: life1-capture-vnext-${{ github.sha }}
+          path: /tmp/mkty-life1-vnext-capture
           if-no-files-found: error
           retention-days: 7

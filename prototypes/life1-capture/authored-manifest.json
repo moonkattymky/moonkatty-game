@@ -4,13 +4,13 @@
   "files": [
     {
       "path": ".github/workflows/life1-capture-prototype.yml",
-      "sha256": "62289024c6117eaa0647211186bff7ad29e067d5f82e094efcdbc8ec225008d8",
-      "bytes": 1544
+      "sha256": "6649451288e7b6b936e960999dcb6230a9e6be6d6961bd922dc1a9bb6f13f1f1",
+      "bytes": 2847
     },
     {
       "path": "prototypes/life1-capture/README.md",
-      "sha256": "87aa905c5f77bce8aea086c83733baf21a0918f12c3d6e33b8c376bd60c387ee",
-      "bytes": 7971
+      "sha256": "4422f20eeffe06f889373674a8a541ba0040f124cb2285e345a1f5336725ecc3",
+      "bytes": 11539
     },
     {
       "path": "prototypes/life1-capture/controller-adapter.js",
@@ -73,6 +73,26 @@
       "bytes": 3635
     },
     {
+      "path": "prototypes/life1-capture/vnext/CONTRACT.md",
+      "sha256": "6bb8e3a7d9d4a0d3cfde74dc4cbc27e50d7c7aaf3e1c7b6c8b959b0d2e8d7984",
+      "bytes": 10530
+    },
+    {
+      "path": "prototypes/life1-capture/vnext/controller-adapter.js",
+      "sha256": "335d03a4aec223b4b7268f62862cc632a0d40c80ecd11c701b8d5d521278b2a5",
+      "bytes": 10017
+    },
+    {
+      "path": "prototypes/life1-capture/vnext/recorder.cjs",
+      "sha256": "96512ea64d9b43c9d3a2dd325575fc6f0b6906f157b853a7ebb662d55acfce79",
+      "bytes": 7795
+    },
+    {
+      "path": "prototypes/life1-capture/vnext/source-model.cjs",
+      "sha256": "042af2c9d7607dc2f3200b5e0eea1b532c70eb99da23d5c347aac388e1d40208",
+      "bytes": 13012
+    },
+    {
       "path": "tests/fixtures/life1-recording-browser-helper.cjs",
       "sha256": "4b75d994d135a3edc6c3fcb39e37e9911499015e01fafb1788791887828e6852",
       "bytes": 4868
@@ -93,6 +113,26 @@
       "bytes": 20396
     },
     {
+      "path": "tests/fixtures/life1-recording-vnext-browser-helper.cjs",
+      "sha256": "72f104be3ec804601aaad2c4f92b2e08ca70dd0a8362d6ae0b76fa662c48da45",
+      "bytes": 8764
+    },
+    {
+      "path": "tests/fixtures/life1-recording-vnext-controller-helper.cjs",
+      "sha256": "e42a7a9b736bff3724e135a354f22abc042ff29af893ca72bce6670b6d553ec4",
+      "bytes": 18303
+    },
+    {
+      "path": "tests/fixtures/life1-recording-vnext-instrument.cjs",
+      "sha256": "4f4d15393ec0f97c95c03cde99916c16d0f2b0a9aff9a91dc3de88a1d597cdb5",
+      "bytes": 8362
+    },
+    {
+      "path": "tests/life1-recording-baseline-refusal-fixture.cjs",
+      "sha256": "937c1c5e0e13fb2d0707fc36d385f96139dc52575f278f66ddf649f215a35a01",
+      "bytes": 11229
+    },
+    {
       "path": "tests/life1-recording-browser-fixture.cjs",
       "sha256": "d3478392c664dd2c7ae26533b57262dd94f1e505d753f2e8c29a252c36fa0717",
       "bytes": 14482
@@ -106,6 +146,31 @@
       "path": "tests/life1-recording-source.cjs",
       "sha256": "abb4a49a0bc980df02a96178a605691cef6895003bbb3c7113f4cfdc38e507ba",
       "bytes": 5198
+    },
+    {
+      "path": "tests/life1-recording-vnext-browser-fixture.cjs",
+      "sha256": "08dff8e3890b5e8c0db2b7ef9a6f6038ceb2d9176c1afb177907dbfb189559b7",
+      "bytes": 18157
+    },
+    {
+      "path": "tests/life1-recording-vnext-controller.cjs",
+      "sha256": "2d3aceef71e2fe1692afa98fb1fd0561c5e5cbed576f24fed1e4f72cc71dc81d",
+      "bytes": 11774
+    },
+    {
+      "path": "tests/life1-recording-vnext-differential.cjs",
+      "sha256": "b16b9fc0348a86fb92f377cda4ebf1a7e0c5b39e1e9db053ce44c4b45d337420",
+      "bytes": 21626
+    },
+    {
+      "path": "tests/life1-recording-vnext-grammar.cjs",
+      "sha256": "3c6abfddbdaf3497b3dce5e4dd5fad50f1357b8ae61e80c4cf44460763d26864",
+      "bytes": 4953
+    },
+    {
+      "path": "tests/life1-recording-vnext-journal.cjs",
+      "sha256": "47588282ce422bf8c6d8e04cd2c2ff54c579382f13c7f1fabfd31ea8cf4f0689",
+      "bytes": 18942
     }
   ],
   "excludedSelf": "This manifest excludes itself to avoid circular hashing.",
