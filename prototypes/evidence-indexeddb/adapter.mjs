@@ -304,6 +304,8 @@ function build({scope,indexedDB,crypto,secureContext,openRequestFactory,watchdog
   });
   Object.defineProperties(instance,{
     diagnostics:{get:()=>({...last,requestErrors:last.requestErrors.map(x=>({...x})),events:[...last.events]})},
+    // Caller settlement, transaction terminals and retained retry bytes are separate observations.
+    physicalBusy:{get:()=>realm.pending!==null},
     retainedBytes:{get:()=>realm.retained?.requestBytes||0},state:{get:()=>state},createdNew:{get:()=>createdNew},scope:{value:scope},
   });
   return Object.freeze(instance);

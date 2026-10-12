@@ -1,5 +1,6 @@
 // SOURCE ONLY: exact local archive data, never reward or continuation authority.
 import * as C from './contract.mjs';
+import {validateStoryRewrite} from './story-rewrite.mjs';
 import * as StoryModule from '../../story-plan.js';
 import * as CodecModule from '../../trace-codec.js';
 const Story=StoryModule.default||globalThis.StoryPlan;
@@ -130,6 +131,9 @@ export function admitContext(input,account){
 }
 function context(capsule){const c=contexts.get(capsule);if(!c)fail();return c;}
 export const describeContext=capsule=>context(capsule).description;
+export function validateContextRewrite(capsule,options,account){
+  const c=context(capsule);return validateStoryRewrite(c.storyText,c.description.summary.chapter,options,account);
+}
 export const matchesContextText=(capsule,text)=>typeof text==='string'&&context(capsule).storyText===text;
 function range(c,offset,length){if(!C.int(offset)||!C.int(length)||length<1||length>CONTEXT_LIMIT.page||offset+length>c.description.total)fail();}
 function byteAt(c,offset){

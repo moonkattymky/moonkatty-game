@@ -25,7 +25,7 @@ export function createCoordinator(adapter,readContext){
     },
     retry(){return retryContext?send(null,retryContext,true):Promise.resolve({status:'refused',reason:'no-retry'});},
     readSegments:request=>adapter.readSegments(request),recover:request=>adapter.recover(request),
-    get retainedBytes(){return adapter.retainedBytes;},get inFlight(){return busy;},
+    get retainedBytes(){return adapter.retainedBytes;},get inFlight(){return busy;},get physicalBusy(){return adapter.physicalBusy;},
   });
 }
 export async function archive({coordinator,descriptor,bytes,context,admit,segmentBytes=C.LIMIT.payload}){
