@@ -129,10 +129,10 @@ async function gate(){
 async function fenceProbe(){
  await page.waitForFunction(()=>H.gate.held===true);const before=await facts();assert.equal(before.view.playEnabled,false);assert.equal(before.settled,false);
  await click('#fieldResume');await click('#fieldSubmit');await page.locator('[data-field-action="tune"]').first().focus();
- input('probe-key','ArrowRight');await page.keyboard.press('ArrowRight');const after=await facts();
+ input('probe-key','ArrowRight');await page.keyboard.press('ArrowRight');await page.waitForFunction(()=>H.pendingInputObservations===0);const after=await facts();assert.equal(after.pendingInputObservations,0);
  assert.deepEqual(after.model,before.model);assert.deepEqual(after.counters,before.counters);assert.deepEqual(after.logical,before.logical);assert.deepEqual(after.native,before.native);
  assert(after.inputFence.blocked>before.inputFence.blocked);assert(after.trustedInputs.some(r=>r.isTrusted&&r.type==='click'));
- for(const event of after.trustedInputs.filter(r=>['click','keydown','keyup'].includes(r.type))){assert.equal(event.isTrusted,true);assert.equal(event.defaultPrevented,true);assert.equal(event.playEnabled,false);}
+ for(const event of after.trustedInputs.filter(r=>['click','keydown','keyup'].includes(r.type))){assert.equal(event.eventPhase,0,'Cancellation observed after native dispatch completes');assert.equal(event.isTrusted,true);assert.equal(event.defaultPrevented,true);assert.equal(event.playEnabled,false);}
  report.fenceProbe={before:before.inputFence,after:after.inputFence,trustedInputs:after.trustedInputs,modelUnchanged:true,originalCountersUnchanged:true};
  await click('#phaseRelease');const released=await page.evaluate(()=>({gate:H.gate,attribute:document.body.hasAttribute('data-phase-input-probe')}));assert.equal(released.gate.probe,false);assert.equal(released.gate.released,true);assert.equal(released.attribute,false);
 }

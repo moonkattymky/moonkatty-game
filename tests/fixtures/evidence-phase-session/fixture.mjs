@@ -14,7 +14,8 @@ const events=[],transport=[],perPhase=[],logical=[],exactLogical=[],targets=[],t
 const counters={captures:0,original:0,award:0,open:0,save:0,risk:0,epilogue:0,pace:0,storyComplete:0,rewards:0};
 const saveAuthority={checks:0,violations:0,maxRetainedBytes:0};
 let manager,adapter,base,budget,fence,input,configured=false,started=false,operationSerial=0,activeTransport=0,peakTransport=0;
-let releaseFirst=null,firstAppend=true;const gate={armed:false,held:false,released:false,probe:false};
+let releaseFirst=null,firstAppend=true,pendingInputObservations=0;const gate={armed:false,held:false,released:false,probe:false};
+const observeAfterDispatch=window.setTimeout.bind(window);
 const packet=value=>MKTYTraceCodec.stringify(value,8192,'fixture-checkpoint-limit');
 const state=()=>manager?.view().state||'SETUP';
 const mode=()=>{const v=manager?.view(),i=v?.chapter===8?v.phase:2+(v?.phase||0);return ({OPENING:'open-'+i,DISPATCH:'dispatch-'+i,ENTRY_NAVIGATION:'entry-navigation',ENTRY_CONFIRM:'entry-confirm',EPILOGUE:'epilogue'})[v?.state]||state().toLowerCase();};
@@ -94,8 +95,11 @@ for(const type of ['click','keydown','keyup','input','change','pointerdown','poi
   if(!gate.probe||!$('fieldMission').contains(event.target))return;
   if(trustedInputs.length>=64)throw Error('Trusted input observation limit');
   const row={type,isTrusted:event.isTrusted,target:event.target.id||event.target.dataset.fieldAction||event.target.tagName,
-    key:event.key??null,nativeEventIndex:N.log.length,playEnabled:manager.view().playEnabled};trustedInputs.push(row);
-  queueMicrotask(()=>{row.defaultPrevented=event.defaultPrevented;row.fenceBlocked=fence.diagnostics().blocked;});
+    key:event.key??null,nativeEventIndex:N.log.length,playEnabled:manager.view().playEnabled,beforeFenceBlocked:fence.diagnostics().blocked};trustedInputs.push(row);
+  // Native dispatch can run a microtask checkpoint between listeners. Observe
+  // cancellation in the next real task, after the unchanged fence has returned.
+  pendingInputObservations++;
+  observeAfterDispatch(()=>{try{row.defaultPrevented=event.defaultPrevented;row.eventPhase=event.eventPhase;row.fenceBlocked=fence.diagnostics().blocked;}finally{pendingInputObservations--;}} ,0);
 },{capture:true,passive:false});
 async function tracked(kind,q,operation){
   if(transport.length>=64)throw Error('Transport observation limit');activeTransport++;peakTransport=Math.max(peakTransport,activeTransport);
@@ -151,12 +155,12 @@ window.H={ready:true,settled:true,pending:null,operationError:null,captureError:
   entry(){return observe('entry',()=>manager.entryNavigation(()=>{authority('original-entry');return openMission9();}));},
   retry(){return observe('retry',()=>manager.retry());},
   release(){if(!gate.held||!releaseFirst)throw Error('No held append');delete document.body.dataset.phaseInputProbe;gate.probe=false;log('input-probe-removed');gate.held=false;gate.released=true;const release=releaseFirst;releaseFirst=null;render();release();},
-  view:()=>manager?.view()||null,get model(){return MKTYField.snapshot();},get gate(){return {...gate};},inspect,
+  view:()=>manager?.view()||null,get model(){return MKTYField.snapshot();},get gate(){return {...gate};},get pendingInputObservations(){return pendingInputObservations;},inspect,
   facts(){const model=MKTYField.snapshot(),view=manager?.view(),source=view?MKTYStorage.readItem(sourceKey(view.chapter)):null,current=snapshots();
     return {view,counters:copy(counters),saveAuthority:copy(saveAuthority),perPhase:copy(perPhase),events:copy(events),transport:copy(transport),nativeEvents:copy(N.log),
       logical:copy(exactLogical),native:copy(S.exactRows),outsideLogical:copy(logical.filter(row=>!row.exact)),outsideNative:copy(S.rows.filter(row=>!row.exact)),allLogical:copy(logical),allNative:copy(S.rows),nativeObservationErrors:copy(S.errors),
       targets:copy(targets),lastTargets:copy(S.lastTargets),logicalSnapshot:current.logical,nativeSnapshot:current.native,...physical(),activeTransport,peakTransport,budget:budget?.snapshot(),
-      setupEvidence:copy(H.setupEvidence),setupProof:copy(H.setupProof),gate:{...gate},inputFence:fence?.diagnostics(),trustedInputs:copy(trustedInputs),
+      setupEvidence:copy(H.setupEvidence),setupProof:copy(H.setupProof),gate:{...gate},inputFence:fence?.diagnostics(),trustedInputs:copy(trustedInputs),pendingInputObservations,
       model,savedCheckpoint:source?JSON.parse(source).checkpoint??null:null,active:document.querySelector('.screen.active')?.id,
       fieldDialogOpen:$('fieldDialog').open,focusTag:document.activeElement?.tagName,paceDialogOpen:$('paceDialog').open,epilogueOpen:$('legacyDialog').open,chapterStage:$('mission'+(view?.chapter||8)).dataset.stage,
       settled:H.settled,operationError:H.operationError,captureError:H.captureError,persistent:MKTYStorage.persistent,
