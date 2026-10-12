@@ -8,6 +8,7 @@ on:
       - 'tests/evidence-unsaved-result*.cjs'
       - 'tests/fixtures/evidence-unsaved-result/**'
       - 'tests/evidence-finale-*.cjs'
+      - 'tests/evidence-read-abort.cjs'
       - 'tests/fixtures/evidence-finale-controller/**'
       - '.github/workflows/evidence-indexeddb-tests.yml'
   workflow_dispatch:
@@ -36,6 +37,8 @@ jobs:
         run: node tests/evidence-unsaved-result.cjs
       - name: Fixed raw-finale admission and shared ownership
         run: node tests/evidence-finale-completion.cjs
+      - name: Read-only abort classification and sealed read retry
+        run: node tests/evidence-read-abort.cjs
       - name: Native synthetic-origin IndexedDB groups A-I
         env:
           MKTY_TEST_OUTPUT: /tmp/mkty-evidence-indexeddb-native

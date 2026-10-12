@@ -82,17 +82,32 @@ function build({scope,indexedDB,crypto,secureContext,openRequestFactory,watchdog
   function request(op,tx,store,method,key,value,success){
     let r;try{r=method==='get'?tx.objectStore(store).get(key):tx.objectStore(store)[method](value,key);
       if(method!=='get')op.s.touchedWrites++;event(op,method+':'+store);
-    }catch(e){abortWith(op,tx,e);return;}
+    }catch(e){abortWith(op,tx,e,true);return;}
     r.addEventListener('error',()=>{if(op.s.requestErrors.length<16)op.s.requestErrors.push({name:r.error?.name||'Error',message:(r.error?.message||'').slice(0,256)});});
     r.addEventListener('success',()=>{try{success?.(r.result);}catch(e){abortWith(op,tx,e);}});
   }
-  function abortWith(op,tx,e){op.failure=errorReason(e);try{tx.abort();}catch(error){event(op,'abort-threw:'+error.name);}}
+  function abortWith(op,tx,e,requestFailure=false){
+    let nativeAbortFailure=false;
+    try{tx.abort();}catch(error){event(op,'abort-threw:'+error.name);
+      // A native request issued after an external abort can fail before its
+      // terminal event arrives. Callback validation errors never qualify.
+      nativeAbortFailure=requestFailure&&tx.mode==='readonly'&&typeof DOMException==='function'&&e instanceof DOMException&&
+        ['AbortError','InvalidStateError','TransactionInactiveError'].includes(e.name)&&error instanceof DOMException&&error.name==='InvalidStateError';
+    }
+    // In readonly work, later abort fallout must not hide the first explicit
+    // failure. Readwrite classification keeps its existing behavior.
+    if(tx.mode!=='readonly'||!op.failure||op.nativeAbortFailure&&!nativeAbortFailure){op.failure=errorReason(e);op.nativeAbortFailure=nativeAbortFailure;}
+  }
   function transaction(op,names,mode,start){
     live(op);return new Promise((resolve,reject)=>{
       let tx;try{tx=db.transaction(names,mode,mode==='readwrite'?{durability:'strict'}:undefined);}catch(e){reject(e);return;}
-      op.tx=tx;op.s.transactions++;event(op,'transaction:'+mode);op.failure=null;
+      op.tx=tx;op.s.transactions++;event(op,'transaction:'+mode);op.failure=null;op.nativeAbortFailure=false;
       tx.addEventListener('complete',()=>{op.tx=null;op.s.terminal='complete';event(op,'complete');resolve({complete:true,result:op.result});});
-      tx.addEventListener('abort',()=>{op.tx=null;op.s.terminal='abort';event(op,'abort');resolve({complete:false,reason:op.failure||errorReason(tx.error||{name:'AbortError',message:'transaction-aborted'}),errorName:tx.error?.name||null});});
+      tx.addEventListener('abort',()=>{op.tx=null;op.s.terminal='abort';event(op,'abort');
+        const nativeAbort=mode==='readonly'&&(!tx.error||typeof DOMException==='function'&&tx.error instanceof DOMException&&tx.error.name==='AbortError');
+        const reason=nativeAbort&&(!op.failure||op.nativeAbortFailure)?'transaction-aborted':
+          op.nativeAbortFailure&&tx.error?errorReason(tx.error):op.failure||errorReason(tx.error||{name:'AbortError',message:'transaction-aborted'});
+        resolve({complete:false,reason,errorName:tx.error?.name||null});});
       tx.addEventListener('error',()=>event(op,'transaction-error'));
       if(mode==='readwrite'&&tx.durability!=='strict'){abortWith(op,tx,Error('unsupported-durability'));return;}
       try{start(tx);}catch(e){abortWith(op,tx,e);}

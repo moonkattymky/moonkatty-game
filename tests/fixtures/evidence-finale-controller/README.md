@@ -86,7 +86,12 @@ asynchronous key fails the case. They are not hidden in the
 synchronous finite sequence. Actual recovery-banner Retry saving flushes the
 overlay without replaying the handler. First-cut cases also fail after one overlay
 key has flushed, then retry successfully. Final native data must exactly equal
-the logical target and original award counts/points must remain unchanged.
+the logical target and original award counts/points must remain unchanged. Each
+of the 37 cut reports retains the actual native retry rows, intermediate failed
+flush snapshots when applicable, the logical target and final native snapshot,
+and counters before continuation, after continuation and after retry. These are
+existing observations saved for independent recomputation, with no extra browser
+actions or broader fault matrix.
 
 Gate CONTINUED means one callback invocation, not durable game progress. Closing
 before retry can lose the in-page overlay. A caught throw is consumed with
