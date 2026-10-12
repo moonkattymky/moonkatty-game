@@ -141,8 +141,8 @@ async function lifecycle(f){
   let baselinePin;
   for(const useBaseline of [true,false]){
    f=await fixture(browser,{...spec,baseline:useBaseline});page=f.page;await resume(page);const b=await bearings(page);
-   await page.locator('#fieldWorld svg').scrollIntoViewIfNeeded();
-   const point=await page.locator('#fieldWorld svg').evaluate((svg,source)=>{const p=svg.createSVGPoint();p.x=source.x+.375;p.y=source.y+.625;const at=p.matrixTransform(svg.getScreenCTM());return{x:at.x,y:at.y};},b.source);
+   await page.locator('#fieldWorld > svg').scrollIntoViewIfNeeded();
+   const point=await page.locator('#fieldWorld > svg').evaluate((svg,source)=>{const p=svg.createSVGPoint();p.x=source.x+.375;p.y=source.y+.625;const at=p.matrixTransform(svg.getScreenCTM());return{x:at.x,y:at.y};},b.source);
    assert(point.x>0&&point.x<spec.width&&point.y>0&&point.y<spec.height,'map intersection visible for native touchscreen');
    await page.touchscreen.tap(point.x,point.y);const touched=await snapshot(page);
    assert(touched.pin,'native touch creates pin');assert(Math.hypot(touched.pin.x-b.source.x,touched.pin.y-b.source.y)<2,'native touch maps to same source coordinates');
