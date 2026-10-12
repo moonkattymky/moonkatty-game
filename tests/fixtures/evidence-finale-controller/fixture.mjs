@@ -94,6 +94,9 @@ window.H={N,S,events,calls,counters,logical,GATE_LIMIT,FINALE_LIMIT,
   if(gate)throw Error('Use a fresh BrowserContext for each phase');config={...options};phase=copy(config.phase);
   if(window.Telegram?.WebApp?.initData||MKTYStorage.identity()!=='guest'||window.localStorage!==MKTYStorage||S.object===MKTYStorage)throw Error('Disposable guest/native facade capability mismatch');
   for(const [key,value]of Object.entries(config.seed))MKTYStorage.setItem(key,value);
+  // The unchanged expedition pagehide handler saves even an unopened idle profile.
+  // Establish its exact existing state before capture; never exempt it from equality.
+  if(MKTYStorage.getItem('mkty_expeditions_v1')!==JSON.stringify(MKTYExpedition.snapshot()))throw Error('Idle expedition baseline differs from actual controller state');
   if(MKTYStorage.persistent!==true)throw Error('Initial disposable storage unavailable');
   adapter=A.createTestAdapter({scope:state.scope,watchdogMs:config.unknown?100:10000});let opened;
   if(config.unknown){

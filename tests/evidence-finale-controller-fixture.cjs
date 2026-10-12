@@ -2,7 +2,7 @@
 /* Source-only preparation. No browser, listener, player data or source rewriting. */
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const root=path.resolve(__dirname,'..'),directory='tests/fixtures/evidence-finale-controller/';
-const P=require('../story-plan.js'),R=require('../field-model.js'),Codec=require('../trace-codec.js');
+const P=require('../story-plan.js'),R=require('../field-model.js'),Codec=require('../trace-codec.js'),Expedition=require('../expedition-model.js');
 const checkpoints=require('./fixtures/finale-checkpoints-17-state.json');
 const sha=v=>crypto.createHash('sha256').update(v).digest('hex');
 const performance={errors:0,impacts:0,detections:0,moves:0,seconds:0,precise:true};
@@ -17,7 +17,7 @@ const WRITE_MATRIX=Object.freeze({
 });
 function plan(n,precise=0){return {...P.fresh(n,9000+n,2),createdAt:1,phase:'core',done:[0,1,2,3,4,5,6,7],tasks:Object.fromEntries(Array.from({length:precise},(_,i)=>[i,{performance:{...performance}}]))};}
 function seed(p,{earned=false}={}){
- const data={mkty_lang:'en',mkty_points:'100',mkty_global_lives:'9',mkty_control_sound:'no',mkty_light_fx:'yes',mkty_legacy_v1:JSON.stringify(p.provenance.legacyAtCapture)};
+ const data={mkty_lang:'en',mkty_points:'100',mkty_global_lives:'9',mkty_control_sound:'no',mkty_light_fx:'yes',mkty_expeditions_v1:JSON.stringify(Expedition.restore(null)),mkty_legacy_v1:JSON.stringify(p.provenance.legacyAtCapture)};
  const precision=p.provenance.precisionAtCapture;
  assert.equal(precision.count,precision.total);assert([0,16].includes(precision.count));
  for(let n=1;n<=8;n++)data[storyKey(n)]=JSON.stringify(plan(n,precision.count?2:0));
@@ -40,6 +40,7 @@ function resources(){
 }
 function prepare(){
  assert.equal(checkpoints.phases.length,17);assert.equal(phases.length,5);
+ assert.deepEqual(JSON.parse(seed(phases[0]).mkty_expeditions_v1),{version:1,profile:Expedition.profile(),run:null},'Pin the ordinary idle expedition pagehide baseline');
  assert.deepEqual(Object.values(WRITE_MATRIX).map(a=>a.length),[6,11,4,4,12]);
  const legacy=require('./evidence-indexeddb-fixture.cjs'),original=legacy.prepareInputs();
  for(const artifact of original.artifacts)legacy.verifyRecovered(artifact,artifact.bytes);

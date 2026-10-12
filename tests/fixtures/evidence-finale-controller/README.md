@@ -37,7 +37,12 @@ All 17 original checkpoints are restored using actual controller controls. Three
 separate cases earn Echo (noise 105), final trajectory, and final closing gate
 (stability -1) through actual buttons/native range keys. The remaining phase
 cases are explicitly restored fixtures, not claims of native docking/convoy
-input coverage. Date is fixed for exact expected writes; real timers still run.
+input coverage. Setup seeds the exact idle ExpeditionRules.restore(null) profile
+and checks it against the real MKTYExpedition.snapshot(). The original unconditional
+expedition pagehide save therefore re-writes its established background baseline.
+Full-state equality before Continue still covers that key; it is not ignored,
+and no idle expedition timer or extra continuation cutpoint is introduced.
+Date is fixed for exact expected writes; real timers still run.
 Original fixture time is preserved, and pure trace replay's controller-timing
 qualification remains separate. No human timing or continuous-play claim follows.
 
