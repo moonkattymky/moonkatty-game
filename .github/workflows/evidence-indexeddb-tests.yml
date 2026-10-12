@@ -15,6 +15,8 @@ on:
       - 'tests/evidence-precision-observation.cjs'
       - 'tests/evidence-retired-witness.cjs'
       - 'tests/evidence-story-rewrite.cjs'
+      - 'tests/evidence-invocation-*.cjs'
+      - 'tests/fixtures/evidence-invocation-fence/**'
       - 'tests/fixtures/evidence-phase-session/**'
       - 'tests/fixtures/evidence-finale-controller/**'
       - '.github/workflows/evidence-indexeddb-tests.yml'
@@ -116,5 +118,37 @@ jobs:
         with:
           name: evidence-phase-session-native
           path: /tmp/mkty-evidence-phase-session-native/
+          if-no-files-found: error
+          retention-days: 14
+
+  native-invocation-fence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Verify existing pinned Playwright version
+        run: node -e "require('node:assert/strict').equal(require('playwright/package.json').version, '1.58.2')"
+      - run: npx playwright install --with-deps chromium
+      - name: Original final-handler prefixes and invocation protocol
+        run: |
+          node tests/evidence-invocation-prefixes.cjs
+          node tests/evidence-invocation-fence.cjs
+      - name: Native fixed invocation fence and fresh-realm inspection
+        env:
+          MKTY_TEST_OUTPUT: /tmp/mkty-evidence-invocation-fence-native
+        run: node tests/evidence-invocation-fence-ui.cjs
+      - name: Preserve invocation-fence evidence and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-invocation-fence-native
+          path: /tmp/mkty-evidence-invocation-fence-native/native-invocation-fence-results.json
           if-no-files-found: error
           retention-days: 14
