@@ -87,3 +87,28 @@ origin and explicitly expects old receipt recovery to fail. There is no claim
 of surviving eviction, origin-data clearing, profile loss, or arbitrary hostile
 same-origin corruption. Legacy storage failures are labelled injections;
 legacy parser/storage/cloud modules execute only against controlled fixture data.
+
+
+### Held-terminal setup qualification
+
+The complete/abort held-terminal append cases use a setup-only barrier around
+`adapter.open()`. It reuses `gateWatchdogDuring` with the existing 100ms adapter
+setting while Node independently bounds setup. The setup watchdog callback is
+never released. A genuine successful open must cancel its exact timer, complete
+the native readonly schema/marker check, leave zero physical transactions and
+retained bytes, and expose open state before any raw snapshot or terminal hold.
+The `clearTimeout` observer delegates unchanged and is restored in `finally`;
+`setTimeout` interception is restored synchronously by the existing harness.
+
+Setup refusal or a bounded setup failure is recorded and fails immediately,
+without retry, fallback or raw snapshot. Ordinary open outcomes and these setup
+proofs are retained in `native-indexeddb-results.json`, including on failure. This
+correction addresses an earlier unchecked setup path that led to `NotFoundError`
+in a raw snapshot; that old run did not retain the original open refusal reason,
+so an exact timeout cause is not claimed.
+
+Only setup for the two held-terminal cases is gated. Their existing append
+watchdog, real native terminal/deadline ordering, unknown outcome and exact retry
+assertions are unchanged. Separate open-timeout/blocked-open tests remain
+ungated. This setup does not establish that opening storage always takes less
+than 100ms, and adds no production timeout or storage-policy change.

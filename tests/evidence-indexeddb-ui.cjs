@@ -20,7 +20,7 @@ const report = {status: 'not-run', groups: {}, nativeQuota: {status: 'not-run'},
   boundary: {origin: ORIGIN, realIndexedDB: true, sameOriginPages: true, gracefulRestartOnly: true,
     strictIsHint: true, noPowerLossProof: true, noProductionActivation: true, serviceWorkers: 'blocked',
     exclusions: ['native engine clones and allocation', 'JS heap/RSS', 'origin-wide aggregate transient bound', 'site-data-loss survival']},
-  events: [], diagnostics: [], network: {fulfilled: 0, rejected: []}};
+  events: [], diagnostics: [], openOutcomes: [], heldTerminalSetups: [], network: {fulfilled: 0, rejected: []}};
 let context, profile, currentGroup;
 const pages = [];
 const hash = value => createHash('sha256').update(value).digest('hex');
@@ -87,7 +87,14 @@ async function page() {
 }
 async function ready(p) {await p.waitForFunction(() => window.fixtureReady === true);}
 async function fresh() {for (const p of context.pages()) await p.close(); const p = await page(); await p.evaluate(() => H.reset()); return p;}
-async function open(p, id = 'a', options = {}) {return p.evaluate(async ({id, options}) => {const a = H.create(id, options); return a.open();}, {id, options});}
+async function open(p, id = 'a', options = {}) {
+  const observed = await p.evaluate(async ({id, options}) => {
+    const a = H.create(id, options), result = await a.open();
+    return {result, state: a.state, diagnostics: a.diagnostics, retainedBytes: a.retainedBytes, physical: H.N.physical};
+  }, {id, options});
+  report.openOutcomes.push({group: currentGroup, page: pages.indexOf(p), id, options, ...observed}); save();
+  return observed.result;
+}
 async function invoke(p, id, method, q) {
   const out = await p.evaluate(({id, method, q}) => H.invoke(id, method, q), {id, method, q});
   report.diagnostics.push({group: currentGroup, method, diagnostics: out.diagnostics, state: out.state, retainedBytes: out.retainedBytes});
@@ -100,6 +107,72 @@ async function bounded(promise, label, milliseconds = 12000) {
   let timer;
   try {return await Promise.race([promise, new Promise((_, reject) => {timer = setTimeout(() => reject(Error('Fixture barrier timed out: ' + label)), milliseconds);})]);}
   finally {clearTimeout(timer);}
+}
+// Setup only for the two held-terminal append cases. Delaying this setup
+// watchdog callback never proves open-timeout behavior; those tests are ungated.
+async function openForHeldTerminal(p, terminal) {
+  const row = {group: currentGroup, page: pages.indexOf(p), terminal, status: 'pending', watchdogMs: 100};
+  report.heldTerminalSetups.push(row); save();
+  try {
+    const captured = await bounded(p.evaluate(() => {
+      const a = H.create('a', {watchdogMs: 100}), mark = H.N.log.length;
+      const originalSet = window.setTimeout, originalClear = window.clearTimeout;
+      const setup = H.heldTerminalSetup = {timer: null, result: null, cancelled: 0};
+      const observeClear = function (id) {
+        if (id === setup.timer?.timerId) setup.cancelled++;
+        return originalClear.apply(this, arguments);
+      };
+      setup.restore = () => {window.clearTimeout = originalClear;};
+      setup.proof = () => ({result: setup.result, state: a.state, diagnostics: a.diagnostics,
+        retainedBytes: a.retainedBytes, physical: H.N.physical, cancelled: setup.cancelled,
+        timerId: setup.timer?.timerId ?? null, captured: setup.timer?.captured ?? 0,
+        setTimeoutRestored: window.setTimeout === originalSet, clearTimeoutRestored: window.clearTimeout === originalClear,
+        nativeEvents: H.N.log.slice(mark)});
+      window.clearTimeout = observeClear;
+      try {
+        setup.timer = H.N.gateWatchdogDuring(() => {
+          setup.pending = a.open().then(result => {setup.result = result; return result;}).finally(setup.restore);
+        }, 100);
+      } catch (error) {setup.restore(); throw error;}
+      return {timerId: setup.timer.timerId, captured: setup.timer.captured,
+        operationId: a.diagnostics.id, setTimeoutRestored: window.setTimeout === originalSet};
+    }), terminal + ': arm bounded schema-open setup');
+    Object.assign(row, {capture: captured}); save();
+    assert.equal(captured.captured, 1); assert.equal(captured.setTimeoutRestored, true);
+    const observed = await bounded(p.evaluate(async () => {
+      await H.heldTerminalSetup.pending;
+      return H.heldTerminalSetup.proof();
+    }), terminal + ': successful native schema-open setup');
+    Object.assign(row, observed); save();
+    assert.equal(observed.result?.status, 'open', 'setup must succeed before any snapshot or terminal arming');
+    assert.equal(observed.state, 'open'); assert.equal(observed.physical, 0); assert.equal(observed.retainedBytes, 0);
+    assert.equal(observed.diagnostics.id, captured.operationId); assert.equal(observed.diagnostics.op, 'open');
+    assert.equal(observed.diagnostics.terminal, 'complete'); assert.equal(observed.diagnostics.liveAccountedBytes, 0);
+    assert.equal(observed.setTimeoutRestored, true); assert.equal(observed.clearTimeoutRestored, true);
+    assert(observed.cancelled > 0, 'genuine open completion cancels the exact captured setup timer');
+    assert(!observed.diagnostics.events.includes('watchdog'), 'original setup watchdog was never delivered');
+    const timerEvents = observed.nativeEvents.filter(event => event.timerId === captured.timerId);
+    assert.equal(timerEvents.filter(event => event.type === 'watchdog-captured').length, 1);
+    assert.equal(timerEvents.filter(event => event.type === 'watchdog-delivered' || event.type === 'watchdog-delivery-released').length, 0);
+    const schemas = observed.nativeEvents.filter(event => event.type === 'transaction' && !event.fixture);
+    assert.equal(schemas.length, 1); const schema = schemas[0];
+    assert.equal(schema.mode, 'readonly'); assert.deepEqual([...schema.stores].sort(), [...STORES].sort());
+    assert(observed.nativeEvents.some(event => event.tx === schema.tx && event.type === 'request-success' && event.kind === 'get' && event.store === 'meta'));
+    const complete = observed.nativeEvents.find(event => event.tx === schema.tx && event.type === 'complete');
+    assert(complete && complete.n > schema.n, 'native schema transaction completed before the setup barrier');
+    assert(!observed.nativeEvents.some(event => event.tx === schema.tx && event.type === 'abort'));
+    row.status = 'verified'; row.schemaTransaction = {tx: schema.tx, createdEvent: schema.n, completeEvent: complete.n}; save();
+    return observed.result;
+  } catch (error) {
+    row.status = 'failed'; row.error = error.message;
+    try {
+      const observed = await bounded(p.evaluate(() => {
+        H.heldTerminalSetup?.restore(); return H.heldTerminalSetup?.proof() || null;
+      }), terminal + ': setup failure diagnostics');
+      if (observed) Object.assign(row, observed);
+    } catch (diagnosticError) {row.diagnosticError = diagnosticError.message;}
+    save(); throw error;
+  }
 }
 async function heldWatchdogAppend(p, q, terminal) {
   const captured = await p.evaluate(({q, terminal}) => {
@@ -394,7 +467,7 @@ function validateEvents(events) {
     await p.evaluate(() => H.release());
     await p.waitForFunction(() => H.adapters.get('a').diagnostics.liveAccountedBytes === 0);
     assert.equal((await open(p, 'c')).status, 'open');
-    p = await fresh(); await open(p, 'a', {watchdogMs: 100}); const q = request(desc('terminal-held'), Buffer.from('completed-native'));
+    p = await fresh(); await openForHeldTerminal(p, 'complete'); const q = request(desc('terminal-held'), Buffer.from('completed-native'));
     const heldComplete = await heldWatchdogAppend(p, q, 'complete'), unknown = heldComplete.result; assert.equal(unknown.status, 'outcomeUnknown'); assert.equal(unknown.reason, 'terminal-unobserved');
     assert.equal((await open(p, 'other')).reason, 'busy'); assert(await p.evaluate(() => H.adapters.get('a').retainedBytes > 0));
     assert.equal(await p.evaluate(tx => H.N.releaseTerminals(tx), heldComplete.proof.tx), 1);
@@ -403,7 +476,7 @@ function validateEvents(events) {
     await open(p, 'scope-b', {scope: 'fixture:B'}); const otherScope = await append(p, request(desc('other-scope-while-retained', 100000, '', 'fixture:B'), Buffer.from('blocked')), 'scope-b'); assert.equal(otherScope.reason, 'retry-pending');
     const retry = await invoke(p, 'a', 'retry'); assert.equal(retry.status, 'duplicate'); assert.equal(await p.evaluate(() => H.adapters.get('a').retainedBytes), 0);
     const settled = await p.evaluate(() => H.adapters.get('a').diagnostics.events.filter(e => e.startsWith('caller:')).length); assert.equal(settled, 1);
-    p = await fresh(); await open(p, 'a', {watchdogMs: 100}); const beforeHeldAbort = await snapshot(p);
+    p = await fresh(); await openForHeldTerminal(p, 'abort'); const beforeHeldAbort = await snapshot(p);
     const heldAbort = await heldWatchdogAppend(p, request(desc('abort-terminal-held'), Buffer.from('abort-me')), 'abort'), abortedUnknown = heldAbort.result;
     assert.equal(abortedUnknown.status, 'outcomeUnknown'); assert.equal(abortedUnknown.reason, 'terminal-unobserved'); assert.equal((await open(p, 'blocked-after-abort')).reason, 'busy');
     assert(await p.evaluate(() => H.adapters.get('a').retainedBytes > 0));
