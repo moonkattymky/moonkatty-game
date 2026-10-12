@@ -1,0 +1,50 @@
+name: Experimental Chapter 1 capture fixtures
+on:
+  pull_request:
+    paths:
+      - 'prototypes/life1-capture/**'
+      - 'tests/life1-recording-*.cjs'
+      - 'tests/fixtures/life1-recording-*.cjs'
+      - '.github/workflows/life1-capture-prototype.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+      - run: node tests/life1-recording-source.cjs
+      - run: node tests/life1-recording-controller.cjs
+  browser-fixture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: [reload, mixed-clock]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - name: Test injected local fixture only
+        env:
+          MKTY_C1_NATIVE_LANE: ${{ matrix.lane }}
+          MKTY_TEST_OUTPUT: /tmp/mkty-life1-capture
+        run: node tests/life1-recording-browser-fixture.cjs
+      - name: Retain experimental evidence, including known clock limitations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: life1-capture-${{ matrix.lane }}-${{ github.sha }}
+          path: /tmp/mkty-life1-capture
+          if-no-files-found: error
+          retention-days: 7

@@ -1,0 +1,9 @@
+{
+  "test": "life1-recording-source",
+  "baseCommit": "eaa09304c773129d8b06ec4c85a542e123e13450",
+  "baseTree": "a08ec6ee9578eacca3f81da296964613d8dd7299",
+  "referenceHashesChecked": 17,
+  "instrumentedSourcesCompile": 3,
+  "browserBundleCompiles": true,
+  "browserMainExecuted": false
+}
