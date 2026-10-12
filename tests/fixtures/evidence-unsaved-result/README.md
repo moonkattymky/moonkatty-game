@@ -81,8 +81,29 @@ a logical limit or a successful override alone. In the first CI candidate, all
 48 segment transactions in the ephemeral quota context completed, so native quota
 remained unverified. The revised fixture aligns the disk-backed profile and seeded
 prior archive with the accepted adapter fixture without weakening acceptance.
-These setup differences are a diagnosis to verify in CI, not an experimentally
-proven cause of the initial failure.
+A second run with the disk-backed profile also completed all 48 writes while the
+quota override was active. Persistent mode alone therefore did not resolve it.
+
+The quota case now has one Node-owned 31-second no-write preparation interval
+after applying the override and before starting a target capture. It records
+monotonic elapsed time, unchanged native write count, zero active transactions,
+and quota/usage before and after. The existing 16-attempt cap, artifact sizes,
+logical quota, adapter watchdog and case deadline remain unchanged. This delay
+never establishes acceptance: the gate candidate must still produce an observed
+native `QuotaExceededError`, retain its result/prefix, and pass exact Retry and
+readback assertions after the override is removed.
+
+Primary Chromium source at revision
+[`1c9524c5d3627044b0cf0a0b679978e82b702279`](https://chromium.googlesource.com/chromium/src/+/1c9524c5d3627044b0cf0a0b679978e82b702279/content/browser/indexed_db/instance/bucket_context.h)
+declares a 30-second bucket-space cache. Its
+[`CheckCanUseDiskSpace` / `GetBucketSpaceToAllot` implementation](https://chromium.googlesource.com/chromium/src/+/1c9524c5d3627044b0cf0a0b679978e82b702279/content/browser/indexed_db/instance/bucket_context.cc)
+(lines 403–464) can approve from cached authority without consulting QuotaManager;
+after the cache lifetime, available cached authority becomes zero. The exact
+Chromium 145.0.7632.6 / `47e20adcc15fc15f01825aa17e570c8f5492ac0f` source was not
+available through the research tool. The setup rationale is consequently
+version-qualified; native CI determines whether the quota boundary is exercised.
+No failure is attributed to compression or cached authority solely from elapsed
+time or these source comparisons.
 
 The interrupted-read test injects a supported refusal before its second page
 dispatch. Context-change tests inject changes around actual native page results.

@@ -255,6 +255,25 @@ async function controlledUnknown(p,terminal) {
       evidence.prior=await bounded(cdp.send('Storage.getUsageAndQuota',{origin:ORIGIN}),'native quota prior usage');save();
       await bounded(cdp.send('Storage.overrideQuotaForOrigin',{origin:ORIGIN,quotaSize:1}),'native quota override');
       evidence.override=await bounded(cdp.send('Storage.getUsageAndQuota',{origin:ORIGIN}),'native quota override status');save();assert.equal(evidence.override.overrideActive,true);
+      // Chromium can temporarily approve writes from cached bucket authority.
+      // The cited public revision expires that authority after 30 seconds; the
+      // tested binary revision was unavailable for source inspection. This is
+      // bounded no-write preparation, never evidence that native quota failed.
+      evidence.cachePreparation={requestedMs:31000,sourceCacheLimitMs:30000,
+        sourceRevision:'1c9524c5d3627044b0cf0a0b679978e82b702279',
+        sourceHeader:'https://chromium.googlesource.com/chromium/src/+/1c9524c5d3627044b0cf0a0b679978e82b702279/content/browser/indexed_db/instance/bucket_context.h',
+        sourceImplementation:'https://chromium.googlesource.com/chromium/src/+/1c9524c5d3627044b0cf0a0b679978e82b702279/content/browser/indexed_db/instance/bucket_context.cc',
+        qualification:'Source revision differs from tested Chromium; actual native QuotaExceededError remains mandatory.',
+        before:await evaluate(p,()=>({writes:H.N.log.filter(row=>row.type==='transaction'&&row.mode==='readwrite').length,physical:H.N.physical}))};
+      assert.equal(evidence.cachePreparation.before.physical,0);save();
+      const preparationStart=process.hrtime.bigint();
+      await bounded(new Promise(resolve=>setTimeout(resolve,31000)),'quota cache no-write preparation',35000);
+      evidence.cachePreparation.elapsedMs=Number(process.hrtime.bigint()-preparationStart)/1e6;save();
+      assert(evidence.cachePreparation.elapsedMs>30000,'measured Node monotonic interval must exceed the source cache lifetime');
+      evidence.cachePreparation.after=await evaluate(p,()=>({writes:H.N.log.filter(row=>row.type==='transaction'&&row.mode==='readwrite').length,physical:H.N.physical}));
+      evidence.cachePreparation.usageAfter=await bounded(cdp.send('Storage.getUsageAndQuota',{origin:ORIGIN}),'quota preparation usage');save();
+      assert.deepEqual(evidence.cachePreparation.after,evidence.cachePreparation.before,'no native write or active transaction during cache preparation');
+      assert.equal(evidence.cachePreparation.usageAfter.overrideActive,true);assert.equal(evidence.cachePreparation.usageAfter.quota,1);
       let observed=false;
       for(let attempt=0;attempt<16;attempt++) {
         p=await page();await evaluate(p,run=>H.setup({run}),'quota-run-'+attempt);
