@@ -1,0 +1,42 @@
+name: IndexedDB evidence adapter tests
+on:
+  pull_request:
+    paths:
+      - 'prototypes/evidence-indexeddb/**'
+      - 'tests/evidence-indexeddb*.cjs'
+      - 'tests/fixtures/evidence-indexeddb/**'
+      - '.github/workflows/evidence-indexeddb-tests.yml'
+  workflow_dispatch:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  native-evidence-indexeddb:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Verify existing pinned Playwright version
+        run: node -e "require('node:assert/strict').equal(require('playwright/package.json').version, '1.58.2')"
+      - run: npx playwright install --with-deps chromium
+      - name: Portable frozen vectors and source contract
+        run: node tests/evidence-indexeddb.cjs
+      - name: Native synthetic-origin IndexedDB groups A-I
+        env:
+          MKTY_TEST_OUTPUT: /tmp/mkty-evidence-indexeddb-native
+        run: node tests/evidence-indexeddb-ui.cjs
+      - name: Preserve qualified native evidence and failure diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-indexeddb-native
+          path: /tmp/mkty-evidence-indexeddb-native/native-indexeddb-results.json
+          if-no-files-found: error
+          retention-days: 14

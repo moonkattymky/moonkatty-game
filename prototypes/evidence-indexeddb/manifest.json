@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "date": "2026-10-12",
+  "status": "source-review-candidate",
+  "designSha256": "e0d7ee0a34465711e2b3dd25965a6309f2fa9399a2299f104bf53de663b441a0",
+  "referenceArchiveSha256": "29d03d1e2343e4e0fa6ea7f09ec8f2375184e38409bbb8cf06e916f15f02551b",
+  "files": [
+    {
+      "path": "prototypes/evidence-indexeddb/contract.mjs",
+      "bytes": 10841,
+      "sha256": "71dba721f871cc3183468b931846e0f967b4a8a3bbf2285b73fae4c34a4b1ee5"
+    },
+    {
+      "path": "prototypes/evidence-indexeddb/adapter.mjs",
+      "bytes": 27673,
+      "sha256": "af663c9c4e18cb1f8dea373151db152f4e56933215df7a0e614be4c252859803"
+    },
+    {
+      "path": "prototypes/evidence-indexeddb/coordinator.mjs",
+      "bytes": 4310,
+      "sha256": "1ff4146ed2f2288a5c9f90d4bb9ecb9f8e02adf316a389217c7090be278f6b0a"
+    },
+    {
+      "path": "prototypes/evidence-indexeddb/README.md",
+      "bytes": 13636,
+      "sha256": "5c5a0ed307a2ba188b8b168c4275b32e40aacd21f1f8763307e127f4eea38d77"
+    },
+    {
+      "path": "tests/evidence-indexeddb.cjs",
+      "bytes": 8978,
+      "sha256": "90b18ac80eefd9ed42f2fa355840f21d3b98525259bc26e98c0bcfa68eddd6c1"
+    }
+  ],
+  "checks": {
+    "moduleSyntax": "passed",
+    "command": "node tests/evidence-indexeddb.cjs",
+    "assertions": 2014,
+    "result": "pass",
+    "nativeIndexedDB": "not-run",
+    "browserServerSocket": "not-used",
+    "productionReady": false
+  },
+  "scope": "source-only; no runtime import, commit, publication, or activation"
+}
