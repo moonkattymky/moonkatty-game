@@ -14,10 +14,11 @@ const ORIGIN = 'https://unsaved-result-fixture.test';
 const out = process.env.MKTY_TEST_OUTPUT || path.join(os.tmpdir(),'mkty-unsaved-result-native');
 const report = {status:'not-run',tests:[],events:[],network:{fulfilled:0,rejected:[]},
   boundary:{syntheticOnly:true,realIndexedDB:true,gameplay:false,rewards:false,sourceOnly:true,noRuntimeActivation:true,
-    contexts:'fresh synthetic BrowserContext per case; reload explicitly reuses its existing origin',
+    contexts:'fresh synthetic BrowserContext per case; quota uses a fresh disposable persistent profile; reload explicitly reuses its existing origin',
     strictDurability:'native request hint, not a power-loss guarantee',reload:'inspection only; no resume or navigation',
     nativeAllocation:'excluded from modeled ownership',legacyNotifications:'synthetic; no production clear/restore policy inferred'}};
 let browser, context, current, pageSerial = 0;
+const temporaryProfiles = [];
 function save() {fs.mkdirSync(out,{recursive:true});fs.writeFileSync(path.join(out,'native-unsaved-result-results.json'),JSON.stringify(report,null,2)+'\n');}
 // Node owns every barrier deadline, including when the browser delays timer delivery.
 async function bounded(promise,label,milliseconds=15000) {
@@ -40,9 +41,19 @@ async function page() {
   p.on('pageerror',error=>{report.events.push({test:current,page:id,type:'pageerror',message:error.message});});
   await bounded(p.goto(ORIGIN+'/'),'fixture document');await wait(p,()=>window.fixtureReady===true);return p;
 }
-async function fresh(config={},device={}) {
-  if(context)await bounded(context.close(),'close prior synthetic context');
-  context=await bounded(browser.newContext({viewport:{width:390,height:844},serviceWorkers:'block',...device}),'fresh context');
+async function closeContext(target,label) {
+  await bounded(target.close(),label);
+  const profile=temporaryProfiles.find(record=>record.context===target);if(profile)profile.closed=true;
+}
+async function fresh(config={},device={},persistent=false) {
+  if(context)await closeContext(context,'close prior synthetic context');
+  const options={viewport:{width:390,height:844},serviceWorkers:'block',...device};
+  if(persistent){
+    const profile={path:fs.mkdtempSync(path.join(os.tmpdir(),'mkty-unsaved-result-quota-')),context:null,closed:false};temporaryProfiles.push(profile);
+    const launch=chromium.launchPersistentContext(profile.path,{...options,headless:true,executablePath:process.env.CHROMIUM_PATH,args:['--no-sandbox'],timeout:25000})
+      .then(value=>{profile.context=value;return value;});
+    context=await bounded(launch,'fresh disposable persistent quota profile',30000);
+  }else context=await bounded(browser.newContext(options),'fresh context');
   await context.route('**/*',async route=>{
     const url=new URL(route.request().url()),file=url.origin===ORIGIN&&routeFiles.get(url.pathname);
     if(!file){report.network.rejected.push(url.origin+url.pathname);return route.abort('blockedbyclient');}
@@ -227,16 +238,32 @@ async function controlledUnknown(p,terminal) {
     return {prior:state,inspection,proof:proof||null,gracefulReload:true};
   });
   await test('native quota refusal preserves result and exact candidate until explicit retry',async()=>{
-    let p=await fresh(),cdp=await context.newCDPSession(p);const evidence={status:'unverified',protocol:'Storage.overrideQuotaForOrigin',attempts:[]};
+    // Match the accepted adapter quota fixture: a real disk-backed temporary
+    // profile and an acknowledged archive already present before the override.
+    // Incognito completion is not evidence of disk-quota enforcement.
+    let p=await fresh({run:'quota-prior',totalBytes:1024},{},true);
+    const cdp=await context.newCDPSession(p),evidence={status:'unverified',protocol:'Storage.overrideQuotaForOrigin',
+      storageMode:'fresh disposable persistent profile',profile:{persistent:true,freshTemporaryDirectory:true,origin:ORIGIN},seededPriorArchive:false,attempts:[]};
+    report.nativeQuota=evidence;report.tests.at(-1).details=evidence;save();
     try {
+      evidence.profile.browserVersion=await bounded(cdp.send('Browser.getVersion'),'persistent quota browser version');save();
+      assert.match(evidence.profile.browserVersion.product,/Chrome|Chromium/);
+      const empty=await snapshot(p);evidence.profile.initialStoreCounts=Object.fromEntries(Object.entries(empty).map(([name,rows])=>[name,rows.length]));
+      assert.equal(empty.heads.length,0);assert.equal(empty.segments.length,0);save();
+      assert.equal((await accept(p)).state,'READY');const seeded=await facts(p);retained(seeded,'READY');
+      evidence.seededPriorArchive=true;evidence.priorCheckpoint=seeded.view.checkpoint;evidence.priorSha256=seeded.original.sha256;
+      evidence.prior=await bounded(cdp.send('Storage.getUsageAndQuota',{origin:ORIGIN}),'native quota prior usage');save();
       await bounded(cdp.send('Storage.overrideQuotaForOrigin',{origin:ORIGIN,quotaSize:1}),'native quota override');
-      evidence.override=await cdp.send('Storage.getUsageAndQuota',{origin:ORIGIN});assert.equal(evidence.override.overrideActive,true);
+      evidence.override=await bounded(cdp.send('Storage.getUsageAndQuota',{origin:ORIGIN}),'native quota override status');save();assert.equal(evidence.override.overrideActive,true);
       let observed=false;
       for(let attempt=0;attempt<16;attempt++) {
-        if(attempt){p=await page();await evaluate(p,run=>H.setup({run}),'quota-run-'+attempt);}
+        p=await page();await evaluate(p,run=>H.setup({run}),'quota-run-'+attempt);
         const before=await snapshot(p),v=await accept(p),f=await facts(p),events=await evaluate(p,()=>H.N.log);
         const nativeError=events.find(row=>['request-error','abort'].includes(row.type)&&row.error==='QuotaExceededError');
-        evidence.attempts.push({attempt,state:v.state,reason:v.reason,appendOrdinals:ordinalCalls(f)});
+        const observation={attempt,state:v.state,reason:v.reason,phase:v.phase,checkpoint:v.checkpoint,appendOrdinals:ordinalCalls(f),
+          appendTransactions:f.calls.filter(row=>row.kind==='append').map(row=>({ordinal:row.ordinal,result:row.result.status,reason:row.result.reason||null,nativeTransactions:row.nativeTransactions})),
+          nativeError:nativeError||null};evidence.attempts.push(observation);save();
+        observation.usage=await bounded(cdp.send('Storage.getUsageAndQuota',{origin:ORIGIN}),'quota attempt usage');save();
         if(!nativeError){assert.equal(v.state,'READY','a logical/injected failure is not native quota evidence');continue;}
         observed=true;retained(f,'UNSAVED');disabled(v);assert.equal(v.reason,'native-quota');assert.equal(v.phase,'append');
         const failedOrdinal=v.checkpoint.nextOrdinal;assert.deepEqual(ordinalCalls(f),Array.from({length:failedOrdinal+1},(_,i)=>i));
@@ -245,19 +272,25 @@ async function controlledUnknown(p,terminal) {
         assert.equal(failedCall.nativeTransactions[0].tx,nativeError.tx);assert.equal(failedCall.nativeTransactions[0].terminal,'abort');
         const failureTx=events.find(row=>row.tx===nativeError.tx&&row.type==='abort');assert(failureTx);
         const after=await snapshot(p);for(const name of Object.keys(before))if(name!=='meta'&&name!=='scopes')for(const [key,value]of before[name])assert.deepEqual(after[name].find(row=>row[0]===key)?.[1],value);
-        assert.equal(await evaluate(p,()=>H.counters.navigation),0);await cdp.send('Storage.overrideQuotaForOrigin',{origin:ORIGIN});
+        assert.equal(await evaluate(p,()=>H.counters.navigation),0);await bounded(cdp.send('Storage.overrideQuotaForOrigin',{origin:ORIGIN}),'remove override before explicit retry');
+        evidence.afterRemoval=await bounded(cdp.send('Storage.getUsageAndQuota',{origin:ORIGIN}),'quota removal status');save();assert.equal(evidence.afterRemoval.overrideActive,false);
         assert.equal((await retry(p)).state,'READY');const resolved=await facts(p);retained(resolved,'READY');
         assert.deepEqual(ordinalCalls(resolved),[...Array.from({length:failedOrdinal+1},(_,i)=>i),...Array.from({length:3-failedOrdinal},(_,i)=>failedOrdinal+i)]);
         const attempts=resolved.calls.filter(row=>row.kind==='append'&&row.ordinal===failedOrdinal);assert.equal(attempts.length,2);
         const candidate=({result,operationId,nativeTransactions,...rest})=>rest;assert.deepEqual(candidate(attempts[0]),candidate(attempts[1]));
         const final=await snapshot(p);for(const name of ['segments','payloads'])for(const [key,value]of after[name])assert.deepEqual(final[name].find(row=>row[0]===key)?.[1],value);
-        const inspection=await evaluate(p,()=>H.inspect()),saved=inspection.items.find(item=>item.descriptor.run===(attempt?'quota-run-'+attempt:'synthetic-run-1'));
+        const inspection=await evaluate(p,()=>H.inspect()),saved=inspection.items.find(item=>item.descriptor.run==='quota-run-'+attempt);
         assert.equal(saved?.sha256,resolved.original.sha256);evidence.sha256=saved.sha256;evidence.failedTransaction=failedCall.nativeTransactions[0];
         evidence.status='verified';evidence.nativeError=nativeError;evidence.failedCheckpoint=v.checkpoint;evidence.resolvedCheckpoint=resolved.view.checkpoint;
         evidence.preservedArchives=before.heads.length;break;
       }
-      assert(observed,'Native quota remains unverified: no actual QuotaExceededError within bounded fixture attempts');return evidence;
-    }finally{await bounded(cdp.send('Storage.overrideQuotaForOrigin',{origin:ORIGIN}),'remove quota test override');await cdp.detach();}
+      assert(observed,'Native quota remains unverified: no actual QuotaExceededError within bounded fixture attempts');save();return evidence;
+    }catch(error){evidence.reason=error.message;save();throw error;}
+    finally{
+      try{await bounded(cdp.send('Storage.overrideQuotaForOrigin',{origin:ORIGIN}),'remove quota test override');}
+      catch(error){evidence.overrideCleanupError=error.message;throw error;}
+      finally{await cdp.detach();save();}
+    }
   });
   await test('13 languages at 320/390 px preserve complete warning and immutable result',async()=>{
     const p=await fresh({abortOrdinal:0});await accept(p);const initial=await facts(p),before=await snapshot(p),layouts=[];
@@ -301,5 +334,12 @@ async function controlledUnknown(p,terminal) {
   assert.equal(report.tests.length,27,'all native gate acceptance cases ran');report.status='passed';report.finishedAt=new Date().toISOString();report.passed=report.tests.length;save();
   console.log('PASS: '+report.passed+' native unsaved-result groups; fixture only, 26 locale layouts, zero game/reward actions.');
 })().catch(error=>{report.status='failed';report.error=error.stack;save();console.error(error.stack);process.exitCode=1;}).finally(async()=>{
-  if(context)await context.close().catch(error=>{report.cleanupError=error.message;});if(browser)await browser.close().catch(error=>{report.cleanupError=error.message;});save();
+  const openContexts=new Set([context,...temporaryProfiles.filter(record=>!record.closed).map(record=>record.context)].filter(Boolean));
+  for(const target of openContexts)await closeContext(target,'final context cleanup').catch(error=>{(report.cleanupErrors||=[]).push(error.message);});
+  if(browser)await bounded(browser.close(),'final browser cleanup').catch(error=>{(report.cleanupErrors||=[]).push(error.message);});
+  for(const profile of temporaryProfiles){
+    if(profile.closed)fs.rmSync(profile.path,{recursive:true,force:true});
+    else (report.cleanupBlockers||=[]).push({profile:profile.path,reason:'Persistent context closure is unconfirmed; temporary profile retained.'});
+  }
+  save();
 });

@@ -25,8 +25,12 @@ behavior, or professional translation quality.
 Do not set those variables to bypass the local-browser prohibition. No HTTP
 listener is needed or started. The driver intercepts every resource at
 `https://unsaved-result-fixture.test`; unknown network requests fail acceptance.
-A fresh BrowserContext provides synthetic storage for each case. Explicit reload
+A fresh BrowserContext provides synthetic storage for each case. The quota case
+uses a fresh disposable persistent Chromium profile, matching the existing
+accepted adapter quota fixture, with a committed synthetic archive before the
+quota override. The other cases use isolated ephemeral contexts. Explicit reload
 cases keep that same context and origin while replacing the page's module realm.
+Temporary profile files are removed only after their context has closed.
 
 There are 27 native cases, including 26 language/viewport screenshots within the
 language case:
@@ -70,7 +74,15 @@ acceptance requires an actual native request/transaction `QuotaExceededError`;
 a logical quota refusal or generic injected failure cannot pass. An unavailable
 quota outcome fails rather than being labelled verified. To exhaust Chromium's
 allocation slack, up to 16 fresh page realms may save distinct synthetic captures
-within that case's one origin. Previously saved records remain intact.
+within that case's one origin. Previously saved records remain intact. Prior/override/per-attempt usage, exact
+transaction outcomes and the failure reason are saved in `nativeQuota` even when
+quota verification fails. No quota failure is inferred from compression, a timer,
+a logical limit or a successful override alone. In the first CI candidate, all
+48 segment transactions in the ephemeral quota context completed, so native quota
+remained unverified. The revised fixture aligns the disk-backed profile and seeded
+prior archive with the accepted adapter fixture without weakening acceptance.
+These setup differences are a diagnosis to verify in CI, not an experimentally
+proven cause of the initial failure.
 
 The interrupted-read test injects a supported refusal before its second page
 dispatch. Context-change tests inject changes around actual native page results.
