@@ -5,7 +5,7 @@ const root=path.resolve(__dirname,'..'),source=fs.readFileSync(path.join(root,'f
 const baseHashes={
  // Client-only composition: live handshake retained; reviewed checkpoint, pending-queue and reward-lifecycle fixes included.
  'field-model.js':'94ab25d49258d5ca64cdf391eccdaadd3b3f10370b363295a4c3bd3a58aea7a8',
- 'field-missions.js':'87ae7505443efcaa76ec1cf8c9b0293493a8d3b32ded761d08f8fae280bbf168',
+ 'field-missions.js':'4c7f573cc0fef7d7bb8c27b599791134b0d55354c135205928ddba8aa0cae1c2',
  'story-plan.js':'fd4683463fc1bcf72862b33478a6d4d1036036632ccff88a049798428d583474',
  // Reviewed nonvisual intro return and replay-label translation; pacing, route state and rewards remain unchanged.
  'story.js':'fe567d0983f0243e931053972d338ebad9bc72ea1628bfcf30b3c3b6b09b4249',

@@ -9,6 +9,7 @@ const SCOPES=[
  ['operations.js','board guidance catalog',' const guidance=',' const tr='],
  ['operations.js','board guidance and status',' function render(){','  board.replaceChildren();'],
  ['field-missions.js','field guidance catalog',' const controlHints=',' const notices='],
+ ['field-missions.js','field marker intersection recovery',',intersection:()=>',",'engineer-gate':"],
  ['field-missions.js','field controls and movement names',' function controls(){',' function telemetry(){'],
  ['field-missions.js','field completion guidance',"  $('fieldObjective').innerHTML=","  $('fieldReview').hidden="]
 ];
