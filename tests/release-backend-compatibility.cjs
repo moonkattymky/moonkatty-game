@@ -29,7 +29,9 @@ const pinned={
  'server/migrations/20261007_social_verify.sql':'00969f82a67e1c49e28f77a5e7dc5a8a0f5e6e91',
  'supabase/migrations/20261007200800_reward_integrity_sessions.sql':'8fed546a14d081b82f818eb8b6c5c4ff5bffdc7f',
  'supabase/migrations/20261008201825_launch_campaign_integrity.sql':'0c4887e377bb53ea86358d2085a0661b191cfa95',
- 'story-plan.js':'e0638e84b51fbd3419d47d3fb3fcd19da4cee2d3',
+ // Reviewed optional recovery-field retention only; gameplay plan and legacy fixture remain pinned.
+ 'story-plan.js':'469a4e123e7dee66994974b9b1f5cc14fb86b22e',
+ 'tests/fixtures/story-plan-before-finale-evidence.js':'e0638e84b51fbd3419d47d3fb3fcd19da4cee2d3',
  'tests/fixtures/legacy-field-model-61b514c.mjs':'0c1b77acad5de10e8d66ee1cb114e6b038da7e54',
  'tests/fixtures/legacy-rewards-client-61b514c.js':'5f1c33d03b493f6902722cc483c3c1726cd1ca07',
  'tests/fixtures/legacy-cloud-save-61b514c.js':'904b5341e9656dfa8ad5714e18fea02472889521'
@@ -63,7 +65,7 @@ function checkReleaseSources(){
  for(const item of ['index.html','trace-codec.js','storage.js','cloud-save.js','rewards-client.js','story.js','art','visual-preview.css'])assert(!excluded.has(item),'required client dependency excluded: '+item);
  for(const file of fs.readdirSync(path.join(root,'.github/workflows')).filter(x=>/\.ya?ml$/.test(x)))assert(!/supabase\s+(?:functions\s+deploy|db\s+push|migration\s+up)/.test(source('.github/workflows/'+file)),'backend deployment step appeared in '+file);
  assert.match(deploy,/needs: verify/);
- const html=source('index.html');assert(html.indexOf('trace-codec.js')<html.indexOf('rewards-client.js'));assert(html.indexOf('trace-codec.js')<html.indexOf('cloud-save.js'));
+ const html=source('index.html');assert(!html.includes('finale-evidence-owner.js'),'source-only evidence capture must not be activated');assert(html.indexOf('trace-codec.js')<html.indexOf('rewards-client.js'));assert(html.indexOf('trace-codec.js')<html.indexOf('cloud-save.js'));
  assert.match(html,/name="mkty-release" content="20261009-prelaunch-1"/);
 }
 
@@ -188,6 +190,6 @@ async function database(){
   const queued=[{id:'life:1:complete',action:'life.complete',payload:{life:1,event_key:'life:1:complete',proof}}];cloud.storage.setItem('mkty_pending_v2_303',JSON.stringify(queued));const claims=cloud.calls.filter(x=>x.body.action==='life.complete').length;await cloud.window.MKTYRewards.syncPlayer();assert.equal(cloud.calls.filter(x=>x.body.action==='life.complete').length,claims);assert.deepEqual(JSON.parse(cloud.storage.getItem('mkty_pending_v2_303')),queued);assert.match(cloud.text('rewardSyncStatus'),/evidence is saved/);
   await turn();
   for(const client of [h,cloud])for(const request of client.calls){assert(!request.body.action.endsWith('.v2'),'legacy backend must receive no v2 actions');assert.equal(request.body.protocol,undefined);assert(!request.raw.includes('mkty-trace'),'legacy endpoint must never receive a packed marker');assert(Buffer.byteLength(request.raw,'utf8')<=400000);}
-  console.log('PASS: pinned legacy handler/SQL and unchanged plan; actual signed-in story registration, eight-stage recorded proof payout/retry, replay/archive and account guard; raw cloud/proof negotiation, retained oversize evidence, UTF-8 limits and client-only Pages exclusions (isolated DB, no network)');
+  console.log('PASS: pinned legacy handler/SQL and optional-field-only plan; actual signed-in story registration, eight-stage recorded proof payout/retry, replay/archive and account guard; raw cloud/proof negotiation, retained oversize evidence, UTF-8 limits and client-only Pages exclusions (isolated DB, no network)');
  }finally{await fixture.db.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});
