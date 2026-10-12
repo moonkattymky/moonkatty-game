@@ -89,6 +89,14 @@ jobs:
           path: /tmp/mkty-evidence-indexeddb-ui-*/native-indexeddb-results.json
           if-no-files-found: ignore
           retention-days: 14
+      - name: Preserve aggregate unsaved-result diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-unsaved-result-aggregate
+          path: /tmp/mkty-evidence-unsaved-result-ui-*/
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Preserve localized guidance diagnostics
         if: always()
         uses: actions/upload-artifact@v4
