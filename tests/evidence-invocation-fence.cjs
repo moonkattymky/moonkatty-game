@@ -51,7 +51,7 @@ async function inspect(archive,diskImage,{chapter=archive.options.chapter,operat
   'contract.mjs':'71dba721f871cc3183468b931846e0f967b4a8a3bbf2285b73fae4c34a4b1ee5',
   'adapter.mjs':'53c3b21262aec6477a8faa1f17e17204656f5b1069c1b15ff6e029c84d1fc318',
   'coordinator.mjs':'7375a44920f6a4efdc2819c1738e0938389cb344cdab6014fadc0590785185f7',
-  'phase-budget.mjs':'a2276e0d0b3cc05c93f89d805a2a1f5d3c87ceff7beca2837d8656ad7c953be1',
+  'phase-budget.mjs':'0c0991ba9b2e402c2aec6dad9d3f917d5ff4536ac19301c7cc8964e52f86e288',
   'phase-writer-contract.mjs':'9d254b2f4e5daf28e37aaa7dea8a5c49529436f738e44de13c24f36c104a8bb8',
   'unsaved-result-gate.mjs':'c86ebe4af961a3fd1b544a5bb44233d5989704c330baf9e5b190075134121332'
  };

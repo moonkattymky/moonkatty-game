@@ -19,7 +19,7 @@ const SOURCE_PINS=Object.freeze({
  'prototypes/evidence-indexeddb/finale-completion.mjs':'5ba429f2994cc0ee013338235d3c09d2f5848eb2f2fd4e972220e616fcd0ccb3',
  'prototypes/evidence-indexeddb/finale-context-v1.mjs':'18754428cd56a3289ccc259bcf6890dd1eca8e95244ea19298a255383af32386',
  'prototypes/evidence-indexeddb/finale-phase-v2.mjs':'61f493e3e21d55c0bc103ca05fa1697f2ca65ecb4921034e299e70a2ce12cdbb',
- 'prototypes/evidence-indexeddb/phase-budget.mjs':'a2276e0d0b3cc05c93f89d805a2a1f5d3c87ceff7beca2837d8656ad7c953be1',
+ 'prototypes/evidence-indexeddb/phase-budget.mjs':'0c0991ba9b2e402c2aec6dad9d3f917d5ff4536ac19301c7cc8964e52f86e288',
  'prototypes/evidence-indexeddb/phase-writer-contract.mjs':'9d254b2f4e5daf28e37aaa7dea8a5c49529436f738e44de13c24f36c104a8bb8',
  'prototypes/evidence-indexeddb/prepared-operations.mjs':'f3237a0ffcef8ffa11ea7df8c1cbdba5dba9d085832784c06065065e7670b899',
  'prototypes/evidence-indexeddb/precision-observation.mjs':'89da70f192f1b3023089083df7a30a6428df67a3ba2397dafdd1a407959e8606',

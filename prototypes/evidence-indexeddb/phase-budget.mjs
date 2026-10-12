@@ -9,11 +9,16 @@ const MAX=Object.freeze({metadata:32768,adapter:C.LIMIT.transient,'raw-capsule':
   'helper-hash':2*C.LIMIT.hashInput,'context-compare-read':2*C.LIMIT.hashInput,
   'callback-scratch':65536,'post-target':65536,'callback-outer-story':65536,'callback-inner-story':65536,
   'post-work-1':65536,'post-work-2':65536,'post-stringify':65536,'native-read':65536,
-  'witness-read':65536,'witness-chunk':32768,'recovery-page':16384,'original-read-workspace':196608});
+  'witness-read':65536,'witness-chunk':32768,'recovery-page':16384,'original-read-workspace':196608,
+  'reload-page':32768,'reload-chunk':32768,'reload-story-work':65536,
+  'reload-binding':12288,'reload-decode':4096,'reload-phase-retained':65536,
+  'atomic-retained':32768,'atomic-record-workspace':65536});
 const SINGLE=new Set(['raw-capsule','context-retained','context-parse','context-restore','phase-workspace',
   'private-phase','stream-candidate','returned-page','phase-assembly','context-compare-read',
   'callback-scratch','post-target','callback-outer-story','callback-inner-story','post-work-1','post-work-2',
-  'post-stringify','native-read','witness-read','witness-chunk','recovery-page','original-read-workspace']);
+  'post-stringify','native-read','witness-read','witness-chunk','recovery-page','original-read-workspace',
+  'reload-page','reload-chunk','reload-story-work','reload-binding','reload-decode','reload-phase-retained',
+  'atomic-retained','atomic-record-workspace']);
 export function createPhaseBudget({observe}={}){
   if(observe!==undefined&&typeof observe!=='function')C.fail('budget-observer');
   const held=Object.fromEntries(Object.keys(MAX).map(k=>[k,0]));
@@ -27,6 +32,7 @@ export function createPhaseBudget({observe}={}){
   function valid(label,n){if(!Object.hasOwn(MAX,label)||!C.int(n)||n<1||n>MAX[label])C.fail('transient-budget');}
   function invariant(next){
     const projection=['callback-scratch','callback-outer-story','callback-inner-story','post-work-1','post-work-2','post-stringify','original-read-workspace'].some(k=>next[k]);
+    if(projection&&next['atomic-record-workspace'])C.fail('budget-lifetime');
     if(projection&&(next['phase-workspace']||next['private-phase']||next['helper-framing']||next['helper-hash']||
       next['context-compare-read']||next['native-read']||next['witness-read']||next['witness-chunk']))C.fail('budget-lifetime');
     if(next['original-read-workspace']&&(next['post-work-1']||next['post-work-2']||next['post-stringify']))C.fail('budget-lifetime');

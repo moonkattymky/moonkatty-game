@@ -16,6 +16,9 @@ on:
       - 'tests/evidence-retired-witness.cjs'
       - 'tests/evidence-story-rewrite.cjs'
       - 'tests/evidence-invocation-*.cjs'
+      - 'tests/evidence-atomic-terminal*.cjs'
+      - 'tests/evidence-context-reload.cjs'
+      - 'tests/fixtures/evidence-atomic-terminal/**'
       - 'tests/fixtures/evidence-invocation-fence/**'
       - 'tests/fixtures/evidence-phase-session/**'
       - 'tests/fixtures/evidence-finale-controller/**'
@@ -68,6 +71,7 @@ jobs:
           path: /tmp/mkty-evidence-indexeddb-native/native-indexeddb-results.json
           if-no-files-found: error
           retention-days: 14
+
       - name: Preserve synthetic result-gate diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -150,5 +154,36 @@ jobs:
         with:
           name: evidence-invocation-fence-native
           path: /tmp/mkty-evidence-invocation-fence-native/native-invocation-fence-results.json
+          if-no-files-found: error
+          retention-days: 14
+  native-atomic-terminal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Verify existing pinned Playwright version
+        run: node -e "require('node:assert/strict').equal(require('playwright/package.json').version, '1.58.2')"
+      - run: npx playwright install --with-deps chromium
+      - name: Fixed canonical completion and bounded fresh-realm recovery
+        run: |
+          node tests/evidence-context-reload.cjs
+          node tests/evidence-atomic-terminal.cjs
+      - name: Earned native gate result and two-reload continuation
+        env:
+          MKTY_TEST_OUTPUT: /tmp/mkty-evidence-atomic-terminal-native
+        run: node tests/evidence-atomic-terminal-ui.cjs
+      - name: Preserve canonical completion evidence and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-atomic-terminal-native
+          path: /tmp/mkty-evidence-atomic-terminal-native/native-atomic-terminal-results.json
           if-no-files-found: error
           retention-days: 14

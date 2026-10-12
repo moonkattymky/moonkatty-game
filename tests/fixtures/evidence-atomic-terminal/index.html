@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <base href="/">
+  <title>MOONKATTY · isolated local finale</title>
+  <link rel="icon" href="/favicon.png">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/field-missions.css">
+  <link rel="stylesheet" href="/legacy.css">
+  <link rel="stylesheet" href="/tests/fixtures/evidence-atomic-terminal/fixture.css">
+</head>
+<body>
+  <main id="app">
+    <section id="atomicLoading" class="screen active"><h1>Loading local finale</h1><p id="atomicLoadingStatus" role="status">Checking saved completion before opening the controller…</p></section>
+    <section id="atomicSetup" class="screen"><h1>Disposable guest finale</h1><p>This isolated test prepares prior chapter tasks, operations and phases. Only the final closing-gate stage is played here. The 2,100-point starting balance is demo data.</p><p>Before the earned phase is saved, reloading returns to the committed starting gate. No real player, reward service or cloud save is used.</p><button id="atomicStart" type="button">Start fresh disposable run</button></section>
+    <section id="atomicResult" class="screen"><h1 id="atomicResultTitle">Saving your gate result</h1><p id="atomicStatus" role="status"></p><p id="atomicBalance"></p><button id="atomicRetry" type="button" disabled>Retry saving</button><button id="atomicContinue" type="button" disabled>Continue</button></section>
+    <section id="atomicHome" class="screen"><h1>Moonkatty is home</h1><p>The final gate and local demo balance are saved on this device.</p><p id="atomicHomeBalance"></p><button id="atomicReview" type="button">Review saved result</button></section>
+  </main>
+  <script src="/tests/fixtures/evidence-indexeddb/native-harness.js"></script>
+  <script type="module" src="/tests/fixtures/evidence-atomic-terminal/bootstrap.mjs"></script>
+</body>
+</html>
