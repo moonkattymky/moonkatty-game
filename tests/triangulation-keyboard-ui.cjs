@@ -12,11 +12,13 @@ let browser,page;
 const slider=name=>'#fieldControls [data-field-slider="'+name+'"]';
 const snapshot=p=>p.evaluate(()=>MKTYField.snapshot());
 async function tabTo(p,selector){
+ const focusTrace=[];
  for(let i=0;i<90;i++){
+  if(i<20)focusTrace.push(await p.evaluate(()=>({tag:document.activeElement?.tagName,id:document.activeElement?.id,action:document.activeElement?.dataset?.fieldAction,value:document.activeElement?.dataset?.value,cell:document.activeElement?.dataset?.fieldCell,dialog:document.querySelector('dialog[open]')?.id,focused:document.hasFocus()})));
   if(await p.evaluate(s=>document.activeElement?.matches(s),selector))return p.locator(selector);
   await p.keyboard.press('Tab');
  }
- throw Error('Native Tab did not reach '+selector);
+ throw Error('Native Tab did not reach '+selector+' '+JSON.stringify(focusTrace));
 }
 async function activate(p,selector,key='Enter'){
  const control=await tabTo(p,selector);await reachable(control,'keyboard '+selector);await p.keyboard.press(key);
