@@ -1,0 +1,27 @@
+{
+  "test": "life1-recording-controller",
+  "exactComparedStates": 318,
+  "pausedRepairReload": true,
+  "pausedFortyPercentHoldReload": true,
+  "nonDomCollectionOrderPreserved": true,
+  "sentinelRebaseRefusedBeforeMutation": true,
+  "originalAcceptedPrefixesRetained": true,
+  "originalCallbackJitter": [
+    135,
+    105
+  ],
+  "originalDelayJitter": [
+    65,
+    35
+  ],
+  "storageRetryRetainsLatestMemoryPrefix": true,
+  "capacityRefusalDoesNotStopGameplay": true,
+  "checkpointJournalIncludedInBudget": true,
+  "duplicateHydrationRefused": true,
+  "activeCheckpointRefused": true,
+  "separateDispatchAndPhysicsClocksRetained": true,
+  "nativeMixedClockReplay": "explicitly blocked by frozen single-time model",
+  "browserExecuted": false,
+  "nativeGeometryCertified": false,
+  "authoritativeAdmission": false
+}
