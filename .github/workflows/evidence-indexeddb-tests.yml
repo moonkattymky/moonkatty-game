@@ -9,6 +9,13 @@ on:
       - 'tests/fixtures/evidence-unsaved-result/**'
       - 'tests/evidence-finale-*.cjs'
       - 'tests/evidence-read-abort.cjs'
+      - 'tests/evidence-context-stream.cjs'
+      - 'tests/evidence-phase*.cjs'
+      - 'tests/evidence-physical-idle.cjs'
+      - 'tests/evidence-precision-observation.cjs'
+      - 'tests/evidence-retired-witness.cjs'
+      - 'tests/evidence-story-rewrite.cjs'
+      - 'tests/fixtures/evidence-phase-session/**'
       - 'tests/fixtures/evidence-finale-controller/**'
       - '.github/workflows/evidence-indexeddb-tests.yml'
   workflow_dispatch:
@@ -74,4 +81,40 @@ jobs:
           name: evidence-finale-controller-native
           path: /tmp/mkty-evidence-finale-controller-native/
           if-no-files-found: ignore
+          retention-days: 14
+
+  native-phase-session:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Verify existing pinned Playwright version
+        run: node -e "require('node:assert/strict').equal(require('playwright/package.json').version, '1.58.2')"
+      - run: npx playwright install --with-deps chromium
+      - name: Fixed continuous phase ownership and exact writer contract
+        run: |
+          node tests/evidence-context-stream.cjs
+          node tests/evidence-phase-v2.cjs
+          node tests/evidence-phase-session.cjs
+          node tests/evidence-phase-writer.cjs
+          node tests/evidence-precision-observation.cjs
+          node tests/evidence-phase-input-fence.cjs
+      - name: Continuous native guest finale sequence
+        env:
+          MKTY_TEST_OUTPUT: /tmp/mkty-evidence-phase-session-native
+        run: node tests/evidence-phase-session-ui.cjs
+      - name: Preserve continuous native evidence and failure diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-phase-session-native
+          path: /tmp/mkty-evidence-phase-session-native/
+          if-no-files-found: error
           retention-days: 14

@@ -1,0 +1,10 @@
+/* Test controls only. Existing runtime CSS and control handlers are unchanged. */
+#phaseControls { position: relative; padding: 8px; background: #102536; color: white; border: 1px solid #c7e7ff; }
+#phaseControls button { min-width: 44px; min-height: 44px; margin: 3px; }
+#phaseControls p { margin: 4px; font: 12px/1.4 system-ui; }
+#phaseResult { padding: 36px 18px; color: white; }
+/* Synthetic reachability probe: inactive board, no .active or model changes.
+   Closed-dialog rendering here says nothing about normal closed-dialog defaults. */
+body[data-phase-input-probe="true"] #fieldMission { display: block !important; }
+body[data-phase-input-probe="true"] #fieldDialog { display: block !important; position: relative; margin: 16px auto; }
+body[data-phase-input-probe="true"] #phaseResult { display: none !important; }
