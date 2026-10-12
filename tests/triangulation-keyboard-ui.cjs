@@ -11,12 +11,23 @@ const report={passed:false,scope:'Real shipped index/controllers/CSS; isolated s
 let browser,page;
 const slider=name=>'#fieldControls [data-field-slider="'+name+'"]';
 const snapshot=p=>p.evaluate(()=>MKTYField.snapshot());
+const lastFocusTarget=new WeakMap();
 async function tabTo(p,selector){
- const focusTrace=[];
+ const focusTrace=[],initialDialog=await p.evaluate(()=>document.querySelector('dialog[open]')?.id||null);
  for(let i=0;i<90;i++){
-  if(i<20)focusTrace.push(await p.evaluate(()=>({tag:document.activeElement?.tagName,id:document.activeElement?.id,action:document.activeElement?.dataset?.fieldAction,value:document.activeElement?.dataset?.value,cell:document.activeElement?.dataset?.fieldCell,dialog:document.querySelector('dialog[open]')?.id,focused:document.hasFocus()})));
-  if(await p.evaluate(s=>document.activeElement?.matches(s),selector))return p.locator(selector);
-  await p.keyboard.press('Tab');
+  const state=await p.evaluate(({selector,previous})=>{
+   const target=document.querySelector(selector),active=document.activeElement;
+   // dialog.close() may return activeElement to BODY while the browser keeps its
+   // sequential focus starting point at the now-hidden Resume button.
+   const anchor=active&&active!==document.body?active:previous?document.querySelector(previous):null;
+   return {found:!!target,reached:active===target,tag:active?.tagName,id:active?.id,action:active?.dataset?.fieldAction,value:active?.dataset?.value,dialog:document.querySelector('dialog[open]')?.id||null,focused:document.hasFocus(),key:anchor&&target&&(anchor.compareDocumentPosition(target)&Node.DOCUMENT_POSITION_PRECEDING)?'Shift+Tab':'Tab'};
+  },{selector,previous:lastFocusTarget.get(p)||null});
+  if(i<20)focusTrace.push(state);
+  assert(state.found,'native keyboard target exists '+selector);
+  assert(state.focused,'native keyboard must not leave the document '+JSON.stringify(focusTrace));
+  assert.equal(state.dialog,initialDialog,'native navigation must not reopen a pause dialog '+JSON.stringify(focusTrace));
+  if(state.reached){lastFocusTarget.set(p,selector);return p.locator(selector);}
+  await p.keyboard.press(state.key);
  }
  throw Error('Native Tab did not reach '+selector+' '+JSON.stringify(focusTrace));
 }
