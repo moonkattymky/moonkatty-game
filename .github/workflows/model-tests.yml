@@ -19,6 +19,10 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npx playwright install --with-deps chromium
+      - name: Native triangulation keyboard and touch regression
+        env:
+          MKTY_TEST_OUTPUT: /tmp/mkty-triangulation-keyboard-ui-preflight
+        run: node tests/triangulation-keyboard-ui.cjs
       - name: Native immediate language refresh regression
         env:
           MKTY_TEST_OUTPUT: /tmp/mkty-language-hot-switch-ui-preflight
@@ -103,5 +107,13 @@ jobs:
         with:
           name: life-restoration-copy
           path: /tmp/mkty-life-restore-copy-ui-*/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Preserve triangulation input diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: triangulation-keyboard
+          path: /tmp/mkty-triangulation-keyboard-ui-*/
           if-no-files-found: ignore
           retention-days: 7

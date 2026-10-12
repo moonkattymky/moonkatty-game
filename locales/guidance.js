@@ -53,7 +53,11 @@ const D={
     "Up": "Вверх",
     "Left": "Влево",
     "Down": "Вниз",
-    "Right": "Вправо"
+    "Right": "Вправо",
+    "MARKER X": "МЕТКА X",
+    "MARKER Y": "МЕТКА Y",
+    "Place the marker with X/Y sliders: Tab to a slider, then use arrow keys. X: 0 left, 600 right. Y: 0 top, 450 bottom.": "Поставьте метку ползунками X/Y: выберите ползунок клавишей Tab и используйте стрелки. X: 0 слева, 600 справа. Y: 0 сверху, 450 снизу.",
+    "Marker is far from the intersection. Tap where the beams converge or adjust the X/Y sliders.": "Метка далеко от пересечения. Нажмите на точку схода лучей или настройте ползунки X/Y."
   },
   "uk": {
     "CHAPTER COMPLETE": "ГЛАВУ ЗАВЕРШЕНО",
@@ -105,7 +109,11 @@ const D={
     "Up": "Вгору",
     "Left": "Ліворуч",
     "Down": "Вниз",
-    "Right": "Праворуч"
+    "Right": "Праворуч",
+    "MARKER X": "МІТКА X",
+    "MARKER Y": "МІТКА Y",
+    "Place the marker with X/Y sliders: Tab to a slider, then use arrow keys. X: 0 left, 600 right. Y: 0 top, 450 bottom.": "Поставте мітку повзунками X/Y: виберіть повзунок клавішею Tab і використовуйте клавіші зі стрілками. X: 0 ліворуч, 600 праворуч. Y: 0 вгорі, 450 внизу.",
+    "Marker is far from the intersection. Tap where the beams converge or adjust the X/Y sliders.": "Мітка далеко від перетину. Натисніть на точку сходження променів або налаштуйте повзунки X/Y."
   },
   "es": {
     "CHAPTER COMPLETE": "CAPÍTULO COMPLETADO",
@@ -157,7 +165,11 @@ const D={
     "Up": "Arriba",
     "Left": "Izquierda",
     "Down": "Abajo",
-    "Right": "Derecha"
+    "Right": "Derecha",
+    "MARKER X": "MARCADOR X",
+    "MARKER Y": "MARCADOR Y",
+    "Place the marker with X/Y sliders: Tab to a slider, then use arrow keys. X: 0 left, 600 right. Y: 0 top, 450 bottom.": "Coloca el marcador con los controles deslizantes X/Y: pulsa Tab hasta seleccionar un control y usa las teclas de flecha. X: 0 a la izquierda, 600 a la derecha. Y: 0 arriba, 450 abajo.",
+    "Marker is far from the intersection. Tap where the beams converge or adjust the X/Y sliders.": "El marcador está lejos de la intersección. Toca donde convergen los haces o ajusta los controles deslizantes X/Y."
   },
   "pt": {
     "CHAPTER COMPLETE": "CAPÍTULO CONCLUÍDO",
@@ -209,7 +221,11 @@ const D={
     "Up": "Cima",
     "Left": "Esquerda",
     "Down": "Baixo",
-    "Right": "Direita"
+    "Right": "Direita",
+    "MARKER X": "MARCADOR X",
+    "MARKER Y": "MARCADOR Y",
+    "Place the marker with X/Y sliders: Tab to a slider, then use arrow keys. X: 0 left, 600 right. Y: 0 top, 450 bottom.": "Posicione o marcador com os controles deslizantes X/Y: pressione Tab até selecionar um controle e use as teclas de seta. X: 0 à esquerda, 600 à direita. Y: 0 em cima, 450 embaixo.",
+    "Marker is far from the intersection. Tap where the beams converge or adjust the X/Y sliders.": "O marcador está longe da interseção. Toque onde os feixes se cruzam ou ajuste os controles deslizantes X/Y."
   },
   "de": {
     "CHAPTER COMPLETE": "KAPITEL ABGESCHLOSSEN",
@@ -261,7 +277,11 @@ const D={
     "Up": "Oben",
     "Left": "Links",
     "Down": "Unten",
-    "Right": "Rechts"
+    "Right": "Rechts",
+    "MARKER X": "MARKIERUNG X",
+    "MARKER Y": "MARKIERUNG Y",
+    "Place the marker with X/Y sliders: Tab to a slider, then use arrow keys. X: 0 left, 600 right. Y: 0 top, 450 bottom.": "Platziere die Markierung mit den X/Y-Schiebereglern: Wähle mit Tab einen Regler und nutze dann die Pfeiltasten. X: 0 links, 600 rechts. Y: 0 oben, 450 unten.",
+    "Marker is far from the intersection. Tap where the beams converge or adjust the X/Y sliders.": "Die Markierung ist weit vom Schnittpunkt entfernt. Tippe auf den Schnittpunkt der Strahlen oder passe die X/Y-Schieberegler an."
   },
   "fr": {
     "CHAPTER COMPLETE": "CHAPITRE TERMINÉ",
@@ -313,7 +333,11 @@ const D={
     "Up": "Haut",
     "Left": "Gauche",
     "Down": "Bas",
-    "Right": "Droite"
+    "Right": "Droite",
+    "MARKER X": "REPÈRE X",
+    "MARKER Y": "REPÈRE Y",
+    "Place the marker with X/Y sliders: Tab to a slider, then use arrow keys. X: 0 left, 600 right. Y: 0 top, 450 bottom.": "Place le repère avec les curseurs X/Y : sélectionne un curseur avec Tab, puis utilise les touches fléchées. X: 0 à gauche, 600 à droite. Y: 0 en haut, 450 en bas.",
+    "Marker is far from the intersection. Tap where the beams converge or adjust the X/Y sliders.": "Le repère est loin de l’intersection. Touche le point de convergence des faisceaux ou ajuste les curseurs X/Y."
   },
   "it": {
     "CHAPTER COMPLETE": "CAPITOLO COMPLETATO",
@@ -365,7 +389,11 @@ const D={
     "Up": "Su",
     "Left": "Sinistra",
     "Down": "Giù",
-    "Right": "Destra"
+    "Right": "Destra",
+    "MARKER X": "INDICATORE X",
+    "MARKER Y": "INDICATORE Y",
+    "Place the marker with X/Y sliders: Tab to a slider, then use arrow keys. X: 0 left, 600 right. Y: 0 top, 450 bottom.": "Posiziona l’indicatore con i cursori X/Y: seleziona un cursore con Tab, poi usa i tasti freccia. X: 0 a sinistra, 600 a destra. Y: 0 in alto, 450 in basso.",
+    "Marker is far from the intersection. Tap where the beams converge or adjust the X/Y sliders.": "L’indicatore è lontano dall’intersezione. Tocca il punto in cui convergono i fasci o regola i cursori X/Y."
   },
   "tr": {
     "CHAPTER COMPLETE": "BÖLÜM TAMAMLANDI",
@@ -417,7 +445,11 @@ const D={
     "Up": "Yukarı",
     "Left": "Sol",
     "Down": "Aşağı",
-    "Right": "Sağ"
+    "Right": "Sağ",
+    "MARKER X": "İŞARETÇİ X",
+    "MARKER Y": "İŞARETÇİ Y",
+    "Place the marker with X/Y sliders: Tab to a slider, then use arrow keys. X: 0 left, 600 right. Y: 0 top, 450 bottom.": "İşaretçiyi X/Y kaydırıcılarıyla yerleştir: Tab ile bir kaydırıcı seç, ardından ok tuşlarını kullan. X: 0 sol, 600 sağ. Y: 0 üst, 450 alt.",
+    "Marker is far from the intersection. Tap where the beams converge or adjust the X/Y sliders.": "İşaretçi kesişimden uzakta. Işınların birleştiği noktaya dokun veya X/Y kaydırıcılarını ayarla."
   },
   "he": {
     "CHAPTER COMPLETE": "הפרק הושלם",
@@ -469,7 +501,11 @@ const D={
     "Up": "למעלה",
     "Left": "שמאלה",
     "Down": "למטה",
-    "Right": "ימינה"
+    "Right": "ימינה",
+    "MARKER X": "סמן X",
+    "MARKER Y": "סמן Y",
+    "Place the marker with X/Y sliders: Tab to a slider, then use arrow keys. X: 0 left, 600 right. Y: 0 top, 450 bottom.": "מקמו את הסמן בעזרת מחווני X/Y: בחרו מחוון באמצעות Tab ואז השתמשו במקשי החצים. X: 0 משמאל, 600 מימין. Y: 0 למעלה, 450 למטה.",
+    "Marker is far from the intersection. Tap where the beams converge or adjust the X/Y sliders.": "הסמן רחוק מנקודת החיתוך. הקישו במקום שבו האלומות נפגשות או התאימו את מחווני X/Y."
   },
   "ar": {
     "CHAPTER COMPLETE": "اكتمل الفصل",
@@ -521,7 +557,11 @@ const D={
     "Up": "أعلى",
     "Left": "يسار",
     "Down": "أسفل",
-    "Right": "يمين"
+    "Right": "يمين",
+    "MARKER X": "العلامة X",
+    "MARKER Y": "العلامة Y",
+    "Place the marker with X/Y sliders: Tab to a slider, then use arrow keys. X: 0 left, 600 right. Y: 0 top, 450 bottom.": "ضع العلامة باستخدام شريطي التمرير X/Y: اختر شريط تمرير بمفتاح Tab، ثم استخدم مفاتيح الأسهم. X: 0 يسارًا، 600 يمينًا. Y: 0 في الأعلى، 450 في الأسفل.",
+    "Marker is far from the intersection. Tap where the beams converge or adjust the X/Y sliders.": "العلامة بعيدة عن نقطة التقاطع. اضغط حيث تتلاقى الحزم أو اضبط شريطي التمرير X/Y."
   },
   "ko": {
     "CHAPTER COMPLETE": "챕터 완료",
@@ -573,7 +613,11 @@ const D={
     "Up": "위",
     "Left": "왼쪽",
     "Down": "아래",
-    "Right": "오른쪽"
+    "Right": "오른쪽",
+    "MARKER X": "마커 X",
+    "MARKER Y": "마커 Y",
+    "Place the marker with X/Y sliders: Tab to a slider, then use arrow keys. X: 0 left, 600 right. Y: 0 top, 450 bottom.": "X/Y 슬라이더로 마커를 놓으세요. Tab 키로 슬라이더를 선택한 다음 방향키를 사용하세요. X: 0은 왼쪽, 600은 오른쪽. Y: 0은 위쪽, 450은 아래쪽.",
+    "Marker is far from the intersection. Tap where the beams converge or adjust the X/Y sliders.": "마커가 교차점에서 멀리 떨어져 있습니다. 빔이 모이는 곳을 누르거나 X/Y 슬라이더를 조정하세요."
   },
   "zh": {
     "CHAPTER COMPLETE": "章节完成",
@@ -625,7 +669,11 @@ const D={
     "Up": "上",
     "Left": "左",
     "Down": "下",
-    "Right": "右"
+    "Right": "右",
+    "MARKER X": "标记 X",
+    "MARKER Y": "标记 Y",
+    "Place the marker with X/Y sliders: Tab to a slider, then use arrow keys. X: 0 left, 600 right. Y: 0 top, 450 bottom.": "使用 X/Y 滑块放置标记：按 Tab 键选中滑块，然后使用方向键。X: 0 为左侧，600 为右侧。Y: 0 为顶部，450 为底部。",
+    "Marker is far from the intersection. Tap where the beams converge or adjust the X/Y sliders.": "标记离交点太远。请点击波束汇聚处，或调整 X/Y 滑块。"
   }
 };
 for(const code of Object.keys(D)){L[code]=L[code]||{};L[code].strings=Object.assign(L[code].strings||{},D[code]);}

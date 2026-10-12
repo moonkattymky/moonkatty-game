@@ -1,0 +1,110 @@
+{
+  "keys": [
+    "MARKER X",
+    "MARKER Y",
+    "Place the marker with X/Y sliders: Tab to a slider, then use arrow keys. X: 0 left, 600 right. Y: 0 top, 450 bottom.",
+    "Marker is far from the intersection. Tap where the beams converge or adjust the X/Y sliders."
+  ],
+  "translations": {
+    "ru": [
+      "МЕТКА X",
+      "МЕТКА Y",
+      "Поставьте метку ползунками X/Y: выберите ползунок клавишей Tab и используйте стрелки. X: 0 слева, 600 справа. Y: 0 сверху, 450 снизу.",
+      "Метка далеко от пересечения. Нажмите на точку схода лучей или настройте ползунки X/Y."
+    ],
+    "uk": [
+      "МІТКА X",
+      "МІТКА Y",
+      "Поставте мітку повзунками X/Y: виберіть повзунок клавішею Tab і використовуйте клавіші зі стрілками. X: 0 ліворуч, 600 праворуч. Y: 0 вгорі, 450 внизу.",
+      "Мітка далеко від перетину. Натисніть на точку сходження променів або налаштуйте повзунки X/Y."
+    ],
+    "es": [
+      "MARCADOR X",
+      "MARCADOR Y",
+      "Coloca el marcador con los controles deslizantes X/Y: pulsa Tab hasta seleccionar un control y usa las teclas de flecha. X: 0 a la izquierda, 600 a la derecha. Y: 0 arriba, 450 abajo.",
+      "El marcador está lejos de la intersección. Toca donde convergen los haces o ajusta los controles deslizantes X/Y."
+    ],
+    "pt": [
+      "MARCADOR X",
+      "MARCADOR Y",
+      "Posicione o marcador com os controles deslizantes X/Y: pressione Tab até selecionar um controle e use as teclas de seta. X: 0 à esquerda, 600 à direita. Y: 0 em cima, 450 embaixo.",
+      "O marcador está longe da interseção. Toque onde os feixes se cruzam ou ajuste os controles deslizantes X/Y."
+    ],
+    "de": [
+      "MARKIERUNG X",
+      "MARKIERUNG Y",
+      "Platziere die Markierung mit den X/Y-Schiebereglern: Wähle mit Tab einen Regler und nutze dann die Pfeiltasten. X: 0 links, 600 rechts. Y: 0 oben, 450 unten.",
+      "Die Markierung ist weit vom Schnittpunkt entfernt. Tippe auf den Schnittpunkt der Strahlen oder passe die X/Y-Schieberegler an."
+    ],
+    "fr": [
+      "REPÈRE X",
+      "REPÈRE Y",
+      "Place le repère avec les curseurs X/Y : sélectionne un curseur avec Tab, puis utilise les touches fléchées. X: 0 à gauche, 600 à droite. Y: 0 en haut, 450 en bas.",
+      "Le repère est loin de l’intersection. Touche le point de convergence des faisceaux ou ajuste les curseurs X/Y."
+    ],
+    "it": [
+      "INDICATORE X",
+      "INDICATORE Y",
+      "Posiziona l’indicatore con i cursori X/Y: seleziona un cursore con Tab, poi usa i tasti freccia. X: 0 a sinistra, 600 a destra. Y: 0 in alto, 450 in basso.",
+      "L’indicatore è lontano dall’intersezione. Tocca il punto in cui convergono i fasci o regola i cursori X/Y."
+    ],
+    "tr": [
+      "İŞARETÇİ X",
+      "İŞARETÇİ Y",
+      "İşaretçiyi X/Y kaydırıcılarıyla yerleştir: Tab ile bir kaydırıcı seç, ardından ok tuşlarını kullan. X: 0 sol, 600 sağ. Y: 0 üst, 450 alt.",
+      "İşaretçi kesişimden uzakta. Işınların birleştiği noktaya dokun veya X/Y kaydırıcılarını ayarla."
+    ],
+    "he": [
+      "סמן X",
+      "סמן Y",
+      "מקמו את הסמן בעזרת מחווני X/Y: בחרו מחוון באמצעות Tab ואז השתמשו במקשי החצים. X: 0 משמאל, 600 מימין. Y: 0 למעלה, 450 למטה.",
+      "הסמן רחוק מנקודת החיתוך. הקישו במקום שבו האלומות נפגשות או התאימו את מחווני X/Y."
+    ],
+    "ar": [
+      "العلامة X",
+      "العلامة Y",
+      "ضع العلامة باستخدام شريطي التمرير X/Y: اختر شريط تمرير بمفتاح Tab، ثم استخدم مفاتيح الأسهم. X: 0 يسارًا، 600 يمينًا. Y: 0 في الأعلى، 450 في الأسفل.",
+      "العلامة بعيدة عن نقطة التقاطع. اضغط حيث تتلاقى الحزم أو اضبط شريطي التمرير X/Y."
+    ],
+    "ko": [
+      "마커 X",
+      "마커 Y",
+      "X/Y 슬라이더로 마커를 놓으세요. Tab 키로 슬라이더를 선택한 다음 방향키를 사용하세요. X: 0은 왼쪽, 600은 오른쪽. Y: 0은 위쪽, 450은 아래쪽.",
+      "마커가 교차점에서 멀리 떨어져 있습니다. 빔이 모이는 곳을 누르거나 X/Y 슬라이더를 조정하세요."
+    ],
+    "zh": [
+      "标记 X",
+      "标记 Y",
+      "使用 X/Y 滑块放置标记：按 Tab 键选中滑块，然后使用方向键。X: 0 为左侧，600 为右侧。Y: 0 为顶部，450 为底部。",
+      "标记离交点太远。请点击波束汇聚处，或调整 X/Y 滑块。"
+    ]
+  },
+  "legacyGuidanceSha256": {
+    "ru": "283892b3f7a5540dd73012e675f329786079965f297cdee2ff2abc98f3831671",
+    "uk": "b48b08ae2d977b83a1408f3d9c31069fc3d66f5ca10496e2c9fbea34ae2fb554",
+    "es": "acfa447ae719d3a1cf76d93a66666caa761f22fd0558db847d4a076ae6e85a75",
+    "pt": "1c88e31de4e689f2fdd25a652e0518fc11a494a725fcc25d82c9152edf484987",
+    "de": "9af6eab2f6e422ad0c7fd6b18544abda795ac215b0a9248f038157e46ae17c9f",
+    "fr": "8d0aa72a16779d28e5f0a515c2624916797ea118e45684f32245fab8daf2d964",
+    "it": "9009cc0bf025f2b7a29900b62ddd22ecd0fa73269cebf500c587f153862100a6",
+    "tr": "53aa840bd3f795b10611260080d440f0c6148a20344af8c711d4824a19550018",
+    "he": "f2e3303a530c4cb57b60807d4d4781cde872d5fdc9630b60f03298f5d8bfebff",
+    "ar": "ee10fe3f013a2367a30abdd3f2b9aa40e69ffa5f4b60d8596fe75e8408ba0cd1",
+    "ko": "32e9084b24b830ade1790feb2bbe9dbf1d15ff4f30b42bd4562325048fb222fc",
+    "zh": "0108a9aee4f5cb5f9e59ca1a26a0c3f7c719229bd2bd24324d67c7a1d4bb63da"
+  },
+  "legacyPackSha256": {
+    "ru": "50763e83c5800aa04e950e7bbe19b72e125189395d454ece80441d78dbd07872",
+    "uk": "94fa63c9926cbbc54a7d2ba91c65f821fa9af67159dac0d4da62da1f565a0804",
+    "es": "c6ffb8f498fb4ed264d4f6784d2f0a06de99c667a63b13705256a3725f166fd6",
+    "pt": "66e55bd889711d80f5044b76174e4de33cbc18f6de662c38e0360aa7396f8737",
+    "de": "5474565907c60284cc0ce0b9dd1cbbda8d8c53d06676083f450940abac3cbb17",
+    "fr": "85796b603b706dbad50760aac28c9b4372b9e4f1d1cef389bc4d49d78b0191df",
+    "it": "86dadb2d4deca91f05e022628817e31b687ea688ae63f8c88706a7bcb3c4255f",
+    "tr": "40e5e568d033d01bd3b6b01a0b6c9fe60b27c3ee923af531bb079d0e183598a9",
+    "he": "f2f8cda48f7a7568751ad9cec655fc3e6be11dbf611a78d096b60a7c78f131b7",
+    "ar": "bd8a67168f43457e4f2a38d2fea84f545ccc1d262e048221f78effbcc898f82f",
+    "ko": "5f46264a32e8e0e1cd0b2eee267b6f8fb399b79264370ecd4ad819920efd97dc",
+    "zh": "67cdd5bcad97fe75d9f47e7000ecaeab9da543924c4df0234d23e4de72afffb3"
+  }
+}

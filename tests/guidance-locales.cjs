@@ -2,7 +2,7 @@
 'use strict';
 const assert=require('node:assert/strict'),path=require('node:path'),vm=require('node:vm');
 const {LANGS,BUNDLES,SCOPES,scopedKeys,missing,readSource}=require('./guidance-locale-helper.cjs');
-const read=readSource(path.resolve(__dirname,'..')),keys=scopedKeys(read),tag='20261011-language-clarity-1';
+const read=readSource(path.resolve(__dirname,'..')),keys=scopedKeys(read),tag='20261011-marker-keyboard-1';
 assert(read('field-missions.css').includes('grid-template-columns:repeat(4,minmax(44px,1fr)) minmax(44px,max-content)'), 'Docking arrows retain 44px targets while the localized brake label gets its intrinsic width');
 assert(read('index.html').includes('field-missions.css?v=20261011-localized-controls-1'), 'The corrected control layout has a new public cache pin');
 assert(read('field-missions.css').includes('#fieldMission[data-kind=docking]{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}'), 'Landscape docking columns fit the actual app width');
@@ -22,7 +22,7 @@ for(const [file,label,start] of SCOPES){
 const bundle=vm.createContext({});vm.runInContext(read('locales/guidance.js'),bundle);
 const additions=bundle.MKTYLocales;
 for(const lang of LANGS){
- assert.equal(Object.keys(additions[lang].strings).length,50,lang+' has exactly the 46 gaps + four movement labels');
+ assert.equal(Object.keys(additions[lang].strings).length,54,lang+' has exactly the 46 gaps + four movement labels + four marker controls');
  const baseline=vm.createContext({});for(const name of [...LANGS,...BUNDLES.filter(x=>x!=='guidance')])vm.runInContext(read('locales/'+name+'.js'),baseline);
  for(const [key,value] of Object.entries(baseline.MKTYLocales[lang].strings))assert.equal(source.MKTYLocales[lang].strings[key],value,lang+' preserves old translation '+key);
  for(const [key,value] of Object.entries(additions[lang].strings)){
@@ -74,5 +74,5 @@ function assertTranslations(ctx,lang){
  const failed=retry.ctx.MKTYI18n.setLanguage('ar');retry.scripts.find(s=>s.tag==='script').onerror();await failed;assertTranslations(retry.ctx,'en');
  const recovered=retry.ctx.MKTYI18n.setLanguage('ar'),scripts=retry.scripts.filter(s=>s.tag==='script');assert.equal(scripts.length,2);runtime(retry.ctx,'ar');scripts[1].onload();await recovered;assertTranslations(retry.ctx,'ar');
  assert(read('index.html').includes(`locale-loader.js?v=${tag}`),'HTML invalidates the loader cache too');
- console.log(`PASS: ${keys.length} scoped source keys, 50 additions × 12 packs; actual awaited t/tr for 13 languages, saved preferences, retry and RTL; old translations unchanged`);
+ console.log(`PASS: ${keys.length} scoped source keys, 54 additions × 12 packs; actual awaited t/tr for 13 languages, saved preferences, retry and RTL; old translations unchanged`);
 })().catch(error=>{console.error(error);process.exitCode=1;});
