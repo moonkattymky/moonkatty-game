@@ -95,6 +95,49 @@ async function invoke(p, id, method, q) {
 }
 async function append(p, q, id = 'a') {return invoke(p, id, 'appendSegment', serial(q));}
 async function snapshot(p) {return p.evaluate(() => H.snapshot());}
+// Node owns this deadline. It cannot be suppressed by a browser timer gate.
+async function bounded(promise, label, milliseconds = 12000) {
+  let timer;
+  try {return await Promise.race([promise, new Promise((_, reject) => {timer = setTimeout(() => reject(Error('Fixture barrier timed out: ' + label)), milliseconds);})]);}
+  finally {clearTimeout(timer);}
+}
+async function heldWatchdogAppend(p, q, terminal) {
+  const captured = await p.evaluate(({q, terminal}) => {
+    H.gatedSettled = false;
+    H.nativeTerminalBarrier = H.N.holdNextTerminal(terminal);
+    if (terminal === 'abort') H.N.control.abortAt = 'first-add';
+    H.watchdogGate = H.N.gateWatchdogDuring(() => {
+      H.gatedAppend = H.invoke('a', 'appendSegment', q).then(value => {H.gatedSettled = true; return value;});
+    }, 100);
+    return {timerId: H.watchdogGate.timerId, captured: H.watchdogGate.captured, operationId: H.adapters.get('a').diagnostics.id};
+  }, {q: serial(q), terminal});
+  assert.equal(captured.captured, 1);
+  const proof = await bounded(p.evaluate(async () => {
+    const [native, timer] = await Promise.all([H.nativeTerminalBarrier, H.watchdogGate.due]);
+    return {native, timer, settled: H.gatedSettled, diagnostics: H.adapters.get('a').diagnostics};
+  }), terminal + ': exact native held terminal and real watchdog deadline');
+  assert.equal(proof.native.terminal, terminal); assert.equal(proof.native.queued, 1);
+  assert.equal(proof.native.mode, 'readwrite'); assert.equal(proof.native.fixture, false);
+  assert(proof.native.createdEvent < proof.native.nativeEvent); assert(proof.native.nativeEvent < proof.native.heldEvent);
+  assert.equal(proof.timer.timerId, captured.timerId); assert.equal(proof.timer.delay, 100);
+  assert.equal(proof.settled, false, 'holding callback delivery never fabricates an adapter outcome');
+  assert.equal(proof.diagnostics.id, captured.operationId); assert.equal(proof.diagnostics.terminal, null);
+  assert(!proof.diagnostics.events.includes('watchdog'), 'real timer is due but original callback has not yet been delivered');
+  await p.evaluate(() => H.watchdogGate.release());
+  const observed = await bounded(p.evaluate(() => H.gatedAppend), terminal + ': original watchdog callback outcome');
+  report.diagnostics.push({group: currentGroup, method: 'appendSegment', diagnostics: observed.diagnostics, state: observed.state, retainedBytes: observed.retainedBytes});
+  const events = await p.evaluate(id => H.N.log.filter(event => event.timerId === id), captured.timerId);
+  assert.equal(events.filter(event => event.type === 'watchdog-captured').length, 1);
+  assert.equal(events.filter(event => event.type === 'watchdog-native-due').length, 1);
+  assert.equal(events.filter(event => event.type === 'watchdog-delivered').length, 1);
+  assert(events.find(event => event.type === 'watchdog-native-due').n < events.find(event => event.type === 'watchdog-delivered').n);
+  assert(proof.native.heldEvent < events.find(event => event.type === 'watchdog-delivered').n);
+  return {result: observed.result, proof: {operationId: captured.operationId, tx: proof.native.tx, terminal,
+    createdEvent: proof.native.createdEvent, nativeEvent: proof.native.nativeEvent, heldEvent: proof.native.heldEvent, timerId: captured.timerId,
+    dueEvent: events.find(event => event.type === 'watchdog-native-due').n,
+    watchdogEvent: events.find(event => event.type === 'watchdog-delivered').n,
+    watchdogDelivery: 'controlled after real native terminal and real timer deadline'}};
+}
 async function raceAppends(p, q, other, otherQ) {
   for (const [page, scope] of [[p, q.descriptor.scope], [other, otherQ.descriptor.scope]]) await page.evaluate(async scope => {
     H.adapters.get('a')?.close(); H.raceStarted = false; H.raceArmed = false; let release; H.raceGate = new Promise(resolve => {release = resolve;}); H.releaseRace = release;
@@ -352,20 +395,21 @@ function validateEvents(events) {
     await p.waitForFunction(() => H.adapters.get('a').diagnostics.liveAccountedBytes === 0);
     assert.equal((await open(p, 'c')).status, 'open');
     p = await fresh(); await open(p, 'a', {watchdogMs: 100}); const q = request(desc('terminal-held'), Buffer.from('completed-native'));
-    await p.evaluate(() => {H.N.control.holdTerminal = true;}); const unknown = await append(p, q); assert.equal(unknown.status, 'outcomeUnknown'); assert.equal(unknown.reason, 'terminal-unobserved');
-    assert((await p.evaluate(() => H.N.log)).some(e => e.type === 'complete' && !e.fixture), 'actual native terminal is separately observed by fixture');
+    const heldComplete = await heldWatchdogAppend(p, q, 'complete'), unknown = heldComplete.result; assert.equal(unknown.status, 'outcomeUnknown'); assert.equal(unknown.reason, 'terminal-unobserved');
     assert.equal((await open(p, 'other')).reason, 'busy'); assert(await p.evaluate(() => H.adapters.get('a').retainedBytes > 0));
-    assert.equal(await p.evaluate(() => H.N.releaseTerminals()), 1);
+    assert.equal(await p.evaluate(tx => H.N.releaseTerminals(tx), heldComplete.proof.tx), 1);
     await p.waitForFunction(() => H.adapters.get('a').diagnostics.terminal === 'complete');
     const originalSettlement = await p.evaluate(() => H.adapters.get('a').diagnostics.events.filter(e => e.startsWith('caller:'))); assert.deepEqual(originalSettlement, ['caller:outcomeUnknown']);
     await open(p, 'scope-b', {scope: 'fixture:B'}); const otherScope = await append(p, request(desc('other-scope-while-retained', 100000, '', 'fixture:B'), Buffer.from('blocked')), 'scope-b'); assert.equal(otherScope.reason, 'retry-pending');
     const retry = await invoke(p, 'a', 'retry'); assert.equal(retry.status, 'duplicate'); assert.equal(await p.evaluate(() => H.adapters.get('a').retainedBytes), 0);
     const settled = await p.evaluate(() => H.adapters.get('a').diagnostics.events.filter(e => e.startsWith('caller:')).length); assert.equal(settled, 1);
-    p = await fresh(); await open(p, 'a', {watchdogMs: 100}); const beforeHeldAbort = await snapshot(p); await p.evaluate(() => {H.N.control.holdTerminal = true; H.N.control.abortAt = 'first-add';});
-    const abortedUnknown = await append(p, request(desc('abort-terminal-held'), Buffer.from('abort-me'))); assert.equal(abortedUnknown.status, 'outcomeUnknown'); assert((await p.evaluate(() => H.N.log)).some(e => e.type === 'abort')); assert.equal((await open(p, 'blocked-after-abort')).reason, 'busy');
-    assert.equal(await p.evaluate(() => H.N.releaseTerminals()), 1); await p.waitForFunction(() => H.adapters.get('a').diagnostics.terminal === 'abort');
+    p = await fresh(); await open(p, 'a', {watchdogMs: 100}); const beforeHeldAbort = await snapshot(p);
+    const heldAbort = await heldWatchdogAppend(p, request(desc('abort-terminal-held'), Buffer.from('abort-me')), 'abort'), abortedUnknown = heldAbort.result;
+    assert.equal(abortedUnknown.status, 'outcomeUnknown'); assert.equal(abortedUnknown.reason, 'terminal-unobserved'); assert.equal((await open(p, 'blocked-after-abort')).reason, 'busy');
+    assert(await p.evaluate(() => H.adapters.get('a').retainedBytes > 0));
+    assert.equal(await p.evaluate(tx => H.N.releaseTerminals(tx), heldAbort.proof.tx), 1); await p.waitForFunction(() => H.adapters.get('a').diagnostics.terminal === 'abort');
     const abortedSettlement = await p.evaluate(() => H.adapters.get('a').diagnostics.events.filter(e => e.startsWith('caller:'))); assert.deepEqual(abortedSettlement, ['caller:outcomeUnknown']); assert.deepEqual(await snapshot(p), beforeHeldAbort); assert.equal((await invoke(p, 'a', 'retry')).status, 'committed');
-    return {delayedDigest: 'refused with busy slot until completion', terminalDelivery: 'actual complete/abort held from adapter; both callers unknown; exact retries duplicate/committed', originalSettlement, abortedSettlement, retainedScopeBlocksOtherScope: true};
+    return {delayedDigest: 'refused with busy slot until completion', terminalDelivery: 'actual complete/abort held from adapter; watchdog callback delivery controlled after native terminal and real deadline; exact retries duplicate/committed', controlledWatchdogs: [heldComplete.proof, heldAbort.proof], originalSettlement, abortedSettlement, retainedScopeBlocksOtherScope: true};
   });
   await test('F', 'open watchdog abandons uncancellable request; explicit close and fresh-data disclosure', async () => {
     const p = await fresh(); await open(p); await p.evaluate(() => H.adapters.get('a').close());

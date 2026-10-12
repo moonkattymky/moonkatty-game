@@ -20,6 +20,7 @@
   const control = {abortAt: null, holdTerminal: false, relaxed: false, reloadOnAdd: false};
   let sequence = 0, physical = 0, fixture = false;
   const held = [];
+  let terminalBarrier = null, watchdogCaptureActive = false;
   function event(type, details = {}) {
     const row = {n: log.length, type, ...details}; log.push(row);
     if (window.nativeEvidence) void window.nativeEvidence(row).catch(() => {});
@@ -29,8 +30,14 @@
     if (!callback) return callback;
     return function (e) {
       if (transactions.get(tx)?.hold && ['complete', 'abort'].includes(e.type)) {
-        held.push(() => typeof callback === 'function' ? callback.call(tx, e) : callback.handleEvent(e));
-        event('delivery-held', {tx: transactions.get(tx).id, terminal: e.type});
+        const record = transactions.get(tx);
+        held.push({tx: record.id, terminal: e.type, invoke: () => typeof callback === 'function' ? callback.call(tx, e) : callback.handleEvent(e)});
+        const delivered = event('delivery-held', {tx: record.id, terminal: e.type});
+        if (terminalBarrier?.tx === record.id) {
+          const barrier = terminalBarrier; terminalBarrier = null;
+          if (barrier.terminal !== e.type || record.nativeTerminal !== e.type || !Number.isInteger(record.nativeEvent)) barrier.reject(Error('Wrong native terminal for held transaction ' + record.id));
+          else barrier.resolve({tx: record.id, mode: record.mode, fixture: record.fixture, terminal: e.type, createdEvent: record.createdEvent, nativeEvent: record.nativeEvent, heldEvent: delivered.n, queued: held.filter(value => value.tx === record.id).length});
+        }
       } else if (typeof callback === 'function') return callback.call(tx, e);
       else return callback.handleEvent(e);
     };
@@ -47,13 +54,14 @@
     const tx = native.transaction.call(this, stores, mode, !fixture && control.relaxed && mode === 'readwrite' ? {durability: 'relaxed'} : options);
     const record = {id: ++sequence, mode: tx.mode, fixture, hold: !fixture && control.holdTerminal && tx.mode === 'readwrite',
       abortAt: !fixture ? control.abortAt : null, reloadOnAdd: !fixture && control.reloadOnAdd};
-    if (record.hold) control.holdTerminal = false;
+    if (record.hold) {control.holdTerminal = false; if (terminalBarrier && terminalBarrier.tx === null) terminalBarrier.tx = record.id;}
     if (record.abortAt) control.abortAt = null;
     if (record.reloadOnAdd) control.reloadOnAdd = false;
     transactions.set(tx, record); active.set(record.id, record); physical++;
-    event('transaction', {tx: record.id, mode: tx.mode, stores: [...tx.objectStoreNames], durability: tx.durability, fixture});
+    record.createdEvent = event('transaction', {tx: record.id, mode: tx.mode, stores: [...tx.objectStoreNames], durability: tx.durability, fixture}).n;
     for (const terminal of ['complete', 'abort']) native.addEventListener.call(tx, terminal, () => {
-      physical--; active.delete(record.id); event(terminal, {tx: record.id, error: tx.error?.name || null, fixture: record.fixture});
+      physical--; active.delete(record.id); record.nativeTerminal = terminal;
+      record.nativeEvent = event(terminal, {tx: record.id, error: tx.error?.name || null, fixture: record.fixture}).n;
     });
     native.addEventListener.call(tx, 'error', e => event('transaction-error', {tx: record.id, error: e.target.error?.name || null}));
     return tx;
@@ -80,8 +88,50 @@
     event('digest', {bytes: input.byteLength, activeTransactions: [...active.values()].filter(x => !x.fixture).map(x => x.id)});
     return native.digest(algorithm, input).then(result => {event('digest-complete', {bytes: input.byteLength}); return result;});
   };
-  window.__nativeHarness = {native, log, control, event, transactions, get physical() {return physical;},
-    releaseTerminals() {const callbacks = held.splice(0); for (const cb of callbacks) cb(); return callbacks.length;},
+  // Test-only control of one watchdog CALLBACK DELIVERY. Its real timer still
+  // expires normally; native IDB event production and outcomes are unchanged.
+  function gateWatchdogDuring(start, expectedDelay = 100) {
+    if (watchdogCaptureActive) throw Error('Nested watchdog capture');
+    if (typeof start !== 'function') throw Error('Watchdog start required');
+    const original = window.setTimeout, originalClear = window.clearTimeout;
+    let timerId, captured = 0, due = false, released = false, dispatched = false, callback, args;
+    let resolveDue; const duePromise = new Promise(resolve => {resolveDue = resolve;});
+    watchdogCaptureActive = true;
+    window.setTimeout = function (fn, delay, ...rest) {
+      if (delay !== expectedDelay) return original.call(this, fn, delay, ...rest);
+      captured++;
+      if (captured !== 1 || typeof fn !== 'function') throw Error('Expected exactly one watchdog timer');
+      callback = fn; args = rest;
+      timerId = original.call(this, () => {
+        due = true; event('watchdog-native-due', {timerId, delay}); resolveDue({timerId, delay});
+      }, delay);
+      event('watchdog-captured', {timerId, delay}); return timerId;
+    };
+    try {start(); if (captured !== 1) throw Error('Expected exactly one watchdog timer');}
+    catch (error) {if (timerId !== undefined) originalClear.call(window, timerId); throw error;}
+    finally {window.setTimeout = original; watchdogCaptureActive = false;}
+    return Object.freeze({timerId, captured, due: duePromise,
+      release() {
+        if (!due || released) throw Error('Watchdog release requires one observed real deadline');
+        released = true; event('watchdog-delivery-released', {timerId});
+        original.call(window, () => {
+          if (dispatched) throw Error('Watchdog delivered twice');
+          dispatched = true; event('watchdog-delivered', {timerId}); callback.apply(window, args);
+        }, 0);
+      }
+    });
+  }
+  window.__nativeHarness = {native, log, control, event, transactions, gateWatchdogDuring, get physical() {return physical;},
+    holdNextTerminal(terminal) {
+      if (!['complete', 'abort'].includes(terminal) || terminalBarrier) throw Error('Invalid or overlapping native terminal barrier');
+      control.holdTerminal = true;
+      return new Promise((resolve, reject) => {terminalBarrier = {terminal, tx: null, resolve, reject}; event('terminal-barrier-armed', {terminal});});
+    },
+    releaseTerminals(txId = null) {
+      const callbacks = held.filter(value => txId === null || value.tx === txId);
+      for (const value of callbacks) {held.splice(held.indexOf(value), 1); event('delivery-released', {tx: value.tx, terminal: value.terminal}); value.invoke();}
+      return callbacks.length;
+    },
     async fixture(fn) {fixture = true; try {return await fn();} finally {fixture = false;}},
     setFixture(value) {fixture = value;}};
 })();
