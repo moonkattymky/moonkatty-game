@@ -16,6 +16,10 @@ cases. The first-party resource cache is bounded to 200 files / 32 MiB. Runtime
 hashes for 65 unchanged first-party index/scripts/styles are pinned to the
 reviewed baseline. Page/console failures, unexpected network attempts and cleanup
 failures fail the report; explicitly blocked Telegram script loading is classified.
+Completed assertion failures are saved, then their context is closed before the
+next independent case. The final suite still fails if any row failed. Timeouts,
+browser/infrastructure errors, diagnostic-read failures and context-close failures
+remain terminal; timed-out work is never allowed to race a new shared context.
 
 ## Exact boundary
 
@@ -110,7 +114,11 @@ The pre-existing original callback closure/controller state is also outside the
 new captured-representation reservation. Neither accounting proves native JS
 object/engine heap allocation or power-loss
 persistence. No release of same-realm ownership occurs; explicit mixed-format
-second captures must refuse. No cache-busted module import claims a chain.
+second captures must refuse. The synthetic-first test proves the first owner is
+READY before opening the real field, checks the second accept call’s returned
+refusal, and separately verifies its gate stays EMPTY/unowned with no additional
+adapter work. A transient refusal reason is not required to persist in view().
+No cache-busted module import claims a chain.
 
 Still excluded: continuous-phase handoff, authenticated/server rewards, production
 identity invalidation, durable continuation settlement/reload replay, legacy
