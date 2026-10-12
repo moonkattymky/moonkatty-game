@@ -108,4 +108,43 @@ scenario('partial and earned-complete checkpoints restore with coordinates and t
   else{reboot.rangeInput('pinX',388);assert.deepEqual(reboot.snapshot().pin,{x:388,y:snapshot.pin.y});assert.deepEqual(reboot.snapshot().trace.slice(0,-1),snapshot.trace);}
  }
 });
+scenario('keyboard focus reveals a footer-covered Chapter8 control without gameplay mutation',()=>{
+ const h=fixture(),scrolls=[],footer=h.$('fieldMission').querySelector('.field-footer');let position='sticky',keyboard=true;
+ let bounds={left:12,top:367.671875,right:308,bottom:411.671875,width:296,height:44};
+ let footerBounds={left:0,top:373,right:320,bottom:480,width:320,height:107};
+ h.context.getComputedStyle=node=>{assert.equal(node,footer);return {position};};
+ footer.getBoundingClientRect=()=>footerBounds;
+ function target(node){
+  const matches=node.matches.bind(node);node.matches=selector=>selector===':focus-visible'?keyboard:matches(selector);
+  node.getBoundingClientRect=()=>bounds;node.scrollIntoView=options=>scrolls.push(clone(options));return node;
+ }
+ function check(node,expected,label){
+  const before=h.snapshot(),saved=h.saved(),count=h.saves.length,start=scrolls.length;
+  node.focus();const focused=h.document.activeElement;node.dispatchEvent({type:'focusin',bubbles:true});
+  assert.equal(scrolls.length-start,expected,label);assert.equal(h.document.activeElement,focused,label+' preserves focus');
+  assert.deepEqual(h.snapshot(),before,label+' preserves rules and trace');assert.deepEqual(h.saved(),saved,label+' preserves checkpoint');assert.equal(h.saves.length,count,label+' never saves');
+ }
+ const button=target(h.$('fieldControls').querySelector('[data-field-action="sample"]'));
+ check(button,0,'paused focus');h.resume();check(button,1,'overlapping keyboard button');
+ assert.deepEqual(scrolls.at(-1),{block:'center',inline:'nearest',behavior:'instant'});
+ check(target(h.range('pinX')),1,'overlapping keyboard range');
+ keyboard=false;check(button,0,'pointer focus');keyboard=true;
+ position='static';check(button,0,'static landscape footer');position='sticky';
+ const overlap={...bounds};
+ bounds={...overlap,top:329,bottom:373};check(button,0,'target directly above footer');
+ bounds={...overlap,top:480,bottom:524};check(button,0,'target below footer');
+ bounds={...overlap,left:320,right:616};check(button,0,'target beside footer');
+ bounds={...overlap,width:0};check(button,0,'zero-width target');
+ bounds={...overlap,height:0};check(button,0,'zero-height target');bounds=overlap;
+ const footerOverlap={...footerBounds};footerBounds={...footerOverlap,width:0};check(button,0,'zero-width footer');footerBounds={...footerOverlap,height:0};check(button,0,'zero-height footer');footerBounds=footerOverlap;
+ button.disabled=true;check(button,0,'disabled control');button.disabled=false;
+ h.inactive();check(button,0,'inactive chapter');h.active();
+ const hint=target(h.$('fieldMarkerHint'));check(hint,0,'non-control focus');
+ const outside=target(h.$('fieldPause'));check(outside,0,'outside control deck');
+ lockBearings(h);const source=R.layout(h.snapshot()).source;coordinates(h,Math.round(source.x),Math.round(source.y));h.submit();
+ check(target(h.$('fieldControls').querySelector('[data-field-action="sample"]')),0,'completed chapter');
+ // Open another real chapter through the public controller API: the guard stays Chapter8-only.
+ h.context.MKTYField.open({chapter:2,id:0,fieldStage:0,seed:0,title:['Проверка','Fixture'],save:value=>h.saves.push(clone(value)),complete:()=>{},exit:()=>{}},null);h.resume();
+ check(target(h.$('fieldControls').querySelector('[data-field-action="role"]')),0,'other chapter');
+});
 console.log(JSON.stringify({...report,passed:true,fullControlWins:25,limitations:['native keyboard defaults','browser focus order and layout','screen readers','physical touch']}));
