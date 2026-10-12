@@ -46,28 +46,14 @@ const newStatus = {text: 'Energy collected • 1/3',
   rect: {left: 14, top: 800, right: 376, bottom: 830, width: 362, height: 30}};
 const animation = {reducedMotion: true, name: 'none', transform: 'none', active: []};
 const expectedFault = {error: 'unsettled-live-size', detail: null};
-const acceptedTail = [
-  ['event', ['frame', 1264, -1, 0]], ['event', ['frame', 1264, -1, 0]], ['event', ['stop', 1273]],
-  ['event', ['frame', 1280, 0, 0]], ['event', ['frame', 1280, 0, 0]], ['event', ['collect', 1289, '1']]
-];
 function snapshot(snapshotMs, world, cacheHeight, status, now, lastFrame) {
   return {snapshotMs, world, sourceCache: {width: 362, height: cacheHeight,
     obstacles: cacheHeight === 483.96875 ? oldObstacles : newObstacles},
     recorded: now === null ? null : {now, lastFrame, view: {left: 14, top: 83.15625},
       geometry: oldGeometry, liveWorld: oldWorld}, status, stage: 0, animation};
 }
-const observations = [
-  {label: 'before armed show/reset', snapshot: snapshot(352, oldWorld, 483.96875, oldStatus, null, null)},
-  {label: 'after armed show/reset', snapshot: snapshot(352, oldWorld, 483.96875, oldStatus, 0, 0)},
-  {label: 'before collect 1', snapshot: snapshot(1289, oldWorld, 483.96875, oldStatus, 1280, 1280)},
-  {label: 'after collect 1 before clock advance', snapshot: snapshot(1289, newWorld, 483.96875, newStatus, 1289, 1280)},
-  {label: 'collect 1 fault', snapshot: snapshot(1321, newWorld, 495.84375, newStatus, 1289, 1280)}
-];
-const firstRefusal = {event: ['frame', 1296, 0, 0], wrapperDispatchMs: 1296, fault: expectedFault,
-  snapshot: snapshot(1296, newWorld, 483.96875, newStatus, 1289, 1280), acceptedTail};
-
-// Pure validator. Exact comparison is deliberate: a merely similar/new failure
-// must be investigated, not silently converted into a passing baseline lane.
+// Pure causal validator. Native geometry and payloads stay exact; the initial
+// virtual-clock epoch can differ with startup. Unrelated failures stay failures.
 function validateBaselineRefusal(report) {
   const mismatch = detail => ({ok: false, error: 'unexpected-baseline-refusal', detail});
   if (!report || typeof report !== 'object' || Array.isArray(report)) return mismatch('report-object');
@@ -84,19 +70,41 @@ function validateBaselineRefusal(report) {
   if (!lines[0].startsWith(prefix)) return mismatch('collect-1-assertion');
   let status;
   try {status = JSON.parse(lines[0].slice(prefix.length));} catch {return mismatch('failure-status-json');}
+  const bytes = status?.usage?.bytes, tailJSON = JSON.stringify(report.firstGeometryRefusal?.acceptedTail);
+  if (typeof tailJSON !== 'string' || !Number.isSafeInteger(bytes) || bytes <= Buffer.byteLength(tailJSON) || bytes > 196608) return mismatch('bounded-reported-prefix-bytes');
   if (!isDeepStrictEqual(status, {recording: true, fault: expectedFault,
     lastSave: {ok: false, error: 'checkpoint-not-paused', oldCheckpointRetained: true},
-    observations: 122, refusedObservations: 3, usage: {entries: 123, bytes: 3915}})) return mismatch('exact-old-recorder-fault');
+    observations: 122, refusedObservations: 3, usage: {entries: 123, bytes}})) return mismatch('exact-old-recorder-fault');
   const expectedDiff = ['+ actual - expected', '', '+ {', '+   detail: null,', "+   error: 'unsettled-live-size'", '+ }', '- null', ''];
   if (!isDeepStrictEqual(lines.slice(1, 9), expectedDiff)) return mismatch('assertion-diff');
   if (lines.length !== 11) return mismatch('assertion-stack-shape');
   const checked = lines[9].match(/^    at checked \((.+\/tests\/life1-recording-browser-fixture\.cjs):55:11\)$/);
   if (!checked || lines[10] !== '    at async main (' + checked[1] + ':104:29)') return mismatch('frozen-assertion-callsite');
-  if (!isDeepStrictEqual(report.geometryObservations, observations)) return mismatch('exact-ordered-geometry-observations');
-  if (!isDeepStrictEqual(report.firstGeometryRefusal, firstRefusal)) return mismatch('first-refused-frame-and-prefix');
+  const got = report.geometryObservations, refusal = report.firstGeometryRefusal;
+  if (!Array.isArray(got) || got.length !== 5 || !refusal || !Array.isArray(refusal.acceptedTail)) return mismatch('observation-shape');
+  const A = got[0]?.snapshot?.snapshotMs, P = got[2]?.snapshot?.recorded?.lastFrame;
+  const T = got[2]?.snapshot?.snapshotMs, F = refusal.wrapperDispatchMs, G = got[4]?.snapshot?.snapshotMs;
+  const M = refusal.acceptedTail[0]?.[1]?.[1], S = refusal.acceptedTail[2]?.[1]?.[1];
+  if (![A,P,T,F,G,M,S].every(t => Number.isFinite(t) && t <= Number.MAX_SAFE_INTEGER) || !(0 <= A && A < M && M < S && S < P && P < T && T < F && F < G && G === T + 32)) return mismatch('causal-callback-clock-order');
+  const causalObservations = [
+    {label: 'before armed show/reset', snapshot: snapshot(A, oldWorld, 483.96875, oldStatus, null, null)},
+    {label: 'after armed show/reset', snapshot: snapshot(A, oldWorld, 483.96875, oldStatus, 0, 0)},
+    {label: 'before collect 1', snapshot: snapshot(T, oldWorld, 483.96875, oldStatus, P, P)},
+    {label: 'after collect 1 before clock advance', snapshot: snapshot(T, newWorld, 483.96875, newStatus, T, P)},
+    {label: 'collect 1 fault', snapshot: snapshot(G, newWorld, 495.84375, newStatus, T, P)}
+  ];
+  const causalTail = [
+    ['event', ['frame', M, -1, 0]], ['event', ['frame', M, -1, 0]], ['event', ['stop', S]],
+    ['event', ['frame', P, 0, 0]], ['event', ['frame', P, 0, 0]], ['event', ['collect', T, '1']]
+  ];
+  const causalRefusal = {event: ['frame', F, 0, 0], wrapperDispatchMs: F, fault: expectedFault,
+    snapshot: snapshot(F, newWorld, 483.96875, newStatus, T, P), acceptedTail: causalTail};
+  if (!isDeepStrictEqual(got, causalObservations)) return mismatch('exact-ordered-geometry-observations');
+  if (!isDeepStrictEqual(refusal, causalRefusal)) return mismatch('first-refused-frame-and-prefix');
   return {ok: true, evidence: {kind: 'characterized-frozen-reload-refusal', error: 'unsettled-live-size',
-    collectMs: 1289, firstRefusedFrameMs: 1296, firstRefusedDispatchMs: 1296, refreshedCacheObservedMs: 1321,
-    worldHeights: [483.96875, 495.84375], statusHeights: [41.875, 30], acceptedPrefixUnchanged: true,
+    initialSnapshotMs: A, collectMs: T, firstRefusedFrameMs: F, firstRefusedDispatchMs: F, refreshedCacheObservedMs: G,
+    worldHeights: [483.96875, 495.84375], statusHeights: [41.875, 30], acceptedModelAndTailUnchanged: true,
+    reportedPrefixBytes: bytes, wholePrefixByteEqualityVerified: false,
     noAnimationsOrTransforms: true, oldReloadGatePassed: false, runtimeReady: false, authoritativeAdmission: false}};
 }
 

@@ -19,6 +19,7 @@ jobs:
         with:
           node-version: '22'
       - run: node tests/life1-recording-source.cjs
+      - run: node tests/life1-recording-baseline-signature.cjs
       - run: node tests/life1-recording-controller.cjs
       - run: node tests/life1-recording-vnext-grammar.cjs
       - run: node tests/life1-recording-vnext-controller.cjs

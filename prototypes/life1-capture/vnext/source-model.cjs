@@ -13,7 +13,7 @@ function geometry(a){N.validateEnvelope(...a);const native=N.layout(...a);return
 function clock(value){if(!value||!['lastFrame','nearbyAt','clockResumedAt'].every(k=>time(value[k])))fail('invalid-source-clock');if(Object.keys(value).some(k=>!['lastFrame','nearbyAt','clockResumedAt','dispatchMs'].includes(k)))fail('invalid-source-clock');return {lastFrame:value.lastFrame,nearbyAt:value.nearbyAt,clockResumedAt:value.clockResumedAt};}
 function create({context,initial,clock:initialClock={lastFrame:0,nearbyAt:0,clockResumedAt:0}}){
  const s=clone(Original.createNative(context,...initial));Object.assign(s,clock(initialClock));
- return {...s,document:0,dispatchMs:0,timers:{},showIndex:0};
+ return {...s,document:0,dispatchMs:0,timers:{},showIndex:0,hiddenRecoveryEligible:false};
 }
 function stop(s){s.moveX=0;s.moveY=0;s.walking=false;s.walkDistance=0;}
 function draw(s){s.rng=(s.rng+0x6D2B79F5)>>>0;let t=s.rng;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;}
@@ -30,13 +30,24 @@ function correction(s){
  let nearest=null,distance=Infinity;for(const x of xs)for(const y of ys){if(x<7||x>90||y<18||y>88||Original.blocked(s,x,y))continue;const d=Math.hypot((x-s.x)*s.geometry.width,(y-s.y)*s.geometry.height);if(d<distance){distance=d;nearest={x,y};}}
  if(nearest){s.x=nearest.x;s.y=nearest.y;return true;}return false;
 }
-function recoveryPhase(s){return s.paused&&!s.hidden&&Object.keys(s.timers).length===0&&
+function pausedRecoveryProgress(s){return s.active===true&&s.paused&&Object.keys(s.timers).length===0&&
  ((s.stage===1&&s.repairOpen&&!s.repairShowing&&s.repairCells>0&&s.repairCells<4)||
  (s.stage===2&&s.antennaOpen&&s.holding&&s.holdProgress>0&&s.holdProgress<100));}
+function recoveryPhase(s){return pausedRecoveryProgress(s)&&(!s.hidden||s.hiddenRecoveryEligible===true);}
+function stopped(s){return s.moveX===0&&s.moveY===0&&!s.walking&&s.walkDistance===0;}
+function passiveHiddenSuffix(s,callback){
+ if(!s.hidden||!pausedRecoveryProgress(s)||!stopped(s))return false;
+ const steps=callback.steps;
+ if(callback.kind==='frame')return steps[0]?.[0]==='frame'&&steps[0][2]===0&&steps[0][3]===0&&steps.every(x=>x[0]==='frame'||x[0]==='stop');
+ if(callback.kind==='stop')return steps.every(x=>x[0]==='stop');
+ if(callback.kind==='hold')return steps.length===1&&steps[0][0]==='hold'&&Object.is(steps[0][1],s.dial);
+ if(callback.kind==='pause')return steps.length===0;
+ return callback.kind==='visibility'&&steps.length===1&&steps[0][0]==='hidden'&&steps[0][1]===true;
+}
 function beginDocument(previous,raw){
  if(!recoveryPhase(previous))fail('unsupported-recovery-phase');
  if(!time(raw.dispatchMs))fail('invalid-document-clock');const s=clone(previous);
- Object.assign(s,clock(raw),{document:s.document+1,dispatchMs:raw.dispatchMs,now:raw.dispatchMs});return s;
+ Object.assign(s,clock(raw),{document:s.document+1,dispatchMs:raw.dispatchMs,now:raw.dispatchMs,hidden:false,hiddenRecoveryEligible:false});return s;
 }
 // Projection grammar fixes callback ownership/order. Geometry observations are
 // retained verbatim; every geometry-consuming source step must follow its read.
@@ -70,6 +81,7 @@ function transition(previous,callback){
  if(!callback||!KINDS.has(callback.kind)||!time(callback.dispatchMs)||callback.dispatchMs<previous.dispatchMs||!Array.isArray(callback.steps))fail('invalid-callback');
  grammar(callback);if(callback.kind==='scan'&&callback.steps.length!==3-previous.collected.length)fail('scan-read-count');if(callback.kind==='hydrate'&&callback.steps.filter(x=>x[0]==='hold-rearm').length!==(previous.holding?1:0))fail('hydrate-rearm-required');const s=clone(previous),required={nearby:0,nearbyAt:0,stop:0,cue:0,finish:0,card:0,sequence:0,cancel:0,register:[]};let frames=0,actionNear=null;
  s.dispatchMs=callback.dispatchMs;s.now=callback.dispatchMs;
+ if(s.hiddenRecoveryEligible&&!passiveHiddenSuffix(previous,callback))s.hiddenRecoveryEligible=false;
  const requireCount=k=>{if(required[k]<1)fail('untriggered-'+k);required[k]--;};
  for(const step of callback.steps){
   if(!Array.isArray(step)||typeof step[0]!=='string')fail('invalid-step');const [op,a,b,c,d]=step;
@@ -117,7 +129,7 @@ function transition(previous,callback){
   else if(op==='close'){if(!['repair','antenna'].includes(a))fail('invalid-panel');s[a+'Open']=false;if(a==='repair'){s.repairShowing=false;required.cancel++;required.sequence++;}else{s.holding=false;s.holdProgress=0;}required.stop++;required.nearby++;}
   else if(op==='sequence'){if(callback.kind==='close')requireCount('sequence');sequence(s);}
   else if(op==='pause'){if(typeof a!=='boolean')fail('invalid-pause');s.paused=a;if(a)required.stop++;}
-  else if(op==='hidden'){if(typeof a!=='boolean'||!time(b))fail('invalid-visibility');s.hidden=a;s.clockResumedAt=b;}
+  else if(op==='hidden'){if(typeof a!=='boolean'||!time(b))fail('invalid-visibility');s.hiddenRecoveryEligible=a?(!s.hidden?recoveryPhase(previous)&&stopped(previous):s.hiddenRecoveryEligible):false;s.hidden=a;s.clockResumedAt=b;}
   else if(op==='leave'){s.active=false;s.paused=false;s.holding=false;s.repairShowing=false;required.cancel++;required.stop++;}
   else if(op==='screen-enter'){s.active=true;s.paused=false;s.lastFrame=0;}
   else if(op==='timer-start'){
@@ -137,6 +149,7 @@ function transition(previous,callback){
  if(callback.kind==='pause'&&callback.steps.some(x=>x[0]==='pause'&&x[1]!==true)||['resume','screen'].includes(callback.kind)&&callback.steps.some(x=>x[0]==='pause'&&x[1]!==false))fail('pause-owner');
  if(callback.kind==='frame'&&frames!==1)fail('frame-callback-grammar');
  if(Object.values(required).some(v=>Array.isArray(v)?v.length:v))fail('incomplete-callback-effects');
+ if(s.hiddenRecoveryEligible&&(!s.hidden||!pausedRecoveryProgress(s)||!stopped(s)))s.hiddenRecoveryEligible=false;
  return s;
 }
 module.exports=Object.freeze({ID,Original,N,create,transition,beginDocument,recoveryPhase});

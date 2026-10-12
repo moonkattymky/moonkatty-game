@@ -92,5 +92,41 @@ const centered=create();centered.stick(38,38);check(centered);assert(Object.is(c
 let hydrationStatusWrites=0;const layoutReload=create({storageSeed:repairSave,statusTextHook:({text})=>text==='Energy restored. Repair the terminal 🔧'?{height:++hydrationStatusWrites===1?450:470}:null});
 layoutReload.setPaused(true);assert.equal(layoutReload.snapshot().rectangles.world.height,450);assert.equal(layoutReload.capture().restore().ok,true);check(layoutReload);assert.equal(layoutReload.snapshot().rectangles.world.height,470);assert.equal(layoutReload.capture().state().geometry.height,470);assert.equal(layoutReload.capture().state().liveGeometry.world.height,470);
 const scanner=create({statusTextHook:({text})=>text.startsWith('Scanner:')?{height:450}:null});scanner.scan();check(scanner);assert.equal(scanner.snapshot().rectangles.world.height,450);assert.equal(scanner.capture().state().liveGeometry.world.height,402);scanner.nearby();check(scanner);assert.equal(scanner.capture().state().liveGeometry.world.height,450);assert.equal(scanner.capture().state().geometry.height,402);
-const report={test:'life1-recording-vnext-controller',exactComparedStates:compared,pausedRepairReload:true,pausedFortyPercentHoldReload:true,rawDocumentEpochs:true,originalAcceptedPrefixesRetained:true,originalCallbackJitter:[135,105],originalDelayJitter:[65,35],mixedClockReplay:true,stickBeforeFrameOrdering:true,centeredAndSignedZeroInput:true,measuredAutomaticCapture:true,atomicCapacityRefusal:true,postStageHydrationRefusal:true,hydrationStatusResizeObserved:true,scannerSourceReadsRetained:true,storageQuotaRetainsPrefix:true,usage:holdReload.capture().status().usage,browserExecuted:false,nativeGeometryCertified:false,authoritativeAdmission:false};
+// Native reload lifecycle preserves the complete paused visibility/stop suffix.
+// This is deliberately tested before relaxing any recovery predicate.
+first.setClock(first.snapshot().now+17);first.setHidden(true);check(first);first.save();
+const hiddenRepairPrefix=first.capture().wire();assert.equal(first.capture().state().hidden,true);
+const hiddenRepair=create({storageSeed:first.storage(),initialNow:700});hiddenRepair.setPaused(true);
+assert.equal(hiddenRepair.capture().restore().ok,true,JSON.stringify(hiddenRepair.capture().status()));check(hiddenRepair);
+assert.equal(hiddenRepair.capture().state().hidden,false);assert.equal(hiddenRepair.snapshot().repairCells,2);
+assert.deepEqual(JSON.parse(hiddenRepair.capture().wire()).entries.slice(0,JSON.parse(hiddenRepairPrefix).entries.length),JSON.parse(hiddenRepairPrefix).entries);
+repairReload.setClock(repairReload.snapshot().now+17);repairReload.setHidden(true);check(repairReload);
+repairReload.holdTick(repairReload.snapshot().now+135);check(repairReload);repairReload.save();
+const hiddenHoldPrefix=repairReload.capture().wire(),hiddenHold=create({storageSeed:repairReload.storage(),initialNow:2});hiddenHold.setPaused(true);
+assert.equal(hiddenHold.capture().restore().ok,true,JSON.stringify(hiddenHold.capture().status()));check(hiddenHold);
+assert.equal(hiddenHold.snapshot().holdProgress,40);assert.equal(hiddenHold.capture().state().hidden,false);
+assert.deepEqual(JSON.parse(hiddenHold.capture().wire()).entries.slice(0,JSON.parse(hiddenHoldPrefix).entries.length),JSON.parse(hiddenHoldPrefix).entries);
+hiddenHold.holdTick(137);check(hiddenHold);assert.equal(hiddenHold.snapshot().holdProgress,40);
+// Hiding an active source and auto-pausing afterward is still unsupported.
+hiddenRepair.setPaused(false);check(hiddenRepair);hiddenRepair.setHidden(true);check(hiddenRepair);hiddenRepair.save();
+const autoPaused=create({storageSeed:hiddenRepair.storage()});autoPaused.setPaused(true);
+assert.equal(autoPaused.capture().restore().error,'unsupported-recovery-phase');assert.equal(autoPaused.capture().wire(),null);
+// Eligibility is derived from history, and remains invalid after later returning
+// to the same earned phase. It is never accepted from serialized metadata.
+let lifecycleChecks=0;const visibleRepair=R.inspect(repairSave[first.capture().KEY]).recording;
+const extend=(recording,kind,steps)=>{const result=R.appendCallback(recording,{kind,dispatchMs:recording.state.dispatchMs+1,steps});assert(result.ok,result.error);return result.recording;};
+const eligible=extend(visibleRepair,'visibility',[['hidden',true,visibleRepair.state.dispatchMs+1]]);
+assert.equal(eligible.state.hiddenRecoveryEligible,true);lifecycleChecks++;
+let passive=extend(eligible,'visibility',[['hidden',true,eligible.state.dispatchMs+1]]);passive=extend(passive,'stop',[['stop']]);passive=extend(passive,'pause',[]);passive=extend(passive,'frame',[['frame',passive.state.lastFrame+16,0,0]]);
+assert.equal(passive.state.hiddenRecoveryEligible,true);lifecycleChecks++;
+const preflight=recording=>R.preflightDocument(recording,{dispatchMs:0,lastFrame:0,nearbyAt:0,clockResumedAt:0});
+for(const [kind,steps]of [['stick',[['input',0,0]]],['frame',[['frame',eligible.state.lastFrame+16,1,0],['stop']]],['dial',[['dial',eligible.state.dial]]]]){
+ const invalid=extend(eligible,kind,steps),samePhase=extend(invalid,'stop',[['stop']]);assert.equal(samePhase.state.hiddenRecoveryEligible,false);assert.equal(samePhase.state.repairCells,2);assert.equal(preflight(samePhase).error,'unsupported-recovery-phase');lifecycleChecks++;
+}
+const resumed=extend(eligible,'resume',[['pause',false]]),pausedAgain=extend(resumed,'pause',[['pause',true],['stop']]);assert.equal(pausedAgain.state.hiddenRecoveryEligible,false);assert.equal(preflight(pausedAgain).error,'unsupported-recovery-phase');lifecycleChecks++;
+const inactive=extend(visibleRepair,'screen',[['leave'],['timer-cancel',[]],['stop'],['pause',false]]),inactivePaused=extend(inactive,'pause',[['pause',true],['stop']]);assert.equal(preflight(inactivePaused).error,'unsupported-recovery-phase');const inactiveHidden=extend(inactivePaused,'visibility',[['hidden',true,inactivePaused.state.dispatchMs+1]]);assert.equal(inactiveHidden.state.hiddenRecoveryEligible,false);assert.equal(preflight(inactiveHidden).error,'unsupported-recovery-phase');lifecycleChecks++;
+const forged=JSON.parse(hiddenRepairPrefix);forged.hiddenRecoveryEligible=true;assert.equal(R.inspect(R.encode(forged)).error,'recording-format');lifecycleChecks++;
+const stillHidden=create({storageSeed:first.storage()});stillHidden.setPaused(true);stillHidden.setHidden(true);assert.equal(stillHidden.capture().restore().error,'fresh-paused-source-required');assert.equal(stillHidden.capture().wire(),null);lifecycleChecks++;
+const inactiveFresh=create({storageSeed:first.storage()});inactiveFresh.setPaused(true);inactiveFresh.leave();const inactiveBefore=JSON.stringify(inactiveFresh.snapshot());assert.equal(inactiveFresh.capture().restore().error,'fresh-paused-source-required');assert.equal(JSON.stringify(inactiveFresh.snapshot()),inactiveBefore);assert.equal(inactiveFresh.capture().wire(),null);lifecycleChecks++;
+const report={test:'life1-recording-vnext-controller',exactComparedStates:compared,lifecycleChecks,pausedHiddenSuffixRecovery:true,activeHiddenAutoPauseStillRefused:true,pausedRepairReload:true,pausedFortyPercentHoldReload:true,rawDocumentEpochs:true,originalAcceptedPrefixesRetained:true,originalCallbackJitter:[135,105],originalDelayJitter:[65,35],mixedClockReplay:true,stickBeforeFrameOrdering:true,centeredAndSignedZeroInput:true,measuredAutomaticCapture:true,atomicCapacityRefusal:true,postStageHydrationRefusal:true,hydrationStatusResizeObserved:true,scannerSourceReadsRetained:true,storageQuotaRetainsPrefix:true,usage:holdReload.capture().status().usage,browserExecuted:false,nativeGeometryCertified:false,authoritativeAdmission:false};
 fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));

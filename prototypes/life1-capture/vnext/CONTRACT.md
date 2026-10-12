@@ -162,7 +162,7 @@ All header, document, callback, geometry and step metadata count. Document IDs
 increase by one; sequence IDs follow full journal entry order, including document
 boundaries. Bounds will not be increased to force ordinary-path completion.
 
-Exact recovery prefix: paused and not hidden; either stage 1, repair panel open,
+Exact original recovery prefix: active Chapter 1, paused and not hidden; either stage 1, repair panel open,
 1–3 accepted cells and no sequence playback; or stage 2, antenna panel open,
 holding with 1–99% progress. Neither may have pending mission-delay work.
 Preflight validates replay/phase/domain/known capacity before writes. Staging
@@ -174,3 +174,31 @@ only hydration-created work, retain a paused/disarmed source and old accepted
 memory/durable prefix byte-for-byte, latch `hydration-refused`, and require a new
 fresh document for retry. No candidate is published, and no full DOM rollback is
 claimed. This boundary needs its own exact post-stage-refusal tests.
+
+## Paused reload visibility suffix (native run 38222668648)
+
+Native Chromium completed ordinary play with exact live/cache observations. Its
+first repair reload retained 639 complete entries: the visible paused two-cell
+prefix (633 entries), four further paused RAF callbacks, `hidden=true` at
+8171.5 ms, then the original stop at 8173.100000000006 ms. The old `!hidden`
+predicate refused this ordinary final document lifecycle. The suffix must remain
+in the journal; reverting to the earlier 633 entries is not recovery.
+
+The bounded extension derives `hiddenRecoveryEligible` during replay only when
+an original visibility callback hides an already-visible, active Chapter 1, paused, supported
+repair/hold state. No serialized checkpoint field can supply this marker. While
+hidden, only zero-input paused frames, idempotent stops, skipped hold ticks,
+duplicate hidden notifications and empty already-paused guide callbacks preserve
+it; the source guards must still leave the same supported paused phase. Other callbacks,
+resume, or loss of that phase invalidate it. Hiding an active controller and
+being auto-paused afterward does not establish eligibility.
+
+A document boundary accepts either the original visible-paused predicate or
+this replay-derived hidden suffix. The new document is explicitly required to
+be an active visible Chapter 1 screen and already paused, with no source work
+pending, before any writes.
+Beginning that document resets only document-local hidden/eligibility and clock
+registers; earned state and every old callback remain unchanged. It does not
+synthesize an old-document visibility event or infer elapsed play. Hydration's
+existing atomic budget, geometry, rearm and post-stage refusal requirements
+still apply. This extends paused reload only, not general active/hidden recovery.

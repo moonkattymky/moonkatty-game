@@ -25,7 +25,7 @@ node tests/life1-recording-vnext-journal.cjs
 ```
 
 The manual source differential has 369 exact state comparisons / 362 immutable
-transitions. Automatic capture has 306 exact comparisons, two-cell repair and
+transitions. Automatic capture has 314 exact comparisons and 10 lifecycle checks, two-cell repair and
 40% hold recovery across fresh clock epochs, measured live/cache divergence,
 original 135/105 ms hold and 65/35 ms delay callbacks, atomic capacity refusal,
 and post-stage hydration refusal that keeps the old prefix and disarms the fresh
@@ -41,6 +41,11 @@ original gameplay continues. They neither cap gameplay duration nor establish
 long-session completeness. The independent lossless codec is not integrated.
 
 Fresh hydration uses original source clocks without rebasing old timestamps.
+It retains a hidden reload suffix only when replay proves the document was
+already visibly paused in a supported active Chapter 1 phase before hiding.
+Only the specified passive suffix preserves eligibility. Active-to-hidden
+auto-pause remains unsupported; the fresh source must be active, visible and
+paused before staging.
 Panel/status writes precede the actual refresh observations. A complete holding
 recovery requires an explicit original interval rearm; repair recovery forbids
 one. Failure after staging retains old memory/durable bytes, cancels hydration's
@@ -53,9 +58,13 @@ The separately selected vNext browser fixture is prepared for coordinator-owned
 CI. Its bounded, one-shot MutationObserver watches the original displayed 40%
 hold progress, then invokes the original pause button handler after that hold
 callback has committed. This is test automation, not evidence of a trusted
-physical gesture; it changes no progress, timer, RAF or geometry value. It has not been executed locally. Exact native layout, complete native
-callback interleaving and fresh-page recovery remain pending until that lane
-passes. The old mixed-clock lane keeps `gatePassed:false`. The old native reload
+physical gesture; it changes no progress, timer, RAF or geometry value.
+No browser has been executed locally. Native run `38222668648` on `375cdc72`
+passed ordinary completion: 1,226 entries / 91,331 bytes, 910 frames and one
+exact stale-cache frame. Repair reload then refused its newly hidden durable
+prefix. The source correction retains all 639 entries of that actual prefix
+and passes socket-free hydration plus repair continuation; corrected native
+reload evidence remains pending. The old mixed-clock lane keeps `gatePassed:false`. The old native reload
 failure remains preserved and gets an exact expected-refusal wrapper; other
 failures and unexpected success fail that baseline check. No waiting workaround,
 new tolerance, forced geometry refresh or gameplay-dt change is used to conceal

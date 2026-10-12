@@ -63,8 +63,8 @@
   let body;try{body=localStorage.getItem(KEY);}catch{return {ok:false,error:'checkpoint-read-refused'};}
   const checked=R.inspect(body);if(!checked.ok)return {ok:false,error:checked.error};
   const old=checked.recording,s=old.state;
-  if(!s.paused||s.hidden||Object.keys(s.timers).length||!((s.stage===1&&s.repairOpen&&!s.repairShowing&&s.repairCells>0&&s.repairCells<4)||(s.stage===2&&s.antennaOpen&&s.holding&&s.holdProgress>0&&s.holdProgress<100)))return {ok:false,error:'unsupported-recovery-phase'};
-  if(!window.MKTYExperience.paused||document.hidden||repairShowing||signalHoldTimer!==null||(missionDelays.get(1)?.size||0))return {ok:false,error:'fresh-paused-source-required'};
+  if(!s.active||!s.paused||(s.hidden&&!s.hiddenRecoveryEligible)||Object.keys(s.timers).length||!((s.stage===1&&s.repairOpen&&!s.repairShowing&&s.repairCells>0&&s.repairCells<4)||(s.stage===2&&s.antennaOpen&&s.holding&&s.holdProgress>0&&s.holdProgress<100)))return {ok:false,error:'unsupported-recovery-phase'};
+  if(!$('mission1').classList.contains('active')||!window.MKTYExperience.paused||document.hidden||repairShowing||signalHoldTimer!==null||(missionDelays.get(1)?.size||0))return {ok:false,error:'fresh-paused-source-required'};
   const raw=clocks(),preflight=R.preflightDocument(old,raw);if(!preflight.ok)return {ok:false,error:preflight.error,acceptedPrefixRetained:true};
   recording=old;hydrating=true;depth=1;batch={callback:{kind:'hydrate',dispatchMs:raw.dispatchMs,steps:[]},error:null};let createdHold=null;
   try{
