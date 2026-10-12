@@ -145,7 +145,7 @@ async function heldIssue(event='ISSUED') {
 }
 async function main(){
   if(process.env.GITHUB_ACTIONS!=='true'||process.env.CI!=='true')throw Error('Native invocation fence is CI-only; local browser/listener execution is not authorized.');
-  const prepared=prepare();({routes,cache,sourceHashes}=prepared);report.sourceHashes=sourceHashes;report.resourceCache=prepared.resourceCache;
+  const resources=prepare();({routes,cache,sourceHashes}=resources);report.sourceHashes=sourceHashes;report.resourceCache=resources.resourceCache;
   report.commit=git('rev-parse','HEAD');report.tree=git('rev-parse','HEAD^{tree}');report.workflowSha=process.env.GITHUB_SHA;assert.equal(report.commit,report.workflowSha,'Execute exact CI commit');assert.equal(git('status','--porcelain'),'','No runtime fixture rewriting');
   const {chromium}=require('playwright');assert.equal(require('playwright/package.json').version,'1.58.2');
   browser=await bounded(chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH,args:['--no-sandbox','--disable-back-forward-cache']}),'launch pinned Chromium',30000);
