@@ -54,21 +54,23 @@ A future repair-sequence regeneration after cross-document recovery still needs
 an explicit random-source contract; this candidate does not claim that arbitrary
 prior sequence resets can migrate the browser's Math.random state.
 
-The separately selected vNext browser fixture is prepared for coordinator-owned
-CI. Its bounded, one-shot MutationObserver watches the original displayed 40%
-hold progress, then invokes the original pause button handler after that hold
-callback has committed. This is test automation, not evidence of a trusted
-physical gesture; it changes no progress, timer, RAF or geometry value.
-No browser has been executed locally. Native run `38222668648` on `375cdc72`
-passed ordinary completion: 1,226 entries / 91,331 bytes, 910 frames and one
-exact stale-cache frame. Repair reload then refused its newly hidden durable
-prefix. The source correction retains all 639 entries of that actual prefix
-and passes socket-free hydration plus repair continuation; corrected native
-reload evidence remains pending. The old mixed-clock lane keeps `gatePassed:false`. The old native reload
-failure remains preserved and gets an exact expected-refusal wrapper; other
-failures and unexpected success fail that baseline check. No waiting workaround,
-new tolerance, forced geometry refresh or gameplay-dt change is used to conceal
-the observed gap.
+The separately selected vNext browser fixture passed on source head
+`a2ba62e2b21faf9d1553a645d683029d9b1a3914`, workflow `38224597854`, job
+`114728888435`, Chromium 145.0.7632.6. It completed an ordinary run and a run with
+real paused repair and 40% hold reloads, preserving every old prefix. The latter
+used 1,301 entries / 95,967 bytes, 963 frames and included a stale-cache frame.
+These are the measured fixture's counts, not long-session capacity guarantees.
+No native browser was executed locally. Physical devices, other geometry profiles
+and runtime integration remain unverified. Exact current-head CI is recorded in
+GitHub Actions separately from this historical native result.
+
+The old mixed-clock lane keeps `gatePassed:false`. Its frozen reload refusal is
+characterized with exact geometry/payloads, source-derived entry/count bounds and
+causal virtual-clock relationships, rather than one historical startup offset or
+total frame count. Three unmodified CI reports and 99 mutations exercise the
+signature. Other failures and unexpected success still fail. A baseline pass
+never means the old reload gate passed. No waiting workaround, new tolerance,
+forced geometry refresh or gameplay-dt change conceals the observed gap.
 
 ## Frozen baseline documentation
 

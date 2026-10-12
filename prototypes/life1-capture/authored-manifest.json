@@ -9,8 +9,8 @@
     },
     {
       "path": "prototypes/life1-capture/README.md",
-      "sha256": "92dead8b18720db22f591ea28b0a33e72d3e8ed51e4732a607b7ede8d5f13294",
-      "bytes": 12148
+      "sha256": "ff627ffb8b89bdd7f2d99981b36f81956072de0060ad480223af5bf007a47326",
+      "bytes": 12257
     },
     {
       "path": "prototypes/life1-capture/controller-adapter.js",
@@ -118,6 +118,11 @@
       "bytes": 34926
     },
     {
+      "path": "tests/fixtures/life1-recording-refusal-evidence/unaligned-start.json",
+      "sha256": "d09a24cafe715249b3780ea0be1cff26b71bfbb7d3961aa9b27be206ab2204d4",
+      "bytes": 34926
+    },
+    {
       "path": "tests/fixtures/life1-recording-source-controller.cjs",
       "sha256": "669887107233f27fdfc52d1f26ddef15c18e91dacb2536bcb7d04b384695b4c2",
       "bytes": 20396
@@ -139,13 +144,13 @@
     },
     {
       "path": "tests/life1-recording-baseline-refusal-fixture.cjs",
-      "sha256": "6c6a7ba10a38ed138af634559451f2924f6313d55770aa2dfc419c3142fc9ba3",
-      "bytes": 12254
+      "sha256": "919b7bccc5de13a8a81a1d3eff11300fa7a4716e2d20a29fcf700e963a1e8b7a",
+      "bytes": 13513
     },
     {
       "path": "tests/life1-recording-baseline-signature.cjs",
-      "sha256": "a91b28166027f9dd8c6a459efb1df539349dba35bbf2f61278ce353b217ff3a6",
-      "bytes": 3261
+      "sha256": "6e09f5506a0d86290e87f66fa3c78a1dd462b2d755c127f3e174c61157f3d88c",
+      "bytes": 3761
     },
     {
       "path": "tests/life1-recording-browser-fixture.cjs",

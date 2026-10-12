@@ -70,11 +70,20 @@ function validateBaselineRefusal(report) {
   if (!lines[0].startsWith(prefix)) return mismatch('collect-1-assertion');
   let status;
   try {status = JSON.parse(lines[0].slice(prefix.length));} catch {return mismatch('failure-status-json');}
+  const observations = status?.observations, entries = status?.usage?.entries;
+  if (!Number.isSafeInteger(observations) || observations < 6 || !Number.isSafeInteger(entries) || entries !== observations + 1 || entries > 4096) return mismatch('bounded-observation-entry-consistency');
   const bytes = status?.usage?.bytes, tailJSON = JSON.stringify(report.firstGeometryRefusal?.acceptedTail);
   if (typeof tailJSON !== 'string' || !Number.isSafeInteger(bytes) || bytes <= Buffer.byteLength(tailJSON) || bytes > 196608) return mismatch('bounded-reported-prefix-bytes');
+  // Frozen fixture creates a381-byte epoch; each minimum event adds21 bytes.
+  // Six visible tail entries tighten this lower bound without claiming the
+  // absent complete journal has been reconstructed or byte-verified.
+  const tail = report.firstGeometryRefusal?.acceptedTail;
+  if (!Array.isArray(tail) || tail.length !== 6) return mismatch('six-entry-tail');
+  const minimumBytes = 381 + 21 * (observations - 6) + tail.reduce((n,e)=>n+Buffer.byteLength(JSON.stringify(e))+1,0);
+  if (bytes < minimumBytes) return mismatch('reported-prefix-byte-lower-bound');
   if (!isDeepStrictEqual(status, {recording: true, fault: expectedFault,
     lastSave: {ok: false, error: 'checkpoint-not-paused', oldCheckpointRetained: true},
-    observations: 122, refusedObservations: 3, usage: {entries: 123, bytes}})) return mismatch('exact-old-recorder-fault');
+    observations, refusedObservations: 3, usage: {entries, bytes}})) return mismatch('exact-old-recorder-fault');
   const expectedDiff = ['+ actual - expected', '', '+ {', '+   detail: null,', "+   error: 'unsettled-live-size'", '+ }', '- null', ''];
   if (!isDeepStrictEqual(lines.slice(1, 9), expectedDiff)) return mismatch('assertion-diff');
   if (lines.length !== 11) return mismatch('assertion-stack-shape');
@@ -86,6 +95,10 @@ function validateBaselineRefusal(report) {
   const T = got[2]?.snapshot?.snapshotMs, F = refusal.wrapperDispatchMs, G = got[4]?.snapshot?.snapshotMs;
   const M = refusal.acceptedTail[0]?.[1]?.[1], S = refusal.acceptedTail[2]?.[1]?.[1];
   if (![A,P,T,F,G,M,S].every(t => Number.isFinite(t) && t <= Number.MAX_SAFE_INTEGER) || !(0 <= A && A < M && M < S && S < P && P < T && T < F && F < G && G === T + 32)) return mismatch('causal-callback-clock-order');
+  // Pinned Playwright 1.58.2 virtual cadence, not a claim about native RAF.
+  // Two unchanged loops deliver twice at each16ms boundary within runFor(32):
+  // the first syncView refusal is uncounted, then3 latched observations refuse.
+  if (![M,P,F].every(t => t % 16 === 0) || P !== M + 16 || F !== P + 16) return mismatch('pinned-virtual-raf-cadence');
   const causalObservations = [
     {label: 'before armed show/reset', snapshot: snapshot(A, oldWorld, 483.96875, oldStatus, null, null)},
     {label: 'after armed show/reset', snapshot: snapshot(A, oldWorld, 483.96875, oldStatus, 0, 0)},
@@ -104,7 +117,7 @@ function validateBaselineRefusal(report) {
   return {ok: true, evidence: {kind: 'characterized-frozen-reload-refusal', error: 'unsettled-live-size',
     initialSnapshotMs: A, collectMs: T, firstRefusedFrameMs: F, firstRefusedDispatchMs: F, refreshedCacheObservedMs: G,
     worldHeights: [483.96875, 495.84375], statusHeights: [41.875, 30], acceptedModelAndTailUnchanged: true,
-    reportedPrefixBytes: bytes, wholePrefixByteEqualityVerified: false,
+    reportedObservations: observations, reportedEntries: entries, reportedPrefixBytes: bytes, wholePrefixByteEqualityVerified: false,
     noAnimationsOrTransforms: true, oldReloadGatePassed: false, runtimeReady: false, authoritativeAdmission: false}};
 }
 
