@@ -112,3 +112,26 @@ watchdog, real native terminal/deadline ordering, unknown outcome and exact retr
 assertions are unchanged. Separate open-timeout/blocked-open tests remain
 ungated. This setup does not establish that opening storage always takes less
 than 100ms, and adds no production timeout or storage-policy change.
+
+
+### Native quota preparation qualification
+
+The adapter's native-quota case, like the separate result-gate quota fixture,
+uses one measured 31-second no-write preparation interval after the quota override
+and before its first candidate append. Node independently bounds this preparation
+at 35 seconds and records monotonic elapsed time, unchanged native readwrite
+transaction count, zero active transactions, and the still-active quota/usage.
+Per-attempt results, native events, prior counters and usage persist on failure.
+The existing 16-attempt cap, 65536-byte payloads, native `QuotaExceededError`
+requirement, whole-store rollback comparison and logical/storage limits are
+unchanged. No adapter watchdog or other case is modified.
+
+The rationale is the 30-second cached bucket authority documented by Chromium's
+[header at revision 1c9524c5d3627044b0cf0a0b679978e82b702279](https://chromium.googlesource.com/chromium/src/+/1c9524c5d3627044b0cf0a0b679978e82b702279/content/browser/indexed_db/instance/bucket_context.h)
+and its [quota-check implementation, lines 403–464](https://chromium.googlesource.com/chromium/src/+/1c9524c5d3627044b0cf0a0b679978e82b702279/content/browser/indexed_db/instance/bucket_context.cc).
+The exact tested Chromium 145.0.7632.6 revision was unavailable for source
+inspection. This is a version-qualified setup rationale: the actual native error
+and rollback evidence determine acceptance, never elapsed time alone. Earlier
+passes took longer, while a later run completed all capped writes without a quota
+error in 19.819 seconds; incidental preceding test work is not relied on to age
+the cache.

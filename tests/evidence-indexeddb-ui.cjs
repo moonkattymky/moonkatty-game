@@ -395,22 +395,42 @@ function validateEvents(events) {
   });
   await test('E', 'Chromium quota override yields actual native QuotaExceededError below logical Q', async () => {
     const p = await fresh(); await open(p); const prior = request(desc('quota-prior'), Buffer.from('prior')); assert.equal((await append(p, prior)).status, 'committed');
-    const cdp = await context.newCDPSession(p); const evidence = {kind: 'native-browser-quota', status: 'unverified', protocol: 'Storage.overrideQuotaForOrigin', prior: await cdp.send('Storage.getUsageAndQuota', {origin: ORIGIN})};
-    report.nativeQuota = evidence;
+    const cdp = await context.newCDPSession(p); const evidence = {kind: 'native-browser-quota', status: 'unverified', protocol: 'Storage.overrideQuotaForOrigin', prior: await cdp.send('Storage.getUsageAndQuota', {origin: ORIGIN}), attempts: []};
+    report.nativeQuota = evidence; save();
     try {
       await cdp.send('Storage.overrideQuotaForOrigin', {origin: ORIGIN, quotaSize: 1});
-      evidence.override = await cdp.send('Storage.getUsageAndQuota', {origin: ORIGIN}); assert.equal(evidence.override.overrideActive, true);
+      evidence.override = await cdp.send('Storage.getUsageAndQuota', {origin: ORIGIN}); save(); assert.equal(evidence.override.overrideActive, true);
+      // Setup only: allow the source-documented bucket authority cache to expire.
+      // Measured elapsed time is never a substitute for a native quota error.
+      evidence.cachePreparation = {requestedMs: 31000, sourceCacheLimitMs: 30000,
+        sourceRevision: '1c9524c5d3627044b0cf0a0b679978e82b702279',
+        sourceHeader: 'https://chromium.googlesource.com/chromium/src/+/1c9524c5d3627044b0cf0a0b679978e82b702279/content/browser/indexed_db/instance/bucket_context.h',
+        sourceImplementation: 'https://chromium.googlesource.com/chromium/src/+/1c9524c5d3627044b0cf0a0b679978e82b702279/content/browser/indexed_db/instance/bucket_context.cc',
+        qualification: 'Source revision differs from tested Chromium; actual native QuotaExceededError remains mandatory.',
+        before: await bounded(p.evaluate(() => ({writes: H.N.log.filter(event => event.type === 'transaction' && event.mode === 'readwrite').length, physical: H.N.physical})), 'adapter quota preparation start')};
+      assert.equal(evidence.cachePreparation.before.physical, 0); save();
+      const preparationStart = process.hrtime.bigint();
+      await bounded(new Promise(resolve => setTimeout(resolve, 31000)), 'adapter quota cache no-write preparation', 35000);
+      evidence.cachePreparation.elapsedMs = Number(process.hrtime.bigint() - preparationStart) / 1e6; save();
+      assert(evidence.cachePreparation.elapsedMs > 30000, 'measured Node monotonic interval must exceed the source cache lifetime');
+      evidence.cachePreparation.after = await bounded(p.evaluate(() => ({writes: H.N.log.filter(event => event.type === 'transaction' && event.mode === 'readwrite').length, physical: H.N.physical})), 'adapter quota preparation end');
+      evidence.cachePreparation.usageAfter = await bounded(cdp.send('Storage.getUsageAndQuota', {origin: ORIGIN}), 'adapter quota preparation usage'); save();
+      assert.deepEqual(evidence.cachePreparation.after, evidence.cachePreparation.before, 'no native write or active transaction during quota preparation');
+      assert.equal(evidence.cachePreparation.usageAfter.overrideActive, true); assert.equal(evidence.cachePreparation.usageAfter.quota, 1);
       let observed = false;
       for (let n = 0; n < 16; n++) {
         const before = await snapshot(p), mark = await p.evaluate(() => H.N.log.length), bytes = Buffer.alloc(65536); for (let i = 0; i < bytes.length; i++) bytes[i] = (i * 131 + n * 17) % 251;
         const result = await append(p, request(desc('native-quota-' + n), bytes)); const events = await p.evaluate(mark => H.N.log.slice(mark), mark);
         const nativeError = events.find(e => (e.type === 'request-error' || e.type === 'abort') && e.error === 'QuotaExceededError');
+        const attempt = {index: n, result, nativeError: nativeError || null, countersBefore: counter(before), events};
+        evidence.attempts.push(attempt); save();
+        attempt.usage = await bounded(cdp.send('Storage.getUsageAndQuota', {origin: ORIGIN}), 'adapter quota attempt usage'); save();
         if (nativeError) {assert.equal(result.status, 'refused'); assert.deepEqual(await snapshot(p), before); assert(events.some(e => e.type === 'abort')); Object.assign(evidence, {status: 'verified', result, nativeError, counters: counter(before), events}); observed = true; break;}
         assert.equal(result.status, 'committed', 'logical refusal/injected abort cannot count as native quota');
       }
       assert(observed, 'Native quota remains unverified: override produced no actual QuotaExceededError');
-    } catch (error) {if (evidence.status !== 'verified') evidence.reason = error.message; throw error;}
-    finally {await cdp.send('Storage.overrideQuotaForOrigin', {origin: ORIGIN}).catch(error => {evidence.resetError = error.message;}); await cdp.detach();}
+    } catch (error) {if (evidence.status !== 'verified') evidence.reason = error.message; save(); throw error;}
+    finally {await cdp.send('Storage.overrideQuotaForOrigin', {origin: ORIGIN}).catch(error => {evidence.resetError = error.message;}); await cdp.detach(); save();}
     return evidence;
   });
   await test('F', 'strict hint, missing APIs, insecure context and policy denial fail closed', async () => {
