@@ -101,3 +101,6 @@
 
 /* Triangulation keyboard controls must fit the actual app width on short landscape screens. */
 @media(orientation:landscape) and (max-height:600px){#fieldMission[data-kind=signal]{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}}
+
+/* A gesture on a triangulation range adjusts that control, never pans the page. */
+#fieldMission[data-kind=signal] input[type=range]{touch-action:none}

@@ -72,6 +72,57 @@ async function noPointer(p){
  return events.length;
 }
 async function close(f){assert.deepEqual(f.errors,[],'no page exceptions');report.errors.push(...f.errors);await f.context.close();}
+async function dragMarkerRanges(f){
+ const p=f.page,session=await f.context.newCDPSession(p),gestures=[];
+ // Observe defaults after the production document listeners; never cancel or synthesize DOM input.
+ await p.evaluate(()=>{window.__markerTouchEvents=[];for(const type of ['touchstart','touchmove','touchend','touchcancel','input','change'])window.addEventListener(type,e=>{if(!['pinX','pinY'].includes(e.target.dataset?.fieldSlider))return;__markerTouchEvents.push({type,name:e.target.dataset.fieldSlider,trusted:e.isTrusted,prevented:e.defaultPrevented,value:Number(e.target.value)});},{passive:true});});
+ const scroll=()=>p.evaluate(()=>({app:[document.getElementById('app').scrollLeft,document.getElementById('app').scrollTop],deck:[document.querySelector('#fieldMission .field-deck').scrollLeft,document.querySelector('#fieldMission .field-deck').scrollTop],outer:[scrollX,scrollY,document.documentElement.scrollLeft,document.documentElement.scrollTop,document.body.scrollLeft,document.body.scrollTop]}));
+ try{
+  for(const name of ['pinX','pinY']){
+   const control=await tabTo(p,slider(name));await reachable(control,'native marker drag '+name);
+   const initial=Number(await control.inputValue()),max=Number(await control.getAttribute('max'));
+   const directions=initial/max>=.5?[.18,.82]:[.82,.18];
+   for(const fraction of [...directions,null]){
+    const g=await control.evaluate(e=>{const b=e.getBoundingClientRect(),c=getComputedStyle(e),left=b.x+parseFloat(c.borderLeftWidth)+parseFloat(c.paddingLeft),width=b.width-parseFloat(c.borderLeftWidth)-parseFloat(c.borderRightWidth)-parseFloat(c.paddingLeft)-parseFloat(c.paddingRight),min=Number(e.min),max=Number(e.max),value=Number(e.value),x=left+8+(width-16)*(value-min)/(max-min),y=b.y+b.height/2;return{left,width,min,max,value,x,y,direction:c.direction,touchAction:c.touchAction,hit:document.elementFromPoint(x,y)===e};});
+    assert(g.hit&&g.width>40,'native marker thumb is unobstructed');assert.equal(g.direction,'ltr');assert.equal(g.touchAction,'none');
+    const vertical=fraction===null,end=vertical?{x:g.x,y:g.y+(g.y>100?-55:55)}:{x:g.left+8+(g.width-16)*fraction,y:g.y};
+    assert(end.y>0&&end.y<p.viewportSize().height,'bounded native marker touch endpoint');
+    const before=await snapshot(p),beforeScroll=await scroll(),eventStart=await p.evaluate(()=>{__markerTouchEvents=[];return __inputEvents.length;}),samples=[];
+    const axis=name==='pinX'?'x':'y',other=axis==='x'?'y':'x',points=at=>[{id:1,x:at.x,y:at.y,radiusX:2,radiusY:2,force:1}];
+    const check=async()=>{
+     const value=Number(await control.inputValue()),state=await snapshot(p);samples.push(value);
+     const emitted=await p.evaluate(()=>__markerTouchEvents.filter(e=>e.type==='input').at(-1));
+     if(emitted){assert.equal(emitted.name,name);assert.equal(value,emitted.value);assert.equal(state.pin[axis],emitted.value,'native marker input reaches the exact emitted model value');}
+     else{assert.equal(value,g.value,'before native input the range stays at its displayed value');assert.equal(state.pin[axis],before.pin[axis],'before native input the exact fractional checkpoint is preserved');}
+     assert.equal(state.pin[other],before.pin[other],'native drag preserves exact other axis');
+     assert.equal(await p.locator('[data-field-read="'+name+'"]').textContent(),String(value));
+     assert.deepEqual(await p.evaluate(()=>JSON.parse(localStorage.getItem('triangulation-fixture-save')).pin),state.pin,'native marker save matches model');
+     return value;
+    };
+    await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:points(g)});
+    assert(Math.abs(Number(await control.inputValue())-g.value)<=1,'marker drag starts on current thumb');
+    for(let step=1;step<=12;step++){
+     await session.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:points({x:g.x+(end.x-g.x)*step/12,y:g.y+(end.y-g.y)*step/12})});
+     await p.waitForTimeout(20);await check();
+    }
+    await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await p.waitForTimeout(40);
+    const value=await check(),afterScroll=await scroll(),trace=await p.evaluate(()=>__markerTouchEvents.slice()),input=await p.evaluate(start=>__inputEvents.slice(start).filter(e=>e.type==='input'),eventStart);
+    assert.deepEqual(afterScroll,beforeScroll,'marker gestures never pan app, deck or document');
+    assert(trace.some(e=>e.type==='touchstart')&&trace.some(e=>e.type==='touchmove')&&trace.some(e=>e.type==='touchend'),'full native marker gesture observed');
+    assert(trace.every(e=>e.trusted&&!e.prevented),'trusted native marker events retain browser defaults');assert(!trace.some(e=>e.type==='touchcancel'),'marker gesture is not canceled');
+    if(vertical)assert(Math.abs(value-g.value)<=1,'vertical gesture preserves marker coordinate');
+    else{
+     assert(Math.abs(value-(g.min+fraction*(g.max-g.min)))<=Math.max(2,(g.max-g.min)*.06),'native marker thumb reaches intended fraction');
+     assert(Math.abs(value-g.value)>=(g.max-g.min)*.20,'native marker drag moves at least20%');
+     assert(new Set(trace.filter(e=>e.type==='input').map(e=>e.value)).size>=2&&new Set(samples).size>=2,'marker drag produces multiple distinct native input values');
+     assert(input.length>=2&&input.every(e=>e.trusted&&e.slider===name),'existing fixture confirms trusted marker input events');assert(trace.some(e=>e.type==='change'),'native marker drag commits a change');
+    }
+    gestures.push({name,vertical,from:g.value,to:value,trace,beforeScroll,afterScroll});
+   }
+  }
+ }finally{await session.detach();}
+ return gestures;
+}
 async function lifecycle(f){
  const p=f.page,before=await snapshot(p);
  await activate(p,'#fieldPause');
@@ -140,12 +191,14 @@ async function lifecycle(f){
  for(const spec of [{lang:'en',width:320,height:480},{lang:'ar',width:390,height:640}]){
   let baselinePin;
   for(const useBaseline of [true,false]){
+   let markerDrags;
    f=await fixture(browser,{...spec,baseline:useBaseline});page=f.page;await resume(page);const b=await bearings(page);
    await page.locator('#fieldWorld > svg').scrollIntoViewIfNeeded();
    const point=await page.locator('#fieldWorld > svg').evaluate((svg,source)=>{const p=svg.createSVGPoint();p.x=source.x+.375;p.y=source.y+.625;const at=p.matrixTransform(svg.getScreenCTM());return{x:at.x,y:at.y};},b.source);
    assert(point.x>0&&point.x<spec.width&&point.y>0&&point.y<spec.height,'map intersection visible for native touchscreen');
    await page.touchscreen.tap(point.x,point.y);const touched=await snapshot(page);
    assert(touched.pin,'native touch creates pin');assert(Math.hypot(touched.pin.x-b.source.x,touched.pin.y-b.source.y)<2,'native touch maps to same source coordinates');
+   assert(await page.evaluate(()=>FieldRules.won(MKTYField.snapshot())),'native map touch meets the unchanged victory rule before marker drags');
    if(useBaseline)baselinePin=touched.pin;
    else{
     assert.deepEqual(touched.pin,baselinePin,'baseline/candidate native touchscreen has identical coordinate mapping');
@@ -155,11 +208,14 @@ async function lifecycle(f){
     await tabTo(page,slider('pinX'));await reachable(page.locator(slider('pinX')),'touch-to-keyboard marker');
     await page.keyboard.press('ArrowRight');const moved=await snapshot(page);
     assert.equal(moved.pin.x,Math.round(touched.pin.x)+1);assert.equal(moved.pin.y,touched.pin.y,'keyboard retains full fractional other axis');
+    markerDrags=await dragMarkerRanges(f);
+    await range(page,'pinX',Math.round(b.source.x));await range(page,'pinY',Math.round(b.source.y));
+    assert.deepEqual((await snapshot(page)).pin,{x:Math.round(b.source.x),y:Math.round(b.source.y)},'real keyboard restores source after native marker drags');
     await page.screenshot({path:path.join(out,`touch-${spec.lang}-${spec.width}.png`),fullPage:true,animations:'disabled'});
    }
    await activate(page,'#fieldSubmit');assert.equal((await snapshot(page)).complete,true,'native touch pin still meets exact rule');
-   report.cases.push({...spec,baseline:useBaseline,nativeTouchComplete:true,pin:touched.pin});await close(f);
+   report.cases.push({...spec,baseline:useBaseline,nativeMapMeetsWin:true,nativeTouchComplete:useBaseline,pin:touched.pin,...(markerDrags?{markerDrags,mixedInputComplete:true}: {})});await close(f);
   }
  }
- report.passed=true;console.log('PASS: baseline keyboard blocker; real-index native keyboard completion, RTL, 44px/clipping, exact pause/reentry/reload, completed guards, native touch and fractional-axis preservation');
+ report.passed=true;console.log('PASS: baseline keyboard blocker; real-index native keyboard completion, RTL, 44px/clipping, exact pause/reentry/reload, completed guards, native touch, both-axis native marker drags and fractional-axis preservation');
 })().catch(async error=>{report.failure=error.stack;console.error(error);process.exitCode=1;await page?.screenshot({path:path.join(out,'failure.png'),fullPage:true,animations:'disabled',timeout:5000}).catch(()=>{});}).finally(async()=>{fs.writeFileSync(path.join(out,'result.json'),JSON.stringify(report,null,2));await browser?.close();});

@@ -148,4 +148,5 @@ scenario('keyboard focus reveals a footer-covered Chapter8 control without gamep
  check(target(h.$('fieldControls').querySelector('[data-field-action="role"]')),0,'other chapter');
 });
 assert(fs.readFileSync(path.join(__dirname,'../field-missions.css'),'utf8').includes('#fieldMission[data-kind=signal]{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}'),'triangulation landscape columns fit the actual app width');
+assert(fs.readFileSync(path.join(__dirname,'../field-missions.css'),'utf8').includes('#fieldMission[data-kind=signal] input[type=range]{touch-action:none}'),'triangulation native range gestures do not pan the page');
 console.log(JSON.stringify({...report,passed:true,fullControlWins:25,limitations:['native keyboard defaults','browser focus order and layout','screen readers','physical touch']}));

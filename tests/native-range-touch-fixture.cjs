@@ -11,7 +11,7 @@ function fieldControls(mechanic) {
   return keys.map((key, i) => {
     const index = mechanic === 5 ? String(i) : '';
     return {selector: `[data-field-slider="${key}"][data-index="${index}"]`, readout: `[data-field-read="${key}${index}"]`,
-      kind: 'field', mechanic, key, index, thumb: 16, touchAction: 'pan-y'};
+      kind: 'field', mechanic, key, index, thumb: 16, touchAction: mechanic === 8 ? 'none' : 'pan-y'};
   });
 }
 const scenarios = [
