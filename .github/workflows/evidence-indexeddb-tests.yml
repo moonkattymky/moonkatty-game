@@ -7,6 +7,8 @@ on:
       - 'tests/fixtures/evidence-indexeddb/**'
       - 'tests/evidence-unsaved-result*.cjs'
       - 'tests/fixtures/evidence-unsaved-result/**'
+      - 'tests/evidence-finale-*.cjs'
+      - 'tests/fixtures/evidence-finale-controller/**'
       - '.github/workflows/evidence-indexeddb-tests.yml'
   workflow_dispatch:
   workflow_call:
@@ -32,6 +34,8 @@ jobs:
         run: node tests/evidence-indexeddb.cjs
       - name: Synthetic unsaved-result state contract
         run: node tests/evidence-unsaved-result.cjs
+      - name: Fixed raw-finale admission and shared ownership
+        run: node tests/evidence-finale-completion.cjs
       - name: Native synthetic-origin IndexedDB groups A-I
         env:
           MKTY_TEST_OUTPUT: /tmp/mkty-evidence-indexeddb-native
@@ -40,6 +44,10 @@ jobs:
         env:
           MKTY_TEST_OUTPUT: /tmp/mkty-evidence-unsaved-result-native
         run: node tests/evidence-unsaved-result-ui.cjs
+      - name: Original spatial finale handlers and local recovery
+        env:
+          MKTY_TEST_OUTPUT: /tmp/mkty-evidence-finale-controller-native
+        run: node tests/evidence-finale-controller-ui.cjs
       - name: Preserve qualified native evidence and failure diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -54,5 +62,13 @@ jobs:
         with:
           name: evidence-unsaved-result-native
           path: /tmp/mkty-evidence-unsaved-result-native/
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Preserve original-controller integration diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-finale-controller-native
+          path: /tmp/mkty-evidence-finale-controller-native/
           if-no-files-found: ignore
           retention-days: 14

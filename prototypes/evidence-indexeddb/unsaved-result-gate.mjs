@@ -1,7 +1,8 @@
-// SOURCE ONLY. Not imported by the game. No reward/gameplay/retirement callback.
+// SOURCE ONLY. Not imported by the game. Fixed local formats, no server authority.
 import * as C from './contract.mjs';
 import {assemble} from './coordinator.mjs';
 import {SYNTHETIC_LIMIT,describeSyntheticSummary,describeSyntheticDescriptor,admitSyntheticCompletion} from './synthetic-completion.mjs';
+import {FINALE_LIMIT,describeFinaleDescriptor,admitFinaleCompletion} from './finale-completion.mjs';
 export const GATE_LIMIT=Object.freeze({bytes:SYNTHETIC_LIMIT.bytes,segmentBytes:C.LIMIT.payload,segments:3,
   metadata:32768,summary:4096,helperHash:2*C.LIMIT.hashInput,adapter:C.LIMIT.transient,
   combined:2*SYNTHETIC_LIMIT.bytes+C.LIMIT.page+32768+2*C.LIMIT.hashInput+C.LIMIT.transient});
@@ -14,7 +15,7 @@ const RETRYABLE=new Set(['busy','retry-pending','transaction-aborted','native-qu
 const RELEASED_RETRY=new Set(['transaction-aborted','native-quota','logical-quota']);
 const BLOCKING=new Set(['adapter-closed','unsupported-version','schema-mismatch','scope-mismatch','no-retry','stale-context']);
 const INPUT_REASONS=new Set(['summary-invalid','summary-limit','synthetic-admission','payload-limit','payload-detached','payload-view-invalid',
-  'descriptor-invalid','component-invalid','artifact-limit','metadata-limit','context-invalid','capture-invalid','counter-overflow']);
+  'descriptor-invalid','component-invalid','artifact-limit','metadata-limit','context-invalid','capture-invalid','counter-overflow','finale-admission','finale-limit']);
 // Exceptions are untrusted values too. Never invoke a message/name accessor or
 // stringify a thrown object when turning it into bounded status.
 function errorCode(error){
@@ -37,12 +38,13 @@ export function createUnsavedResultGate({coordinator,readContext,onContinue}){
   const owner={};
   let state='EMPTY',reason=null,phase='capture',busy=false,readingContext=false,continuing=false,consumed=false;
   let captured=null,descriptor=null,context=null,summary=null,summaryBytes=null,d=null,candidate=null,predicted=null,finalHead=null;
+  let finale=null,isFinale=false;
   let ownedUnknown=false,attempt=0,checkpoint={nextOrdinal:0,offset:0,previousRoot:C.ZERO,expectedHead:null};
   const stats={captureCount:0,attempts:0,appendCalls:0,retryCalls:0,readCalls:0,admissions:0,navigationCalls:0,
     maxOutstanding:0,capturedBytes:0,readbackBytes:0,pageReservationBytes:0,metadataSlots:0,helperHashLive:0,helperHashPeak:0,
-    liveModeledBytes:0,modeledPeakBytes:0,modeledEnvelopeBytes:0,wholeArtifactCopies:0,summaryEncodedBytes:0};
+    finaleWorkspaceBytes:0,liveModeledBytes:0,modeledPeakBytes:0,modeledEnvelopeBytes:0,wholeArtifactCopies:0,summaryEncodedBytes:0};
   function account(){
-    const n=C.add(stats.capturedBytes,stats.readbackBytes,stats.pageReservationBytes,stats.metadataSlots,stats.helperHashLive,
+    const n=C.add(stats.capturedBytes,stats.readbackBytes,stats.pageReservationBytes,stats.metadataSlots,stats.helperHashLive,stats.finaleWorkspaceBytes,
       captured?GATE_LIMIT.adapter:0);
     if(n>GATE_LIMIT.combined)C.fail('transient-budget');stats.liveModeledBytes=n;stats.modeledPeakBytes=Math.max(stats.modeledPeakBytes,n);
   }
@@ -136,7 +138,9 @@ export function createUnsavedResultGate({coordinator,readContext,onContinue}){
     try{
       const result=await boundary(()=>assemble(facade,{descriptor,captureIdentity:{scope:descriptor.scope,run:descriptor.run},head:finalHead},GATE_LIMIT.bytes),nonce);
       if(expectedOrdinal!==finalHead.ordinal+1||result.bytes.length!==captured.length||!C.equalBytes(result.bytes,captured))return block('readback-mismatch');
-      bump(stats,'admissions');admitSyntheticCompletion(result.bytes,descriptor,summaryBytes);
+      bump(stats,'admissions');
+      if(isFinale)admitFinaleCompletion(result.bytes,descriptor,summary);
+      else admitSyntheticCompletion(result.bytes,descriptor,summaryBytes);
       if(!current())return false;state='READY';reason=null;return true;
     }finally{stats.readbackBytes=0;stats.pageReservationBytes=0;account();}
   }
@@ -203,18 +207,22 @@ export function createUnsavedResultGate({coordinator,readContext,onContinue}){
       C.boundedBytes(input.bytes,GATE_LIMIT.bytes);
       // Reservation precedes metadata canonicalization and every owned buffer.
       stats.capturedBytes=input.bytes.length;stats.metadataSlots=GATE_LIMIT.metadata;account();
-      validated=describeSyntheticDescriptor(input.descriptor);s=describeSyntheticSummary(input.summary);ctx=copyContext(input.context);
+      isFinale=Object.getOwnPropertyDescriptor(input.descriptor,'kind')?.value==='finale-phase-completion';
+      if(isFinale){stats.finaleWorkspaceBytes=FINALE_LIMIT.workspace;account();validated=describeFinaleDescriptor(input.descriptor);}
+      else{validated=describeSyntheticDescriptor(input.descriptor);s=describeSyntheticSummary(input.summary);}
+      ctx=copyContext(input.context);
       if(input.bytes.length!==validated.total||input.descriptor.scope!==ctx.scope)C.fail('capture-invalid');
-      stats.modeledEnvelopeBytes=C.add(2*input.bytes.length,C.LIMIT.page,GATE_LIMIT.metadata,GATE_LIMIT.helperHash,GATE_LIMIT.adapter);
+      stats.modeledEnvelopeBytes=C.add(2*input.bytes.length,C.LIMIT.page,GATE_LIMIT.metadata,GATE_LIMIT.helperHash,GATE_LIMIT.adapter,stats.finaleWorkspaceBytes);
       account();
-      const encoded=C.utf8(s.text);
-      admitSyntheticCompletion(input.bytes,validated.value,encoded);
+      const encoded=isFinale?null:C.utf8(s.text);
+      if(isFinale)finale=admitFinaleCompletion(input.bytes,validated.value,input.summary);
+      else admitSyntheticCompletion(input.bytes,validated.value,encoded);
       // Native typed-array copy: ignore overridden iterators/subarray methods.
       const bytes=new Uint8Array(input.bytes.length);Uint8Array.prototype.set.call(bytes,input.bytes);
-      captured=bytes;summaryBytes=encoded;descriptor=frozenDescriptor(validated.value);context=ctx;summary=s.summary;
-      realmOwner=owner;realmAccepting=null;stats.captureCount=1;stats.wholeArtifactCopies=1;stats.summaryEncodedBytes=encoded.length;bump(stats,'admissions');account();
+      captured=bytes;summaryBytes=encoded;descriptor=frozenDescriptor(validated.value);context=ctx;summary=isFinale?finale.summary:s.summary;
+      realmOwner=owner;realmAccepting=null;stats.captureCount=1;stats.wholeArtifactCopies=1;stats.summaryEncodedBytes=encoded?.length||0;bump(stats,'admissions');account();
     }catch(error){
-      stats.capturedBytes=0;stats.metadataSlots=0;stats.modeledEnvelopeBytes=0;account();busy=false;if(realmAccepting===owner)realmAccepting=null;
+      finale=null;isFinale=false;stats.finaleWorkspaceBytes=0;stats.capturedBytes=0;stats.metadataSlots=0;stats.modeledEnvelopeBytes=0;account();busy=false;if(realmAccepting===owner)realmAccepting=null;
       reason=allocationError(error)?'allocation-refused':reasonOf(errorCode(error),'capture-invalid');return Promise.resolve(snapshot());
     }
     state='SAVING';phase='append';reason=null;
@@ -235,7 +243,7 @@ export function createUnsavedResultGate({coordinator,readContext,onContinue}){
     try{
       if(!current())return snapshot();
       consumed=true;state='CONTINUED';phase='continue';reason=null;bump(stats,'navigationCalls');
-      try{onContinue();}catch{reason='navigation-threw';}
+      try{if(isFinale)onContinue(finale.checkpoint);else onContinue();}catch{reason='navigation-threw';}
       return snapshot();
     }finally{continuing=false;}
   }
