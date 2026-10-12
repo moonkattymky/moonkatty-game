@@ -178,7 +178,14 @@ function finalEvidence(f,archive){
  equal(f.logicalSnapshot,f.nativeSnapshot);assert(f.targets.length>=13);for(const target of f.targets){equal(target.logical,target.native);assert.equal(target.physicalBusy,false);assert.equal(target.retainedBytes,0);}
  const writerRow=r=>({mode:r.mode,kind:r.kind,key:r.key,value:r.value});assert.deepEqual(f.native.map(writerRow),f.logical.map(writerRow),'Every exact finite native writer record agrees with facade record');
  const counts=prefix=>ORDER.map((_,i)=>f.logical.filter(r=>r.mode===prefix+i).length);
- assert.deepEqual(counts('dispatch-'),[3,12,1,1,12]);assert.deepEqual(counts('open-'),[3,3,4,3,3]);
+ assert.deepEqual(counts('dispatch-'),[3,12,1,1,12]);assert.deepEqual(counts('open-'),[3,3,3,3,3]);
+ // Completed prior-chapter checkpoint removal is independently observed in the
+ // background ledger; it is deliberately excluded from exact writer rows.
+ for(const rows of [f.allLogical,f.allNative])assert.deepEqual(rows.filter(r=>r.mode==='open-2').map(r=>({kind:r.kind,key:r.key,exact:r.exact})),[
+  {kind:'remove',key:'mkty_campaign_checkpoint_8',exact:false},
+  {kind:'set',key:'mkty_current_chapter',exact:true},
+  {kind:'set',key:'mkty_field_finale_9_v1',exact:true},{kind:'set',key:'mkty_field_finale_9_v1',exact:true}
+ ]);
  for(const n of [8,9]){
   const initial=f.setupProof.preparedOperations[n],expected=JSON.stringify({...JSON.parse(initial),phase:'complete'}),key=`mkty_operations_${n}_v1`;
   assert.equal(f.logicalSnapshot[key],expected,'Original operations completion preserves every prerequisite field');
@@ -232,7 +239,8 @@ async function run(){
   if(i<4){await click('#phaseOpen');await settled('PLAYING');}
  }
  await click('[data-legacy-choice="done"]');let f=await settled('DONE');const archive=await page.evaluate(()=>H.inspect());f=await facts();
- report.evidence=finalEvidence(f,archive);report.lastFacts=f;report.setupProof=f.setupProof;
+ report.archiveObserved=archive;report.lastFacts=f;save();
+ report.evidence=finalEvidence(f,archive);report.setupProof=f.setupProof;
  assert.equal(f.setupProof.seedCount,1);assert.equal(f.setupProof.importCount,1);assert.equal(f.setupProof.context911.traceRows,911);assert.equal(f.setupProof.precision.count,1);assert.equal(f.setupProof.precision.total,1);assert.equal(f.setupProof.facadeEqualsNative,true);assert.equal(f.setupProof.persistent,true);assert.equal(f.setupProof.initialSourceCheckpoints,0);
  for(const n of [8,9]){
   assert.deepEqual(f.setupProof.initialSources[n],{version:1,n,phase:0,seed:731,seconds:0});
