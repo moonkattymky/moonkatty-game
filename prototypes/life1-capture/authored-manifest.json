@@ -74,8 +74,8 @@
     },
     {
       "path": "tests/fixtures/life1-recording-browser-helper.cjs",
-      "sha256": "fc0e708bb878c2dfb17f463e14352e0661cc39ab5fa3e2aa613eacd13480257f",
-      "bytes": 2901
+      "sha256": "4b75d994d135a3edc6c3fcb39e37e9911499015e01fafb1788791887828e6852",
+      "bytes": 4868
     },
     {
       "path": "tests/fixtures/life1-recording-controller-helper.cjs",
@@ -94,8 +94,8 @@
     },
     {
       "path": "tests/life1-recording-browser-fixture.cjs",
-      "sha256": "108375b426f46c836849ca39c45f647db0baf9209b3266d9736ec1b93c46b30b",
-      "bytes": 13521
+      "sha256": "d3478392c664dd2c7ae26533b57262dd94f1e505d753f2e8c29a252c36fa0717",
+      "bytes": 14482
     },
     {
       "path": "tests/life1-recording-controller.cjs",
@@ -104,8 +104,8 @@
     },
     {
       "path": "tests/life1-recording-source.cjs",
-      "sha256": "7055674e7bf2169754d9fee9ea62e954ef3d9f7650afd0dcde7df0674c880267",
-      "bytes": 3855
+      "sha256": "abb4a49a0bc980df02a96178a605691cef6895003bbb3c7113f4cfdc38e507ba",
+      "bytes": 5198
     }
   ],
   "excludedSelf": "This manifest excludes itself to avoid circular hashing.",

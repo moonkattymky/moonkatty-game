@@ -4,7 +4,7 @@
 const fs=require('node:fs'),path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const {instrument}=require('./fixtures/life1-recording-instrument.cjs');
-const {bundle,nativeCheck}=require('./fixtures/life1-recording-browser-helper.cjs');
+const {bundle,nativeCheck,geometrySnapshot,installGeometryDiagnostics}=require('./fixtures/life1-recording-browser-helper.cjs');
 const M=require('../prototypes/life1-capture/pr47/life1-model.js');
 const context={life1_profile:M.NATIVE_PROFILE,route:'00000000-0000-4000-8000-000000000571',life:1,edition:2,challenge_version:2,seed:571};
 function responseFor(url,method='GET'){
@@ -47,7 +47,12 @@ async function main(){
    if(clocked)await p.clock.runFor(350);else await p.waitForTimeout(350);
   }
   async function checked(p,label){
-   const status=await p.evaluate(()=>__C1Capture.status());assert.equal(status.fault,null,label+': '+JSON.stringify(status));
+   const status=await p.evaluate(()=>__C1Capture.status());
+   if(status.fault&&report.geometryObservations){
+    report.geometryObservations.push({label:label+' fault',snapshot:await p.evaluate(geometrySnapshot)});
+    report.firstGeometryRefusal=await p.evaluate(()=>window.__C1GeometryDiagnostics?.firstRefusal||null);
+   }
+   assert.equal(status.fault,null,label+': '+JSON.stringify(status));
    const geometry=await p.evaluate(nativeCheck);return {label,geometry};
   }
   if(lane==='mixed-clock'){
@@ -70,8 +75,13 @@ async function main(){
   }
   // Real new documents and original DOM/controller callbacks under an explicit
   // Playwright clock. This is not a measurement of native browser timer cadence.
+  report.geometryObservations=[];
+  const installDiagnostics=p=>p.evaluate(`(${installGeometryDiagnostics.toString()})(${geometrySnapshot.toString()})`);
+  const observeGeometry=async(p,label)=>report.geometryObservations.push({label,snapshot:await p.evaluate(geometrySnapshot)});
   const {ctx,p}=await pageFor({},true);await enter(p,true);
+  await installDiagnostics(p);await observeGeometry(p,'before armed show/reset');
   await p.evaluate(context=>{__C1Capture.armFresh(context);show('mission1');resetLife1Mission();},context);
+  await observeGeometry(p,'after armed show/reset');
   await p.clock.runFor(32);await checked(p,'fresh');
   async function approach(selector){
    for(let attempts=0;attempts<150;attempts++){
@@ -88,12 +98,17 @@ async function main(){
     await p.clock.runFor(Math.ceil(len/88*1000));await p.mouse.up();await p.clock.runFor(16);await checked(p,'joystick step');
    }throw Error('Joystick path not reached');
   }
-  for(const id of ['1','2','3']){await approach('.energy.e'+id);await p.locator('.energy.e'+id).click();await p.clock.runFor(32);await checked(p,'collect '+id);}
+  for(const id of ['1','2','3']){
+   await approach('.energy.e'+id);await observeGeometry(p,'before collect '+id);
+   await p.locator('.energy.e'+id).click();await observeGeometry(p,'after collect '+id+' before clock advance');
+   await p.clock.runFor(32);await checked(p,'collect '+id);
+  }
   await approach('#repairTerminal');await p.locator('#repairTerminal').click();await p.locator('#showRepairSequenceBtn').click();await p.clock.runFor(2100);
   const sequence=(await p.locator('#repairSequence').innerText()).trim().split(/\s+/).map(s=>s.charCodeAt(0)-65);assert.equal(sequence.length,4);
   await p.clock.runFor(550);for(const n of sequence.slice(0,2))await p.locator('[data-cell="'+n+'"]').click();
   await p.locator('#mission1 .chapter-menu').click();await checked(p,'paused repair');
   const repairPrefix=await p.evaluate(()=>__C1Capture.wire());await p.reload();await p.locator('#enterBtn').click();await p.clock.runFor(350);
+  await installDiagnostics(p);
   assert.equal((await p.evaluate(()=>__C1Capture.restore())).ok,true);await checked(p,'repair hydrated');
   assert.equal(await p.evaluate(()=>repairCells),2);assert.equal(await p.evaluate(()=>MKTYExperience.paused),true);
   assert.deepEqual((await p.evaluate(()=>JSON.parse(__C1Capture.wire()).entries)).slice(0,JSON.parse(repairPrefix).entries.length),JSON.parse(repairPrefix).entries);
@@ -113,6 +128,7 @@ async function main(){
   const holdProgress=await p.evaluate(()=>signalHoldProgress);assert(holdProgress>0&&holdProgress<100);
   const seed=await p.evaluate(()=>Object.fromEntries(Object.keys(localStorage).filter(k=>k.startsWith('mkty_')).map(k=>[k,localStorage.getItem(k)])));
   const holdPrefix=await p.evaluate(()=>__C1Capture.wire());await p.reload();await p.locator('#enterBtn').click();await p.clock.runFor(350);
+  await installDiagnostics(p);
   assert.equal((await p.evaluate(()=>__C1Capture.restore())).ok,true);await checked(p,'hold hydrated');assert.equal(await p.evaluate(()=>signalHoldProgress),holdProgress);
   assert.deepEqual((await p.evaluate(()=>JSON.parse(__C1Capture.wire()).entries)).slice(0,JSON.parse(holdPrefix).entries.length),JSON.parse(holdPrefix).entries);
   await p.clock.runFor(240);assert.equal(await p.evaluate(()=>signalHoldProgress),holdProgress);await p.locator('#guideResume').click();await p.clock.runFor(2500);
@@ -122,6 +138,7 @@ async function main(){
   // while the recovered antenna modal blocks movement; this is not a full
   // native frame/timer interleaving or complete-play certification.
   const native=await pageFor(seed,false);await enter(native.p,false);
+  await installDiagnostics(native.p);
   await native.p.evaluate(()=>{cancelAnimationFrame(l1MoveFrame);cancelAnimationFrame(window.life1MoveFrame);});
   assert.equal((await native.p.evaluate(()=>__C1Capture.restore())).ok,true);await checked(native.p,'native modal hydrated');
   await native.p.locator('#guideResume').click();await native.p.waitForFunction(()=>life1Stage===3,{},{timeout:8000});

@@ -36,6 +36,14 @@ assert(/id="frequencyDial"[^>]*type="range"[^>]*min="0"[^>]*max="100"/.test(html
 assert(!source.includes('.fill('),'fixture must not use direct-value fill for the antenna range');
 assert(source.includes("dial.press('Home')")&&source.includes("dial.press('ArrowRight')"),'fixture exercises the ordinary keyboard range path');
 assert(source.includes("native range advances exactly one step")&&source.includes("await checked(p,'keyboard antenna range '"),'range stepping retains strict value, geometry and replay assertions');
+const diagnostics=require('./fixtures/life1-recording-browser-helper.cjs');
+new vm.Script(`(${diagnostics.installGeometryDiagnostics.toString()})(${diagnostics.geometrySnapshot.toString()})`);
+assert(source.includes("'before collect '+id")&&source.includes("'after collect '+id+' before clock advance'"));
+assert(!/refreshLife1Geometry|requestAnimationFrame|setTimeout|\.clock\./.test(diagnostics.geometrySnapshot.toString()+diagnostics.installGeometryDiagnostics.toString()),'diagnostic callbacks neither refresh nor wait/advance clocks');
+let calls=0,snapshots=0;const seen=[],capture={observe(...args){calls++;seen.push(args);return calls;},status:()=>({fault:calls>=2?{error:'unsettled-live-size'}:null}),wire:()=>JSON.stringify({entries:[['event',['frame',1,0,0]]]})};
+const sandbox={window:{__C1Capture:capture},performance:{now:()=>100},snapshot:()=>{snapshots++;return {exact:true};}};
+vm.runInNewContext(`(${diagnostics.installGeometryDiagnostics.toString()})(snapshot);window.__C1Capture.observe('frame',1,-0,0);window.__C1Capture.observe('frame',2,0,0);window.__C1Capture.observe('frame',3,0,0);`,sandbox);
+assert.equal(calls,3);assert(Object.is(seen[0][2],-0),'diagnostics forward exact input');assert.equal(snapshots,1);assert.equal(sandbox.window.__C1GeometryDiagnostics.firstRefusal.event[1],2,'retain only the first refusal');
 const report={test:'life1-recording-source',baseCommit:manifest.baseCommit,baseTree:manifest.baseTree,referenceHashesChecked:manifest.runtimeReference.length+manifest.frozenDependencies.length,instrumentedSourcesCompile:3,browserBundleCompiles:true,browserMainExecuted:false};
 if(process.env.MKTY_TEST_OUTPUT){fs.mkdirSync(process.env.MKTY_TEST_OUTPUT,{recursive:true});fs.writeFileSync(path.join(process.env.MKTY_TEST_OUTPUT,'source-report.json'),JSON.stringify(report,null,2)+'\n');}
 console.log(JSON.stringify(report));

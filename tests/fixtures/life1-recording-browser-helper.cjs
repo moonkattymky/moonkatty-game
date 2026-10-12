@@ -25,4 +25,26 @@ function nativeCheck(){
  if(errors.length)throw Error('Exact native geometry/controller mismatch: '+errors.join(','));
  return {world:rect($('life1World')),checkedRawFields:true};
 }
-module.exports={bundle,nativeCheck};
+// Read-only diagnostic. Never refreshes geometry, advances time or changes DOM.
+function geometrySnapshot(){
+ const rect=el=>{const r=el.getBoundingClientRect();return {left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height};};
+ const mission=document.getElementById('mission1'),world=document.getElementById('life1World'),status=document.getElementById('missionStatus');
+ const recorded=window.__C1Capture?.state(),style=getComputedStyle(mission);
+ return {snapshotMs:performance.now(),world:rect(world),sourceCache:{width:l1Geometry.width,height:l1Geometry.height,obstacles:l1Geometry.obstacles},
+  recorded:recorded?{now:recorded.now,lastFrame:recorded.lastFrame,view:recorded.view,geometry:recorded.geometry,liveWorld:recorded.liveGeometry.world}:null,
+  status:{text:status.textContent,rect:rect(status)},stage:life1Stage,
+  animation:{reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,name:style.animationName,transform:style.transform,
+   active:mission.getAnimations().map(a=>({name:a.animationName||null,playState:a.playState,currentTime:a.currentTime,startTime:a.startTime}))}};
+}
+function installGeometryDiagnostics(snapshot){
+ const capture=window.__C1Capture;if(!capture)throw Error('Missing capture for fixture diagnostics');
+ const diagnostics=window.__C1GeometryDiagnostics={firstRefusal:null};
+ // Preserve every original call and argument. Only read after the first refused
+ // observation, before the remaining unchanged controller statements execute.
+ window.__C1Capture=Object.freeze({...capture,observe(...args){
+  const wrapperDispatchMs=performance.now(),result=capture.observe(...args),fault=capture.status().fault;
+  if(!diagnostics.firstRefusal&&fault?.error==='unsettled-live-size')diagnostics.firstRefusal={event:args,wrapperDispatchMs,fault,snapshot:snapshot(),acceptedTail:JSON.parse(capture.wire()).entries.slice(-6)};
+  return result;
+ }});
+}
+module.exports={bundle,nativeCheck,geometrySnapshot,installGeometryDiagnostics};
