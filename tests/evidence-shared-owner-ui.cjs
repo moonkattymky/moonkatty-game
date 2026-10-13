@@ -20,7 +20,10 @@ const git=(...args)=>execFileSync('git',args,{cwd:ROOT,encoding:'utf8'}).trim();
 const sourceHashes=files=>Object.fromEntries([...new Set(files)].sort().map(file=>[file,F.sha(fs.readFileSync(path.join(ROOT,file)))]));
 function save(){fs.mkdirSync(OUT,{recursive:true});const text=JSON.stringify(report,null,2)+'\n';assert(Buffer.byteLength(text)<=16*1024*1024,'Bounded report');fs.writeFileSync(REPORT,text);}
 async function prepare(){
-  const prototype=fs.readdirSync(path.join(ROOT,'prototypes/evidence-indexeddb')).filter(x=>x.endsWith('.mjs')).map(x=>'prototypes/evidence-indexeddb/'+x);
+  // These two independent legacy-handoff modules were not part of the frozen141 source set.
+  // Keep every previous byte/hash pinned; do not repin the accepted baseline to the new experiment.
+  const laterOnly=new Set(['legacy-adoption-codec.mjs','legacy-checkpoint-owner.mjs']);
+  const prototype=fs.readdirSync(path.join(ROOT,'prototypes/evidence-indexeddb')).filter(x=>x.endsWith('.mjs')&&!laterOnly.has(x)).map(x=>'prototypes/evidence-indexeddb/'+x);
   const runtime=JSON.parse(fs.readFileSync(path.join(ROOT,'tests/fixtures/evidence-finale-controller/runtime-hashes.json')));
   const frozen=[...Object.keys(runtime.hashes),...prototype,'tests/fixtures/evidence-indexeddb/native-harness.js',
     'tests/evidence-finale-controller-fixture.cjs','tests/evidence-shared-owner-helper.cjs','tests/fixtures/finale-checkpoints-17-state.json'];

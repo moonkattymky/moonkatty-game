@@ -9,6 +9,7 @@ const OUT=process.env.MKTY_TEST_OUTPUT||path.join(os.tmpdir(),'mkty-evidence-leg
 const REPORT=path.join(OUT,'native-legacy-adoption-results.json'),CAP=1016832,G=32768;
 const SOURCE='mkty_field_finale_9_v1',FOREIGN=['mkty_account_v3_314159:mkty_points','mkty_pending_v2_314159'];
 const EXPECTED={
+ 'trace-codec.js':'baba00a4cc9a4ab309382220d3e37b7b35ddc925a582012d8d4d622c124ea865',
  'field-model.js':'94ab25d49258d5ca64cdf391eccdaadd3b3f10370b363295a4c3bd3a58aea7a8',
  'field-missions.js':'4c7f573cc0fef7d7bb8c27b599791134b0d55354c135205928ddba8aa0cae1c2',
  'field-art.js':'7d292278537c8b58ad85f47b212470f1767d66c6449134584d45224ac135827e',
