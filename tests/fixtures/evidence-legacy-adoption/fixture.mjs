@@ -213,7 +213,7 @@ function facts(inspect=false){
 }
 export async function bootLegacyAdoptionFixture(){
   window.Telegram={WebApp:{initData:''}};
-  const nativePush=N.log.push;N.log.push=function(...rows){if(this.length+rows.length>32768)throw Error('legacy-native-event-limit');return Reflect.apply(nativePush,this,rows);};
+  const nativePush=N.log.push;Object.defineProperty(N.log,'push',{value:function(...rows){if(this.length+rows.length>32768)throw Error('legacy-native-event-limit');return Reflect.apply(nativePush,this,rows);}});
   const raw=createPhaseBudget({observe:e=>{push(budgetEvents,{type:e.type,label:e.label,bytes:e.bytes,live:e.live,jointLive:e.live+G,reservations:Object.fromEntries(Object.entries(e.reservations).filter(([,n])=>n))},20000);}});
   budget=Object.freeze({...raw,reserve(label,bytes){if(reserveFault===label){reserveFault=null;throw Error('allocation-refused');}if(raw.snapshot().live+bytes+G>CAP)throw Error('legacy-joint-budget');return raw.reserve(label,bytes);}});
   base=createTestAdapter({scope:SCOPE,watchdogMs:1000});adapter=makeAdapter();await adapter.open();

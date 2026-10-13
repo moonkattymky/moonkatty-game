@@ -39,6 +39,12 @@ function prepare(){
   report.sourceHashes['tests/evidence-legacy-adoption-ui.cjs']=sha(fs.readFileSync(__filename));
   assert(!fs.readFileSync(path.join(ROOT,'index.html'),'utf8').includes('evidence-legacy-adoption'));
   const source=cache.get(DIR+'fixture.mjs').toString();
+  // Exercise the actual instrumentation statement, including its property flags.
+  const nativeLogInstrumentation=source.match(/const nativePush=N\.log\.push;[^\n]+/);assert(nativeLogInstrumentation);
+  const observedLog=[];require('node:vm').runInNewContext(nativeLogInstrumentation[0],{N:{log:observedLog}});
+  observedLog.push({type:'portable-clone-probe'});assert.equal(Object.getOwnPropertyDescriptor(observedLog,'push').enumerable,false);
+  assert.deepEqual(structuredClone(observedLog),[{type:'portable-clone-probe'}]);
+  observedLog.length=32768;assert.throws(()=>observedLog.push({type:'overflow'}),/legacy-native-event-limit/);assert.equal(observedLog.length,32768);
   for(const denied of ['legacy.js','chapter-space.js','app.js','rewards-client.js','daily-retention.js','cloud-save.js','storage.js'])assert(!source.includes("script('/"+denied+"')"));
   assert(cache.get(DIR+'old.mjs').toString().includes("script('/chapter-space.js')"));
   assert(!cache.get(DIR+'old.mjs').toString().includes('.checkpoint='));assert(!cache.get(DIR+'old.mjs').toString().includes('FieldRules.create('));
