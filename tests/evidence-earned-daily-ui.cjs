@@ -75,7 +75,11 @@ async function fresh(order='daily-first'){
 const facts=()=>page.evaluate(()=>H.facts());
 function input(kind,target){assert(!expired);assert(report.input.length<2048);report.input.push({test:current,n:report.input.length,at:Date.now(),kind,target});}
 async function click(selector){input('click',selector);await page.locator(selector).click();}
-async function settled(state,allowError=false){await page.waitForFunction(()=>H.settled);const f=await facts();if(!allowError)assert.equal(f.operationError,null);if(state)assert.equal(f.view.state,state,JSON.stringify(f.view));return f;}
+function operationErrorProof(f,expectedError=null){
+  assert(expectedError===null||typeof expectedError==='string');
+  assert.equal(f.operationError===null?null:f.operationError.split('\n',1)[0],expectedError);
+}
+async function settled(state,expectedError=null){await page.waitForFunction(()=>H.settled);const f=await facts();operationErrorProof(f,expectedError);if(state)assert.equal(f.view.state,state,JSON.stringify(f.view));return f;}
 const sharedRows=f=>f.transport.filter(x=>x.run?.startsWith('fshared1:')&&['append','exact-retry'].includes(x.kind));
 const writes=f=>f.nativeEvents.filter(x=>x.type==='transaction'&&x.mode==='readwrite'&&!x.fixture).length;
 function noOldEffects(f){assert.deepEqual([f.counters.award,f.counters.rewards,f.counters.original],[0,0,0]);assert.equal(f.pendingQueueText,'unrelated-pending-sentinel');assert(!f.transport.some(x=>x.run?.startsWith('fcommit1:')));}
@@ -147,9 +151,9 @@ async function start(order){
   const f=await settled('ACTIVE');assert.equal(f.view.values.mkty_points,'2100');assert.equal(f.daily.originalClicks,0);assert.equal(f.view.revision,0);
   assert.equal(f.daily.state,order==='terminal-first'?'PAUSED':'PREPARED');assert.equal(f.counters.opens,order==='terminal-first'?1:0);assert.equal(await page.locator('#dailyFrame').isVisible(),order==='daily-first');return f;
 }
-async function dailyClick(){
+async function dailyClick(expectedError=null){
   const frame=page.frameLocator('#dailyFrame');await frame.locator('#streakBtn').waitFor({state:'visible'});assert.equal(await frame.locator('#streakBtn').isEnabled(),true);
-  input('trusted-child-click','#dailyFrame #streakBtn');await frame.locator('#streakBtn').click();return settled();
+  input('trusted-child-click','#dailyFrame #streakBtn');await frame.locator('#streakBtn').click();return settled(undefined,expectedError);
 }
 function dailyProof(f,delta){
   const d=f.daily;assert.equal(d.state,'SAVED');assert.equal(d.committed,true);assert.equal(d.originalClicks,1);assert.equal(d.expected.delta,delta);
@@ -171,7 +175,7 @@ async function earn({fault,reserveFault,waitClock=false}={}){
   }
   const won=(await facts()).model;assert.equal(won.home,3);assert.equal(won.stability,51);assert(R.won(won));assert(R.restore(won,11,4,16569));assert(won.trace.length>0);
   const clock=await page.evaluate(()=>({now:Date.now(),name:Date.name}));assert.equal(clock.name,'Date');assert(Math.abs(clock.now-Date.now())<2000);
-  await click('#fieldSubmit');await page.waitForFunction(()=>H.facts().counters.captures===1);f=await settled(undefined,!!reserveFault);assert.equal(f.counters.captures,1);assert.equal(f.counters.opens,1);
+  await click('#fieldSubmit');await page.waitForFunction(()=>H.facts().counters.captures===1);f=await settled();assert.equal(f.counters.captures,1);assert.equal(f.counters.opens,1);
   const captured=JSON.parse(f.earnedText);assert.equal(f.earnedText,Codec.stringify(won,8192,'earned-limit'));assert.deepEqual(captured.trace,won.trace);assert.equal(captured.seconds,won.seconds);assert(R.restore(captured,11,4,16569)&&R.won(captured));
   assert.equal(f.earnedText,Codec.stringify(captured,8192,'earned-limit'));assert(f.terminalIntent);assert(f.terminalIntent.storyAccumulated>=clock.now&&f.terminalIntent.lock<=await page.evaluate(()=>Date.now()));
   assert(f.trustedInputs.filter(x=>x.playEnabled).length>=steps+1);assert(f.trustedInputs.every(x=>x.isTrusted));assert(f.trustedInputs.some(x=>x.target==='fieldSubmit'&&x.playEnabled));
@@ -370,9 +374,15 @@ async function main(){
   });
   await test('UTC rollover after original capture retains staged result but refuses insertion',async()=>{
     const initial=await start('daily-first'),mark=writes(initial),tomorrow=new Date(Date.parse(initial.view.manifest.dailyDay+'T00:00:00Z')+864e5).toISOString().slice(0,10);
-    await page.evaluate(day=>H.rolloverAfterCapture(day),tomorrow);const refused=await dailyClick();
+    await page.evaluate(day=>H.rolloverAfterCapture(day),tomorrow);const refused=await dailyClick('Error: daily-bridge-shared-day-rollover');
     assert.equal(refused.view.state,'BLOCKED');
     assert.equal(refused.view.reason,'shared-day-rollover');
+    assert.equal(refused.daily.reason,'daily-bridge-shared-day-rollover');
+    assert.deepEqual(refused.daily.errors,['daily-bridge-shared-day-rollover']);
+    assert.equal(refused.events.some(e=>['daily-readback','daily-saved'].includes(e.type)),false);
+    const captured=refused.events.find(e=>e.type==='daily-capture');assert(captured);
+    assert.equal(refused.nativeEvents.slice(captured.nativeIndex).some(e=>e.type==='transaction'&&e.mode==='readwrite'),false);
+    assert.equal(sharedRows(refused).filter(row=>row.ordinal>0).length,0);
     assert.equal(refused.daily.state,'BLOCKED');
     assert.equal(await page.locator('#dailyFrame').isVisible(),false);
     assert.equal(refused.daily.originalClicks,1);
@@ -388,7 +398,7 @@ async function main(){
     assert.deepEqual(refused.view.head,initial.view.head);const h=await history();
     assert.equal(h.records.length,1);
     assert.deepEqual(h.records[0].manifest,initial.view.manifest);ledger(refused);
-    return {admitted:initial.view.manifest.dailyDay,syntheticAdmissionDay:tomorrow,result:evidence(refused)};
+    return {admitted:initial.view.manifest.dailyDay,syntheticAdmissionDay:tomorrow,expectedOperationError:refused.operationError.split('\n',1)[0],result:evidence(refused)};
   });
   assert.deepEqual(report.network.rejected,[]);
   assert.deepEqual(report.pageErrors,[]);
