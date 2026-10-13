@@ -1,0 +1,102 @@
+Earned 9.2 + original daily button: isolated native integration contract
+2026-10-13. Source/test only; no runtime activation, migration or main merge.
+Frozen predecessor: public 832a2284, tree 5f5a5697, full141/141, native10/10 twice.
+
+1. Admitted scope
+One explicit disposable guest, synthetic prior chapter9 tasks/operations, legacy,
+precision and starting2100 points. Phase9.2 MUST actually be earned by native clicks
+through unchanged field-missions.js/model using real controller time. Reuse the
+accepted138 robot and original epilogue. No direct complete(), won checkpoint
+injection, fake Telegram identity, server call or whole-earned-campaign claim.
+Accepted141 owner/adapter/schema/journal remain unchanged. Exactly two effects:
+first-day check-in and terminal9.2. Serialize original UI actions; prior141's two-
+page stale-head CAS is separate evidence, not overlapping physical transactions.
+
+2. Actual original daily handler
+Load exact daily-retention.js and original dailyOps DOM into a disposable child
+iframe with permanent private storage and fixed UTC Date before evaluation. No
+temporary global swap. Parent field Date/RAF/timers stay real. Parent admission
+day is actual current UTC by default; explicit test seam models rollover only.
+Child day matches adoption. online() remains false, with no external async await.
+Only first check-in is available; cipher/redeem controls are inert and guarded.
+Before button exposure, owner.admitDaily captures one immutable unlocked ticket.
+At trusted click capture, reject wrong frame/session/phase or changed day before
+the original delegated listener. Otherwise refresh only the child's private raw
+daily/points/life9 baseline from canonical values, without rerender. Quarantine
+child output before allowing the original handler to run. Never redispatch click.
+Original setItem writes are bounded speculation, never canonical publication.
+Use a real next-task fence after event dispatch, not guessed Promise-tick counts.
+Verify exact allowed writes and settled original DOM, no errors. The offline
+api/load tail is deterministic; cday matches and its2s interval only renders.
+After next-task drain, quiesce ALL child callback/input/timer entry before owner
+work; generation-fence callbacks, then empty the private read cache.
+Retain only bounded immutable expected result and ticket. Execute owner.checkin
+once, then compare committed raw daily/points and actual delta against original
+writes, and compare stored legacy receipt to source-rendered nominal flash. The
+original async checkin resolves undefined; do not claim its private helper return
+was intercepted. Success is exposed only after native completion and readback.
+Mismatch/error remains quarantined. Retry reuses owner.retry and same intent;
+it never invokes the original handler again. No universal setItem shim or fake API.
+
+3. Both orders and unchanged points rules
+Daily-first: confirm actual original +3 before opening field, earn9.2, lock5103.
+Terminal-first: pre-admit/mount daily while unlocked, quiesce it during actual
+gameplay, commit earned terminal to5100, then expose the explicitly stale prepared
+button. Capture-time read refresh makes original handler see locked5100 and claim
+with delta0, preserving nominal return/display3. Fresh post-terminal mount cannot
+claim. This is only an already-admitted stale-view case.
+No canonical effect interleaves after daily speculation: block field entry while
+daily pending; field is already inactive for terminal-first. Unexpected head
+change rejects the speculation intact instead of silently rerunning the handler.
+
+4. Earned handoff, bootstrap and recovery
+In actual completion callback, freeze the five timestamps and checkpoint/source/
+binding with terminalIntent synchronously before its first await. Reserve raw-
+capsule65536 across recoverFinaleContext. Transfer raw coverage to phase-workspace
+327680 synchronously without overlap, then construct/createContextStream.save to
+obtain its branded reference, and seal/read back actual earned phase. Clear source/binding/
+readContext/stream aliases, private-phase/workspace and context lease before
+submitTerminal. Shared owner has no context(); atomic lookup rejects fshared1.
+Reuse narrow shared three-run catalog: context9, phase9.2 and shared journal.
+Do not create fcommit or run original award/openMission9/rewards callbacks.
+Bootstrap recovers canonical before loading any original writer. Initial active
+controller facade uses bounded declared synthetic legacy/precision/source values;
+clear its borrowed projection aliases before owner work. After READY, original
+MKTYLegacy.epilogue/Done/Home is allowed through a pure navigation callback.
+Two real reloads recover solely from native IDB records/pins, never RAM or mirrors;
+committed terminal must not reopen gameplay or award. Frame identity/session
+become invalid on disposal/replacement; late callback cannot mutate a new owner.
+Error/readback mismatch/replaced frame remains blocked, no fabricated success.
+Rollover before click prevents original handler/write. Rollover after capture
+preserves staged result but refuses new insertion under existing owner policy;
+committed recovery remains readable. No changes to live day/streak rules.
+
+5. Resource contract
+Cap1016832 and all game/server/input limits stay unchanged. A distinct fixed32768
+fixture bridge representation allowance covers measured parent cache, child
+private map, immutable expected packet, ticket and receipts. It is not relabeled
+owner metadata. No staged child read map survives owner dispatch. Original DOM/
+IIFE closure and bounded report/history observations are separately disclosed.
+At each budget event assert owner live + bridge allowance <=1016832. Reserve-
+failure cleanup must be tested: a refused raw-to-phase transfer retains its
+accounted immutable raw input and timestamps for Retry, without replaying gameplay.
+This bounds encoded fixture representations, not
+whole-page heap/RSS. Phase readback bound including bridge is967680 + T +2P;
+with P<=16384, T<=16384 is safe. Measure actual small-context T/P; do not claim
+general65536-context + max-phase support. Oversize refuses without truncation.
+Keep exact retry bytes owned by adapter, physicalBusy sequencing and cleanup.
+
+6. Acceptance and files
+Target9–11 new contract/bridge/portable/native fixture files plus two existing CI
+workflows;1300–1800 lines. Frozen141 prototype and original runtime stay unchanged.
+Required native cases: both orders with genuine9.2; two reloads and original
+epilogue; daily abort/retry with one original handler; terminal native abort or
+lost acknowledgement with one earned callback; UTC before/after-capture refusal.
+Also reload after earned phase seal but before terminal journal append, then retry
+from that seal with the original terminalIntent and no gameplay reopen/new clock.
+Source tests cover bounded iframe identity/disposal/error quarantine where useful.
+Pin original sources, trusted native input, raw earned equality, native terminal/
+readback order, exact points/unrelated fields and all budget holds. Keep synthetic
+prerequisites, clock and scheduling seams explicit. Independent actual diff review,
+durable backup, approved PR76 source/test publication, exact full/native CI required.
+Unfinished browser or full-suite checks remain pending, not accepted.

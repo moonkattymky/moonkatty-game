@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; connect-src 'none'; img-src data:">
+<link rel="icon" href="data:,"><title>Original daily source · isolated guest fixture</title>
+<style>body{font:16px system-ui;margin:16px;background:#11182a;color:white}.cipher-card,.yt-card{display:none}.streak-pips{display:flex;gap:16px}.streak-pip{display:grid}button{padding:12px}.dops-mode{display:block;font-size:12px}body[data-quarantine="true"]{visibility:hidden}</style>
+</head><body data-quarantine="true">
+      <section id="dailyOps" class="daily-ops" aria-label="Daily signals">
+        <div class="daily-head"><div><small>EVERY UTC DAY</small><strong>MOON SIGNAL &amp; STREAK</strong></div><span id="dopsMode" class="dops-mode">…</span></div>
+        <article class="dops-card streak-card">
+          <div class="dops-title"><span>🔥</span><div><strong>LOGIN STREAK</strong><small>Check in every UTC day. Rewards grow to day 7, then stay at the cap.</small></div><b id="streakCount">Day 0</b></div>
+          <div id="streakPips" class="streak-pips" dir="ltr" translate="no"></div>
+          <div class="streak-foot"><small id="streakShield" class="streak-shield">🛡</small><button id="streakBtn" type="button" class="primary dops-btn">CHECK IN</button></div>
+        </article>
+        <article class="dops-card cipher-card">
+          <div class="dops-title"><span>📡</span><div><strong>MOON SIGNAL</strong><small>Daily cipher: decode the lore word sent in Morse code.</small></div><b id="cipherAttempts">…</b></div>
+          <div id="cipherTape" class="cipher-tape" dir="ltr" translate="no"></div>
+          <p class="dops-hint">Tap a symbol to replay it. Enter dots and dashes, then press LETTER — or type the word.</p>
+          <div class="cipher-pad" dir="ltr"><output id="cipherInput" class="cipher-input" translate="no">—</output><button type="button" data-morse="." aria-label="Dot">•</button><button type="button" data-morse="-" aria-label="Dash">—</button><button type="button" data-morse="ok" class="pad-ok">LETTER</button><button type="button" data-morse="del" aria-label="Delete">⌫</button></div>
+          <div class="cipher-row"><input id="cipherText" class="dops-input" maxlength="16" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="TYPE THE WORD" dir="ltr"><button type="button" id="cipherRefToggle" class="ghost dops-small">MORSE KEY</button></div>
+          <div id="cipherRef" class="cipher-ref" dir="ltr" translate="no" hidden></div>
+          <button id="cipherSubmit" type="button" class="primary dops-btn wide">TRANSMIT ANSWER</button>
+        </article>
+        <article class="dops-card yt-card">
+          <div class="dops-title"><span>▶</span><div><strong>YOUTUBE CODE WORD</strong><small>Watch the new MOONKATTY video and enter the code word said or shown in it. Each code pays once.</small></div></div>
+          <div class="cipher-row"><input id="ytCode" class="dops-input" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="CODE WORD" dir="ltr"><button id="ytBtn" type="button" class="primary dops-small">REDEEM</button></div>
+          <small id="ytMsg" class="yt-msg">Codes expire — new ones appear with new videos.</small>
+        </article>
+        <p id="dopsFlash" class="dops-flash" aria-live="polite"></p>
+      </section>
+<script type="module" src="./daily.mjs"></script>
+</body></html>

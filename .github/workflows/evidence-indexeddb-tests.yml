@@ -19,6 +19,8 @@ on:
       - 'tests/evidence-atomic-terminal*.cjs'
       - 'tests/evidence-shared-*.cjs'
       - 'tests/fixtures/evidence-shared-owner/**'
+      - 'tests/evidence-earned-daily*.cjs'
+      - 'tests/fixtures/evidence-earned-daily/**'
       - 'tests/evidence-context-reload.cjs'
       - 'tests/fixtures/evidence-atomic-terminal/**'
       - 'tests/fixtures/evidence-invocation-fence/**'
@@ -219,5 +221,35 @@ jobs:
         with:
           name: evidence-shared-owner-native
           path: /tmp/mkty-evidence-shared-owner-native/native-shared-owner-results.json
+          if-no-files-found: error
+          retention-days: 14
+
+  native-earned-daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Verify existing pinned Playwright version
+        run: node -e "require('node:assert/strict').equal(require('playwright/package.json').version, '1.58.2')"
+      - run: npx playwright install --with-deps chromium
+      - name: Original daily bridge protocol and isolated ownership
+        run: node tests/evidence-earned-daily-bridge.cjs
+      - name: Earned native gate and original daily button integration
+        env:
+          MKTY_TEST_OUTPUT: /tmp/mkty-evidence-earned-daily-native
+        run: node tests/evidence-earned-daily-ui.cjs
+      - name: Preserve earned daily integration evidence and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-earned-daily-native
+          path: /tmp/mkty-evidence-earned-daily-native/native-earned-daily-results.json
           if-no-files-found: error
           retention-days: 14

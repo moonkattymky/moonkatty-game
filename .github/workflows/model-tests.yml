@@ -129,6 +129,14 @@ jobs:
           path: /tmp/mkty-evidence-shared-owner-ui-*/native-shared-owner-results.json
           if-no-files-found: ignore
           retention-days: 14
+      - name: Preserve aggregate earned daily integration diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-earned-daily-aggregate
+          path: /tmp/mkty-evidence-earned-daily-ui-*/native-earned-daily-results.json
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Preserve localized guidance diagnostics
         if: always()
         uses: actions/upload-artifact@v4
