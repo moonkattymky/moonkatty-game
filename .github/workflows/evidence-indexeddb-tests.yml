@@ -21,6 +21,8 @@ on:
       - 'tests/fixtures/evidence-shared-owner/**'
       - 'tests/evidence-earned-daily*.cjs'
       - 'tests/fixtures/evidence-earned-daily/**'
+      - 'tests/evidence-legacy-adoption*.cjs'
+      - 'tests/fixtures/evidence-legacy-adoption/**'
       - 'tests/evidence-context-reload.cjs'
       - 'tests/fixtures/evidence-atomic-terminal/**'
       - 'tests/fixtures/evidence-invocation-fence/**'
@@ -251,5 +253,37 @@ jobs:
         with:
           name: evidence-earned-daily-native
           path: /tmp/mkty-evidence-earned-daily-native/native-earned-daily-results.json
+          if-no-files-found: error
+          retention-days: 14
+
+  native-legacy-adoption:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Verify existing pinned Playwright version
+        run: node -e "require('node:assert/strict').equal(require('playwright/package.json').version, '1.58.2')"
+      - run: npx playwright install --with-deps chromium
+      - name: Lossless legacy admission and fixed checkpoint ownership
+        run: |
+          node tests/evidence-legacy-adoption-codec.cjs
+          node tests/evidence-legacy-adoption-owner.cjs
+      - name: Native closed-realm checkpoint handoff and two reloads
+        env:
+          MKTY_TEST_OUTPUT: /tmp/mkty-evidence-legacy-adoption-native
+        run: node tests/evidence-legacy-adoption-ui.cjs
+      - name: Preserve native legacy checkpoint evidence and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-legacy-adoption-native
+          path: /tmp/mkty-evidence-legacy-adoption-native/native-legacy-adoption-results.json
           if-no-files-found: error
           retention-days: 14

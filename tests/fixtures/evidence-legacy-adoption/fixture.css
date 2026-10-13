@@ -1,0 +1,7 @@
+/* Disposable test host only. Original game visuals remain unchanged. */
+html,body{min-height:100%;overflow:auto}
+#app{min-height:100vh;height:auto;overflow:visible}
+.fixture-panel{max-width:680px;margin:auto;padding:28px 24px;color:#eef3f5}
+.fixture-panel p{line-height:1.55}
+.fixture-panel button{display:block;min-height:48px;margin:14px 0;padding:12px 20px}
+.fixture-panel button:disabled{opacity:.45}
