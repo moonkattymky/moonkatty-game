@@ -1,0 +1,19 @@
+/* Neutral fixture styling only. No production stylesheet is loaded or changed. */
+:root { color-scheme: light; font-family: system-ui, sans-serif; color: #18212b; background: #f4f5f6; }
+* { box-sizing: border-box; }
+body { margin: 0; padding: 16px; font-size: 16px; line-height: 1.5; }
+main { max-width: 560px; margin-inline: auto; }
+h1 { font-size: 1.5rem; line-height: 1.3; }
+h2 { font-size: 1.125rem; }
+#test-only { border: 1px solid #52606e; padding: 10px; }
+label { display: block; margin-block-end: 4px; }
+button, select { font: inherit; min-height: 44px; min-width: 44px; max-width: 100%; padding: 10px 12px; color: inherit; background: white; border: 2px solid #52606e; border-radius: 4px; }
+select { width: 100%; }
+button { overflow-wrap: anywhere; white-space: normal; cursor: pointer; }
+button:disabled { color: #515b64; background: #e9ecef; cursor: default; }
+button:focus-visible, select:focus-visible { outline: 3px solid #005a9c; outline-offset: 3px; }
+.actions { display: grid; gap: 12px; }
+#warning { border-inline-start: 4px solid #8a5300; padding-inline-start: 12px; }
+#reason { font-size: .875rem; }
+pre { font-family: ui-monospace, monospace; font-size: .875rem; white-space: pre-wrap; overflow-wrap: anywhere; padding: 12px; border: 1px solid #52606e; background: white; }
+h1, h2, p, label { overflow-wrap: anywhere; }

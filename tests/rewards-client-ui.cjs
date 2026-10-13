@@ -18,7 +18,21 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
    await r.fulfill({status,contentType:'application/json',body:JSON.stringify(result)});
   });
   await p.goto('http://localhost:'+server.address().port);await p.waitForFunction(()=>MKTYRewards.getLastPlayer());
-  mode='auth';await p.evaluate(()=>awardLifePoints(1,500));await p.waitForFunction(()=>document.getElementById('rewardSyncStatus')?.textContent.includes('Сессия истекла'));
+  // The first player cache is applied before startup sync finishes cloud/queue
+  // work. Settle that job before constructing an independent auth-failure phase.
+  await p.evaluate(()=>MKTYRewards.syncPlayer());
+  mode='auth';const failedCompletion=await p.evaluate(async()=>{
+   const complete=MKTYRewards.completeLife;let pending;
+   MKTYRewards.completeLife=(...args)=>(pending=complete(...args));
+   try{
+    // Exercise the real synchronous app consumer, but await its exact async
+    // completion. A banner alone can belong to another queued failed request.
+    const cached=awardLifePoints(1,500);if(!pending?.then)throw Error('app completion was not started');
+    return {cached,result:await pending};
+   }finally{MKTYRewards.completeLife=complete;}
+  });
+  assert.equal(failedCompletion.cached,0);assert.equal(failedCompletion.result.pending,true);assert.equal(failedCompletion.result.error,'auth');
+  await p.waitForFunction(()=>document.getElementById('rewardSyncStatus')?.textContent.includes('Сессия истекла'));
   assert.equal(await p.evaluate(()=>localStorage.getItem('mkty_points')),'0');assert.equal(await p.evaluate(()=>localStorage.getItem('mkty_life1')),'complete');
   assert.equal(await p.locator('#rewardSyncStatus').isVisible(),true);
   mode='online';await p.evaluate(()=>MKTYRewards.syncPlayer());assert.equal(await p.evaluate(()=>localStorage.getItem('mkty_points')),'500');assert.equal(completeCount,1);

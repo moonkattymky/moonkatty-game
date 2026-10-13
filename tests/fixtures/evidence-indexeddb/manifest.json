@@ -1,0 +1,331 @@
+{
+  "version": 1,
+  "purpose": "Test-only, hash-pinned native evidence and Node reference vectors. No gameplay wiring or native IndexedDB acceptance is implied by fixture preparation.",
+  "design": {
+    "path": "finale-indexeddb-adapter-design-local-20261012/DESIGN.md",
+    "sha256": "e0d7ee0a34465711e2b3dd25965a6309f2fa9399a2299f104bf53de663b441a0",
+    "sourcesSha256": "cdfed966733f4202fcf492c29f4fbabe7faa55a7d0c014dbf512a88566dadc48"
+  },
+  "referenceTests": {
+    "path": "finale-storage-prototype-local-20261012/tests.cjs",
+    "sha256": "616c3f459a3b3a1f9f8e7908d6bc233150c6304ff050acc3830aa9c8ec24121e",
+    "vectors": [
+      "02 admitted raw checkpoints",
+      "03 admitted exact native wires",
+      "05 exact scalar clocks and UTF-16 surrogates",
+      "32 original oversized recorder/snapshot/proof refusal"
+    ]
+  },
+  "files": [
+    {
+      "path": "tests/fixtures/evidence-indexeddb/c1/vnext/recorder.cjs",
+      "group": "c1-dependency",
+      "bytes": 7795,
+      "sha256": "96512ea64d9b43c9d3a2dd325575fc6f0b6906f157b853a7ebb662d55acfce79",
+      "source": {
+        "checkout": "moonkatty-c1-recorder-hydration-eaa0930",
+        "commit": "b11aacd5b078226120510e73e11cde3508936705",
+        "tree": "3e45c18d31a502d0e7a0dd12f17b0c7674c9d0fa",
+        "path": "prototypes/life1-capture/vnext/recorder.cjs"
+      }
+    },
+    {
+      "path": "tests/fixtures/evidence-indexeddb/c1/vnext/source-model.cjs",
+      "group": "c1-dependency",
+      "bytes": 14227,
+      "sha256": "f69fea14d084094d23f64a63deca43775f8c99ab1694b99af9391d20ae5cb2a4",
+      "source": {
+        "checkout": "moonkatty-c1-recorder-hydration-eaa0930",
+        "commit": "b11aacd5b078226120510e73e11cde3508936705",
+        "tree": "3e45c18d31a502d0e7a0dd12f17b0c7674c9d0fa",
+        "path": "prototypes/life1-capture/vnext/source-model.cjs"
+      }
+    },
+    {
+      "path": "tests/fixtures/evidence-indexeddb/c1/pr47/life1-model.js",
+      "group": "c1-dependency",
+      "bytes": 15168,
+      "sha256": "68bfd63a15b7670a25ad0d30cbce120d569df462520e2fd7671c040b4d4f3a34",
+      "source": {
+        "checkout": "moonkatty-c1-recorder-hydration-eaa0930",
+        "commit": "b11aacd5b078226120510e73e11cde3508936705",
+        "tree": "3e45c18d31a502d0e7a0dd12f17b0c7674c9d0fa",
+        "path": "prototypes/life1-capture/pr47/life1-model.js"
+      }
+    },
+    {
+      "path": "tests/fixtures/evidence-indexeddb/c1/pr47/life1-native-geometry.js",
+      "group": "c1-dependency",
+      "bytes": 5544,
+      "sha256": "4e6b34637e7d57da2d95a9bd4db73f9b8fb252a309443f07662a56a4e9ab77b6",
+      "source": {
+        "checkout": "moonkatty-c1-recorder-hydration-eaa0930",
+        "commit": "b11aacd5b078226120510e73e11cde3508936705",
+        "tree": "3e45c18d31a502d0e7a0dd12f17b0c7674c9d0fa",
+        "path": "prototypes/life1-capture/pr47/life1-native-geometry.js"
+      }
+    },
+    {
+      "path": "tests/fixtures/evidence-indexeddb/native-wires/ordinary-native-completion-complete.json",
+      "group": "native-wire-wrapper",
+      "bytes": 379563,
+      "sha256": "899ba888570e5d8378873bbc46a68a5d80ceb5c0dc57b89d14ddef88ea53b852",
+      "source": {
+        "evidence": "c1-hydration-publication-evidence",
+        "run": "38225561325",
+        "path": "vnext/ordinary-native-completion-complete.json",
+        "suppliedBaseCommit": "eaa09304c773129d8b06ec4c85a542e123e13450"
+      },
+      "wireBytes": 95015,
+      "wireSha256": "0f9de2c4344cf692ebde7602284bee12afc58c48fdf7038dd0407ab378591ac0"
+    },
+    {
+      "path": "tests/fixtures/evidence-indexeddb/native-wires/paused-repair-and-40-percent-hold-reloads-complete.json",
+      "group": "native-wire-wrapper",
+      "bytes": 141195,
+      "sha256": "d82f5a33fa19a8f262e4aaf839683702e9b0ecffc47dda0a093953ffb3bcde3b",
+      "source": {
+        "evidence": "c1-hydration-publication-evidence",
+        "run": "38225561325",
+        "path": "vnext/paused-repair-and-40-percent-hold-reloads-complete.json",
+        "suppliedBaseCommit": "eaa09304c773129d8b06ec4c85a542e123e13450"
+      },
+      "wireBytes": 97069,
+      "wireSha256": "c218d3246110a358091b20b0e46379d9ca206a870409f1a9c689e5def4c3a39e"
+    },
+    {
+      "path": "tests/fixtures/evidence-indexeddb/native-wires/paused-repair-and-40-percent-hold-reloads-hold-before-reload.json",
+      "group": "native-wire-wrapper",
+      "bytes": 196835,
+      "sha256": "33835f445c543a92c606a87da495f16391b8dfab49188f99188f95851f2e6d37",
+      "source": {
+        "evidence": "c1-hydration-publication-evidence",
+        "run": "38225561325",
+        "path": "vnext/paused-repair-and-40-percent-hold-reloads-hold-before-reload.json",
+        "suppliedBaseCommit": "eaa09304c773129d8b06ec4c85a542e123e13450"
+      },
+      "wireBytes": 85296,
+      "wireSha256": "2962966a6feb6b78e9f6b25dbb8bfdf9fe32db9672b678d4bfc11f9b5216c6d7"
+    },
+    {
+      "path": "tests/fixtures/evidence-indexeddb/native-wires/paused-repair-and-40-percent-hold-reloads-hold-durable-prefix.json",
+      "group": "native-wire-wrapper",
+      "bytes": 93072,
+      "sha256": "f0ebb85f9749043d3d7cb2a9119b1ab0c24c98e8915602441d7bb129e0f51386",
+      "source": {
+        "evidence": "c1-hydration-publication-evidence",
+        "run": "38225561325",
+        "path": "vnext/paused-repair-and-40-percent-hold-reloads-hold-durable-prefix.json",
+        "suppliedBaseCommit": "eaa09304c773129d8b06ec4c85a542e123e13450"
+      },
+      "wireBytes": 85704,
+      "wireSha256": "94ce5f28c545599287bfe2861c1afe09fd08be98d6b14d1406852651bfa00501"
+    },
+    {
+      "path": "tests/fixtures/evidence-indexeddb/native-wires/paused-repair-and-40-percent-hold-reloads-repair-before-reload.json",
+      "group": "native-wire-wrapper",
+      "bytes": 193152,
+      "sha256": "49c185d1bed50e20f112ca4ed0cdbface946ded40a1ce88140db771dc490f822",
+      "source": {
+        "evidence": "c1-hydration-publication-evidence",
+        "run": "38225561325",
+        "path": "vnext/paused-repair-and-40-percent-hold-reloads-repair-before-reload.json",
+        "suppliedBaseCommit": "eaa09304c773129d8b06ec4c85a542e123e13450"
+      },
+      "wireBytes": 50007,
+      "wireSha256": "bb44a067d1c3ff5f8dd3be1899626591d17ed96bf83f45a6fc8f533cf5a57822"
+    },
+    {
+      "path": "tests/fixtures/evidence-indexeddb/native-wires/paused-repair-and-40-percent-hold-reloads-repair-durable-prefix.json",
+      "group": "native-wire-wrapper",
+      "bytes": 54752,
+      "sha256": "643b9ca599e3961bdbe047a3d1d546531bc6dec540c4a65dbf4dae18f00d243a",
+      "source": {
+        "evidence": "c1-hydration-publication-evidence",
+        "run": "38225561325",
+        "path": "vnext/paused-repair-and-40-percent-hold-reloads-repair-durable-prefix.json",
+        "suppliedBaseCommit": "eaa09304c773129d8b06ec4c85a542e123e13450"
+      },
+      "wireBytes": 50464,
+      "wireSha256": "49966fe1258319b4389efccf6987fad9d405566ccc4bac81d740fd631c1af498"
+    },
+    {
+      "path": "tests/fixtures/evidence-indexeddb/reference-v3/store.cjs",
+      "group": "reference-v3",
+      "bytes": 20159,
+      "sha256": "4ccd27d6b9840218d694ec71fd016158c08d7da05678802ba03e26ffc9280d5c",
+      "source": {
+        "archive": "finale-storage-prototype-local-20261012-v3.tar.gz",
+        "archiveSha256": "29d03d1e2343e4e0fa6ea7f09ec8f2375184e38409bbb8cf06e916f15f02551b",
+        "path": "store.cjs"
+      }
+    },
+    {
+      "path": "tests/fixtures/evidence-indexeddb/reference-v3/coordinator.cjs",
+      "group": "reference-v3",
+      "bytes": 6224,
+      "sha256": "77c8c04a0049ecb07d497bb86fc39df7febdce0215c8a379b54fe0f013947ae7",
+      "source": {
+        "archive": "finale-storage-prototype-local-20261012-v3.tar.gz",
+        "archiveSha256": "29d03d1e2343e4e0fa6ea7f09ec8f2375184e38409bbb8cf06e916f15f02551b",
+        "path": "coordinator.cjs"
+      }
+    },
+    {
+      "path": "trace-codec.js",
+      "group": "reused-pr76",
+      "bytes": 13288,
+      "sha256": "baba00a4cc9a4ab309382220d3e37b7b35ddc925a582012d8d4d622c124ea865",
+      "source": {
+        "checkout": "moonkatty-finale-owner-ci-sync-fix",
+        "commit": "5e8f0b3c966ba83efa6c2de0b9fee2465c7fb39b",
+        "tree": "b950abfa8e35b5d208e09ae086defb25d87e36a4",
+        "path": "trace-codec.js"
+      }
+    },
+    {
+      "path": "field-model.js",
+      "group": "reused-pr76",
+      "bytes": 28112,
+      "sha256": "94ab25d49258d5ca64cdf391eccdaadd3b3f10370b363295a4c3bd3a58aea7a8",
+      "source": {
+        "checkout": "moonkatty-finale-owner-ci-sync-fix",
+        "commit": "5e8f0b3c966ba83efa6c2de0b9fee2465c7fb39b",
+        "tree": "b950abfa8e35b5d208e09ae086defb25d87e36a4",
+        "path": "field-model.js"
+      }
+    },
+    {
+      "path": "story-plan.js",
+      "group": "reused-pr76",
+      "bytes": 16258,
+      "sha256": "82d891847f5db366ec0accd8f132f1b9b0198e660054c4ea18f30932704913a6",
+      "source": {
+        "checkout": "moonkatty-finale-owner-ci-sync-fix",
+        "commit": "5e8f0b3c966ba83efa6c2de0b9fee2465c7fb39b",
+        "tree": "b950abfa8e35b5d208e09ae086defb25d87e36a4",
+        "path": "story-plan.js"
+      }
+    },
+    {
+      "path": "finale-evidence-owner.js",
+      "group": "reused-pr76",
+      "bytes": 7906,
+      "sha256": "e582316f1e56a9a13222bca42f63fead5e251ff3d3a97decff1cf5a01813e6fd",
+      "source": {
+        "checkout": "moonkatty-finale-owner-ci-sync-fix",
+        "commit": "5e8f0b3c966ba83efa6c2de0b9fee2465c7fb39b",
+        "tree": "b950abfa8e35b5d208e09ae086defb25d87e36a4",
+        "path": "finale-evidence-owner.js"
+      }
+    },
+    {
+      "path": "storage.js",
+      "group": "reused-pr76",
+      "bytes": 6545,
+      "sha256": "c8a4becffdff791e36ce0a709a8cd8dba2cfa5a4f4e8cde4732ab2565a9261c9",
+      "source": {
+        "checkout": "moonkatty-finale-owner-ci-sync-fix",
+        "commit": "5e8f0b3c966ba83efa6c2de0b9fee2465c7fb39b",
+        "tree": "b950abfa8e35b5d208e09ae086defb25d87e36a4",
+        "path": "storage.js"
+      }
+    },
+    {
+      "path": "cloud-save.js",
+      "group": "reused-pr76",
+      "bytes": 19923,
+      "sha256": "7858f73f962f4329d2c8ef8ee715cc0df40f0ae37dadbb117c792b8e6e392c4a",
+      "source": {
+        "checkout": "moonkatty-finale-owner-ci-sync-fix",
+        "commit": "5e8f0b3c966ba83efa6c2de0b9fee2465c7fb39b",
+        "tree": "b950abfa8e35b5d208e09ae086defb25d87e36a4",
+        "path": "cloud-save.js"
+      }
+    },
+    {
+      "path": "story.js",
+      "group": "reused-pr76",
+      "bytes": 27291,
+      "sha256": "fe567d0983f0243e931053972d338ebad9bc72ea1628bfcf30b3c3b6b09b4249",
+      "source": {
+        "checkout": "moonkatty-finale-owner-ci-sync-fix",
+        "commit": "5e8f0b3c966ba83efa6c2de0b9fee2465c7fb39b",
+        "tree": "b950abfa8e35b5d208e09ae086defb25d87e36a4",
+        "path": "story.js"
+      }
+    },
+    {
+      "path": "chapter-space.js",
+      "group": "reused-pr76",
+      "bytes": 3240,
+      "sha256": "e8c38ea4db0db9d5054f73ce69655fb33c1af11d2a6a67418ac3250c9d905af0",
+      "source": {
+        "checkout": "moonkatty-finale-owner-ci-sync-fix",
+        "commit": "5e8f0b3c966ba83efa6c2de0b9fee2465c7fb39b",
+        "tree": "b950abfa8e35b5d208e09ae086defb25d87e36a4",
+        "path": "chapter-space.js"
+      }
+    },
+    {
+      "path": "rewards-client.js",
+      "group": "reused-pr76",
+      "bytes": 23089,
+      "sha256": "e4444f4248d6389a650833dbd5a77c60985ba2ca64a37f342ca5dd340536758c",
+      "source": {
+        "checkout": "moonkatty-finale-owner-ci-sync-fix",
+        "commit": "5e8f0b3c966ba83efa6c2de0b9fee2465c7fb39b",
+        "tree": "b950abfa8e35b5d208e09ae086defb25d87e36a4",
+        "path": "rewards-client.js"
+      }
+    },
+    {
+      "path": "tests/fixtures/finale-checkpoints-17-state.json",
+      "group": "reused-pr76",
+      "bytes": 46440,
+      "sha256": "21d70a48ae98a9eaba2f9a87ed81b96a22c84b8b5605b7afe2070f07bb236931",
+      "source": {
+        "checkout": "moonkatty-finale-owner-ci-sync-fix",
+        "commit": "5e8f0b3c966ba83efa6c2de0b9fee2465c7fb39b",
+        "tree": "b950abfa8e35b5d208e09ae086defb25d87e36a4",
+        "path": "tests/fixtures/finale-checkpoints-17-state.json"
+      }
+    },
+    {
+      "path": "tests/fixtures/finale-envelope-21-group-baseline.cjs",
+      "group": "reused-pr76",
+      "bytes": 12696,
+      "sha256": "887b4e45043504519d116737777de95bb68ad6e50fb1c2e1ec7e65a442dd734e",
+      "source": {
+        "checkout": "moonkatty-finale-owner-ci-sync-fix",
+        "commit": "5e8f0b3c966ba83efa6c2de0b9fee2465c7fb39b",
+        "tree": "b950abfa8e35b5d208e09ae086defb25d87e36a4",
+        "path": "tests/fixtures/finale-envelope-21-group-baseline.cjs"
+      }
+    },
+    {
+      "path": "tests/fixtures/finale-owner-roundtrip.cjs",
+      "group": "reused-pr76",
+      "bytes": 9065,
+      "sha256": "1f1ed53b74e3d0df4bc8640732d3c68fb4e89e6921b87e8d8ad4632f0702975f",
+      "source": {
+        "checkout": "moonkatty-finale-owner-ci-sync-fix",
+        "commit": "5e8f0b3c966ba83efa6c2de0b9fee2465c7fb39b",
+        "tree": "b950abfa8e35b5d208e09ae086defb25d87e36a4",
+        "path": "tests/fixtures/finale-owner-roundtrip.cjs"
+      }
+    },
+    {
+      "path": "tests/fixtures/story-plan-before-finale-evidence.js",
+      "group": "reused-pr76",
+      "bytes": 15802,
+      "sha256": "fd4683463fc1bcf72862b33478a6d4d1036036632ccff88a049798428d583474",
+      "source": {
+        "checkout": "moonkatty-finale-owner-ci-sync-fix",
+        "commit": "5e8f0b3c966ba83efa6c2de0b9fee2465c7fb39b",
+        "tree": "b950abfa8e35b5d208e09ae086defb25d87e36a4",
+        "path": "tests/fixtures/story-plan-before-finale-evidence.js"
+      }
+    }
+  ]
+}

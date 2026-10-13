@@ -1,0 +1,5 @@
+/* Test result screen only. Runtime styles are unchanged. */
+#evidenceFinaleResult { padding: 28px 18px; color: #edf6ff; max-width: 660px; margin: auto; }
+#evidenceFinaleResult button { min-height: 44px; min-width: 44px; margin: 8px; padding: 12px 18px; }
+#evidenceFinaleResult button:focus-visible { outline: 3px solid #ffe17c; outline-offset: 3px; }
+#evidenceFinaleResult pre { white-space: pre-wrap; overflow-wrap: anywhere; }

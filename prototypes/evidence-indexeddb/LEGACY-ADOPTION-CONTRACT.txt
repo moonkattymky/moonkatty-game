@@ -1,0 +1,163 @@
+Legacy checkpoint adoption: isolated experiment
+Source/test only. No production entrypoint, account migration, rewards or cloud activation.
+Baseline PR76 head 3511de0767622180b061e14fcb2559741b1f64ad/tree50ff03a360a83aa8ff139335db3c2d1bd77e125e remains a separate accepted contract.
+
+Purpose
+Create an unfinished phase 9.2 checkpoint using the unchanged original Field controller
+and chapter-space save callback in a disposable old document. Earlier chapter/story
+prerequisites and phase 2 entry are explicit synthetic setup. Close that document,
+including final pagehide writes. In a cold document, import its exact existing localStorage
+values, publish one canonical owner, resume the unchanged Field controller, perform one
+native WAIT and durably select its checkpoint. Two fresh reloads must restore this state.
+The test does not earn the whole campaign, complete chapter 9, grant points or prove reward
+eligibility. It establishes a bounded existing-checkpoint handoff under cooperative
+exclusive cold-start conditions. Old uncooperative clients remain a runtime blocker.
+
+Contract boundaries
+- A new versioned checkpoint contract; accepted shared-guest-owner/fshared1 semantics stay
+  unchanged. Future daily/terminal integration must consume this canonical state or use
+  an explicit revision handoff, never run a second independent owner for the same guest.
+- Original runtime/model/art/adapter/schema/limits are not modified. There are no imports
+  from production index. Native execution uses isolated CI browser contexts only.
+- Stable fixture principal /^guest:[A-Za-z0-9_-]{1,64}$/ and three fixed archive identities
+  (source, owner, next). Identity is local separation, not authentication. The owner key
+  must not depend on a new session or source hash.
+- Exactly two canonical revisions:0 selects the source archive;1 selects the actual next
+  checkpoint archive. Retry reuses exact identities and bytes. No GC/random retry suffix.
+
+Exact selected keys
+The fixed order is story_plan_9_v1, field_finale_9_v1, operations_9_v1, points, daily_demo,
+life9, life9_awarded, life9_completed_at, final_moon_points, points_locked_at,
+spatial_report_9, current_chapter, each with the mkty_ prefix. A tuple position is a raw
+string or explicit null absence, never undefined. Whitespace, empty strings, escapes,
+unknown admitted data, lone surrogates and numeric spelling survive the source archive.
+No normalizing getters or whole-profile snapshots are used.
+
+The six terminal markers life9 through spatial_report_9 must be absent; current_chapter
+is exactly '9'. Operations is absent or a valid ordinary version 1/chapter 9/core/round 3
+envelope with its actual input/counters/unknown fields preserved. It is never replaced
+with synthetic seed731 preparation. Points/daily are preserved data, not an economic
+baseline or settlement evidence; the test invokes no daily or reward writer.
+
+Admission
+Guards are a separate bounded checked observation: version 1, origin
+'closed-original-field-guest-fixture', principal, epoch, identity='guest', initData='',
+durable=true, exclusive=true, sourceClosed=true, overlay=false, legacyOwnerRaw=null,
+cloudRaw with the exact seven known keys absent, unattributedPendingPresent=false.
+Unreadable observations throw rather than becoming absence. The seven cloud keys are
+mkty_cloud_dirty, mkty_cloud_revision, mkty_cloud_restore_pending,
+mkty_cloud_restore_transaction, mkty_cloud_restore_retry_guard,
+mkty_cloud_restore_outgoing and mkty_cloud_recovery.
+No foreign numeric-account queue value is read. Any mkty_pending_ name outside the
+recognized numeric-account v2 family blocks this narrow import. No queue is migrated,
+normalized, drained or deleted. Guest scope alone does not establish historical ownership.
+
+The story is version 1/edition 2/chapter 9/core/all 8 done. Story seed and finale seed are
+independent. Finale envelope is version 1/n9/phase 2; nested checkpoint is model 2/n11/stage 4,
+seed=(baseSeed+2*7919)>>>0, with explicit trace, complete=false, failed absent/false,
+home<3, stability>5 and turn<1000. Incremented counters must be safe integers.
+Before opening the controller, require exact semantic restore fixed-point: all own field
+presence and values, including Object.is numeric comparison. Unsupported, malformed,
+ambiguous or oversized input refuses while originals remain intact; no fresh-game fallback.
+Optional legacy.js is not loaded in the new realm. Saved checkpoint.mods are retained;
+no synthetic prior precision is substituted or claimed to have been imported.
+
+Original continuation
+Field.open saves immediately and pause/stop saves again. Quarantine these bootstrap saves;
+compare normalized checkpoint objects, not their serialization to raw whitespace-bearing
+source text. mkty_current_chapter may only receive a byte-identical no-op '9'.
+Native WAIT appends ['act','wait',0] (the empty DOM data-value converts to Number0),
+increments turn/moves and spends 5 stability without advancing home. Original bounded log
+slice follows the unchanged model. Preserve the exact trace prefix and all untouched data.
+A preflight oracle is not streamable evidence. Only the actual native captured checkpoint,
+matched exactly to its expected transition, can become the next canonical archive.
+
+Arm only the trusted native WAIT. Latch its immutable candidate and reentrancy guard before
+calling the existing pause path, which saves recursively. Accept identical duplicates;
+refuse a second distinct save. Wait until the outer original handler returns before async
+storage work. A timer-before-WAIT mutation is retained and blocks this one-command test;
+it is never discarded or represented as WAIT. Production clocks/cadence are unchanged.
+A paused controller still receives lifecycle callbacks: install an explicit test-only
+quiescence fence during async persistence. Deferred identical lifecycle work is bounded
+and cannot enter original callbacks while incompatible helper/page/storage leases exist.
+Completion, reward, failure-charge and network callbacks are tripwires at zero.
+
+Durability and atomicity
+Source archive staging is not atomic with owner publication. Seal and authenticate the
+source first, then append revision 0 with expectedHead=null. That append's transaction
+completion and readback select the import. Likewise seal/read back the captured checkpoint
+before the CAS append selecting revision 1. Earlier orphan archives remain inert.
+Recovery locates the fixed owner and authenticates exact referenced dependencies. Its
+checkpoint comes only from the selected canonical archive. Original selected localStorage
+values are still read one at a time as drift fences; they are not a restore fallback. It
+never selects a newest archive or repairs missing/corrupt data.
+Lost acknowledgment uses the same immutable request and readback, never replayed gameplay.
+
+Monotonic invocation epoch is separate from the durable owner key. Identity/source drift
+invalidates new insertion irreversibly. A transaction already dispatched can still commit
+to its captured OLD scope after a switch; reconcile/quarantine that exact result read-only,
+retain it and do not present it as success for another identity. No insertion-capable retry
+after drift. Double-read equality cannot detect all A→B→A legacy writes. Exclusive old-realm
+closure is a fixture precondition, not a production migration guarantee.
+
+Representation limits and lease schedule
+Total source frame<=65536 bytes, including ARCHIVE1 outer 20, LGCYRAW1 header 12, twelve
+entry headers 144 and fixed key UTF16LE 446: framing 622, values<=64914. Finale raw and
+canonical envelope separately<=16384. Initial checkpoint canonical<=7680; actual next
+checkpoint<=8192, with its own archive outer 20. Depth<=64 and bounded graph traversal.
+These are experiment admission bounds, not reduced gameplay/cloud limits. Longer legal
+saves remain untouched and unsupported by this first experiment.
+
+Use unchanged PhaseBudget ceiling 1016832, adapter 393216, metadata 32768. Caller slots:
+source/context-retained 65536; owner/atomic-retained 32768; separate fixture bridge 32768;
+quiescent controller/reload-phase-retained 32768; candidate/post-target 32768;
+original synchronous phase-workspace 327680; native reread/native-read 65536;
+recordworkspace 65536; one stream or returned page 32768; helper framing+hash<=66560.
+Record semantic JSON<=4096 within two 16KiB slots. Records contain compact pins/scalars,
+never raw profile/checkpoint payloads. No whole-map JSON or unbounded observation copies.
+
+Cold parse J=393216 uses six 64KiB existing slots: callback-scratch, callback-outer-story,
+callback-inner-story, context-restore, post-target, post-work-1. Story and operations graphs
+are parsed one at a time and dropped. Bounded finale/model validation follows only after
+large graphs are gone; no original controller or renderer runs inside J. Native guards,
+helper/page/stream, record workspace, candidate and live controller cannot overlap J.
+Cold full-frame recovery may retain one frame in context-parse; decode string-growth
+scratch is separately charged and released before J. No cold full-source recovery while
+controller/candidate leases are live; warm reads reuse authenticated immutable caps.
+
+Original W covers 307200 named representation bytes plus 20480 short scratch, including
+source envelopes, controller/current/previous/save/recursive-save/trace/oracle clones,
+8 checkpoint-sized original-restore intermediates, bounded log arrays and 65536 pinned
+renderer transient allowance. It lasts through OUTERMOST original callback return.
+K holds either E+C+task 8KiB or savedC+controllerC+task 8KiB, never both layouts together.
+N holds at most four checkpoint-sized slots; oracle graph does not survive preflight.
+Native n11 scene output<=20480 UTF16 bytes and at most 4 scene renders per realm; no
+extensible translation module or extra rendering scope is admitted.
+
+Per-stage conservative joint peaks:
+- cold capture + one native reread622592
+- standalone large parse983040
+- cold frame + J, controller absent 1015808
+- original callback 950272, with one native guard 1015808
+- quiescent archive append 787456
+- owner record append 820224, or 852992 if a separate 32KiB copy is made
+- retained retry at rest 622592
+Worst 1015808 leaves 1024 below ceiling. Preflight joint reservations before allocation;
+throwing observers must not leak leases. Reserve-failure cleanup and every await boundary
+are part of acceptance. These are encoded representations, not whole-page heap/RSS.
+Native unbounded getItem/IDB deserialization, DOM/layout/static code, browser internals,
+GC and arbitrary other realms are explicit exclusions. Test observation arrays are
+separately measured as JSON UTF16 representations with a 64MiB retained-array cap and a
+separate 64MiB observation-copy allowance. This is not a combined 64MiB peak. They are
+excluded from the component ledger and are not presented as application memory. The
+serialized result artifact has its own 16MiB bound.
+
+Rollback and remaining gates
+Before revision 0, original source is unchanged and partial archives are inert. After a
+new checkpoint commits, old JavaScript would read its stale mirror. Reverting old code
+is NOT lossless rollback: an owner-aware reader or reviewed canonical export/handoff is
+required. Keep both sources, no automatic mirror rewrite. Site-data deletion, OS eviction,
+power loss and another device remain outside this browser-durability evidence.
+Real activation still needs all-writer routing, old-client handling, signed server balance
+ownership, legacy pending-claim preservation and cloud conflict/recovery decisions.
+No test result here constitutes server anti-cheat, full campaign adoption or release approval.

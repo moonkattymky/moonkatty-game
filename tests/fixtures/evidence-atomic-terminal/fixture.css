@@ -1,0 +1,7 @@
+/* Isolated fixture layout only. Existing game CSS and artwork are unchanged. */
+html,body{min-height:100%;overflow:auto}
+#app{min-height:100vh;height:auto;overflow:visible}
+#atomicLoading,#atomicSetup,#atomicResult,#atomicHome{max-width:680px;margin:auto;padding:32px 24px;color:#eef3f5}
+#atomicLoading p,#atomicSetup p,#atomicResult p,#atomicHome p{line-height:1.6}
+#atomicSetup button,#atomicResult button,#atomicHome button{display:block;min-height:48px;margin:16px 0;padding:12px 20px}
+#atomicResult button:disabled{opacity:.4;cursor:not-allowed}
