@@ -17,6 +17,8 @@ on:
       - 'tests/evidence-story-rewrite.cjs'
       - 'tests/evidence-invocation-*.cjs'
       - 'tests/evidence-atomic-terminal*.cjs'
+      - 'tests/evidence-shared-*.cjs'
+      - 'tests/fixtures/evidence-shared-owner/**'
       - 'tests/evidence-context-reload.cjs'
       - 'tests/fixtures/evidence-atomic-terminal/**'
       - 'tests/fixtures/evidence-invocation-fence/**'
@@ -185,5 +187,37 @@ jobs:
         with:
           name: evidence-atomic-terminal-native
           path: /tmp/mkty-evidence-atomic-terminal-native/native-atomic-terminal-results.json
+          if-no-files-found: error
+          retention-days: 14
+
+  native-shared-owner:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Verify existing pinned Playwright version
+        run: node -e "require('node:assert/strict').equal(require('playwright/package.json').version, '1.58.2')"
+      - run: npx playwright install --with-deps chromium
+      - name: Shared guest revision and unchanged daily-source parity
+        run: |
+          node tests/evidence-shared-owner.cjs
+          node tests/evidence-shared-streak.cjs
+      - name: Native synthetic shared revision and two-page recovery
+        env:
+          MKTY_TEST_OUTPUT: /tmp/mkty-evidence-shared-owner-native
+        run: node tests/evidence-shared-owner-ui.cjs
+      - name: Preserve native shared-owner evidence and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-shared-owner-native
+          path: /tmp/mkty-evidence-shared-owner-native/native-shared-owner-results.json
           if-no-files-found: error
           retention-days: 14

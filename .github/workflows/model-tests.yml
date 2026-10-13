@@ -121,6 +121,14 @@ jobs:
           path: /tmp/mkty-evidence-atomic-terminal-ui-*/native-atomic-terminal-results.json
           if-no-files-found: ignore
           retention-days: 14
+      - name: Preserve aggregate shared-owner diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-shared-owner-aggregate
+          path: /tmp/mkty-evidence-shared-owner-ui-*/native-shared-owner-results.json
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Preserve localized guidance diagnostics
         if: always()
         uses: actions/upload-artifact@v4
