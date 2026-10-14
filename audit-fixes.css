@@ -1,0 +1,58 @@
+/* Audit fixes 2026-10-14: dark stage panels, scrollbars, icon consistency, button states, readability. Loaded last. */
+
+/* Dark theme for stage stats (was light-grey metal) */
+#storyPlan .story-stats{background:linear-gradient(160deg,#17384a,#0c2232)!important;border:1px solid #9fc0c833!important;border-top:2px solid #dbc28d!important}
+#storyPlan .story-stats strong{color:#f1e3bd!important}
+#storyPlan .story-stats span{color:#a9c2c9!important}
+.field-mission .field-telemetry{background:linear-gradient(160deg,#17384a,#0c2232)!important;color:#e6efe9!important;box-shadow:inset 0 1px #ffffff14!important;border-bottom:1px solid #9fc0c833!important}
+.field-mission .field-telemetry>div{border-color:#9fc0c826!important}
+.field-mission .field-telemetry small{color:#a9c2c9!important;font-size:12px!important}
+.field-mission .field-telemetry strong{color:#f1e3bd!important}
+.field-telemetry [data-balanced=true] strong{color:#8fe3b5!important}
+.field-telemetry [data-balanced=false] strong{color:#f0b37a!important}
+
+/* No white scrollbar strip on the right */
+html,body,#app,.hub-screen,#hubBody,.exp-hangar,.field-deck{scrollbar-color:#2c4a5b #07131c;scrollbar-width:thin}
+html{background:#02050a}
+::-webkit-scrollbar{width:6px;height:6px;background:#07131c}
+::-webkit-scrollbar-thumb{background:#2c4a5b;border-radius:6px}
+::-webkit-scrollbar-track,::-webkit-scrollbar-corner{background:#07131c}
+
+/* Settings button: gear icon, matching its ⚙ label */
+#settingsBtn,[data-hub=settings]{--mk-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z'/%3E%3C/svg%3E")}
+
+/* Clear enabled vs disabled states for action buttons */
+.exp-screen #expAction:not(:disabled){opacity:1;filter:none;box-shadow:0 0 0 1px #f1dca9,0 6px 18px #e9bd5833}
+.exp-screen #expAction:disabled{opacity:1;background:transparent;color:#a9bcc8;border:1px dashed #7d95a3;font-weight:600;cursor:default}
+.field-mission .field-footer button:disabled{background:transparent!important;border:1px dashed #9fb7bf!important;color:#c4d4d8!important;cursor:default}
+.field-mission .field-footer button:not(:disabled){box-shadow:0 6px 18px #e9bd5833!important}
+
+/* Larger station labels and HUD text */
+.exp-control span{font-size:12px!important}
+.exp-actions>.exp-primary{font-size:13px!important}
+.exp-hangar-art span,.exp-hangar-art small{font-size:12px!important}
+.field-svg text{font-size:max(1em,14px)}
+.field-objective>div,.field-objective small,.field-guide summary{font-size:12px!important}
+
+/* No square selection/tap box around ship sprites */
+.exp-hangar-art img,#expCanvas,.field-svg image,.mk-home-character{-webkit-user-select:none;user-select:none;-webkit-user-drag:none;-webkit-tap-highlight-color:transparent}
+.exp-screen,#fieldMission,#fieldMission [role=button]{-webkit-tap-highlight-color:transparent}
+#fieldMission .field-svg [role=button]:focus:not(:focus-visible){outline:none}
+
+/* Expeditions: heading no longer overlaps the ship */
+.exp-hangar-art img{width:min(270px,56%);right:3%;top:12px}
+.exp-hangar-art>div:last-child{z-index:1;max-width:48%;text-shadow:0 1px 6px #000c}
+@media(min-width:700px){.exp-hangar-art img{width:340px;right:12%}.exp-hangar-art>div:last-child{max-width:none}}
+
+/* Stage board: crisp pixel art, fill width on phones (no black side bars) */
+.field-svg image{image-rendering:pixelated}
+@media(max-width:649px){.field-mission:is([data-kind=rover],[data-kind=survey],[data-kind=stealth]) .field-world,.field-mission:not([data-kind=rover],[data-kind=survey],[data-kind=stealth],[data-kind=trajectory],[data-kind=thermal]) .field-world{width:100%}}
+
+/* Field pause menu briefing button */
+#fieldDialog #fieldBriefing{background:transparent;color:#e1ece4;border-color:#94b6bd66}
+
+/* Leaderboard loading state */
+.hub-loading{display:flex;align-items:center;justify-content:center;gap:10px}
+.hub-spinner{width:16px;height:16px;border:2px solid #b0dfed44;border-top-color:#b0dfed;border-radius:50%;animation:hubSpin .8s linear infinite}
+@keyframes hubSpin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.hub-spinner{animation:none}}

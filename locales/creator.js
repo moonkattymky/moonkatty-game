@@ -9,7 +9,7 @@ const D={
   "This video has already been submitted.": "Это видео уже отправляли.",
   "Paste a direct link to a TikTok, YouTube, X or Instagram video.": "Вставьте прямую ссылку на видео в TikTok, YouTube, X или Instagram.",
   "Confirm that this video is yours.": "Подтвердите, что это ваше видео.",
-  "Your balance is locked after LIFE #9 — new rewards are closed.": "После LIFE #9 баланс зафиксирован — новые награды закрыты.",
+  "Your balance is locked after LIFE #9 — new rewards are closed.": "После главы 9 баланс зафиксирован — новые награды закрыты.",
   "Telegram sign-in expired. Reopen the game.": "Вход через Telegram истёк. Откройте игру заново.",
   "Server unavailable. Try again later.": "Сервер недоступен. Попробуйте позже.",
   "ON REVIEW": "НА ПРОВЕРКЕ",
