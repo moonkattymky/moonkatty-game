@@ -1,0 +1,394 @@
+{
+  "mainBase": "00e391ffe0bb2ed663a7e3136cf382b0030857b4",
+  "expectedTests": 77,
+  "passed": 77,
+  "missing": [],
+  "tests": {
+    "a11y-floor.cjs": {
+      "status": "pass",
+      "seconds": 76,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "bot-server.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "campaign-security.cjs": {
+      "status": "pass",
+      "seconds": 5,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "cloud-acknowledgement.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "continuation.cjs": {
+      "status": "pass",
+      "seconds": 51,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "convoy-checkpoints-ui.cjs": {
+      "status": "pass",
+      "seconds": 15,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "convoy-checkpoints.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "creator-server.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "crew-workshop.cjs": {
+      "status": "pass",
+      "seconds": 2,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "daily-server.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "detail-rules.cjs": {
+      "status": "pass",
+      "seconds": 1,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "detail-ui.cjs": {
+      "status": "pass",
+      "seconds": 42,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "echo-checkpoints-ui.cjs": {
+      "status": "pass",
+      "seconds": 34,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "echo-checkpoints.cjs": {
+      "status": "pass",
+      "seconds": 187,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "expedition-edges.cjs": {
+      "status": "pass",
+      "seconds": 18,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "expedition-model.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "expeditions.cjs": {
+      "status": "pass",
+      "seconds": 136,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "field-rules.cjs": {
+      "status": "pass",
+      "seconds": 2,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "field-ui.cjs": {
+      "status": "pass",
+      "seconds": 136,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "first-language-pick.cjs": {
+      "status": "pass",
+      "seconds": 7,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "first-three.cjs": {
+      "status": "pass",
+      "seconds": 48,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "gate-checkpoints-ui.cjs": {
+      "status": "pass",
+      "seconds": 6,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "gate-checkpoints.cjs": {
+      "status": "pass",
+      "seconds": 133,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "i18n-ar.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "i18n-coverage.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "integrity-sql.cjs": {
+      "status": "pass",
+      "seconds": 3,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "launch-integrity-sql.cjs": {
+      "status": "pass",
+      "seconds": 2,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "launch-integrity-ui.cjs": {
+      "status": "pass",
+      "seconds": 6,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "leaderboard-server.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "leaderboard-ui.cjs": {
+      "status": "pass",
+      "seconds": 4,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "life1-geometry-browser.cjs": {
+      "status": "pass",
+      "seconds": 4,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "life1-geometry-lifecycle.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "lives.cjs": {
+      "status": "pass",
+      "seconds": 11,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "lunar-worksite.cjs": {
+      "status": "pass",
+      "seconds": 1,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "mission-control-server.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "mission-control-ui.cjs": {
+      "status": "pass",
+      "seconds": 57,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "mission-guidance-ui.cjs": {
+      "status": "pass",
+      "seconds": 112,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "mission-rules.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "no-conflict-markers.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "operations-edges.cjs": {
+      "status": "pass",
+      "seconds": 91,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "operations.cjs": {
+      "status": "pass",
+      "seconds": 234,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "pace-server.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "pace-ui.cjs": {
+      "status": "pass",
+      "seconds": 7,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "prelaunch-media.cjs": {
+      "status": "pass",
+      "seconds": 27,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "prelaunch-security.cjs": {
+      "status": "pass",
+      "seconds": 7,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "prelaunch-ui.cjs": {
+      "status": "pass",
+      "seconds": 14,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "reactor-checkpoint-transitions.cjs": {
+      "status": "pass",
+      "seconds": 1,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "referrals-server.cjs": {
+      "status": "pass",
+      "seconds": 1,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "release-backend-compatibility.cjs": {
+      "status": "pass",
+      "seconds": 4,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "reward-account-lifecycle.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "rewards-client-ui.cjs": {
+      "status": "pass",
+      "seconds": 3,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "rewards-recovery.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "rewards-server.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "runtime-recovery.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "save-transport-compatibility.cjs": {
+      "status": "pass",
+      "seconds": 9,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "server-models.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "social-server.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "social-ui.cjs": {
+      "status": "pass",
+      "seconds": 3,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "story-edges.cjs": {
+      "status": "pass",
+      "seconds": 17,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "story-next-client.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "story-plan.cjs": {
+      "status": "pass",
+      "seconds": 1,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "story.cjs": {
+      "status": "pass",
+      "seconds": 706,
+      "log": "moonkatty-3d-resumed-tests.log"
+    },
+    "trace-body-server.cjs": {
+      "status": "pass",
+      "seconds": 1,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "trace-codec-models.cjs": {
+      "status": "pass",
+      "seconds": 4,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "trace-codec.cjs": {
+      "status": "pass",
+      "seconds": 6,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "trace-controller-browser.cjs": {
+      "status": "pass",
+      "seconds": 3,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "trace-controller-recovery.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "trace-restore-transaction.cjs": {
+      "status": "pass",
+      "seconds": 1,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "trace-storage-client.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "trace-transport-client.cjs": {
+      "status": "pass",
+      "seconds": 4,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "viewport.cjs": {
+      "status": "pass",
+      "seconds": 10,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "visual-preview-source.cjs": {
+      "status": "pass",
+      "seconds": 0,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "void7-effects.cjs": {
+      "status": "pass",
+      "seconds": 13,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "void7.cjs": {
+      "status": "pass",
+      "seconds": 140,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "worlds-edges.cjs": {
+      "status": "pass",
+      "seconds": 35,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "worlds-release.cjs": {
+      "status": "pass",
+      "seconds": 14,
+      "log": "moonkatty-3d-full-tests.log"
+    },
+    "worlds.cjs": {
+      "status": "pass",
+      "seconds": 540,
+      "log": "moonkatty-3d-resumed-tests.log"
+    }
+  },
+  "runNote": "Interrupted aggregate resumed only for unfinished story/worlds. Separate optimized 3D test passed afterward; this is not one uninterrupted 78-test process."
+}
