@@ -94,7 +94,7 @@ function leaveMission(id){
 function show(id){
  if(activeCinematic&&activeCinematic.id!==id)activeCinematic.cleanup();
  window.MKTYCampaign?.save();
- window.MKTYExpedition?.onScreen(id);window.MKTYField?.onScreen(id);window.MKTYStory?.onScreen(id);
+ window.MKTYExpedition?.onScreen(id);window.MKTYField?.onScreen(id);window.MKTYStory?.onScreen(id);if(id==='home')window.MKTYProgress?.render();
  document.querySelectorAll('.mission-screen.active').forEach(s=>{if(s.id!==id)leaveMission(s.id);});
  const previous=document.querySelector('.screen.active');
  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -487,7 +487,7 @@ function awardLifePoints(n,amount){
    if(res&&typeof res.pts==='number'){pts=Number(localStorage.getItem('mkty_points')||0);if($('points'))$('points').textContent=pts+(moonPointsLocked()?' ⭐ 🔒':' ⭐');}
   });
  }catch(_){ }
- window.MKTYExperience?.signal('complete');if($('points'))$('points').textContent=pts+' ⭐';if($('livesProgress')){const done=[1,2,3,4,5,6,7,8,9].filter(x=>localStorage.getItem('mkty_life'+x)==='complete').length;$('livesProgress').textContent=done+' / 9 🌙';}renderMissionArchive();if(n===9){renderFinalMoonPoints();renderCrewNetwork();renderDailyMissions();}return pts;
+ window.MKTYExperience?.signal('complete');if($('points'))$('points').textContent=pts+' ⭐';window.MKTYProgress?.render();renderMissionArchive();if(n===9){renderFinalMoonPoints();renderCrewNetwork();renderDailyMissions();}return pts;
 }
 
 function unlockLife2(){
@@ -984,16 +984,28 @@ function renderFinalMoonPoints(){
  const final=Number(localStorage.getItem('mkty_final_moon_points')||0);
  if($('points'))$('points').textContent=final+' ⭐ 🔒';
 }
-$('rulesBtn')?.addEventListener('click',()=>show('rules'));
-$('rulesCloseBtn')?.addEventListener('click',()=>show('home'));
-$('rulesBackBtn')?.addEventListener('click',()=>show('home'));
+let rulesReturn='home';
+window.MKTYRulesFrom=from=>{rulesReturn=from==='more'?'more':'home';};
+function closeRules(){const back=rulesReturn;rulesReturn='home';if(back==='more'&&window.MKTYHub)window.MKTYHub.open('more');else show('home');}
+$('rulesBtn')?.addEventListener('click',()=>{rulesReturn='home';show('rules');});
+$('rulesCloseBtn')?.addEventListener('click',closeRules);
+$('rulesBackBtn')?.addEventListener('click',closeRules);
 
+/* Single source of truth for campaign progress: Home, Crew and the journal all read this. */
+window.MKTYProgress={
+ chaptersDone(){return [1,2,3,4,5,6,7,8,9].filter(n=>localStorage.getItem('mkty_life'+n)==='complete').length;},
+ stagesDone(){return Array.from({length:9},(_,i)=>window.MKTYStory?.read?.(i+1)?.done?.length||0).reduce((a,b)=>a+b,0);},
+ summary(){return {chapters:this.chaptersDone(),chaptersTotal:9,stages:this.stagesDone(),stagesTotal:72};},
+ render(){const el=$('livesProgress');if(el)el.textContent=this.chaptersDone()+' / 9 🌙';}
+};
+window.addEventListener('mkty:player',()=>window.MKTYProgress.render());
+window.addEventListener('storage',e=>{if(!e.key||/^mkty_life\d$/.test(e.key))window.MKTYProgress.render();});
 function restoreGameProgress(){
  const completed=[1,2,3,4,5,6,7,8,9].filter(n=>localStorage.getItem('mkty_life'+n)==='complete');
  const savedPoints=Number(localStorage.getItem('mkty_points')||0);
 
  if($('points')) $('points').textContent=savedPoints+' ⭐';
- if($('livesProgress')) $('livesProgress').textContent=completed.length+' / 9 🌙';
+ window.MKTYProgress.render();
 
  // The current home UI no longer contains the old life1Card/life2Card/... story cards.
  // Restore completion directly from storage without calling legacy unlock functions.

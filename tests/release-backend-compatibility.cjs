@@ -29,7 +29,8 @@ const pinned={
  'server/migrations/20261007_social_verify.sql':'00969f82a67e1c49e28f77a5e7dc5a8a0f5e6e91',
  'supabase/migrations/20261007200800_reward_integrity_sessions.sql':'8fed546a14d081b82f818eb8b6c5c4ff5bffdc7f',
  'supabase/migrations/20261008201825_launch_campaign_integrity.sql':'0c4887e377bb53ea86358d2085a0661b191cfa95',
- 'story-plan.js':'e0638e84b51fbd3419d47d3fb3fcd19da4cee2d3',
+ // Audit 2026-10-14: only the chapter 2 Russian display title changed; ids, steps, seeds and pacing are identical.
+ 'story-plan.js':'8a8a3d2caaa725faeab2891a12aeca6c44e2fcdd',
  'tests/fixtures/legacy-field-model-61b514c.mjs':'0c1b77acad5de10e8d66ee1cb114e6b038da7e54',
  'tests/fixtures/legacy-rewards-client-61b514c.js':'5f1c33d03b493f6902722cc483c3c1726cd1ca07',
  'tests/fixtures/legacy-cloud-save-61b514c.js':'904b5341e9656dfa8ad5714e18fea02472889521'

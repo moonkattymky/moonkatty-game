@@ -4,6 +4,12 @@
  const locales=root.MKTYLocales=root.MKTYLocales||{};
  locales["zh"]=locales["zh"]||{};
  locales["zh"].strings={
+  "MOONKATTY // LUNAR CREW":"MOONKATTY // 月球船员",
+  "Welcome to the Crew.":"欢迎加入船员团队。",
+  "DEEP SPACE / NEW MODE":"深空 / 新模式",
+  "Story progress: 1 / 9 🌙":"剧情进度：1 / 9 🌙",
+  "CREW":"船员",
+  "Done!":"完成！",
   "ECHO":"回声",
   "RELAY":"中继",
   "THERMAL":"热能",
