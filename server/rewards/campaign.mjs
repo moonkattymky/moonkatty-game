@@ -68,19 +68,29 @@ function replayTrace(trace,act,tick){
   else throw Error('proof');
  }
 }
-export function createCampaign({rpc,pace,clock,compactWrites=false}){
+export function createCampaign({rpc,pace,clock,compactWrites=false,seedSource=()=>crypto.getRandomValues(new Uint32Array(1))[0],resetHours=6,legacyRoutes=true}){
  return {
   async open(player,body){
    const life=Number(body.life);if(!Number.isInteger(life)||life<1||life>9)throw Error('life');
    if(life>player.story_life)await pace.assertUnlocked(player,life);
-   // A seed hint preserves an existing on-device route during the upgrade. Once
-   // issued, the route/seed is immutable until that chapter has a confirmed reward.
-   const seed=Number.isInteger(body.seed)&&body.seed>=0&&body.seed<=0xffffffff?body.seed:crypto.getRandomValues(new Uint32Array(1))[0];
-   return rpc('mkty_campaign_route',{p_id:player.telegram_id,p_life:life,p_seed:seed,p_edition:body.edition===1?1:2,p_reset:body.reset===true});
+   // Security (audit 2026-10-17): the server alone chooses the challenge. Any
+   // client-supplied seed/edition is ignored. Seeds of new routes are unique per
+   // chapter across accounts (database index), so a recorded run cannot be
+   // replayed on another account. A reset is honoured at most once per
+   // resetHours; otherwise the current route is returned unchanged.
+   for(let attempt=0;attempt<4;attempt++){
+    const seed=Number(seedSource())>>>0;
+    try{const {issued:_issued,...route}=await rpc('mkty_campaign_issue',{p_id:player.telegram_id,p_life:life,p_seed:seed,p_reset:body.reset===true,p_reset_hours:resetHours});return route;}
+    catch(e){if(e?.message!=='seed_collision')throw e;}
+   }
+   throw Error('unavailable');
   },
   async verify(player,life,proof){
    const run=await rpc('mkty_campaign_route',{p_id:player.telegram_id,p_life:life});
    if(run?.verified_at)return; // Retrying a previously verified completion is safe.
+   // Routes issued before the hardening (challenge_version 1, client-chosen seed)
+   // stay valid so in-progress players keep their progress, unless LEGACY_ROUTES=off.
+   if(run&&Number(run.challenge_version||1)!==2&&legacyRoutes===false)throw Error('route_upgrade_required');
    validateProof(run,proof);
    // Server time is only an additional bound, not proof of human play. Model
    // validation is mandatory even when this elapsed-time check has passed.

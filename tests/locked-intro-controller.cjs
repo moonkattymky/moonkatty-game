@@ -103,6 +103,7 @@ function gated(h,kind='chapter',n=2){
  h=harness();h.enter();const old=h.get('life2SkipBtn').onclick,loads=h.get('life2Video').loads;h.enter();assert.equal(h.get('life2SkipBtn').onclick,old,'same intro start is idempotent');h.context.show('home');old();h.get('life2Video').fire('error');h.advance(25000);assert.equal(h.active(),'home');assert.equal(h.get('paceDialog').open,undefined);assert.equal(h.get('life2Video').loads,loads+1);
  h.enter();const fresh=h.get('life2SkipBtn').onclick;old();assert.equal(h.active(),'life2');assert.equal(h.get('life2SkipBtn').onclick,fresh);h.skip();gated(h);h.get('paceCancel').click();h.enter();h.skip();gated(h);assert.equal(h.document.listeners.get('visibilitychange').size,1,'only the permanent pacing visibility listener remains');
  h=harness();h.enter();h.advance(3000);h.hidden(true);h.advance(60000);assert.equal(h.active(),'life2','hidden time does not finish intro');h.hidden(false);h.advance(6750);assert.equal(h.active(),'life2');h.advance(250);gated(h);
- const html=fs.readFileSync(path.join(root,'index.html'),'utf8');assert.match(html,/story\.js\?v=20261011-language-clarity-1/,'changed controller has a fresh cache pin');
+ // Re-pinned 2026-10-17: story.js changed for server-issued challenge routes.
+ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');assert.match(html,/story\.js\?v=20261017-security-1/,'changed controller has a fresh cache pin');
  console.log('PASS: real cinematic/story/pace controllers, 8 chapters x 4 finish paths, Cancel/Escape/Daily/Invite/referral, UTC unlock, zero lives/restoration, unlocked/code gate/tutorial/replay, preserved storage and navigation/repeat/hidden lifecycle');
 })().catch(error=>{console.error(error);process.exitCode=1;});

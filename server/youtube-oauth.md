@@ -27,7 +27,9 @@
 7. Включение (когда страница-колбэк и UI будут готовы): `YOUTUBE_OAUTH_ENABLED=true`.
 
 ## Как работает
-- `social.youtube.verify` без `code` → возвращает `auth_url` (scope `youtube.readonly`).
-- С `code` → сервер меняет код на токен, вызывает `subscriptions.list?mine=true&forChannelId=…`;
+- `social.youtube.verify` без `code` → возвращает `auth_url` (scope `youtube.readonly`) со случайным одноразовым
+  `state`; сервер хранит его в `mkty_oauth_states` (привязан к игроку, живёт 10 минут).
+- С `code` и тем же `state` (страница-колбэк обязана передать оба) → сервер сначала проверяет и «гасит» `state`
+  (чужой, старый или повторный — ошибка `oauth_state`), затем сервер меняет код на токен, вызывает `subscriptions.list?mine=true&forChannelId=…`;
   если подписка есть — +5 ⭐ один раз (`social:youtube:follow`). Токен Google нигде не сохраняется.
 - Без всех четырёх секретов флаг игнорируется (функция остаётся выключенной).

@@ -1,14 +1,15 @@
 /* Authoritative Moon Points / lives / life-complete. Browser storage is cache only.
    Requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY in the Edge Function env.
    Telegram initData verified with Ed25519 (same contract as mission-control). */
-import {issueSession,verifySession} from './session.mjs';
+import {issueSession,verifySessionAny,sessionSecrets} from './session.mjs';
+import {jsonResponder} from './http.mjs';
 import {profileFields} from './profile.mjs';
 import {createCampaign} from './campaign.mjs';
 import Codec from './models/trace-codec.mjs';
 import {createDaily} from './daily.mjs';
 import {createCreator,parseAdminIds} from './creator.mjs';
 import {createSocial,channelFromUrl,TELEGRAM_CHANNEL_URL} from './social.mjs';
-import {youtubeConfig,authUrl,isSubscribed,YT_SUBSCRIBE_POINTS} from './youtube.mjs';
+import {youtubeConfig,authUrl,isSubscribed,newOAuthState,YT_SUBSCRIBE_POINTS} from './youtube.mjs';
 const ENV=k=>(typeof Deno!=='undefined'&&Deno.env?.get?.(k))||'';
 // PUBLIC_KEY is Telegram's published production Ed25519 key for third-party initData validation (public, not a secret).
 // Bot id is taken from the TELEGRAM_BOT_TOKEN secret prefix when present.
@@ -18,8 +19,26 @@ const LIFE_RESTORE_MS=12*60*60*1000, MAX_LIVES=9, LIFE1_MIN_MS=90*1000;
 const REFERRAL_BONUS=200, REFERRAL_INVITEE_BONUS=200; // paid once, only after the invitee completes LIFE #1
 export function parseReferrer(start_param){const m=/^ref_([1-9][0-9]{0,15})$/.exec(start_param||'');const id=m?Number(m[1]):0;return Number.isSafeInteger(id)&&id>0?id:null;}
 const REFERRAL_DAILY_CAP=Number((typeof Deno!=='undefined'&&Deno.env?.get?.('REFERRAL_DAILY_CAP'))||10);
-const enc=new TextEncoder(),cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'content-type','Access-Control-Allow-Methods':'GET, POST, OPTIONS'};
-const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{...cors,'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
+const enc=new TextEncoder();
+// Per-player limits for the heavy actions (fixed windows, enforced in Postgres by
+// mkty_rate_limit). Every authenticated POST also counts against "all".
+export const RATE_RULES={
+ all:{limit:120,window:60},
+ proof:{limit:12,window:600},   // life.complete with a replay proof (CPU-heavy model replay)
+ cloud:{limit:40,window:60},    // cloud save writes (up to 400 KB each)
+ open:{limit:30,window:60},     // campaign route issue/reset
+ submit:{limit:30,window:600}   // cipher/code/social/creator submissions
+};
+export function rateRulesFor(action,body={},rules=RATE_RULES){
+ const out=[{bucket:'all',...rules.all}];
+ const bucket=(action==='life.complete'||action==='life.complete.v2')&&body.proof!==undefined&&body.proof!==null?'proof':
+  (action==='campaign.cloud'||action==='campaign.cloud.v2')&&body.snapshot!==undefined?'cloud':
+  action==='campaign.open'?'open':
+  ['cipher.solve','youtube.redeem','creator.submit','social.submit','social.telegram.verify','social.youtube.verify'].includes(action)?'submit':null;
+ if(bucket&&rules[bucket])out.push({bucket,...rules[bucket]});
+ return out;
+}
+const randomSeed=()=>crypto.getRandomValues(new Uint32Array(1))[0];
 
 const MAX_BODY_BYTES=400000;
 async function readBody(request){
@@ -70,7 +89,7 @@ function restHeaders(key,extra={}){
  return {apikey:key,Authorization:'Bearer '+key,'Content-Type':'application/json',Prefer:'return=representation',...extra};
 }
 
-export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock=()=>new Date(),traceTransport=false,referralDailyCap=REFERRAL_DAILY_CAP,cipherSecret=(typeof Deno!=='undefined'&&Deno.env?.get?.('CIPHER_SECRET'))||'',adminIds=(typeof Deno!=='undefined'&&Deno.env?.get?.('ADMIN_TG_IDS'))||'',botToken=ENV('TELEGRAM_BOT_TOKEN'),telegramChannel=ENV('TELEGRAM_CHANNEL')||channelFromUrl(TELEGRAM_CHANNEL_URL),tgFetcher=fetch,youtube=youtubeConfig({YOUTUBE_OAUTH_ENABLED:ENV('YOUTUBE_OAUTH_ENABLED'),GOOGLE_CLIENT_ID:ENV('GOOGLE_CLIENT_ID'),GOOGLE_CLIENT_SECRET:ENV('GOOGLE_CLIENT_SECRET'),YOUTUBE_CHANNEL_ID:ENV('YOUTUBE_CHANNEL_ID'),YOUTUBE_REDIRECT_URI:ENV('YOUTUBE_REDIRECT_URI')}),ytFetcher=fetch}){
+export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock=()=>new Date(),traceTransport=false,referralDailyCap=REFERRAL_DAILY_CAP,cipherSecret=(typeof Deno!=='undefined'&&Deno.env?.get?.('CIPHER_SECRET'))||'',adminIds=(typeof Deno!=='undefined'&&Deno.env?.get?.('ADMIN_TG_IDS'))||'',botToken=ENV('TELEGRAM_BOT_TOKEN'),sessionSecret=ENV('SESSION_SECRET'),sessionLegacyFallback=ENV('SESSION_LEGACY_FALLBACK').toLowerCase()!=='false',rateLimit=false,rateRules=RATE_RULES,seedSource=randomSeed,resetHours=Number(ENV('CAMPAIGN_RESET_HOURS'))||6,legacyRoutes=ENV('LEGACY_ROUTES').toLowerCase()!=='off',telegramChannel=ENV('TELEGRAM_CHANNEL')||channelFromUrl(TELEGRAM_CHANNEL_URL),tgFetcher=fetch,youtube=youtubeConfig({YOUTUBE_OAUTH_ENABLED:ENV('YOUTUBE_OAUTH_ENABLED'),GOOGLE_CLIENT_ID:ENV('GOOGLE_CLIENT_ID'),GOOGLE_CLIENT_SECRET:ENV('GOOGLE_CLIENT_SECRET'),YOUTUBE_CHANNEL_ID:ENV('YOUTUBE_CHANNEL_ID'),YOUTUBE_REDIRECT_URI:ENV('YOUTUBE_REDIRECT_URI')}),ytFetcher=fetch}){
  async function rest(path,opts={}){
   const target=new URL(path,url.endsWith('/')?url:url+'/');
   if(opts.params)for(const [k,v] of Object.entries(opts.params))target.searchParams.set(k,String(v));
@@ -171,16 +190,21 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
  }
 
  const pace=createPace({rest,clock,insertReward});
- const campaign=createCampaign({rpc,pace,clock,compactWrites:traceTransport===true});
+ const campaign=createCampaign({rpc,pace,clock,compactWrites:traceTransport===true,seedSource,resetHours,legacyRoutes});
+ const secrets=sessionSecrets({sessionSecret,serviceKey:key,legacyFallback:sessionLegacyFallback});
+ // Fail open on infrastructure errors (e.g. migration not applied yet): limits are
+ // abuse protection, never a reason to lose a legitimate player's reward.
+ async function rateCheck(id,rules){try{return await rest('/rest/v1/rpc/mkty_rate_limit',{method:'POST',body:JSON.stringify({p_id:id,p_rules:rules,p_now:clock().toISOString()})});}catch{return null;}}
  const daily=createDaily({rest,clock,insertReward,applyPoints,secret:cipherSecret});
 
  const creator=createCreator({rest,clock,insertReward,applyPoints,adminIds:adminIds instanceof Set?adminIds:parseAdminIds(adminIds)});
  const social=createSocial({rest,clock,insertReward,applyPoints,isAdmin:creator.isAdmin,secret:cipherSecret,botToken,channel:telegramChannel,fetcher:tgFetcher,youtube});
  return async request=>{
+  const {cors,json}=jsonResponder(request);
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
   if(request.method==='GET'){
    // Health / contract probe — no secrets leaked
-   return json({ok:true,service:'rewards',version:'20261009-prelaunch-1',configuration_ready:!!cipherSecret.trim()});
+   return json({ok:true,service:'rewards',version:'20261009-prelaunch-1',configuration_ready:!!cipherSecret.trim(),session_secret_configured:!!String(sessionSecret||'').trim()});
   }
   if(request.method!=='POST')return json({ok:false,error:'method'},405);
   if(!url||!key)return json({ok:false,error:'unavailable'},503);
@@ -189,14 +213,18 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
    body=await readBody(request);if(!body||typeof body!=='object'||Array.isArray(body))throw Error('body');
   }catch(e){return json({ok:false,error:'body'},e?.message==='body_too_large'?413:400);}
   const action=body.action||'player',packedAction=action==='campaign.cloud.v2'||action==='life.complete.v2';
-  const reply=(data,status=200)=>json({...data,...(packedAction&&traceTransport===true?{protocol:Codec.PROTOCOL}:{})},status);
+  const reply=(data,status=200,headers={})=>json({...data,...(packedAction&&traceTransport===true?{protocol:Codec.PROTOCOL}:{})},status,headers);
   if(packedAction&&traceTransport!==true)return reply({ok:false,error:'action'},400);
   if(packedAction&&body.protocol!==Codec.PROTOCOL)return reply({ok:false,error:'protocol'},400);
   let user;
-  try{user=body.session?await verifySession(body.session,key,clock().getTime()):await verify(body.initData);}catch{return reply({ok:false,error:'auth'},401);}
+  try{user=body.session?await verifySessionAny(body.session,secrets,clock().getTime()):await verify(body.initData);}catch{return reply({ok:false,error:'auth'},401);}
+  if(rateLimit===true){
+   const limited=await rateCheck(user.id,rateRulesFor(action,body,rateRules));
+   if(limited&&limited.allowed===false){const retry=Math.max(1,Math.min(86400,Number(limited.retry_after)||60));return reply({ok:false,error:'rate_limited',retry_after:retry},429,{'Retry-After':String(retry)});}
+  }
   try{
    let player=await ensurePlayer(user);
-   if(action==='session'){if(body.session)throw Error('auth');return reply({ok:true,session:await issueSession(user,key,clock().getTime()),...(traceTransport===true?{capabilities:{trace_codec:Codec.PROTOCOL}}:{}),player:publicPlayer(player),pace:await pace.status(player)});}
+   if(action==='session'){if(body.session)throw Error('auth');return reply({ok:true,session:await issueSession(user,secrets[0],clock().getTime()),...(traceTransport===true?{capabilities:{trace_codec:Codec.PROTOCOL}}:{}),player:publicPlayer(player),pace:await pace.status(player)});}
    if(action==='player')return reply({ok:true,...(traceTransport===true?{capabilities:{trace_codec:Codec.PROTOCOL}}:{}),player:publicPlayer(player),pace:await pace.status(player)});
    if(action==='chapter.status')return json({ok:true,pace:await pace.status(player),player:publicPlayer(player)});
    if(action==='chapter.skip'){const r=await pace.skip(player,body.life);return json({ok:true,...r,pace:await pace.status(player),player:publicPlayer(player)});}
@@ -233,8 +261,14 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
    if(action==='social.submit')return json({ok:true,...await social.submit(player,body),player:publicPlayer(player)});
    if(action==='social.youtube.verify'){
     if(!youtube.enabled)return json({ok:false,error:'disabled'},409);
-    if(!body.code)return json({ok:true,auth_url:authUrl(youtube,'yt_'+player.telegram_id)});
+    if(!body.code){
+     // Random one-time state bound to this player; verified and consumed below.
+     const state=newOAuthState();const issued=await rpc('mkty_oauth_state_issue',{p_id:player.telegram_id,p_state:state});
+     if(!issued?.ok)throw Error('oauth_state');
+     return json({ok:true,auth_url:authUrl(youtube,state)});
+    }
     if(player.balance_locked_at)throw Error('locked');
+    if(typeof body.state!=='string'||!(await rpc('mkty_oauth_state_consume',{p_id:player.telegram_id,p_state:body.state,p_ttl_seconds:600}))?.valid)return json({ok:false,error:'oauth_state'},400);
     let sub=false;try{sub=await isSubscribed(youtube,String(body.code),ytFetcher);}catch{return json({ok:false,error:'oauth'},400);}
     if(!sub)return json({ok:true,verified:false,awarded:false,player:publicPlayer(player)});
     const {inserted}=await insertReward(player,'social:youtube:follow','social.youtube_follow',YT_SUBSCRIBE_POINTS);
@@ -259,7 +293,8 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
    if(msg==='url'||msg==='hashtag'||msg==='own'||msg==='submission'||msg==='decision'||msg==='tier')return reply({ok:false,error:msg},400);
    if(msg==='already'||msg==='duplicate_proof')return reply({ok:false,error:msg},409);
    if(msg==='daily_limit'||msg==='pending_limit')return reply({ok:false,error:msg},429);
-   if(msg==='proof_required')return reply({ok:false,error:msg},409);
+   if(msg==='proof_required'||msg==='route_upgrade_required')return reply({ok:false,error:msg},409);
+   if(msg==='oauth_state')return reply({ok:false,error:msg},400);
    if(msg==='snapshot'||msg==='snapshot_transport_invalid'||msg==='proof_transport_invalid')return reply({ok:false,error:msg},400);
    if(msg==='snapshot_too_large'||msg==='proof_too_large')return reply({ok:false,error:msg},413);
    if(msg==='proof'||msg==='platform'||msg==='kind'||msg==='unverified')return reply({ok:false,error:msg},400);

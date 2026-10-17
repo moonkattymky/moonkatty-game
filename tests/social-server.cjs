@@ -95,9 +95,15 @@ const assert=require('node:assert/strict'),{webcrypto}=require('node:crypto');
  // YouTube OAuth prepared but disabled
  assert.equal((await call(10,'social.youtube.verify')).body.error,'disabled');
  const he=mk({youtube:{enabled:true,clientId:'c',clientSecret:'s',channelId:'UC1',redirectUri:'https://g/cb'},ytFetcher:async u=>String(u).includes('token')?res({access_token:'a'}):res({items:[{id:'x'}]})});
- assert.match((await call(12,'social.youtube.verify',{},he)).body.auth_url,/youtube\.readonly/);
- r=await call(12,'social.youtube.verify',{code:'abc'},he);assert.equal(r.body.awarded,true);
- assert.equal((await call(12,'social.youtube.verify',{code:'abc'},he)).body.awarded,false);
+ const authUrl=(await call(12,'social.youtube.verify',{},he)).body.auth_url;assert.match(authUrl,/youtube\.readonly/);
+ // Security (audit 2026-10-17): OAuth state is random, one-time and bound to the player.
+ const state=new URL(authUrl).searchParams.get('state');assert.match(state,/^[A-Za-z0-9_-]{43}$/);assert.notEqual(state,'yt_12','state must not be derived from the Telegram id');
+ assert.equal((await call(12,'social.youtube.verify',{code:'abc'},he)).body.error,'oauth_state','missing state is rejected');
+ assert.equal((await call(13,'social.youtube.verify',{code:'abc',state},he)).body.error,'oauth_state','another player cannot use this state');
+ r=await call(12,'social.youtube.verify',{code:'abc',state},he);assert.equal(r.body.awarded,true);
+ assert.equal((await call(12,'social.youtube.verify',{code:'abc',state},he)).body.error,'oauth_state','state is single-use');
+ const state2=new URL((await call(12,'social.youtube.verify',{},he)).body.auth_url).searchParams.get('state');
+ assert.equal((await call(12,'social.youtube.verify',{code:'abc',state:state2},he)).body.awarded,false);
  const probe=await (await h(new Request('https://x'))).json();assert.equal(probe.ok,true);assert.equal(probe.actions,undefined);
  assert.ok(!JSON.stringify(probe).includes('TEST:TOKEN'));
  console.log('PASS: social — open-link claims blocked, Telegram getChatMember (non-member rejected, member once, bot-not-admin status), X/TikTok code submissions, admin approve/reject, non-admin 403, daily limits, YouTube OAuth flag');

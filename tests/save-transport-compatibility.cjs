@@ -10,7 +10,7 @@ const golden=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/chapter1-p
 const source=file=>fs.readFileSync(path.join(root,file),'utf8');
 const plain=value=>JSON.parse(JSON.stringify(value));
 const turn=()=>new Promise(resolve=>setImmediate(resolve));
-const sqlFiles=['server/schema.sql','server/migrations/20261007_social_verify.sql','supabase/migrations/20261007200800_reward_integrity_sessions.sql','supabase/migrations/20261008201825_launch_campaign_integrity.sql'];
+const sqlFiles=['server/schema.sql','server/migrations/20261007_social_verify.sql','supabase/migrations/20261007200800_reward_integrity_sessions.sql','supabase/migrations/20261008201825_launch_campaign_integrity.sql','supabase/migrations/20261017120000_security_hardening.sql'];
 function moduleURL(text,file,overrides={}){
  const {pathToFileURL}=require('node:url');
  const absolute=text.replace(/from\s+(['"])(\.\/[^'"]+)\1/g,(_match,_quote,relative)=>'from '+JSON.stringify(overrides[relative]||pathToFileURL(path.resolve(root,path.dirname(file),relative)).href));
@@ -28,7 +28,8 @@ function entrypoint(createHandler,dependencies={},flag){
   createHandler:value=>{options=plain(value);return createHandler({...dependencies,...value});}
  },{filename:'server/rewards/index.ts'});
  assert.deepEqual(reads,['SUPABASE_URL','SUPABASE_SERVICE_ROLE_KEY']);
- assert.deepEqual(options,{url:'https://db.test',key:'synthetic-local-fixture-key',traceTransport:true},'activation is source-pinned and independent of env flags');
+ // rateLimit added by the security hardening (audit 2026-10-17).
+ assert.deepEqual(options,{url:'https://db.test',key:'synthetic-local-fixture-key',traceTransport:true,rateLimit:true},'activation is source-pinned and independent of env flags');
  assert.equal(typeof handler,'function');return handler;
 }
 
@@ -72,10 +73,13 @@ function client(handler,id=101,{legacy=false,stores=new Map()}={}){
 async function database(){
  const db=new PGlite();await db.exec('create role anon;create role authenticated;create role service_role;create function public.rls_auto_enable() returns event_trigger language plpgsql as $$begin end$$;');
  for(const file of sqlFiles)await db.exec(source(file));
- let now=new Date();const writes=[];
+ let now=new Date(),issued=golden.route.seed;const writes=[];
  const fetcher=async(url,opt={})=>{
   const u=new URL(url),name=u.pathname.split('/').pop(),body=opt.body?JSON.parse(opt.body):null,method=opt.method||'GET';assert.equal(u.hostname,'db.test');
   try{
+   // The pinned pre-hardening handler draws a random seed when a current client sends
+   // none; substitute the same deterministic issue sequence the hardened handler uses.
+   if(name==='mkty_campaign_route'&&body.p_seed!==undefined)body.p_seed=issued++;
    if(u.pathname.includes('/rpc/')){if(name==='mkty_cloud'&&body.p_snapshot!==undefined)writes.push(plain(body));assert.match(name,/^mkty_[a-z_]+$/);const entries=Object.entries(body),rows=(await db.query(`select public.${name}(${entries.map(([k],i)=>k+'=> $'+(i+1)).join(',')}) as result`,entries.map(([,v])=>v&&typeof v==='object'?JSON.stringify(v):v))).rows;return Response.json(rows[0].result);}
    assert(['players','reward_events','referral_events'].includes(name));
    const values=[],param=v=>{values.push(v);return '$'+values.length;};
@@ -92,20 +96,27 @@ async function database(){
  const campaignURL=moduleURL(source('tests/fixtures/legacy-campaign-61b514c.mjs'),'server/rewards/campaign.mjs',{'./models/field-model.mjs':legacyFieldURL});
  const {createHandler:createLegacyHandler}=await import(moduleURL(source('tests/fixtures/legacy-core-61b514c.mjs'),'server/rewards/core.mjs',{'./campaign.mjs':campaignURL}));
  const noNetwork=()=>{throw Error('external network is forbidden in this fixture');};
- const options={url:'https://db.test',key:'synthetic-local-fixture-key',fetcher,tgFetcher:noNetwork,ytFetcher:noNetwork,verify:async initData=>({id:JSON.parse(new URLSearchParams(initData).get('user')).id}),clock:()=>now};
+ const options={url:'https://db.test',key:'synthetic-local-fixture-key',fetcher,tgFetcher:noNetwork,ytFetcher:noNetwork,verify:async initData=>({id:JSON.parse(new URLSearchParams(initData).get('user')).id}),clock:()=>now,
+  // Server-issued challenges: this disposable database issues the recorded golden seed first, then the next ones.
+  seedSource:()=>issued++};
  const handler=entrypoint(createHandler,options),decoderHandler=createHandler({...options,traceTransport:false}),legacyHandler=createLegacyHandler(options);
  return {db,handler,decoderHandler,legacyHandler,writes,advance:ms=>{now=new Date(now.getTime()+ms);}};
 }
 
 async function prepareGolden(fixture,h){
  const R=h.window.MKTYRewards,S=h.window.MKTYStory,account=h.window.MKTYStorage.identity();
- assert.equal(R.requiresRoute,undefined);assert.equal(R.routeReady,undefined);
+ // Current clients wait for a server-issued route; historical clients never did.
+ const current=!!h.window.MKTYTraceCodec;
+ assert.equal(typeof R.requiresRoute,current?'function':'undefined');assert.equal(typeof R.routeReady,current?'function':'undefined');
  await S.open(1);await h.settle();
  const route=JSON.parse(h.storage.getItem('mkty_proof_route_1'));
  assert(route,JSON.stringify({owner:account,calls:h.calls.map(x=>x.body.action),responses:h.responses}));assert.equal(route.seed,golden.route.seed);assert.equal(route.edition,2);
- assert.deepEqual(Object.keys(route).sort(),['telegram_id','life','route','seed','edition','started_at','verified_at'].sort(),'transport adds no route fields');
+ // The hardened schema adds challenge_version: 2 for server-chosen seeds, 1 for routes
+ // the pinned pre-hardening handler created from a client hint.
+ if(route.challenge_version!==undefined)assert([1,2].includes(route.challenge_version));
+ assert.deepEqual(Object.keys(route).filter(k=>k!=='challenge_version').sort(),['telegram_id','life','route','seed','edition','started_at','verified_at'].sort(),'transport adds no route fields');
  const open=h.calls.filter(x=>x.body.action==='campaign.open');assert.equal(open.length,1);
- assert.deepEqual({life:open[0].body.life,seed:open[0].body.seed,edition:open[0].body.edition,reset:open[0].body.reset},{life:1,seed:golden.route.seed,edition:2,reset:false});
+ assert.deepEqual({life:open[0].body.life,seed:open[0].body.seed,edition:open[0].body.edition,reset:open[0].body.reset},{life:1,seed:current?undefined:golden.route.seed,edition:2,reset:false},'current clients never propose a seed');
  assert.equal(open[0].body.previous_route,undefined);assert.equal(open[0].body.protocol,undefined);
  await R.prepareRoute(1);assert.equal(h.calls.filter(x=>x.body.action==='campaign.open').length,1,'the unchanged receipt remains reusable');
  for(const item of golden.proof.tasks){
@@ -133,8 +144,15 @@ async function goldenFlow(fixture,h,compact){
  // Explicit replay continues to use precisely seed / edition / reset.
  S.menu(1);h.get('storyReplay').click();await h.settle();
  const next=JSON.parse(h.storage.getItem('mkty_proof_route_1')),reset=h.calls.filter(x=>x.body.action==='campaign.open').at(-1).body;
+ if(!h.window.MKTYTraceCodec&&route.challenge_version===2){
+  // A historical cached client proposes its own seed; the hardened server ignores it,
+  // so the old client refuses the mismatching challenge and keeps its finished route.
+  // Players on such a cached build must reload (see PR deploy notes).
+  assert.equal(next.route,route.route);assert.equal(reset.reset,true);
+  return decoded.tasks;
+ }
  assert.notEqual(next.route,route.route);assert.equal(next.seed,S.read(1).seed);assert.notEqual(next.seed,route.seed);
- assert.equal(reset.reset,true);assert.equal(reset.edition,2);assert.equal(reset.seed,next.seed);assert.equal(reset.previous_route,undefined);assert.equal(next.challenge_version,undefined);
+ assert.equal(reset.reset,true);assert.equal(reset.edition,2);assert.equal(reset.seed,h.window.MKTYTraceCodec?undefined:next.seed);assert.equal(reset.previous_route,undefined);assert.equal(next.challenge_version,route.challenge_version);
  assert.deepEqual(plain(S.read(1).done),[]);
  return decoded.tasks;
 }
@@ -250,17 +268,23 @@ function replayFlight(trace){
   assert.equal(requests,0);
  }
  assert.deepEqual(Codec.LIMITS,{maxRows:25000,maxTicks:200000,snapshotEntryBytes:180000,snapshotBytes:350000,decodedEntryBytes:1000000,decodedSnapshotBytes:2000000,proofBytes:1000000,transportBytes:400000,maxDepth:64,maxLiteralBytes:65536},'compatibility must not increase any codec budget');
- const fixture=await database();
+ const fixture=await database(),extra=[];
  try{
-  const current=client(fixture.handler,101),old=client(fixture.handler,102,{legacy:true}),fallback=client(fixture.legacyHandler,103),decoderProof=client(fixture.decoderHandler,104),decoderOldProof=client(fixture.decoderHandler,105,{legacy:true});
+  // Server-issued challenges (audit 2026-10-17): the single recorded golden proof is
+  // bound to the one account its seed was issued to (cross-account replay is refused,
+  // see tests/campaign-security.cjs). Each client therefore replays it against its
+  // own disposable database.
+  for(let i=0;i<5;i++)extra.push(await database());
+  const [oldDb,fallbackDb,decoderDb,decoderOldDb,lostDb]=extra;
+  const current=client(fixture.handler,101),old=client(oldDb.handler,102,{legacy:true}),fallback=client(fallbackDb.legacyHandler,103),decoderProof=client(decoderDb.decoderHandler,104),decoderOldProof=client(decoderOldDb.decoderHandler,105,{legacy:true});
   assert.equal(await current.window.MKTYRewards.traceProtocol(),Codec.PROTOCOL);
   await current.window.MKTYRewards.call('player');
   for(const action of ['session','player'])assert.equal(current.responses.find(r=>r.action===action).body.capabilities.trace_codec,Codec.PROTOCOL);
   assert.equal(old.window.MKTYTraceCodec,undefined,'historical clients must work without loading the codec');
   const proofs=[];
-  for(const [h,compact]of [[current,true],[old,false],[fallback,false],[decoderProof,false],[decoderOldProof,false]])proofs.push(await goldenFlow(fixture,h,compact));
+  for(const [db,h,compact]of [[fixture,current,true],[oldDb,old,false],[fallbackDb,fallback,false],[decoderDb,decoderProof,false],[decoderOldDb,decoderOldProof,false]])proofs.push(await goldenFlow(db,h,compact));
   for(const proof of proofs.slice(1))assert.deepEqual(proofs[0],proof);
-  await lostCompletion(fixture);
+  await lostCompletion(lostDb);
   assert.equal(await fallback.window.MKTYRewards.traceProtocol(),null);
   for(const r of fallback.responses.filter(x=>['session','player'].includes(x.action)))assert.equal(r.body.capabilities,undefined);
   for(const h of [old,fallback,decoderProof,decoderOldProof])for(const call of h.calls){assert(!call.body.action.endsWith('.v2'));assert.equal(call.body.protocol,undefined);assert(!call.raw.includes('mkty-trace'));}
@@ -382,6 +406,6 @@ function replayFlight(trace){
   }
   assert.equal((await fixture.db.query('select count(*)::int count from reward_events where telegram_id=204')).rows[0].count,0);
   for(const h of [decoder,decoderOld,decoderWriter])for(const call of h.calls){assert(!call.body.action.endsWith('.v2'));assert.equal(call.body.protocol,undefined);}
-  console.log(JSON.stringify({test:'save-transport-compatibility',clientServerMatrix:['current/shipping-entrypoint','precodec/shipping-entrypoint','current/historical-precodec','current/explicit-false-rollback','precodec/explicit-false-rollback'],entrypointFlagCases:3,goldenProofs:5,rewardPoints:500,idempotent:true,routeHandshake:'seed/edition/reset unchanged',flightSeconds:240,traceRows:trace.length,rawBytes:Codec.utf8Bytes(raw),packedBytes:Codec.utf8Bytes(sent.body.snapshot[key]),continuationTicks:600,legacyRawReadsAndConflicts:true,canonicalPrefixAndTail:true,allOrNothingRejections:cases.length*2,utf8RequestLimit:true,explicitFalseDecoderRollback:true,lostCloudReceipts:4,lostRewardReceiptExactlyOnce:true,cachedRollbackAndReenable:true,isolatedDatabase:true,externalRequests:0}));
- }finally{await fixture.db.close();}
+  console.log(JSON.stringify({test:'save-transport-compatibility',clientServerMatrix:['current/shipping-entrypoint','precodec/shipping-entrypoint','current/historical-precodec','current/explicit-false-rollback','precodec/explicit-false-rollback'],entrypointFlagCases:3,goldenProofs:5,rewardPoints:500,idempotent:true,routeHandshake:'server-issued seed; edition/reset unchanged',flightSeconds:240,traceRows:trace.length,rawBytes:Codec.utf8Bytes(raw),packedBytes:Codec.utf8Bytes(sent.body.snapshot[key]),continuationTicks:600,legacyRawReadsAndConflicts:true,canonicalPrefixAndTail:true,allOrNothingRejections:cases.length*2,utf8RequestLimit:true,explicitFalseDecoderRollback:true,lostCloudReceipts:4,lostRewardReceiptExactlyOnce:true,cachedRollbackAndReenable:true,isolatedDatabase:true,externalRequests:0}));
+ }finally{await fixture.db.close();for(const db of extra)await db.db.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});

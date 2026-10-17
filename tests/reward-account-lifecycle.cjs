@@ -29,7 +29,7 @@ function harness(){
    const id=Number(String(body.session).replace('fixture-',''));
    result={ok:true,player:{telegram_id:id,moon_points:0,lives:9,story_life:0}};
   }else{
-   const response=deferred();requests.push({body,owner:owner(),respond:response.resolve});result=await response.promise;
+   const response=deferred();requests.push({body,owner:owner(),plan:c.MKTYStory.read(),respond:response.resolve});result=await response.promise;
   }
   return {ok:result.ok!==false,status:result.ok===false?400:200,json:async()=>result};
  };
@@ -46,7 +46,9 @@ function harness(){
   read:key=>c.localStorage.getItem(key),write:(key,value)=>c.localStorage.setItem(key,value),queue:id=>JSON.parse(native.getItem('mkty_pending_v2_'+id)||'[]'),
   savedRoute:()=>JSON.parse(c.localStorage.getItem(routeKey)||'null'),
   routeRequest:(index=0)=>requests.filter(r=>r.body.action==='campaign.open')[index],
-  routeReply(request,label){assert(request,'expected a route request');request.respond({ok:true,route:{life:1,telegram_id:Number(request.owner),seed:request.body.seed,edition:request.body.edition,route:label}});}};
+  // Server-issued challenges (audit 2026-10-17): the client sends no seed. This synthetic
+  // server issues the challenge of the plan that was current when the request was made.
+  routeReply(request,label){assert(request,'expected a route request');assert.equal(request.body.seed,undefined,'client must not propose a seed');request.respond({ok:true,route:{life:1,telegram_id:Number(request.owner),seed:request.plan?.seed,edition:request.plan?.edition||2,route:label}});}};
 }
 
 test('new replay route survives an older out-of-order route response',async()=>{
