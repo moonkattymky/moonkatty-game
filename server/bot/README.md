@@ -25,3 +25,16 @@ Moderation is on demand. This does not implement automatic notifications, creato
 video tier approvals, data-deletion automation, or chapter-reminder scheduling.
 Creator moderation remains accessible through private operator tooling; admin.html
 is excluded from Pages. Hiding a page is not a substitute for server authorization.
+
+## Why the bot does not answer `/start` (2026-10-14 audit)
+
+The `/start` handler with the web_app **«Играть»** button already exists in `core.mjs` (covered by
+`tests/bot-server.cjs`). The bot is silent because this function has not been deployed and no
+webhook points at it. Activation checklist (operator, with the real token; never commit it):
+
+1. Deploy: `supabase functions deploy bot --no-verify-jwt` (bundle `server/bot` + `server/rewards`).
+2. Set secrets: `supabase secrets set TELEGRAM_BOT_TOKEN=... TELEGRAM_WEBHOOK_SECRET=... ADMIN_TG_IDS=...`
+   (plus `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `CIPHER_SECRET`).
+3. Dry run, then apply: `node tools/bot/activate-bot.mjs` → `node tools/bot/activate-bot.mjs --apply`.
+   The script shows the current webhook first and refuses to replace a different one without `--replace`.
+4. Send `/start` to @MoonKattyGameBot and check the «Играть» button opens the game.

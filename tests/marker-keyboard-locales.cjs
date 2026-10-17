@@ -5,6 +5,7 @@ const {execFileSync}=require('node:child_process');
 const {LANGS,BUNDLES,scopedKeys,missing,readSource}=require('./guidance-locale-helper.cjs');
 const {keys,translations,legacyGuidanceSha256,legacyPackSha256}=require('./marker-keyboard-locales-fixture.json');
 const root=path.resolve(__dirname,'..'),read=readSource(root),source=vm.createContext({}),guidance=vm.createContext({});
+const auditKeys=['MOONKATTY // LUNAR CREW','Welcome to the Crew.','DEEP SPACE / NEW MODE','Story progress: 1 / 9 🌙','CREW','Done!'];
 const sha=value=>crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
 assert.equal(keys.length,4);assert.equal(new Set(keys).size,4);
 assert.deepEqual(Object.keys(translations),LANGS,'Every non-English locale has an explicit fixture');
@@ -28,6 +29,10 @@ for(const lang of LANGS){
  // Frozen before adding marker controls. These include metadata and every old key/value,
  // so a lost key, replacement translation, reordered source, or metadata change fails.
  assert.equal(sha(feature),legacyGuidanceSha256[lang],lang+' original 50 guidance translations remain byte-identical');
+ // Audit 2026-10-14 added six home/journal UI keys to every pack; they are covered by
+ // i18n-coverage.cjs and excluded here so every older translation stays frozen.
+ // The ru pin was re-frozen after the same audit's reviewed formal «вы» / «лунные очки» re-translation.
+ for(const key of auditKeys){assert.equal(typeof full.strings[key],'string',lang+' audit key present: '+key);delete full.strings[key];}
  assert.equal(sha(full),legacyPackSha256[lang],lang+' every old translation and locale metadata remain byte-identical');
 }
 const callsites=scopedKeys(read);

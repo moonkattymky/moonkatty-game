@@ -4,6 +4,12 @@
  const locales=root.MKTYLocales=root.MKTYLocales||{};
  locales["tr"]=locales["tr"]||{};
  locales["tr"].strings={
+  "MOONKATTY // LUNAR CREW":"MOONKATTY // AY MÜRETTEBATI",
+  "Welcome to the Crew.":"Mürettebata hoş geldin.",
+  "DEEP SPACE / NEW MODE":"DERİN UZAY / YENİ MOD",
+  "Story progress: 1 / 9 🌙":"Hikâye ilerlemesi: 1 / 9 🌙",
+  "CREW":"MÜRETTEBAT",
+  "Done!":"Tamamlandı!",
   "ECHO":"YANKI",
   "RELAY":"RÖLE",
   "THERMAL":"ISI",
