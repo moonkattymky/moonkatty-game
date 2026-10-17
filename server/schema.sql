@@ -129,3 +129,11 @@ alter table creator_submissions enable row level security;
 revoke all on creator_submissions from anon, authenticated;
 grant select, insert, update on creator_submissions to service_role;
 grant usage, select on sequence creator_submissions_id_seq to service_role;
+
+-- 2026-10-17 security hardening (see supabase/migrations/20261017120000_security_hardening.sql):
+-- core tables are private to the service_role Edge Functions; no public policies on purpose.
+alter table players enable row level security;
+alter table reward_events enable row level security;
+alter table referral_events enable row level security;
+revoke all on players, reward_events, referral_events from public, anon, authenticated;
+revoke all on sequence reward_events_id_seq, referral_events_id_seq from public, anon, authenticated;

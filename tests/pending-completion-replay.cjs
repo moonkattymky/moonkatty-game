@@ -50,7 +50,10 @@ function backend(validateProof){
   if(b.action==='session')out={ok:true,session:{token:'test-session-'+id,expires_at:Date.now()+3600000}};
   else if(b.action==='player'){if(holdPlayer){const wait=deferred();holds.push(wait);await wait.promise;}out={ok:true,player:{...a.player}};}
   else if(b.action==='campaign.open'){
-   if(!a.route||(b.reset||a.player.story_life>=b.life)&&(a.route.seed!==b.seed||a.route.edition!==b.edition))a.route={life:b.life,seed:b.seed,edition:b.edition,route:'route-'+id+'-'+b.seed,telegram_id:Number(id)};
+   // Server-issued challenge (audit 2026-10-17): the client sends no seed; the first route
+   // uses the recorded golden seed, an explicit reset issues a different one.
+   assert.equal(b.seed,undefined,'client must not propose a seed');
+   if(!a.route||b.reset){const seed=a.route?(a.route.seed+1)>>>0:golden.route.seed;a.route={life:b.life,seed,edition:2,route:'route-'+id+'-'+seed,telegram_id:Number(id)};}
    out={ok:true,route:{...a.route}};
   }else if(b.action==='life.complete'){
    if(failCompletion)out={ok:false,error:completionError};

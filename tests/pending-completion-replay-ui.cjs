@@ -24,7 +24,8 @@ const snapshot=()=>p.evaluate(()=>({plan:localStorage.getItem('mkty_story_plan_1
   else if(body.action==='player'){if(holdPlayer)await new Promise(resolve=>{releasePlayer=resolve;reportPlayerHeld?.();});result={ok:true,player:{...player}};}
   else if(body.action==='campaign.cloud')result={ok:true,revision:0,snapshot:{}};
   else if(body.action==='campaign.open'){
-   if(body.reset){resetCount++;route={life:body.life,seed:body.seed,edition:body.edition,route:'replay-'+resetCount,telegram_id:101};}
+   // Server-issued challenges (audit 2026-10-17): the client sends no seed; the server picks one.
+   if(body.reset){assert.equal(body.seed,undefined);resetCount++;route={life:body.life,seed:golden.route.seed+100+resetCount,edition:2,route:'replay-'+resetCount,telegram_id:101};}
    result={ok:true,route:{...route}};
   }else if(body.action==='life.complete'){
    if(!allowCompletion)result={ok:false,error:'unavailable'};
