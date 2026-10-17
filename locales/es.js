@@ -4,6 +4,12 @@
  const locales=root.MKTYLocales=root.MKTYLocales||{};
  locales["es"]=locales["es"]||{};
  locales["es"].strings={
+  "MOONKATTY // LUNAR CREW":"MOONKATTY // TRIPULACIÓN LUNAR",
+  "Welcome to the Crew.":"Bienvenido a la tripulación.",
+  "DEEP SPACE / NEW MODE":"ESPACIO PROFUNDO / NUEVO MODO",
+  "Story progress: 1 / 9 🌙":"Progreso de la historia: 1 / 9 🌙",
+  "CREW":"TRIPULACIÓN",
+  "Done!":"¡Listo!",
   "ECHO":"ECO",
   "RELAY":"RELÉ",
   "THERMAL":"TÉRMICO",
