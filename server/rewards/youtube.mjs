@@ -8,6 +8,8 @@ export function youtubeConfig(env){
  c.enabled=c.enabled&&!!(c.clientId&&c.clientSecret&&c.channelId&&c.redirectUri);
  return c;
 }
+/** Random, unguessable OAuth state (stored server-side, single use, 10 min TTL). */
+export function newOAuthState(){const b=crypto.getRandomValues(new Uint8Array(32));return btoa(String.fromCharCode(...b)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
 export function authUrl(cfg,state){
  const q=new URLSearchParams({client_id:cfg.clientId,redirect_uri:cfg.redirectUri,response_type:'code',scope:'https://www.googleapis.com/auth/youtube.readonly',access_type:'online',prompt:'consent',state});
  return 'https://accounts.google.com/o/oauth2/v2/auth?'+q;

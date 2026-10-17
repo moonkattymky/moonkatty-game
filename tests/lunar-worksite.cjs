@@ -10,10 +10,12 @@ const baseHashes={
  // Audit 2026-10-14: chapter 2 Russian title only («Сбор экипажа»); ids, steps and pacing unchanged.
  'story-plan.js':'3877252ac1fa48417fc233cb9c88afd915b8125b49cbdd01bedf96f0a54c36fc',
  // Reviewed nonvisual intro return and replay-label translation; pacing, route state and rewards remain unchanged.
- 'story.js':'fe567d0983f0243e931053972d338ebad9bc72ea1628bfcf30b3c3b6b09b4249',
+ // Re-pinned 2026-10-17 (security hardening): story.js adopts server-issued challenge seeds.
+ 'story.js':'63d00c9a6c782f702fae62fe7fb6ebb679b7f20d9468f9aca55b6fbfd4adfdec',
  'storage.js':'c8a4becffdff791e36ce0a709a8cd8dba2cfa5a4f4e8cde4732ab2565a9261c9',
  'trace-codec.js':'baba00a4cc9a4ab309382220d3e37b7b35ddc925a582012d8d4d622c124ea865',
- 'rewards-client.js':'e4444f4248d6389a650833dbd5a77c60985ba2ca64a37f342ca5dd340536758c',
+ // Re-pinned 2026-10-17 (security hardening): rewards-client.js no longer proposes route seeds.
+ 'rewards-client.js':'042c4574d36f10cb532a536f1e9e623b9426ce8eafada6d5dbf048bcaeeb912b',
  'expedition-model.js':'5209ca04232a01204a3ab1019e32a4cef92c5600de2370cd62243a497ba3e571'
 };
 for(const [file,hash]of Object.entries(baseHashes))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex'),hash,file+' matches the pinned reviewed baseline (with convoy, Echo and closing-gate checkpoint corrections)');

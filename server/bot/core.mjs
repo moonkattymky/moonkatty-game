@@ -1,16 +1,18 @@
 /* First-game commands and on-demand moderation. No unsolicited messages.
    Configure a separate webhook secret; a bot token alone does not authenticate updates. */
-import {issueSession} from '../rewards/session.mjs';
+import {issueSession,sessionSecrets} from '../rewards/session.mjs';
 import {parseAdminIds} from '../rewards/creator.mjs';
 const SITE='https://moonkattymky.github.io/moonkatty-game/';
 export const COMMANDS=[{command:'start',description:'Открыть MOONKATTY'},{command:'terms',description:'Условия использования'},{command:'privacy',description:'Конфиденциальность'},{command:'review',description:'Проверка заданий — для модераторов'}];
 function sameSecret(a,b){if(typeof a!=='string'||typeof b!=='string'||!b)return false;let diff=a.length^b.length;for(let i=0;i<Math.max(a.length,b.length);i++)diff|=(a.charCodeAt(i)||0)^(b.charCodeAt(i)||0);return diff===0;}
-export function createBotHandler({token,webhookSecret,serviceKey,rewardsHandler,adminIds='',fetcher=fetch,clock=()=>new Date()}){
+export function createBotHandler({token,webhookSecret,serviceKey,sessionSecret='',rewardsHandler,adminIds='',fetcher=fetch,clock=()=>new Date()}){
+ // Internal moderator sessions use the same signing secret as the rewards handler.
+ const signingSecret=sessionSecrets({sessionSecret,serviceKey})[0];
  const admins=adminIds instanceof Set?adminIds:parseAdminIds(adminIds);
  const result=(status=200)=>Response.json({ok:status===200},{status});
  async function api(method,body){const r=await fetcher('https://api.telegram.org/bot'+token+'/'+method,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(8000)});const d=await r.json();if(!r.ok||!d.ok)throw Error('telegram_unavailable');return d.result;}
  const send=(id,text,reply_markup)=>api('sendMessage',{chat_id:id,text,...(reply_markup?{reply_markup}:{})});
- async function rewardCall(user,action,body={}){const {token:session}=await issueSession(user,serviceKey,clock().getTime());const r=await rewardsHandler(new Request('https://internal/rewards',{method:'POST',body:JSON.stringify({session,action,...body})}));return {status:r.status,...await r.json()};}
+ async function rewardCall(user,action,body={}){const {token:session}=await issueSession(user,signingSecret,clock().getTime());const r=await rewardsHandler(new Request('https://internal/rewards',{method:'POST',body:JSON.stringify({session,action,...body})}));return {status:r.status,...await r.json()};}
  return async req=>{
   if(req.method!=='POST')return result(405);
   if(!token||!webhookSecret||!serviceKey||!rewardsHandler)return result(503);

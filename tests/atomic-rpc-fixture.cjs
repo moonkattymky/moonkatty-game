@@ -1,6 +1,6 @@
 /* Adapter for existing narrow REST unit fixtures. Real SQL semantics are independently
    exercised by integrity-sql.cjs (Postgres/WASM), including rollback and concurrency. */
-exports.atomicFixture=fetcher=>async function call(url,opts={}){
+exports.atomicFixture=fetcher=>{const oauthStates=new Map();return async function call(url,opts={}){
  const u=new URL(url),name=u.pathname.split('/').pop();if(!u.pathname.includes('/rpc/mkty_'))return fetcher(url,opts);
  const b=JSON.parse(opts.body),now=Date.parse(b.p_now),res=x=>new Response(JSON.stringify(x));
  async function rest(table,method='GET',params={},body){const q=new URL('/rest/v1/'+table,u);for(const [k,v]of Object.entries(params))q.searchParams.set(k,v);const r=await fetcher(q,{method,body:body?JSON.stringify(body):undefined,headers:{Prefer:'return=representation,resolution=merge-duplicates'}});if(!r.ok)throw Error('fixture:'+table+':'+r.status);return r.json();}
@@ -25,6 +25,10 @@ exports.atomicFixture=fetcher=>async function call(url,opts={}){
 
  // These reward-focused fixtures represent gameplay already verified by the campaign
  // service. The real campaign boundary is exercised by campaign-security/integrity SQL.
+ // 2026-10-17 hardening RPCs (real SQL semantics: tests/security-hardening-sql.cjs).
+ if(name==='mkty_oauth_state_issue'){if(!/^[A-Za-z0-9_-]{32,128}$/.test(b.p_state||''))return res({error:'oauth_state'});oauthStates.set(b.p_state,{id:b.p_id,at:now,used:false});return res({ok:true});}
+ if(name==='mkty_oauth_state_consume'){const st=oauthStates.get(b.p_state);const valid=!!st&&st.id===b.p_id&&!st.used&&now-st.at<(b.p_ttl_seconds||600)*1000;if(valid)st.used=true;return res({valid});}
+ if(name==='mkty_rate_limit')return res({allowed:true,bucket:null,retry_after:0});
  if(name==='mkty_campaign_route')return res({life:b.p_life,route:'00000000-0000-4000-8000-000000000001',seed:1,edition:2,started_at:'2026-01-01T00:00Z',verified_at:b.p_now});
  if(name==='mkty_youtube'){
   const day=b.p_now.slice(0,10),p=await player(b.p_id),fails=await rest('reward_events','GET',{telegram_id:'eq.'+b.p_id,event_type:'eq.daily.youtube_fail',event_key:'like.ytfail:'+day+':*'});
@@ -83,4 +87,4 @@ exports.atomicFixture=fetcher=>async function call(url,opts={}){
   return res({invitee:await player(b.p_invitee),player:await player(b.p_inviter),invitee_points:own.inserted?200:0,inviter_paid:!!paid.inserted,awarded:!!paid.inserted});
  }
  throw Error('unknown fixture RPC '+name);
-};
+};};

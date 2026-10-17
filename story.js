@@ -12,7 +12,8 @@ window.MKTYStory=(()=>{
  function timeLabel(value){const v=Math.floor(value);return Math.floor(v/60)+':'+String(v%60).padStart(2,'0');}
  const requiresRoute=()=>window.MKTYRewards?.requiresRoute?.()===true;
  const account=()=>window.MKTYRewards?.accountScope?.()||window.MKTYStorage?.identity?.()||'guest';
- const ready=n=>!requiresRoute()||window.MKTYRewards?.routeReady?.(n,read(n))===true;
+ // A finished chapter stays viewable without a route; a replay asks the server for a new one.
+ const ready=n=>{if(!requiresRoute())return true;const s=read(n);return s?.phase==='complete'||window.MKTYRewards?.routeReady?.(n,s)===true;};
  function completionPending(n){
   try{
    if(window.MKTYRewards?.pendingCompletion){const value=window.MKTYRewards.pendingCompletion(n);return value===true||value===false?value:null;}
@@ -62,10 +63,10 @@ window.MKTYStory=(()=>{
    const route=await window.MKTYRewards.prepareRoute(n,reset);
    if(!active())return false;
    let previous=read(n),state=previous;
-   const matches=state&&state.seed===Number(route.seed)&&state.edition===2;
+   const routeEdition=route.edition===1?1:2,matches=state&&state.seed===Number(route.seed)&&(state.edition||1)===routeEdition;
    const progressed=(localStorage.getItem(key(n))!==null&&!state)||(state&&(state.done.length||Object.keys(state.tasks).length||state.phase!=='operations'||state.coreSeconds))||checkpointKeys(n).some(k=>localStorage.getItem(k)!==null);
    if(!reset&&!matches&&progressed){routeState=archive(n)?'legacy':'storage';render();return false;}
-   if(reset||!matches){state=P.fresh(n,Number(route.seed),2);if(!write(state)){routeState='storage';render();return false;}
+   if(reset||!matches){state=P.fresh(n,Number(route.seed),routeEdition);if(!write(state)){routeState='storage';render();return false;}
     if(reset)for(const k of checkpointKeys(n))localStorage.removeItem(k);
    }
    if(!ready(n)){routeState='error';render();return false;}
@@ -84,7 +85,11 @@ window.MKTYStory=(()=>{
   // The existing ten-second code reveal must remain reachable immediately after chapter 1.
   if(n===1&&done(1)&&typeof remainingLife1CodeTime==='function'&&remainingLife1CodeTime()>0){original[1]();return;}
   current=n;localStorage.setItem('mkty_current_chapter',String(n));
-  if(requiresRoute()){show('storyPlan');return ensureRoute(n);}
+  if(requiresRoute()){
+   // A finished chapter needs no new challenge: show its result exactly as before.
+   const finished=read(n);if(finished?.phase==='complete'){routeState='ready';if(finished.edition===1){openCore(n);return;}show('storyPlan');render();return;}
+   show('storyPlan');return ensureRoute(n);
+  }
   let s=read(n);if(!s){s=P.fresh(n,crypto.getRandomValues(new Uint32Array(1))[0]);write(s);}routeState='ready';window.MKTYRewards?.prepareRoute?.(n).catch(()=>{});
   if(s.phase==='complete'){if(s.edition===1){openCore(n);return;}show('storyPlan');render();return;}if(s.phase==='core'){openCore(n);return;}
   show('storyPlan');render();

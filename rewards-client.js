@@ -252,31 +252,46 @@
  }
 
  const routeJobs=new Map(),routeRequests=new Map();
+ // Security (audit 2026-10-17): the server issues the chapter challenge (seed).
+ // The client never proposes a seed; it adopts the server route before play.
+ // Older backends also issue a random seed when none is sent, so this stays
+ // compatible with the currently deployed handler.
+ function storedRoute(n,account=scope()){let route;try{route=JSON.parse(localStorage.getItem('mkty_proof_route_'+n)||'null');}catch{}return validRoute(route,n,account)?route:null;}
+ function validRoute(route,n,account){return !!route&&typeof route==='object'&&typeof route.route==='string'&&route.route.length>0&&(route.life===undefined||Number(route.life)===Number(n))&&(route.telegram_id===undefined||String(route.telegram_id)===String(account))&&Number.isInteger(Number(route.seed))&&Number(route.seed)>=0&&Number(route.seed)<=0xffffffff&&[1,2].includes(route.edition||1);}
+ function routeReady(n,p=window.MKTYStory?.read(n)){
+  if(!initData())return true;
+  const route=storedRoute(n);return !!p&&!!route&&Number(route.seed)===p.seed&&(route.edition||1)===(p.edition||1);
+ }
  async function prepareRoute(n,reset=false){
-  const p=window.MKTYStory?.read(n);if(!initData()||!p)return null;
+  if(!initData())return null;
   if(reset&&pendingCompletion(n)!==false)return null;
-  const context=accountContext(),account=context.account,seed=p.seed,edition=p.edition||1,key='mkty_proof_route_'+n;
-  let route;try{route=JSON.parse(localStorage.getItem(key)||'null');}catch{}
-  if(!reset&&route&&Number(route.seed)===seed&&route.edition===edition)return route;
-  const owner=account+':'+n,jobKey=owner+':'+context.generation+':'+seed+':'+edition+':'+reset;
+  const context=accountContext(),account=context.account,p=window.MKTYStory?.read(n);
+  const cached=storedRoute(n,account);
+  // Reuse the saved receipt when it matches the local plan, or when no plan exists yet.
+  if(!reset&&cached&&(!p||(Number(cached.seed)===p.seed&&(cached.edition||1)===(p.edition||1))))return cached;
+  // The local plan identity stays part of the job key: a changed plan supersedes older work.
+  const owner=account+':'+n,jobKey=owner+':'+context.generation+':'+(p?p.seed+':'+(p.edition||1):'none')+':'+reset;
   const existing=routeJobs.get(jobKey);if(existing&&routeRequests.get(owner)===existing.request)return existing.job;
   const request={};routeRequests.set(owner,request);
   const job=(async()=>{
-   const body=await call('campaign.open',{life:n,seed,edition,reset});
-   const current=window.MKTYStory?.read(n);
-   // A late open belongs to its original account and route, never a newer replay.
-   if(!isCurrent(context)||routeRequests.get(owner)!==request||!current||current.seed!==seed||(current.edition||1)!==edition)return null;
-   if(body?.ok&&body.route){route=body.route;if(Number(route.seed)!==seed||route.edition!==edition)return null;localStorage.setItem(key,JSON.stringify(route));return route;}return null;
+   const body=await call('campaign.open',{life:n,edition:2,reset});
+   // A late open belongs to its original account and request, never a newer one.
+   if(!isCurrent(context)||routeRequests.get(owner)!==request)return null;
+   if(body?.ok&&validRoute(body.route,n,account)){const route=body.route;localStorage.setItem('mkty_proof_route_'+n,JSON.stringify(route));return route;}
+   if(body?.error)throw Error(body.error);
+   return null;
   })().finally(()=>{if(routeJobs.get(jobKey)?.job===job)routeJobs.delete(jobKey);if(routeRequests.get(owner)===request)routeRequests.delete(owner);});
   routeJobs.set(jobKey,{job,request});return job;
  }
  async function proofFor(n){
   try{const p=window.MKTYStory?.read(n);if(!p||p.done.length!==8)return undefined;const route=await prepareRoute(n);if(!route)return undefined;
+   // Only a proof for the exact issued challenge can be accepted by the server.
+   if(Number(route.seed)!==p.seed||(route.edition||1)!==(p.edition||1))return undefined;
    const tasks=p.done.slice().sort((a,b)=>a-b).map(id=>({id,attempt:p.tasks[id]?.attempt||0,state:p.tasks[id]?.proof}));
    if(tasks.some(t=>!t.state))return undefined;return {route:route.route,tasks};
   }catch{return undefined;}
  }
- window.MKTYRewards={prepareRoute,proofFor,pendingCompletion,accountScope:scope,endpoint:ENDPOINT,traceProtocol,syncPlayer,completeLife,spendLife,call,authPayload,authenticatedFetch,getLastPlayer:()=>lastPlayer,isServerReady:()=>serverReady,LIFE_REWARDS};
+ window.MKTYRewards={prepareRoute,proofFor,routeReady,requiresRoute:()=>!!initData(),pendingCompletion,accountScope:scope,endpoint:ENDPOINT,traceProtocol,syncPlayer,completeLife,spendLife,call,authPayload,authenticatedFetch,getLastPlayer:()=>lastPlayer,isServerReady:()=>serverReady,LIFE_REWARDS};
  window.addEventListener('mkty:storage-retry',()=>{
   const accounts=new Set([...pendingEdits.keys(),...unreadableQueues,...invalidQueues]);for(const account of accounts)persistQueue(account);
   renderStatus();if(initData()&&accounts.has(scope()))syncPlayer().catch(()=>renderStatus());

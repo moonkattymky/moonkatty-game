@@ -20,3 +20,16 @@ export async function verifySession(token,secret,now=Date.now()){
   return p.user;
  }catch{throw Error('auth');}
 }
+/* SESSION_SECRET rotation. New sessions are signed with SESSION_SECRET when it is
+   configured. During the transition, sessions signed with the previous key (the
+   service-role key) are still accepted, so nobody is logged out by the rollout.
+   Set SESSION_LEGACY_FALLBACK=false once 12 hours have passed after the deploy. */
+export function sessionSecrets({sessionSecret='',serviceKey='',legacyFallback=true}={}){
+ const primary=typeof sessionSecret==='string'&&sessionSecret.trim()?sessionSecret:'';
+ if(!primary)return serviceKey?[serviceKey]:[];
+ return legacyFallback!==false&&serviceKey&&serviceKey!==primary?[primary,serviceKey]:[primary];
+}
+export async function verifySessionAny(token,secrets,now=Date.now()){
+ for(const secret of secrets||[]){try{return await verifySession(token,secret,now);}catch{}}
+ throw Error('auth');
+}

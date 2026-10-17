@@ -65,6 +65,21 @@ Deploy as Edge Function name **`rewards`** with env:
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY` (never commit)
 - optional `REFERRAL_DAILY_CAP` (default 10; effective maximum 10 per UTC day and 100 inviter payout events overall)
+- `SESSION_SECRET` — independent random value (e.g. `openssl rand -base64 48`) that signs 12-hour game
+  sessions; set the **same** value for `rewards`, `telegram-progress`, `mission-control` and `bot`.
+  Until it is set, sessions fall back to the service-role key (old behaviour). After it is set, sessions
+  signed with the old key are still accepted for the transition; after 12 h set
+  `SESSION_LEGACY_FALLBACK=false` to stop accepting them.
+- optional `CAMPAIGN_RESET_HOURS` (default 6): minimum time between two new challenges for one chapter.
+- optional `LEGACY_ROUTES=off`: stop accepting chapter routes issued before the 2026-10-17 hardening
+  (client-chosen seeds). Default: accepted, so in-progress players keep their progress.
+- requires migration `supabase/migrations/20261017120000_security_hardening.sql` (RLS on core tables,
+  server-issued unique campaign seeds, per-player rate limits, one-time OAuth state). Without it the
+  handler still answers, but `campaign.open` fails and rate limits are skipped (fail-open).
+
+Security behaviour (2026-10-17): CORS only for `https://moonkattymky.github.io` (plus localhost for
+development); per-player limits — all actions 120/min, proof claims 12/10 min, cloud writes 40/min,
+route issue 30/min, submissions 30/10 min — answer `429 {error:"rate_limited",retry_after}`.
 
 Contract (POST JSON, verified Telegram `initData` or a server-issued game session; GET is a public health probe):
 

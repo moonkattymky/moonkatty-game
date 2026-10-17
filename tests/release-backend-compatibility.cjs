@@ -25,7 +25,9 @@ function moduleURL(text,file,overrides={}){
 const pinned={
  'server/rewards/core.mjs':'983bb2bb98bfde7f6e5d50f46996a46f0d6485cb',
  'server/rewards/campaign.mjs':'f01bde1d6e3e98c8fc8bd4e72fb0088b278d2372',
- 'server/schema.sql':'f0ded769f0160bc4d0e81b88c4e7f793e2eeaa76',
+ // Re-pinned 2026-10-17 (security hardening): schema.sql only gained the RLS/revoke block
+ // for players, reward_events and referral_events; no column or function changed.
+ 'server/schema.sql':'1f43858291b4a46d5d7987cf19b04e47f008e394',
  'server/migrations/20261007_social_verify.sql':'00969f82a67e1c49e28f77a5e7dc5a8a0f5e6e91',
  'supabase/migrations/20261007200800_reward_integrity_sessions.sql':'8fed546a14d081b82f818eb8b6c5c4ff5bffdc7f',
  'supabase/migrations/20261008201825_launch_campaign_integrity.sql':'0c4887e377bb53ea86358d2085a0661b191cfa95',
@@ -106,10 +108,14 @@ function browser(handler,id=101){
 async function database(){
  const db=new PGlite();await db.exec('create role anon;create role authenticated;create role service_role;create function public.rls_auto_enable() returns event_trigger language plpgsql as $$begin end$$;');
  for(const file of legacySqlFiles)await db.exec(source(file));
- let now=new Date();
+ let now=new Date(),issued=golden.route.seed;
  const fetcher=async(url,opt={})=>{
   const u=new URL(url),name=u.pathname.split('/').pop(),body=opt.body?JSON.parse(opt.body):null,method=opt.method||'GET';assert.equal(u.hostname,'db.test');
   try{
+   // Current clients send no seed (audit 2026-10-17); the deployed legacy handler then
+   // draws crypto.getRandomValues. Substitute a deterministic sequence starting at the
+   // recorded golden seed so the recorded proof stays replayable in this fixture.
+   if(name==='mkty_campaign_route'&&body.p_seed!==undefined)body.p_seed=issued++;
    if(u.pathname.includes('/rpc/')){assert.match(name,/^mkty_[a-z_]+$/);const entries=Object.entries(body),rows=(await db.query(`select public.${name}(${entries.map(([k],i)=>k+'=> $'+(i+1)).join(',')}) as result`,entries.map(([,v])=>v&&typeof v==='object'?JSON.stringify(v):v))).rows;return Response.json(rows[0].result);}
    assert(['players','reward_events','referral_events'].includes(name));
    const values=[],param=v=>{values.push(v);return '$'+values.length;};
@@ -133,12 +139,12 @@ async function database(){
  checkReleaseSources();const fixture=await database();
  try{
   const h=browser(fixture.handler),R=h.window.MKTYRewards,S=h.window.MKTYStory;
-  assert.equal(R.accountScope(),'101');assert.equal(R.requiresRoute,undefined);assert.equal(R.routeReady,undefined);
+  assert.equal(R.accountScope(),'101');/* Server-issued challenges: the client now waits for the server route. */assert.equal(typeof R.requiresRoute,'function');assert.equal(typeof R.routeReady,'function');
   await S.open(1);assert.equal(h.active(),'storyPlan');assert.equal(h.get('storyNext').disabled,false,'legacy routes must not disable signed-in gameplay');
   // Let only the actual story-open call initiate registration: an explicit test
   // prepareRoute call here would conceal a missing registration call in story.js.
   await h.settle();const route=JSON.parse(h.storage.getItem('mkty_proof_route_1'));assert(route);assert.equal(route.seed,golden.route.seed);assert.equal(route.edition,2);assert.equal(route.challenge_version,undefined);
-  const registration=h.calls.filter(x=>x.body.action==='campaign.open');assert.equal(registration.length,1);assert.equal(registration[0].body.seed,golden.route.seed);assert.equal(registration[0].body.edition,2);assert.equal(registration[0].body.reset,false);assert.equal(registration[0].body.previous_route,undefined);
+  const registration=h.calls.filter(x=>x.body.action==='campaign.open');assert.equal(registration.length,1);assert.equal(registration[0].body.seed,undefined,'the client never proposes a seed');assert.equal(registration[0].body.edition,2);assert.equal(registration[0].body.reset,false);assert.equal(registration[0].body.previous_route,undefined);
   assert.equal(await R.traceProtocol(),null,'old session/player replies do not advertise compact transport');
   for(const response of h.responses.filter(x=>['session','player'].includes(x.action)))assert.equal(response.body.capabilities,undefined);
   const serializedPlan=h.storage.getItem('mkty_story_plan_1_v1');await S.open(1);await R.prepareRoute(1);assert.equal(h.storage.getItem('mkty_story_plan_1_v1'),serializedPlan);assert.equal(h.calls.filter(x=>x.body.action==='campaign.open').length,1,'cached legacy receipt is reused');
@@ -162,7 +168,7 @@ async function database(){
   // A completed chapter can explicitly replay using the old reset handshake.
   S.menu(1);h.get('storyReplay').click();await h.settle();const replay=JSON.parse(h.storage.getItem('mkty_proof_route_1'));
   assert(replay);assert.notEqual(replay.route,route.route);assert.notEqual(replay.seed,route.seed);assert.equal(replay.seed,S.read(1).seed);assert.equal(replay.challenge_version,undefined);
-  const reset=h.calls.filter(x=>x.body.action==='campaign.open').at(-1).body;assert.equal(reset.reset,true);assert.equal(reset.seed,replay.seed);assert.equal(reset.edition,2);assert.equal(reset.previous_route,undefined);
+  const reset=h.calls.filter(x=>x.body.action==='campaign.open').at(-1).body;assert.equal(reset.reset,true);assert.equal(reset.seed,undefined);assert.equal(reset.edition,2);assert.equal(reset.previous_route,undefined);
   const archiveKey=h.storage.getItem('mkty_story_archive_latest_1');assert(archiveKey);const archive=JSON.parse(h.storage.getItem(archiveKey));assert.equal(JSON.parse(archive.snapshot.mkty_story_plan_1_v1).done.length,8);
   assert.deepEqual(plain(S.read(1).done),[]);assert.equal(h.get('storyNext').disabled,false);h.get('storyNext').click();assert.equal(h.launches.at(-1).task.id,0);
   const stale=h.launches.at(-1).task;h.owner(202);assert.equal(R.accountScope(),'202');assert.equal(stale.save({marker:'must-not-cross-account'}),false);assert.equal(h.storage.getItem('mkty_story_plan_1_v1'),null);await S.open(1);const second=await R.prepareRoute(1);assert.equal(Number(second.telegram_id),202);assert.equal(R.accountScope(),'202');
