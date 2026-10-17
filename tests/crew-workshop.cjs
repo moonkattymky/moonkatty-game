@@ -94,6 +94,6 @@ const p95=times.sort((a,b)=>a-b)[Math.floor(times.length*.95)];assert(p95<15,'so
 const gzip=zlib.gzipSync(source).byteLength;
 // This duplicates, never replaces or relaxes, the reviewed PR53 shared-renderer guard.
 assert(gzip<15000,'complete shared renderer <15KB gzip (original PR53 limit)');
-// Re-pinned 2026-10-17: lunar-worksite.cjs only re-pinned story.js/rewards-client.js (security hardening); the artwork guard is unchanged.
-assert.equal(sha(fs.readFileSync(path.join(root,'tests/lunar-worksite.cjs'))),'2cfad0d4438f3d93268da8a0d2594aa1683459b89e46d4ca7b2b0e97442b29e5','reviewed release-composition hash pins and unchanged 15 KB artwork guard');
+// Re-pinned on merge of #78 into #79: lunar-worksite.cjs carries both re-pins (audit 2026-10-14 field-missions.js/story-plan.js and security 2026-10-17 story.js/rewards-client.js); the 15 KB artwork guard is unchanged.
+assert.equal(sha(fs.readFileSync(path.join(root,'tests/lunar-worksite.cjs'))),'9a2f88f57d035610d7181ada58866a1f1241704b0f803e1b75a7937f1ffbc2b9','reviewed release-composition hash pins and unchanged 15 KB artwork guard');
 console.log(JSON.stringify({baseline:BASE,baselineSource,unchangedScenes,unchangedMaps,exactMixedCalls,localizedScenes,labelContrast,crewScenes:scenes,maxBytes,maxNodes,renderP95ms:+p95.toFixed(3),rendererGzipBytes:gzip,existingAssetBytes:assetBytes,limits:'Source-only checks. Real DOM/controller, paint, multilingual layout and touch geometry are separate GitHub CI checks; no physical-device certification.'},null,2));

@@ -4,6 +4,12 @@
  const locales=root.MKTYLocales=root.MKTYLocales||{};
  locales["ko"]=locales["ko"]||{};
  locales["ko"].strings={
+  "MOONKATTY // LUNAR CREW":"MOONKATTY // 달 크루",
+  "Welcome to the Crew.":"크루에 오신 것을 환영합니다.",
+  "DEEP SPACE / NEW MODE":"심우주 / 새 모드",
+  "Story progress: 1 / 9 🌙":"스토리 진행: 1 / 9 🌙",
+  "CREW":"크루",
+  "Done!":"완료!",
   "ECHO":"에코",
   "RELAY":"중계기",
   "THERMAL":"열",

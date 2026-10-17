@@ -5,8 +5,10 @@ const root=path.resolve(__dirname,'..'),source=fs.readFileSync(path.join(root,'f
 const baseHashes={
  // Client-only composition: live handshake retained; reviewed checkpoint, pending-queue and reward-lifecycle fixes included.
  'field-model.js':'94ab25d49258d5ca64cdf391eccdaadd3b3f10370b363295a4c3bd3a58aea7a8',
- 'field-missions.js':'4c7f573cc0fef7d7bb8c27b599791134b0d55354c135205928ddba8aa0cae1c2',
- 'story-plan.js':'fd4683463fc1bcf72862b33478a6d4d1036036632ccff88a049798428d583474',
+ // Audit 2026-10-14: pause menu with briefing, specific locked-station hints and next-step notices; rules unchanged.
+ 'field-missions.js':'4e5ec793360acade995bef8dbd7e6fd01ed01a9839e1e2155deb20c2cbe4cd02',
+ // Audit 2026-10-14: chapter 2 Russian title only («Сбор экипажа»); ids, steps and pacing unchanged.
+ 'story-plan.js':'3877252ac1fa48417fc233cb9c88afd915b8125b49cbdd01bedf96f0a54c36fc',
  // Reviewed nonvisual intro return and replay-label translation; pacing, route state and rewards remain unchanged.
  // Re-pinned 2026-10-17 (security hardening): story.js adopts server-issued challenge seeds.
  'story.js':'63d00c9a6c782f702fae62fe7fb6ebb679b7f20d9468f9aca55b6fbfd4adfdec',

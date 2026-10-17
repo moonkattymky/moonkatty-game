@@ -32,7 +32,7 @@ export function createBotHandler({token,webhookSecret,serviceKey,sessionSecret='
    const msg=update.message,user=msg?.from,id=user?.id;
    if(!Number.isSafeInteger(id)||msg?.chat?.type!=='private'||msg.chat.id!==id||user.is_bot)return result();
    const command=/^\/(start|terms|privacy|review)(?:@MoonKattyGameBot)?(?:\s|$)/i.exec(msg.text||'')?.[1]?.toLowerCase();
-   if(command==='start')await send(id,'Добро пожаловать в MOONKATTY: 9 LIVES! Девять глав лунной экспедиции. Moon Points — игровые очки без денежной стоимости. Игра для пользователей от 18 лет. Условия: /terms · Конфиденциальность: /privacy',{inline_keyboard:[[{text:'Играть 🚀',web_app:{url:SITE}}]]});
+   if(command==='start')await send(id,'Добро пожаловать в MOONKATTY: 9 LIVES! 🐾 Девять глав лунной экспедиции — нажмите «Играть», чтобы начать. Лунные очки — игровые очки без денежной стоимости. Игра для пользователей от 18 лет. Условия: /terms · Конфиденциальность: /privacy',{inline_keyboard:[[{text:'Играть 🚀',web_app:{url:SITE}}]]});
    if(command==='terms')await send(id,'Условия использования: '+SITE+'terms.html');
    if(command==='privacy')await send(id,'Политика конфиденциальности: '+SITE+'privacy.html\nДля запроса доступа, исправления или удаления данных свяжитесь с администратором официального сообщества. Не публикуйте документы и секреты в общем чате.');
    if(command==='review'){
