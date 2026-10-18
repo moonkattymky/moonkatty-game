@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>MOONKATTY: 9 Lives — Chapter 1 · Base Alpha</title>
+<meta name="theme-color" content="#05070d">
+<meta name="mkty-bot" content="MoonKattyGameBot">
+<script src="https://telegram.org/js/telegram-web-app.js?59"></script>
+
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  html{--tg-inset-top:0px;--tg-inset-bottom:0px;--tg-inset-left:0px;--tg-inset-right:0px}
+  html,body{margin:0;height:100%;background:#05070d;overflow:hidden;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#f7f2e7;touch-action:none;user-select:none;-webkit-user-select:none}
+  #app,#app canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+  .hud{position:fixed;pointer-events:none;z-index:2}
+  #title{top:max(12px,env(safe-area-inset-top),var(--tg-inset-top));left:14px;padding:8px 14px;border:1px solid rgba(233,189,88,.55);border-radius:12px;background:linear-gradient(180deg,rgba(16,46,64,.75),rgba(5,7,13,.75));font-weight:700;letter-spacing:.06em;font-size:13px}
+  #title small{display:block;color:#efd295;font-weight:500;letter-spacing:.12em;font-size:10px;margin-top:2px}
+  #fuelwrap{top:max(64px,calc(env(safe-area-inset-top) + 52px),calc(var(--tg-inset-top) + 52px));left:14px;width:130px;height:6px;border-radius:4px;background:rgba(16,46,64,.8);border:1px solid rgba(233,189,88,.4);overflow:hidden}
+  #fuel{height:100%;width:100%;background:linear-gradient(90deg,#67d7f0,#a8dbc9)}
+  #help{bottom:12px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(247,242,231,.7);text-align:center;white-space:nowrap}
+  #views{position:fixed;top:max(12px,env(safe-area-inset-top),var(--tg-inset-top));right:12px;z-index:3;display:flex;gap:6px}
+  #views button{background:rgba(16,46,64,.75);color:#efd295;border:1px solid rgba(233,189,88,.5);border-radius:10px;padding:6px 9px;font-size:11px}
+  #joy{position:fixed;left:max(22px,env(safe-area-inset-left),var(--tg-inset-left));bottom:max(26px,env(safe-area-inset-bottom),var(--tg-inset-bottom));width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(16,46,64,.45),rgba(5,7,13,.25));border:2px solid rgba(233,189,88,.45);z-index:3;touch-action:none}
+  #knob{position:absolute;left:40px;top:40px;width:50px;height:50px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#f7f2e7,#e9bd58);box-shadow:0 0 14px rgba(233,189,88,.6)}
+  #jump{position:fixed;right:max(26px,env(safe-area-inset-right),var(--tg-inset-right));bottom:max(40px,env(safe-area-inset-bottom),var(--tg-inset-bottom));width:84px;height:84px;border-radius:50%;border:2px solid rgba(103,215,240,.7);background:radial-gradient(circle,rgba(103,215,240,.35),rgba(16,46,64,.5));color:#f7f2e7;font-weight:700;font-size:12px;letter-spacing:.08em;z-index:3;touch-action:none}
+  @media (hover:hover) and (pointer:fine){#joy,#jump{opacity:.35}}
+  @media (max-width:600px){#views{top:auto;bottom:170px;right:50%;transform:translateX(50%)}#help{display:none}#title{font-size:12px}}
+  @media (pointer:coarse){#help{display:none}}
+  #loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(ellipse at 50% 38%,#12324a 0%,#05070d 62%);color:#efd295;z-index:9;text-align:center;padding:24px}
+  #loading .moon{width:88px;height:88px;border-radius:50%;background:radial-gradient(circle at 36% 34%,#fff8e6,#e9bd58 55%,#8a6a2a);box-shadow:0 0 40px rgba(233,189,88,.45);animation:mkpulse 1.6s ease-in-out infinite}
+  #loading b{font-size:15px;letter-spacing:.14em}#loading small{font-size:11px;letter-spacing:.2em;color:rgba(247,242,231,.7)}
+  #loading .bar{width:min(240px,70vw);height:6px;border-radius:4px;background:rgba(16,46,64,.9);border:1px solid rgba(233,189,88,.4);overflow:hidden}
+  #loadbar{height:100%;width:8%;background:linear-gradient(90deg,#67d7f0,#e9bd58);transition:width .3s}
+  #loading .err{display:none;font-size:12px;color:#ffb3a0;max-width:280px}#loading.failed .err{display:block}#loading.failed .bar{display:none}
+  @keyframes mkpulse{50%{transform:scale(1.06);box-shadow:0 0 60px rgba(233,189,88,.6)}}
+  body.shot .hud,body.shot #views,body.shot #joy,body.shot #jump,body.shot #loading{display:none!important}
+</style>
+<script type="importmap">{"imports":{"./src/tg/telegram.js":"./src/tg/telegram.js?v=39","./src/tg/backend.js":"./src/tg/backend.js?v=39","three":"./vendor/three/build/three.module.js","./src/atlas.js":"./src/atlas.js?v=39","./src/base.js":"./src/base.js?v=39","./src/builder.js":"./src/builder.js?v=39","./src/collide.js":"./src/collide.js?v=39","./src/controller.js":"./src/controller.js?v=39","./src/footprints.js":"./src/footprints.js?v=39","./src/game/activities.js":"./src/game/activities.js?v=39","./src/game/crystal.js":"./src/game/crystal.js?v=39","./src/game/fx.js":"./src/game/fx.js?v=39","./src/game/hud.js":"./src/game/hud.js?v=39","./src/game/i18n.js":"./src/game/i18n.js?v=39","./src/game/index.js":"./src/game/index.js?v=39","./src/game/jobs.js":"./src/game/jobs.js?v=39","./src/game/minigames.js":"./src/game/minigames.js?v=39","./src/game/quests.js":"./src/game/quests.js?v=39","./src/game/robot.js":"./src/game/robot.js?v=39","./src/game/storage.js":"./src/game/storage.js?v=39","./src/main.js":"./src/main.js?v=39","./src/noise.js":"./src/noise.js?v=39","./src/props.js":"./src/props.js?v=39","./src/sky.js":"./src/sky.js?v=39","./src/terrain.js":"./src/terrain.js?v=39","./src/world.js":"./src/world.js?v=39"}}</script>
+</head>
+<body>
+<div id="app"></div>
+<div id="title" class="hud">MOONKATTY: 9 LIVES<small>CHAPTER 1 · BASE ALPHA</small></div>
+<div id="fuelwrap" class="hud"><div id="fuel"></div></div>
+<div id="views"><button data-v="concept">Concept cam</button><button data-v="play">Play</button><button data-v="aerial">Aerial</button></div>
+<div id="help" class="hud">WASD / arrows move · Shift run · Space jump / hold for jetpack · drag to orbit · wheel zoom · C concept cam</div>
+<div id="joy"><div id="knob"></div></div>
+<button id="jump">JET</button>
+<div id="loading" role="status" aria-live="polite"><div class="moon"></div><b>MOONKATTY: 9 LIVES</b><small id="loadtxt">LOADING BASE ALPHA…</small><div class="bar"><div id="loadbar"></div></div><div class="err" id="loaderr">WebGL is unavailable or the download failed. Close and reopen the game.</div></div>
+<script type="module" src="./src/main.js?v=39"></script>
+</body>
+</html>
