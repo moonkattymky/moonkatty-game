@@ -46,12 +46,15 @@ const boot = async (page, q = '') => { await page.goto(BASE + '?view=play&fast=1
 const t0 = Date.now();
 // ---------- device A ----------
 const A = await newPage(); const pa = A.page;
-await pa.goto(BASE + '?view=play&fast=1'); await pa.waitForTimeout(400); await pa.screenshot({ path: OUT + 'loading.png' });
+await pa.route('**/assets/moonkatty.glb*', async r => { await new Promise(s => setTimeout(s, 6000)); r.continue(); }); // slow network: show the loading screen
+await pa.goto(BASE + '?view=play&fast=1', { waitUntil: 'domcontentloaded' }); await pa.waitForTimeout(1500); await pa.screenshot({ path: OUT + 'loading.png', timeout: 60000 });
+ok('loading screen visible while assets download', await E(pa, () => getComputedStyle(document.getElementById('loading')).display !== 'none'));
 await pa.waitForFunction(() => window.MK && MK.ready && MK.game && MK.game.ready, null, { timeout: 180000 }); await pa.waitForTimeout(1500);
 ok('boot in Telegram WebView < 180 s', true, ((Date.now() - t0) / 1000).toFixed(1) + ' s (swiftshader, CPU)');
 let log = await E(pa, () => __tg.log);
 ok('SDK: ready + expand + disableVerticalSwipes + colors + closing confirmation', ['ready', 'expand', 'disableVerticalSwipes', 'header:#05070d', 'bg:#05070d', 'closingConfirmation'].every(x => log.includes(x)), JSON.stringify(log.slice(0, 10)));
 ok('BackButton shown', await E(pa, () => Telegram.WebApp.BackButton.isVisible));
+ok('dev camera buttons hidden inside Telegram', (await E(pa, () => getComputedStyle(document.getElementById('views')).display)) === 'none');
 ok('session via initData then world.state', calls.includes('session') && calls.includes('world.state'), JSON.stringify(calls));
 ok('HUD shows server Moon Points balance (1000)', (await E(pa, () => MK.game.state().points)) === 1000);
 await pa.screenshot({ path: OUT + 'start.png' });

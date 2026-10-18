@@ -42,6 +42,7 @@ export function initTelegram({ exitUrl = '../', onResize } = {}) {
   W.MKTYTG = api;
   if (typeof document !== 'undefined') document.addEventListener('visibilitychange', () => setPaused(document.hidden));
   if (!TG) { applyInsets(); return api; }
+  if (root) root.classList.add('tg'); // Telegram-only presentation tweaks (index.html CSS)
   safe(() => TG.ready());
   safe(() => TG.expand());
   if (ver('7.7')) safe(() => TG.disableVerticalSwipes()); // joystick drags must not swipe the Mini App closed
