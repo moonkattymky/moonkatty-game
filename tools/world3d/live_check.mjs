@@ -11,7 +11,10 @@ const ready = (p) => p.waitForFunction(() => window.MK && MK.ready && MK.game &&
   ok('live world3d boots (plain browser, local mode)', true, s + ' s incl. download, swiftshader');
   await p.waitForTimeout(3000); ok('service worker registered', await p.evaluate(async () => !!(await navigator.serviceWorker.getRegistration())));
   ok('no console errors/warnings', logs.length === 0, JSON.stringify(logs.slice(0, 4)));
+  ok('dev camera buttons hidden by default', (await p.evaluate(() => getComputedStyle(document.getElementById('views')).display)) === 'none');
   await p.screenshot({ path: 'renders/port_live_world3d.png' });
+  await p.goto(SITE + 'world3d/?view=play&debug=1'); await ready(p);
+  ok('?debug=1 shows the dev camera buttons', (await p.evaluate(() => getComputedStyle(document.getElementById('views')).display)) === 'flex');
   const t1 = Date.now(); await p.reload(); await ready(p); ok('repeat launch (cache/SW)', true, ((Date.now() - t1) / 1000).toFixed(1) + ' s');
   await ctx.close(); }
 { // fake Telegram launch against the REAL rewards endpoint: forged initData must be rejected and the game must fall back cleanly
