@@ -33,7 +33,7 @@ async function run(options = {}) {
     return encoding ? bytes(file).toString(encoding) : bytes(file);
   }};
   const fakeFetch = async (url, init) => {
-    assert(requests.length < 400, 'bounded request budget');
+    assert(requests.length < 440, 'bounded request budget'); // 47 artifacts x retry attempts
     const u = new URL(url), clean = u.origin + u.pathname;
     assert.equal(init.cache, 'no-store');
     assert.equal(init.headers['Cache-Control'], 'no-cache');
@@ -99,7 +99,7 @@ function accepted(result, attempts = 1) {
   assert.equal(result.attempt, attempts);
   assert.equal(result.sleeps.length, attempts - 1);
   assert.equal(result.logs.filter(line => line.startsWith('PASS:')).length, 1);
-  assert.match(result.logs.at(-1), /published SHA, 45 exact files/);
+  assert.match(result.logs.at(-1), /published SHA, 47 exact files/);
   assert.equal(result.requests.filter(file => file === 'viewport.js').length, attempts);
   assert.equal(result.reads.filter(file => file === 'viewport.js').length, attempts);
   assert.deepEqual(result.requests.slice(-4), ['build.json', 'api/rewards', 'api/telegram-progress', 'api/mission-control']);
@@ -119,8 +119,8 @@ function rejected(result, message) {
   const good = await run();
   accepted(good);
   const artifacts = good.requests.filter(file => file !== 'build.json' && !file.startsWith('api/'));
-  assert.equal(artifacts.length, 45); // 40 2D files + world3d-entry.js and 4 world3d/ files
-  assert.equal(new Set(artifacts).size, 45, 'each artifact is checked exactly once');
+  assert.equal(artifacts.length, 47); // 40 2D files + world3d-entry.js, 4 world3d/ files and the 2 concept UI files
+  assert.equal(new Set(artifacts).size, 47, 'each artifact is checked exactly once');
   for (const file of ['index.html', 'app.js', 'viewport.js']) assert(artifacts.includes(file));
 
   const stale = Buffer.from('// stale viewport bundle from before the native-range fix\n');
