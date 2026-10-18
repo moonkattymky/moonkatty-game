@@ -1,0 +1,14 @@
+import * as THREE from 'three';
+const t0=Date.now();
+const T = await import('../../world3d/src/terrain.js');
+const terr = T.buildTerrain(); console.log('terrain', terr.geometry.index.count/3, Date.now()-t0);
+const { Builder } = await import('../../world3d/src/builder.js');
+const { buildHub, colliders } = await import('../../world3d/src/base.js');
+const { buildWorld } = await import('../../world3d/src/world.js');
+const P = await import('../../world3d/src/props.js');
+const b = new Builder(); const beams=[]; buildHub(b,beams); buildWorld(b,beams); P.addBeams(b,beams);
+const sc = new THREE.Scene(); const m = {}; for (const k of ['ivory','gold','dark','glow','beam']) m[k]=new THREE.MeshBasicMaterial();
+const out = b.build(m, sc); for (const k in out) console.log(k, out[k].geometry.attributes.position.count/3);
+const rocks = P.buildRocks(sc,1); rocks.forEach(r=>console.log('rock', r.count, r.geometry.attributes.position.count/3*r.count));
+const cr = P.buildCrystals(sc); console.log('crystals', cr.items.length);
+console.log('time', Date.now()-t0, 'colliders', colliders.length);
