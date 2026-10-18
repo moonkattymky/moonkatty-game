@@ -58,14 +58,13 @@
   <link rel="stylesheet" href="audit-fixes.css?v=20261014-audit-1" />
   <link rel="stylesheet" href="touch.css?v=20261009-prelaunch-1" />
   <link rel="preload" href="fonts/montserrat-cyr.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="preload" href="art/ui/cat-moon.webp" as="image" />
+  <link rel="preload" href="art/ui/cover@2x.webp" as="image" />
   <link rel="stylesheet" href="concept-theme.css?v=20261018-concept-1" />
 </head>
 <body>
   <div id="mkSplash" class="mkc-splash" aria-hidden="true">
     <div class="mkc-splash-in">
-      <img class="mkc-logo" src="art/ui/logo.webp" width="720" height="269" alt="" decoding="async">
-      <img class="mkc-moon" src="art/ui/cat-moon.webp" width="640" height="657" alt="" decoding="async">
+      <div class="mkc-cover-wrap"><img class="mkc-cover" src="art/ui/cover.webp" srcset="art/ui/cover.webp 1x, art/ui/cover@2x.webp 2x" width="680" height="612" alt="" decoding="async"></div>
       <div class="mkc-load"><span class="mkc-load-label" id="mkSplashText">ЗАГРУЗКА…</span><div class="mkc-bar"><i class="mkc-gem"></i><b></b></div></div>
     </div>
   </div>
@@ -73,8 +72,7 @@
   <main id="app">
     <section id="language" class="screen active">
       <div class="moonkatty-hero mkc-start-hero">
-  <h1 class="mkc-start-title"><img class="mkc-logo" src="art/ui/logo.webp" width="720" height="269" alt="MOONKATTY 9 LIVES" fetchpriority="high"></h1>
-  <img class="mkc-moon" src="art/ui/cat-moon.webp" width="640" height="657" alt="" aria-hidden="true">
+  <h1 class="mkc-start-title mkc-cover-wrap"><img class="mkc-cover" src="art/ui/cover.webp" srcset="art/ui/cover.webp 1x, art/ui/cover@2x.webp 2x" width="680" height="612" alt="MOONKATTY 9 LIVES" fetchpriority="high"></h1>
 </div>
 
       <p id="chooseText">Choose your language</p><div id="languages" class="language-grid"></div>
@@ -106,10 +104,10 @@
           <button type="button" class="mkc-plus" id="mkcMore" data-home-nav="more" aria-label="More"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
         </div>
         <div class="mkc-row2">
-          <button type="button" class="mkc-chest" id="mkcChest" aria-label="Daily reward"><span class="mkc-chest-box"><svg viewBox="0 0 64 56" aria-hidden="true"><defs><linearGradient id="mkcCg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0b5"/><stop offset=".5" stop-color="#e2a83c"/><stop offset="1" stop-color="#8a5a14"/></linearGradient></defs><path d="M6 22c0-11 9-17 26-17s26 6 26 17v4H6z" fill="#7a4f1d"/><path d="M6 22c0-11 9-17 26-17s26 6 26 17" fill="none" stroke="url(#mkcCg)" stroke-width="4"/><rect x="5" y="25" width="54" height="27" rx="4" fill="#6b4318"/><rect x="5" y="25" width="54" height="27" rx="4" fill="none" stroke="url(#mkcCg)" stroke-width="4"/><path d="M5 31h54" stroke="url(#mkcCg)" stroke-width="3"/><path d="M19 7v45M45 7v45" stroke="url(#mkcCg)" stroke-width="4"/><rect x="26" y="26" width="12" height="13" rx="2.5" fill="url(#mkcCg)"/><circle cx="32" cy="32" r="2.2" fill="#5a3608"/></svg></span><span class="mkc-streak"><span class="mkc-flame" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 4 6 6 6 12a7 7 0 0 1-14 0c0-3 2-5 3-6 0 2 1 3 2 3-1-4 1-7 3-9z"/></svg></span><b id="mkcStreak">ДЕНЬ 0</b></span></button>
+          <button type="button" class="mkc-chest" id="mkcChest" aria-label="Daily reward"><span class="mkc-chest-box"><img src="art/ui/chest.webp" width="200" height="180" alt="" decoding="async"></span><span class="mkc-streak"><span class="mkc-flame mkc-meteor" aria-hidden="true"><svg viewBox="0 0 40 40"><defs><linearGradient id="mkcMt" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3c4" stop-opacity="0"/><stop offset=".55" stop-color="#ffb347"/><stop offset="1" stop-color="#ff6a1a"/></linearGradient><radialGradient id="mkcMh"><stop offset="0" stop-color="#fff8dc"/><stop offset=".5" stop-color="#ffb347"/><stop offset="1" stop-color="#d9480f"/></radialGradient></defs><path d="M36 3L13 24l4 4z" fill="url(#mkcMt)"/><path d="M30 4L10 21l2 2z" fill="url(#mkcMt)" opacity=".6"/><circle cx="13" cy="27" r="8" fill="url(#mkcMh)"/><circle cx="11" cy="25" r="2.6" fill="#fffbe8" opacity=".9"/></svg></span><b id="mkcStreak">ДЕНЬ 0</b></span></button>
           <header class="mk-topbar"><div><h2>MOONKATTY</h2><span>9 LIVES. 1 BIG MISSION.</span></div><div class="header-actions"><button id="rulesBtn" class="icon-btn" aria-label="Rules and rewards">📜</button></div></header>
         </div>
-        <div class="mkc-stage"><img class="mk-home-character" src="art/ui/cat-stand.webp" width="440" height="700" alt="MOONKATTY" fetchpriority="high"></div>
+        <div class="mkc-stage"></div>
         <div class="mkc-play-wrap"><button id="enterBtn" class="primary mkc-play">ИГРАТЬ</button></div>
         <nav class="mkc-icons" id="mkcIcons" aria-label="Menu">
           <button type="button" id="missionsBtn" data-home-nav="chapters" data-mkc="map"><i aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M4 8l7-3 10 3 7-3v19l-7 3-10-3-7 3z" class="f"/><path d="M11 5v19M21 8v19" class="s"/><path d="M14 13l3 3m0-3l-3 3" class="r"/></svg></i><span>Карта</span></button>
