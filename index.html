@@ -57,17 +57,26 @@
   <link rel="stylesheet" href="visual-preview.css?v=20261009-visual-1" />
   <link rel="stylesheet" href="audit-fixes.css?v=20261014-audit-1" />
   <link rel="stylesheet" href="touch.css?v=20261009-prelaunch-1" />
+  <link rel="preload" href="fonts/montserrat-cyr.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="art/ui/cat-moon.webp" as="image" />
+  <link rel="stylesheet" href="concept-theme.css?v=20261018-concept-1" />
 </head>
 <body>
+  <div id="mkSplash" class="mkc-splash" aria-hidden="true">
+    <div class="mkc-splash-in">
+      <img class="mkc-logo" src="art/ui/logo.webp" width="720" height="269" alt="" decoding="async">
+      <img class="mkc-moon" src="art/ui/cat-moon.webp" width="640" height="657" alt="" decoding="async">
+      <div class="mkc-load"><span class="mkc-load-label" id="mkSplashText">ЗАГРУЗКА…</span><div class="mkc-bar"><i class="mkc-gem"></i><b></b></div></div>
+    </div>
+  </div>
   <div class="stars"></div>
   <main id="app">
     <section id="language" class="screen active">
-      <div class="moonkatty-hero" aria-label="MOONKATTY astronaut">
-  <div class="hero-orbit"></div><div class="hero-moon"></div>
-  <div class="cat-helmet"><img class="cat-logo" src="art/moonkatty-game-mark.webp" alt="MOONKATTY" width="512" height="512" decoding="async"><div class="visor-glow"></div></div>
-  <div class="hero-badge">MOONKATTY // LUNAR CREW</div>
+      <div class="moonkatty-hero mkc-start-hero">
+  <h1 class="mkc-start-title"><img class="mkc-logo" src="art/ui/logo.webp" width="720" height="269" alt="MOONKATTY 9 LIVES" fetchpriority="high"></h1>
+  <img class="mkc-moon" src="art/ui/cat-moon.webp" width="640" height="657" alt="" aria-hidden="true">
 </div>
-<p class="eyebrow">MOONKATTY</p><h1>9 LIVES</h1>
+
       <p id="chooseText">Choose your language</p><div id="languages" class="language-grid"></div>
     </section>
     <section id="rules" class="screen rules-screen">
@@ -87,24 +96,37 @@
       <button id="rulesBackBtn" class="primary">BACK TO MISSION CONTROL</button>
     </section>
     <section id="home" class="screen">
-      <div class="mk-home-hero">
-        <div class="mk-home-bg" aria-hidden="true" style="background:center/cover url(art/life1-base.webp)"></div>
+      <div class="mk-home-hero mkc-hero">
+        <div class="mk-home-bg" aria-hidden="true" style="background:center/cover url(art/ui/base-alpha.webp)"></div>
         <div class="mk-home-shade"></div>
-        <img class="mk-home-character" src="art/moonkatty-hero.webp" width="512" height="512" alt="MOONKATTY" fetchpriority="high">
-        <header class="mk-topbar"><div><h2>MOONKATTY</h2><span>9 LIVES. 1 BIG MISSION.</span></div><div class="header-actions"><button id="rulesBtn" class="icon-btn" aria-label="Rules and rewards">📜</button><button id="settingsBtn" class="icon-btn" aria-label="Settings">⚙</button></div></header>
-        <div class="mk-orbit-trace" aria-hidden="true"></div>
-        <div class="mk-mission-wordmark" aria-label="9 LIVES" translate="no" dir="ltr"><span>9</span><strong>LIVES</strong></div>
-        <div class="mk-hero-copy"><span>A SMALL CAT</span><strong>FOR A BIG MISSION</strong></div>
-        <div class="mk-home-bottom">
-          <div class="stats"><article><small>MOON POINTS</small><strong id="points">0 ⭐</strong></article><article><small>LIVES</small><strong id="globalLivesHome">9 / 9 ❤️</strong><em id="lifeRestoreHome">FULL</em></article><article><small>STORY</small><strong id="livesProgress">0 / 9 🌙</strong></article></div>
-          <p id="welcome">Welcome to the Crew.</p>
-          <button id="enterBtn" class="primary">НАЧАТЬ МИССИЮ 🚀</button>
-          <div id="mkGrowthRow" class="mk-growth-row"><button id="mkInviteBtn" type="button" class="mk-invite-btn"><span class="mk-gi">👥</span><span class="mk-gt"><b>Invite friends</b><small>+200 ⭐ each</small></span></button><button id="mkShareBtn" type="button" class="mk-share-btn" aria-label="Share"><span>↗</span><b>Share</b></button></div>
-          <button id="expeditionEntry" class="exp-entry" type="button" translate="no"><span><small>DEEP SPACE / NEW MODE</small><strong>EXPLORE OPEN SPACE</strong><em>Explore. Rescue. Upgrade your ship.</em></span><b>↗</b></button>
-          <div class="mk-life-teaser"><div class="mk-play">▶</div><div><small>LIFE #1</small><strong>THE AWAKENING</strong><span>A new signal has been detected…</span></div><b>›</b></div>
+        <div class="mkc-top mkc-glass" id="mkcTop">
+          <button type="button" class="mkc-lvl" id="mkcLevel" data-home-nav="crew" aria-label="Level"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5" class="mkc-ring-bg"/><circle cx="24" cy="24" r="20.5" class="mkc-ring" pathLength="100" stroke-dasharray="35 100"/></svg><small id="mkcLevelLabel">УР</small><b id="mkcLevelNum">1</b></button>
+          <button type="button" class="mkc-res" id="mkcStars" data-home-nav="ranking" aria-label="Moon Points"><svg class="mkc-i-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8l3.1 6.5 7.1.9-5.2 4.9 1.3 7-6.3-3.4-6.3 3.4 1.3-7L1.8 9.2l7.1-.9z"/></svg><b id="mkcStarsNum">0</b></button>
+          <span class="mkc-res" id="mkcCrystals" role="img" aria-label="Crystals"><svg class="mkc-i-gem" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5l6 7.5-6 13.5L6 9z" class="g1"/><path d="M12 1.5L6 9h12z" class="g2"/><path d="M12 22.5L6 9h6z" class="g3"/></svg><b id="mkcCrystalsNum">0</b></span>
+          <button type="button" class="mkc-plus" id="mkcMore" data-home-nav="more" aria-label="More"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
         </div>
+        <div class="mkc-row2">
+          <button type="button" class="mkc-chest" id="mkcChest" aria-label="Daily reward"><span class="mkc-chest-box"><svg viewBox="0 0 64 56" aria-hidden="true"><defs><linearGradient id="mkcCg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0b5"/><stop offset=".5" stop-color="#e2a83c"/><stop offset="1" stop-color="#8a5a14"/></linearGradient></defs><path d="M6 22c0-11 9-17 26-17s26 6 26 17v4H6z" fill="#7a4f1d"/><path d="M6 22c0-11 9-17 26-17s26 6 26 17" fill="none" stroke="url(#mkcCg)" stroke-width="4"/><rect x="5" y="25" width="54" height="27" rx="4" fill="#6b4318"/><rect x="5" y="25" width="54" height="27" rx="4" fill="none" stroke="url(#mkcCg)" stroke-width="4"/><path d="M5 31h54" stroke="url(#mkcCg)" stroke-width="3"/><path d="M19 7v45M45 7v45" stroke="url(#mkcCg)" stroke-width="4"/><rect x="26" y="26" width="12" height="13" rx="2.5" fill="url(#mkcCg)"/><circle cx="32" cy="32" r="2.2" fill="#5a3608"/></svg></span><span class="mkc-streak"><span class="mkc-flame" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 4 6 6 6 12a7 7 0 0 1-14 0c0-3 2-5 3-6 0 2 1 3 2 3-1-4 1-7 3-9z"/></svg></span><b id="mkcStreak">ДЕНЬ 0</b></span></button>
+          <header class="mk-topbar"><div><h2>MOONKATTY</h2><span>9 LIVES. 1 BIG MISSION.</span></div><div class="header-actions"><button id="rulesBtn" class="icon-btn" aria-label="Rules and rewards">📜</button></div></header>
+        </div>
+        <div class="mkc-stage"><img class="mk-home-character" src="art/ui/cat-stand.webp" width="440" height="700" alt="MOONKATTY" fetchpriority="high"></div>
+        <div class="mkc-play-wrap"><button id="enterBtn" class="primary mkc-play">ИГРАТЬ</button></div>
+        <nav class="mkc-icons" id="mkcIcons" aria-label="Menu">
+          <button type="button" id="missionsBtn" data-home-nav="chapters" data-mkc="map"><i aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M4 8l7-3 10 3 7-3v19l-7 3-10-3-7 3z" class="f"/><path d="M11 5v19M21 8v19" class="s"/><path d="M14 13l3 3m0-3l-3 3" class="r"/></svg></i><span>Карта</span></button>
+          <button type="button" data-mkc="quests"><i aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="7" y="5" width="18" height="23" rx="3" class="f"/><rect x="12" y="3" width="8" height="5" rx="1.5" class="s2"/><path d="M11 14l2 2 4-4M11 21l2 2 4-4M19 15h3M19 22h3" class="s"/></svg></i><span>Задания</span></button>
+          <button type="button" data-mkc="base"><i aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M4 26h24M6 26V15l10-7 10 7v11" class="f"/><path d="M10 26v-7M14 26v-7M18 26v-7M22 26v-7M5 15h22" class="s"/></svg></i><span>База 3D</span></button>
+          <button type="button" data-mkc="friends" data-home-nav="community"><i aria-hidden="true"><svg viewBox="0 0 32 32"><circle cx="11" cy="12" r="4" class="f"/><circle cx="21" cy="12" r="4" class="f"/><path d="M3 26c0-5 4-8 8-8s8 3 8 8zM13 26c0-5 4-8 8-8s8 3 8 8z" class="f"/></svg></i><span>Друзья</span></button>
+          <button type="button" data-mkc="shop"><i aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M3 6h4l3 14h15l3-10H9" class="s"/><circle cx="12" cy="25" r="2.3" class="f"/><circle cx="23" cy="25" r="2.3" class="f"/></svg></i><span>Магазин</span></button>
+        </nav>
       </div>
-      <nav class="mk-bottom-nav"><button class="active">⌂<span>Home</span></button><button id="missionsBtn">🚀<span>Missions</span></button><button>♙<span>Crew</span></button><button>♜<span>Leaderboard</span></button><button>•••<span>More</span></button></nav>
+      <div class="mk-home-bottom">
+        <div class="stats"><article><small>MOON POINTS</small><strong id="points">0 ⭐</strong></article><article><small>LIVES</small><strong id="globalLivesHome">9 / 9 ❤️</strong><em id="lifeRestoreHome">FULL</em></article><article><small>STORY</small><strong id="livesProgress">0 / 9 🌙</strong></article></div>
+        <p id="welcome">Welcome to the Crew.</p>
+        <div id="mkGrowthRow" class="mk-growth-row"><button id="mkInviteBtn" type="button" class="mk-invite-btn"><span class="mk-gi">👥</span><span class="mk-gt"><b>Invite friends</b><small>+200 ⭐ each</small></span></button><button id="mkShareBtn" type="button" class="mk-share-btn" aria-label="Share"><span>↗</span><b>Share</b></button></div>
+        <button id="expeditionEntry" class="exp-entry" type="button" translate="no"><span><small>DEEP SPACE / NEW MODE</small><strong>EXPLORE OPEN SPACE</strong><em>Explore. Rescue. Upgrade your ship.</em></span><b>↗</b></button>
+        <div class="mk-life-teaser"><div class="mk-play">▶</div><div><small>LIFE #1</small><strong>THE AWAKENING</strong><span>A new signal has been detected…</span></div><b>›</b></div>
+      </div>
+      <nav class="mk-bottom-nav mkc-tabs"><button class="active">⌂<span>Home</span></button><button>▦<span>Inventory</span></button><button id="settingsBtn">⚙<span>Settings</span></button></nav>
       <section id="dailyMissions" class="daily-missions sv-wrap" aria-label="Daily Missions"></section>
 
       <section id="dailyOps" class="daily-ops" aria-label="Daily signals">
@@ -474,4 +496,5 @@
   <script src="daily-retention.js?v=20261011-language-clarity-1"></script>
   <script src="growth.js?v=20261009-prelaunch-1"></script>
   <script src="social.js?v=20261011-atomic-admission-1"></script>
+  <script src="concept-ui.js?v=20261018-concept-1"></script>
 </body></html>
