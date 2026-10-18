@@ -45,7 +45,7 @@
 /* ---------- main menu ---------- */
 #home{padding:0!important;font-family:var(--mkc-font);padding-bottom:calc(88px + env(safe-area-inset-bottom))!important}
 #home .mkc-hero{position:relative;display:flex!important;flex-direction:column;align-items:stretch;min-height:max(480px,var(--mk-vh,100dvh))!important;
- padding:calc(10px + env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))!important;box-sizing:border-box;overflow:hidden;background:#05081a!important;isolation:isolate}
+ padding:calc(22px + env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))!important;box-sizing:border-box;overflow:hidden;background:#05081a!important;isolation:isolate}
 #home .mkc-hero::after,#home .mkc-hero::before{display:none!important}
 #home .mkc-hero .mk-home-bg{position:absolute;inset:0;z-index:-2;background-size:cover!important;background-position:50% 0!important;filter:none;opacity:1}
 #home .mkc-hero .mk-home-shade{position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,#0b153099 0%,#0b153033 18%,transparent 34%,transparent 58%,#05081a66 76%,#05081ae6 100%)!important}
