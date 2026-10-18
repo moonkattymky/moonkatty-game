@@ -46,8 +46,8 @@ const boot = async (page, q = '') => { await page.goto(BASE + '?view=play&fast=1
 const t0 = Date.now();
 // ---------- device A ----------
 const A = await newPage(); const pa = A.page;
-await pa.route('**/assets/moonkatty.glb*', async r => { await new Promise(s => setTimeout(s, 6000)); r.continue(); }); // slow network: show the loading screen
-await pa.goto(BASE + '?view=play&fast=1', { waitUntil: 'domcontentloaded' }); await pa.waitForTimeout(1500); await pa.screenshot({ path: OUT + 'loading.png', timeout: 60000 });
+await pa.route('**/assets/moonkatty.glb*', async r => { await new Promise(s => setTimeout(s, 30000)); r.continue().catch(() => { }); }); // slow network: show the loading screen
+await pa.goto(BASE + '?view=play&fast=1', { waitUntil: 'domcontentloaded' }); await pa.waitForTimeout(12000); await pa.screenshot({ path: OUT + 'loading.png', timeout: 60000 });
 ok('loading screen visible while assets download', await E(pa, () => getComputedStyle(document.getElementById('loading')).display !== 'none'));
 await pa.waitForFunction(() => window.MK && MK.ready && MK.game && MK.game.ready, null, { timeout: 180000 }); await pa.waitForTimeout(1500);
 ok('boot in Telegram WebView < 180 s', true, ((Date.now() - t0) / 1000).toFixed(1) + ' s (swiftshader, CPU)');
