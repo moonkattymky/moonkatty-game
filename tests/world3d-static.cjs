@@ -16,4 +16,5 @@ assert.ok(!/Date\.now\(\)\)?\.then\(gltf/.test(main)&&!main.includes("catURL + '
 assert.ok(main.includes("initTelegram("),'Telegram shell initialised');
 const deferred=read('src/tg/deferred.js');for(const k of ['friendHelp','notify','robotReturned','storageFull'])assert.ok(deferred.includes(k),'stub '+k);
 assert.ok(!fs.readdirSync(W).includes('tools'),'dev tools are not published');
+assert.ok(/#views\{display:none!important\} html\.debug #views\{display:flex!important\}/.test(html)&&read('boot.js').includes("q.get('debug') === '1'"),'dev camera buttons hidden unless ?debug=1');
 console.log('world3d-static: all checks passed (bundle v='+v+')');

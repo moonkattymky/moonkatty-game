@@ -2,6 +2,7 @@
 // and the service worker that caches the immutable versioned assets for fast repeat launches inside Telegram.
 (function () {
   var q = new URLSearchParams(location.search), tg = window.Telegram && window.Telegram.WebApp;
+  if (q.get('debug') === '1') document.documentElement.classList.add('debug'); // shows the dev camera buttons
   var code = (q.get('lang') || (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.language_code) || navigator.language || 'en').slice(0, 2);
   var ru = code === 'ru' || code === 'uk' || code === 'be' || code === 'kk';
   var txt = document.getElementById('loadtxt'), err = document.getElementById('loaderr'), box = document.getElementById('loading');
