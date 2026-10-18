@@ -149,6 +149,23 @@ function headLook(dt) {
   headYaw = dt >= 0.5 ? want : headYaw + (want - headYaw) * Math.min(1, dt * 4);
   headBone.userData.pre = (headBone.userData.pre || new THREE.Quaternion()).copy(headBone.quaternion); headBone.parent.getWorldQuaternion(_hp); _hr.setFromAxisAngle(_up, headYaw); _hq.copy(_hp).invert().multiply(_hr).multiply(_hp); headBone.quaternion.premultiply(_hq); headBone.updateMatrixWorld(true);
 }
+
+// runtime 'press' pose (shield finale): 2-bone CCD on the arm toward a world target (palm on the paw pad) + slight spine lean.
+// The GLB and its clips are untouched; this only adds bone rotations on top of the idle clip while catPose is set.
+let catPose = null, catModel = null; const _posePre = []; const _pq = new THREE.Quaternion(), _pq2 = new THREE.Quaternion(), _pa = new THREE.Vector3(), _pb = new THREE.Vector3(), _pc = new THREE.Vector3();
+function ccdStep(bone, end, target, w) { bone.getWorldPosition(_pa); end.getWorldPosition(_pb); const d0 = _pb.sub(_pa).normalize(), d1 = _pc.copy(target).sub(_pa).normalize(); _pq.setFromUnitVectors(d0, d1); if (w < 1) _pq.slerp(_pq2.identity(), 1 - w); bone.parent.getWorldQuaternion(_pq2); const inv = _pq2.clone().invert(); bone.quaternion.premultiply(inv.multiply(_pq).multiply(_pq2)); bone.updateMatrixWorld(true); }
+function applyCatPose() {
+  if (!catPose || !catModel) return; const S = catPose.side || 'L'; const B = (n) => catModel.getObjectByName(n); const up = B('upperarm_' + S), fo = B('forearm_' + S), ha = B('hand_' + S), sp = B('spine'); if (!up || !fo || !ha) return;
+  _posePre.length = 0; for (const b of [up, fo, ha, sp]) if (b) _posePre.push([b, b.quaternion.clone()]);
+  catRoot.updateMatrixWorld(true);
+  if (sp && catPose.bend) { // forward bend at the spine toward the target (world axis = up x horizontal dir to target)
+    const sw = sp.getWorldPosition(_pa); const dx = catPose.target.x - sw.x, dz = catPose.target.z - sw.z, dl = Math.hypot(dx, dz) || 1; _pb.set(dz / dl, 0, -dx / dl); // up x d
+    sp.parent.getWorldQuaternion(_pq2); _pq.setFromAxisAngle(_pb, catPose.bend); const inv = _pq2.clone().invert(); sp.quaternion.premultiply(inv.multiply(_pq).multiply(_pq2)); sp.updateMatrixWorld(true); }
+  if (sp && catPose.lean) ccdStep(sp, ha, catPose.target, catPose.lean);
+  for (let k = 0; k < 4; k++) { ccdStep(fo, ha, catPose.target, 1); ccdStep(up, ha, catPose.target, 1); }
+  if (catPose.palm != null) { ha.rotateX(catPose.palm); ha.updateMatrixWorld(true); }
+  catPose.dbg = { hand: ha.getWorldPosition(new THREE.Vector3()).toArray().map(v => +v.toFixed(2)), sh: up.getWorldPosition(new THREE.Vector3()).toArray().map(v => +v.toFixed(2)), el: fo.getWorldPosition(new THREE.Vector3()).toArray().map(v => +v.toFixed(2)), n: (catPose.n = (catPose.n || 0) + 1) };
+}
 const flame = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.9, 10, 1, true).rotateX(Math.PI).translate(0, -0.35, 0), new THREE.MeshBasicMaterial({ color: new THREE.Color(4, 2.2, 0.8), transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
 flame.position.set(0, 0.85, -0.45); flame.visible = false; catRoot.add(flame);
 // walk/run locomotion: per-clip timeScale = speed / measured stride (feet planted up to the cap, then accept a little slide);
@@ -175,7 +192,7 @@ function measureStride(model, clip) {
 }
 const catPromise = new GLTFLoader().loadAsync(catURL + '?v=' + ASSET_V, (e) => { if (e && e.total) loadMsg(e.loaded / e.total); }).then(gltf => {
   const m = gltf.scene; m.traverse(o => { if (o.isMesh) { o.castShadow = !(MOBILE ? /Eye|Glow|Dome|Glint|Outline|Whisker|Flame/i : /Eye|Glow|Dome|Glint|Outline/i).test(Array.isArray(o.material) ? '' : o.material.name); o.receiveShadow = true; o.frustumCulled = false; const ms = Array.isArray(o.material) ? o.material : [o.material]; for (const mt of ms) { if (mt.transmission > 0) { mt.transmission = 0; mt.transparent = true; mt.opacity = Math.min(mt.opacity, 0.35); mt.depthWrite = false; } /* transmission would re-render the whole opaque scene every frame */ if (mt.isMeshStandardMaterial) { mt.envMap = env; mt.envMapIntensity = /gold/i.test(mt.name) ? 1.6 : 0.6; } if (/Face|Fur|Eye/i.test(mt.name) && mt.isMeshStandardMaterial) { /* cat-only warm fill: face reads bright orange inside the dome even with the sun behind (no scene light added) */ if (mt.map) mt.emissiveMap = mt.map; mt.emissive = new THREE.Color(/Eye/i.test(mt.name) ? '#8a8a8a' : '#ffc89a'); mt.emissiveIntensity = /Eye/i.test(mt.name) ? 0.3 : 0.42; mt.needsUpdate = true; } if (/^MK_Dome$/i.test(mt.name)) { /* clear glass: weaker env/spec glare so the face reads through the helmet */ mt.opacity = 0.16; mt.envMapIntensity = 0.3; if ('specularIntensity' in mt) mt.specularIntensity = 0.5; if ('clearcoat' in mt) mt.clearcoat = 0; mt.needsUpdate = true; } if (/DomeGlint/i.test(mt.name)) mt.opacity = 0.22; if (/Fur/i.test(mt.name)) mt.emissiveIntensity = 0.3; } } });
-  catRoot.add(m); m.traverse(o => { if (!headBone && /^head$/i.test(o.name)) headBone = o; }); if (!headBone) m.traverse(o => { if (!headBone && /head/i.test(o.name) && !o.isMesh) headBone = o; });
+  catRoot.add(m); catModel = m; m.traverse(o => { if (!headBone && /^head$/i.test(o.name)) headBone = o; }); if (!headBone) m.traverse(o => { if (!headBone && /head/i.test(o.name) && !o.isMesh) headBone = o; });
   if (gltf.animations.length) { mixer = new THREE.AnimationMixer(m); for (const c of gltf.animations) actions[c.name] = mixer.clipAction(c); STRIDE = measureStride(m, gltf.animations.find(c => c.name === 'walk')); STRIDES.walk = STRIDE; { const rc = gltf.animations.find(c => c.name === 'run'); if (rc) STRIDES.run = measureStride(m, rc); } play('idle', 0); }
   return gltf;
 }).catch(err => { console.warn('cat glb missing, using placeholder', err); const ph = new THREE.Mesh(new THREE.CapsuleGeometry(0.4, 0.9, 4, 12), mats.ivory); ph.position.y = 0.85; ph.castShadow = true; catRoot.add(ph); });
@@ -236,6 +253,9 @@ const setPower = (lv, red = 0) => { POW.level = lv; POW.red = red; };
 const applyPower = (t) => { const fl = POW.level < 1 ? (Math.random() < 0.06 ? 0.25 : 1) * (0.85 + 0.15 * Math.sin(t * 23)) : 1; const red = POW.level < 1 ? POW.red : 0; const k = POW.level >= 1 ? 1 : (red ? 0.05 + 0.2 * Math.pow(Math.abs(Math.sin(t * 2.2)), 6) : (0.03 + 0.82 * POW.level) * fl); /* power out: windows dark, slow red emergency pulse */
   for (const m of [mats.hull, mats.lattice]) { m.emissive.setRGB(1, 1 - 0.8 * red, 1 - 0.85 * red); m.emissiveIntensity = EMISSIVE_INTENSITY * k * (red ? 2.2 : 1); } LAMPK.value = red ? 0.02 : k; mats.beam.uniforms.uPow.value = k;
   coreLight.color.setRGB(1, 0.6 - 0.45 * POW.red, 0.25 - 0.2 * POW.red); coreLight.intensity = (55 + Math.sin(t * 2.3) * 8) * (POW.level >= 1 ? 1 : (0.35 + 0.65 * POW.level) * (POW.red ? 0.6 + 0.4 * Math.abs(Math.sin(t * 5.5)) : 1)); };
+// night (Chapter 2 finale): dims the sun-side lights toward a blue night; base emissives stay on so the base glows
+const NIGHT0 = { sun: sun.intensity, hemi: hemi.intensity, fill: fill.intensity, front: front.intensity, rim: rim.intensity, exp: renderer.toneMappingExposure, envI: null };
+const setNight = (k) => { k = Math.max(0, Math.min(1, k)); sun.intensity = NIGHT0.sun * (1 - 0.62 * k); hemi.intensity = NIGHT0.hemi * (1 - 0.5 * k); hemi.color.setRGB(0.70 - 0.25 * k, 0.71 - 0.18 * k, 0.74 + 0.0 * k); fill.intensity = NIGHT0.fill * (1 + 0.6 * k); front.intensity = NIGHT0.front * (1 - 0.9 * k); rim.intensity = NIGHT0.rim * (1 - 0.6 * k); renderer.toneMappingExposure = NIGHT0.exp * (1 - 0.08 * k); };
 const game = (!SHOT || Q.has('game')) ? (() => { const cs0 = canyonS(REGIONS.canyon.x, REGIONS.canyon.z); const L = REGIONS.launch, hl = Math.hypot(L.x, L.z); const lu = { x: L.x / hl, z: L.z / hl };
   const pad = sd(-9.5, -16), dsh = sd(-14, 12), st = PLAY_START; const dd = Math.hypot(st.x - dsh.x, st.z - dsh.z);
   const free = (p, r) => { const f = solids.nearestFree(p.x, p.z, r); return { x: f.x, z: f.z }; }; // markers / pickups never sit inside a rock or prop
@@ -275,7 +295,7 @@ const game = (!SHOT || Q.has('game')) ? (() => { const cs0 = canyonS(REGIONS.can
   };
   const places = Object.fromEntries(Object.entries({ canyonPad: cp(-18, -1), reactorConsole: sd(0, -10.6), dish: { x: dsh.x + (st.x - dsh.x) / dd * 7.2, z: dsh.z + (st.z - dsh.z) / dd * 7.2 }, launchPad: { x: L.x - L.x / hl * 34, z: L.z - L.z / hl * 34 }, ledge: { x: LEDGE.x, z: LEDGE.z }, homePad: pad, sprintStart }).map(([k, p]) => [k, free(p)]));
   window.__gamePlaces = places; window.__gameLayout = layout;
-  return createGame({ scene, camera, ctrl, renderer, env, solids, setPower, groundAt: solids.standAt, visAt: solids.visAt, Q, places, layout,
+  return createGame({ scene, camera, ctrl, renderer, env, solids, setPower, setNight, setEarthDir: sky.setEarthDir, sd, mobile: MOBILE, catRoot, earthDir, groundAt: solids.standAt, visAt: solids.visAt, Q, places, layout,
     crystalSpots: [...[[-46, 4], [-36, -5], [-27, 4], [6, -4.5], [15, 4.5], [25, -3]].map(([ds, o]) => canyonPoint(cs0 - 18 + ds, o)), sd(-8, -31), sd(7, -27), sd(-20, -6), sd(17, -15)].map(p => free(p)) }); })() : null;
 const prints = makeFootprints(scene, groundAt);
 // soft contact (blob) shadows under the cat and the builder robot: 1 instanced draw, radial alpha, no depth write
@@ -289,6 +309,7 @@ const contact = (() => { const cv = document.createElement('canvas'); cv.width =
 // ---------- loop ----------
 const clock = new THREE.Clock(); let t = 0; const ftimes = [];
 function frame(dt) {
+  if (game && game.map && game.map.open) { game.map.frame(dt); return; }
   t += dt;
   if (!SHOT) ctrl.update(dt); else { ctrl.pos.y = ctrl.floorAt(ctrl.pos.x, ctrl.pos.z); if (ctrl.camFree) { ctrl.camTarget.copy(ctrl.pos).add(new THREE.Vector3(0, 1.3, 0)); ctrl.updateCamera(1); } }
   if (game) game.update(dt);
@@ -299,7 +320,9 @@ function frame(dt) {
   contact.update(catRoot.position, ctrl.onGround ? 0 : ctrl.pos.y - solids.visAt(ctrl.pos.x, ctrl.pos.z));
   prints.update(ctrl.pos, ctrl.yaw, ctrl.onGround, ctrl.speed);
   if (headBone && headBone.userData.pre) headBone.quaternion.copy(headBone.userData.pre);
+  for (const [b, q] of _posePre) b.quaternion.copy(q); _posePre.length = 0;
   if (mixer) { if (!ctrl.onGround) play(actions.jump ? 'jump' : 'idle', 0.15); else if (ctrl.speed > 0.6) locomotion(ctrl.speed); else play('idle'); mixer.update(dt); }
+  applyCatPose();
   headLook(SHOT ? 1 : dt);
   flame.visible = ctrl.thrusting; if (flame.visible) flame.scale.y = 0.8 + Math.random() * 0.5;
   crystals.update(t); mats.beam.uniforms.uTime.value = t; sky.starMat.uniforms.uTime.value = t; sky.earthMat.uniforms.uTime.value = t;
@@ -323,7 +346,7 @@ TGAPI.onPause((p) => { paused = p; if (p) { ctrl.keys.clear(); ctrl.joy.set(0, 0
 function loop() { if (paused) { looping = false; return; } looping = true; const dt = Math.min(clock.getDelta(), 0.05); const t0 = performance.now(); frame(dt); ftimes.push(performance.now() - t0); if (ftimes.length > 240) ftimes.shift(); requestAnimationFrame(loop); }
 
 // test / screenshot API
-window.MK = { isPaused: () => paused, terrain: TERRAIN_MOD, setPower, POW, THREE, composer, bloom, camera, scene, sky, renderer, env, solids, ctrl, rocks, colliders, VIEWS: Object.keys(VIEWS), head: () => headBone && [headBone.name, headBone.type, +headYaw.toFixed(2)],
+window.MK = { setCatPose: (o) => { catPose = o; }, isPaused: () => paused, terrain: TERRAIN_MOD, setPower, POW, THREE, composer, bloom, camera, scene, sky, renderer, env, solids, ctrl, rocks, colliders, VIEWS: Object.keys(VIEWS), head: () => headBone && [headBone.name, headBone.type, +headYaw.toFixed(2)],
   ready: false, game: game && game.api,
   anim: () => ({ mixer, actions, STRIDES, locomotion, current: current && current.getClip().name }), // test hook (walk/run blending)
   setView(v) { VIEWS[v](); camera.updateProjectionMatrix(); },
@@ -334,7 +357,8 @@ window.MK = { isPaused: () => paused, terrain: TERRAIN_MOD, setPower, POW, THREE
     sm.needsUpdate = true; info.reset(); renderer.render(scene, camera); const withShadow = { calls: info.render.calls, triangles: info.render.triangles };
     sm.autoUpdate = true; info.reset(); composer.render(0); const frameAll = { calls: info.render.calls, triangles: info.render.triangles };
     info.autoReset = true;
-    culler.update(camera, true); const per = []; scene.traverse(o => { if ((o.isMesh || o.isPoints) && o.visible && o.geometry) { const g = o.geometry; const n = (g.index ? g.index.count : g.attributes.position.count) / (o.isPoints ? 1 : 3) * (o.isInstancedMesh ? o.count : 1); per.push([o.name || o.type, Math.round(n)]); } });
+    culler.update(camera, true); const per = []; const fr = new THREE.Frustum().setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)); const shown = (o) => { for (let q = o; q; q = q.parent) if (!q.visible) return false; return o.layers.test(camera.layers) && (!o.frustumCulled || fr.intersectsObject(o)); };
+    scene.traverse(o => { if ((o.isMesh || o.isPoints) && o.geometry && shown(o)) { const g = o.geometry; const n = (g.index ? g.index.count : g.attributes.position.count) / (o.isPoints ? 1 : 3) * (o.isInstancedMesh ? o.count : 1); per.push([o.name || o.type, Math.round(n)]); } });
     per.sort((x, y) => y[1] - x[1]);
     return { culler: culler.stats(), rocks: rocks.counts, mainPass: main, mainPlusShadowPass: withShadow, wholeFrameInclPost: frameAll, top: per.slice(0, +(window.TOPN || 14)) };
   },

@@ -1,0 +1,20 @@
+import { chromium } from 'playwright-core'; import { seed } from './ch2_seed.mjs'; import { execSync } from 'child_process';
+const q = process.argv[2] || '';
+const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--no-sandbox'] });
+const urlq = process.env.Q || ''; const p = await b.newPage({ viewport: { width: 1280, height: 720 } }); const errs = []; p.on('pageerror', e => errs.push('ERR ' + e.message)); p.on('console', m => { if (m.type() === 'error') errs.push('C ' + m.text().slice(0, 200)); });
+await seed(p, q, { done: ['c2_collect', 'c2_send', 'c2_upgrade', 'c2_help', 'c2_daily', 'c2_deliver', 'c2_l3'], level: 3, robots: !process.env.SEED ? [] : process.env.MIXED ? [{ id: 'r1', type: 'builder', xp: 0 }, { id: 'r2', type: 'geologist', xp: 0 }, { id: 'r3e', type: 'engineer', xp: 0 }] : [{ id: 'r1', type: 'builder', xp: 0 }, { id: 'r2', type: 'builder', xp: 0 }, { id: 'r3', type: 'builder', xp: 0 }] });
+const info = await p.evaluate(async () => { const G = MK.game, st = G.ch2.storm(); const cp = st.console, c = st.center; const U = new URLSearchParams(location.search);
+  // in-game cutscene rig (ch2 cutCam), held open for the screenshot; optional overrides: dist right h look lookH fov
+  const cut = G.ch2.cut; cut.hold = true; for (const k of ['dist', 'right', 'h', 'look', 'lookH', 'fov', 'turn', 'ku', 'kr']) if (U.get(k) != null) cut[k] = +U.get(k);
+  G.teleport(cp.x - 2, cp.z - 2, 0, true); G.ch2.startStorm(); G.ch2.stepStorm(+(U.get('ss') || 9)); const sh = G.ch2.shield; if (G.ch2.poseStorm) G.ch2.poseStorm(); if (sh && sh.pose) sh.pose(14); window.__pad = null; return { cp, c }; });
+await p.addStyleTag({ content: '#mk-root,#joy,#jump,#views,#help,#title,#fuelwrap{display:none !important} body > *:not(#app):not(canvas){opacity:0}' });
+await p.waitForTimeout(4000); await p.evaluate(() => { const sh = MK.game.ch2.shield; if (sh && sh.pose) sh.pose(10); }); await p.waitForTimeout(120);
+if (process.env.PROBE) console.log('PROBE', JSON.stringify(await p.evaluate(() => { const T = MK.THREE, rc = new T.Raycaster(), out = []; for (const [x, y] of [[0.85, 0.3], [0.9, 0.0], [0.95, -0.2], [0.8, 0.1]]) { rc.setFromCamera(new T.Vector2(x, y), MK.camera); const h = rc.intersectObjects(MK.scene.children, true).filter(h => h.object.visible && !/shield|dome|life|sky|star/i.test(h.object.name))[0]; if (h) { let o = h.object, path = []; while (o) { path.push(o.name || o.type); o = o.parent; } out.push([x, y, path.slice(0, 4).join('<'), h.instanceId, h.point.toArray().map(v => +v.toFixed(1)), +h.distance.toFixed(1)]); } } return out; })));
+await p.screenshot({ path: `renders/ch2_shield${q ? '_' + q.replace(/\W/g, '') : ''}.png` });
+console.log(JSON.stringify(await p.evaluate(() => { const S = MK.scene, C = MK.camera, out = []; S.traverse(o => { if (o.name && o.name.startsWith('crew_') && o.isGroup) out.push([o.name, o.visible, +o.position.x.toFixed(1), +o.position.z.toFixed(1), +C.position.distanceTo(o.position).toFixed(1)]); }); const im = S.getObjectByName('crew_impostors'); window.__dbgPose = 1; const dv = new MK.THREE.Vector3(); C.getWorldDirection(dv); return { cam: [C.position.toArray().map(v => +v.toFixed(2)), dv.toArray().map(v => +v.toFixed(3)), C.fov, MK.ctrl.camFree, MK.game.ch2.cut.on], crew: out, imp: im && [im.visible, im.geometry.instanceCount], pad: window.__pad, pose: window.__poseObj && window.__poseObj.dbg }; })));
+console.log(JSON.stringify({ info, st: await p.evaluate(() => MK.game.ch2.storm()), errs })); await b.close();
+if (!q) execSync(`python3 -c "
+from PIL import Image, ImageDraw
+a=Image.open('refs/shield_concept.jpg').convert('RGB').resize((1280,720)); b=Image.open('renders/ch2_shield.png').convert('RGB').resize((1280,720))
+S=Image.new('RGB',(2560,760),'#111'); S.paste(a,(0,0)); S.paste(b,(1280,0)); d=ImageDraw.Draw(S); d.text((10,730),'concept (approved)',fill='white'); d.text((1290,730),'in-game night meteor storm (headless SwiftShader render, meteors posed mid-flight)',fill='white'); S.save('renders/ch2_shield_vs_concept.png')
+"`);

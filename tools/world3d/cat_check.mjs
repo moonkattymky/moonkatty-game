@@ -1,4 +1,4 @@
-import { chromium } from 'playwright-core';
+import { chromium } from '/workspace/moonkatty-world/node_modules/playwright-core/index.mjs';
 const browser = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-sandbox'] });
 const page = await browser.newPage({ viewport: { width: 1024, height: 576 } }); const logs = [];
 page.on('pageerror', e => logs.push('PAGEERROR ' + e.message)); page.on('console', m => { if (m.type() === 'error' || m.type() === 'warning') logs.push(m.type() + ' ' + m.text()); });

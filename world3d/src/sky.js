@@ -77,7 +77,9 @@ export function buildSky(sunDir, earthDir, lite = false) {
     fragmentShader: `uniform vec3 sun; varying vec3 vN; varying vec3 vV; void main(){ float d=dot(normalize(vN),vV); float a=pow(smoothstep(0.0,0.5,-d),3.0); float lit=0.3+0.7*smoothstep(-0.5,0.4,dot(normalize(vN),sun)); gl_FragColor=vec4(vec3(0.25,0.5,0.95)*a*lit*0.7,1.); }`,
   });
   const halo = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 10), haloMat); halo.position.copy(earth.position); halo.scale.setScalar(ER * 1.035); halo.renderOrder = -7; group.add(halo);
-  return { group, earth, starMat, earthMat };
+  // cutscenes can park the Earth in a chosen direction (null = back to the default)
+  const setEarthDir = (d) => { const v = (d || earthDir).clone().normalize().multiplyScalar(ED); earth.position.copy(v); halo.position.copy(v); };
+  return { group, earth, starMat, earthMat, setEarthDir };
 }
 
 // Asteroid belt + Ark orbital station + MK-01 (sky set pieces; no fog)

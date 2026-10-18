@@ -1,0 +1,1 @@
+Oswald (variable 300-600), Copyright 2016 The Oswald Project Authors (https://github.com/googlefonts/OswaldFont). Licensed under the SIL Open Font License 1.1 (https://openfontlicense.org). Files: Google Fonts woff2 subsets (latin, cyrillic).

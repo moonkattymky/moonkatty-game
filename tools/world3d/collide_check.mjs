@@ -9,10 +9,10 @@ const browser = await chromium.launch({ executablePath: '/usr/bin/google-chrome'
 const ctx = await browser.newContext(mode === 'phone' ? { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } : { viewport: { width: 1280, height: 720 } });
 const page = await ctx.newPage(); const logs = []; page.on('pageerror', e => logs.push('PAGEERROR ' + e.message)); page.on('console', m => { if (m.type() === 'error') logs.push(m.text()); });
 const q = mode === 'low' ? '&q=low' : '';
-const boot = async (extra) => { await page.goto((process.env.MK_BASE || 'http://localhost:47321/index.html') + '?view=play&fast=1' + q + extra); await page.waitForFunction(() => window.MK && MK.ready && MK.game && MK.game.ready, null, { timeout: 180000 }); };
+const boot = async (extra) => { await page.goto((process.env.MK_BASE || 'http://localhost:' + (process.env.MKPORT || 47321) + '/index.html') + '?view=play&fast=1' + q + extra); await page.waitForFunction(() => window.MK && MK.ready && MK.game && MK.game.ready, null, { timeout: 180000 }); };
 await boot('&reset=1');
 // ground-truth checker (re-installed after every page load)
-const INSTALL = async () => { window.__terrain = MK.terrain || await import('./src/terrain.js');
+const INSTALL = async () => { window.__terrain = await import('./src/terrain.js');
   const THREE = MK.THREE; const R = 0.33, YS = [0.43, 0.545, 0.66, 0.775, 0.89, 1.005, 1.12]; // capsule: r 0.33, y +0.10 .. +1.45 above the feet
   const tris = []; const H = new Map(); const HC = 4; const hk = (i, j) => i * 100003 + j;
   const addTri = (A, B, C, tag) => { const id = tris.length; tris.push([A, B, C, tag]); const i0 = Math.floor(Math.min(A[0], B[0], C[0]) / HC), i1 = Math.floor(Math.max(A[0], B[0], C[0]) / HC), j0 = Math.floor(Math.min(A[2], B[2], C[2]) / HC), j1 = Math.floor(Math.max(A[2], B[2], C[2]) / HC);
@@ -73,10 +73,10 @@ const chap = await page.evaluate(() => MK.game.state().ch1.done.length); results
 await page.evaluate(() => MK.game.save()); await boot(''); await page.evaluate(INSTALL); await ck('spawn after reload (saved progress)', 'spawn');
 results.push(['saved progress loaded', (await page.evaluate(() => MK.game.state().ch1.done.length)) === 9, '']);
 // 5) random teleports in every region (stress: arbitrary teleport targets must resolve to a free spot)
-const REG = await page.evaluate(async () => { const T = MK.terrain || await import('./src/terrain.js'); const s0 = T.canyonS(T.REGIONS.canyon.x, T.REGIONS.canyon.z); const c = T.canyonPoint(s0 - 18, 0); return { hub: { x: 0, z: 0, r: 70 }, canyon: { x: c.x, z: c.z, r: 60, canyon: s0 }, reactor: { ...T.REGIONS.reactor, r: 110 }, launch: { ...T.REGIONS.launch, r: 120 }, echo: { ...T.REGIONS.echo, r: 100 } }; });
+const REG = await page.evaluate(async () => { const T = await import('./src/terrain.js'); const s0 = T.canyonS(T.REGIONS.canyon.x, T.REGIONS.canyon.z); const c = T.canyonPoint(s0 - 18, 0); return { hub: { x: 0, z: 0, r: 70 }, canyon: { x: c.x, z: c.z, r: 60, canyon: s0 }, reactor: { ...T.REGIONS.reactor, r: 110 }, launch: { ...T.REGIONS.launch, r: 120 }, echo: { ...T.REGIONS.echo, r: 100 } }; });
 const N_TP = +(process.env.NTP || 50);
 for (const [name, R] of Object.entries(REG)) { let s = 12345 + name.length * 77; const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
-  for (let i = 0; i < N_TP; i++) { let x, z; if (R.canyon) { const p = await page.evaluate(({ s, o }) => (MK.terrain ? Promise.resolve(MK.terrain) : import('./src/terrain.js')).then(T => T.canyonPoint(s, o)), { s: R.canyon - 18 + (rnd() - 0.5) * 220, o: (rnd() - 0.5) * 40 }); x = p.x; z = p.z; } else { const a = rnd() * 6.283, d = Math.sqrt(rnd()) * R.r; x = R.x + Math.cos(a) * d; z = R.z + Math.sin(a) * d; }
+  for (let i = 0; i < N_TP; i++) { let x, z; if (R.canyon) { const p = await page.evaluate(({ s, o }) => import('./src/terrain.js').then(T => T.canyonPoint(s, o)), { s: R.canyon - 18 + (rnd() - 0.5) * 220, o: (rnd() - 0.5) * 40 }); x = p.x; z = p.z; } else { const a = rnd() * 6.283, d = Math.sqrt(rnd()) * R.r; x = R.x + Math.cos(a) * d; z = R.z + Math.sin(a) * d; }
     await rawck('random tp ' + name, x, z); await TP(x, z, rnd() * 6.28); await ck('tp:random:' + name + '#' + i, 'teleport'); } }
 // 6) walks: joystick input through the real controller (substeps at 30 Hz), capsule checked every step; blocked = stuck for 1.5 s -> teleport on to the next waypoint
 const walkStats = {};
@@ -90,7 +90,7 @@ const walk = async (name, pts) => { const r = await page.evaluate(({ pts }) => {
   c.joy.set(0, 0); c.camFree = true; return out; }, { pts }); walkStats[name] = { steps: r.steps, dist: Math.round(r.dist), blockedStops: r.stuck, hits: r.hits.length }; nChecks += r.steps; for (const h of r.hits) fails.push({ label: 'walk:' + name, kind: 'walk', pos: h.p, hits: h.h }); };
 const ring = (R, rad, n, a0 = 0) => Array.from({ length: n + 1 }, (_, i) => ({ x: R.x + Math.cos(a0 + i / n * 6.283) * rad, z: R.z + Math.sin(a0 + i / n * 6.283) * rad }));
 const cross = (R, rad) => [{ x: R.x - rad, z: R.z }, { x: R.x + rad, z: R.z }, { x: R.x, z: R.z - rad }, { x: R.x, z: R.z + rad }];
-const canyonLine = await page.evaluate(({ s0 }) => (MK.terrain ? Promise.resolve(MK.terrain) : import('./src/terrain.js')).then(T => [[-120, 0], [-60, 8], [0, -6], [60, 4], [120, 0], [60, -10], [-120, 10]].map(([d, o]) => T.canyonPoint(s0 + d, o))), { s0: REG.canyon.canyon - 18 });
+const canyonLine = await page.evaluate(({ s0 }) => import('./src/terrain.js').then(T => [[-120, 0], [-60, 8], [0, -6], [60, 4], [120, 0], [60, -10], [-120, 10]].map(([d, o]) => T.canyonPoint(s0 + d, o))), { s0: REG.canyon.canyon - 18 });
 await walk('hub Alpha', [...ring({ x: 0, z: 0 }, 30, 12), ...ring({ x: 0, z: 0 }, 55, 16), ...cross({ x: 0, z: 0 }, 60)]);
 await walk('Landing Canyon', canyonLine);
 await walk('Reactor Crater', [...ring(REG.reactor, 40, 12), ...ring(REG.reactor, 75, 14), ...cross(REG.reactor, 90)]);
