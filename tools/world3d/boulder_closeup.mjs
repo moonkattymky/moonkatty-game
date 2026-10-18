@@ -6,7 +6,7 @@ const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args
 const p = await b.newPage({ viewport: { width: 1280, height: 720 } }); const logs = []; p.on('pageerror', e => logs.push(e.message)); p.on('console', m => { if (m.type() === 'error') logs.push(m.text()); });
 await p.goto((process.env.MK_BASE || 'http://localhost:47321/index.html') + '?view=play&reset=1&fast=1'); await p.waitForFunction(() => window.MK && MK.ready && MK.game && MK.game.ready, null, { timeout: 150000 });
 await p.addStyleTag({ content: 'body > *:not(#app){display:none !important}' });
-const info = await p.evaluate(async () => { const T = MK.terrain || await import('./src/terrain.js'); window.__T = T;
+const info = await p.evaluate(async () => { const T = await import('./src/terrain.js'); window.__T = T;
   const t = window.__gamePlaces.canyonPad; const x0 = t.x - 14.3, z0 = t.z + 37.4; let bb = null; // tallest rock at the old (buried) teleport spot
   MK.rocks.kinds.rockA.items.forEach(it => { if (Math.hypot(it.x - x0, it.z - z0) > it.r + 1) return; const h = MK.solids.top(it.x, it.z, 0.5) - T.groundAt(it.x, it.z); if (!bb || h > bb.h) bb = { x: it.x, z: it.z, r: it.r, h }; });
   window.__bb = bb; return { bb, oldSpot: [x0, z0] }; });

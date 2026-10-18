@@ -11,7 +11,7 @@ page.on('pageerror', e => logs.push('PAGEERROR ' + e.message)); page.on('console
 const results = []; const ok = (name, cond, info = '') => { results.push({ name, pass: !!cond, info }); console.log((cond ? 'PASS ' : 'FAIL ') + name + (info ? '  ' + info : '')); };
 const E = (f, a) => page.evaluate(f, a);
 const until = (f, ms = 60000, a) => page.waitForFunction(f, a, { timeout: ms }).then(() => true, () => false);
-const boot = async (q) => { await page.goto((process.env.MK_BASE || 'http://localhost:47321/index.html') + '?view=play' + q); await page.waitForFunction(() => window.MK && MK.ready && MK.game && MK.game.ready, null, { timeout: 150000 }); await page.waitForTimeout(800); };
+const boot = async (q) => { await page.goto((process.env.MK_BASE || 'http://localhost:' + (process.env.MKPORT || 47321) + '/index.html') + '?view=play' + q); await page.waitForFunction(() => window.MK && MK.ready && MK.game && MK.game.ready, null, { timeout: 150000 }); await page.waitForTimeout(800); };
 const shot = async (name) => { if (PHONE) await page.screenshot({ path: OUT + name + '.png' }); };
 const closePop = () => E(() => document.querySelector('#mk-pop').classList.remove('on'));
 const S = () => E(() => MK.game.state()); const Qid = () => E(() => { const q = MK.game.quest(); return q && q.id; });
@@ -23,13 +23,13 @@ const auto = () => E(() => MK.game.auto());
 await boot('&reset=1&fast=1');
 await E(() => localStorage.setItem('mkty_world_v1', JSON.stringify({ v: 1, points: 77, xp: 30, level: 2, daily: { day: '', earned: 0 }, crystals: { day: '', taken: [] }, ch1: { idx: 3, prog: 0, done: ['canyon', 'crystals', 'reactor'] }, stats: { crystals: 4, quests: 3 } })));
 await boot('&fast=1'); let s = await S();
-ok('v1 save migrates (v2, points kept, done mapped, next = parts, no re-reward)', s.v === 2 && s.points === 77 && s.level === 2 && ['canyon', 'crystals', 'reactor'].every(x => s.ch1.done.includes(x)) && (await Qid()) === 'parts' && s.lives === 9 && s.ch1.done.includes('power'), JSON.stringify({ v: s.v, p: s.points, done: s.ch1.done, q: await Qid() }));
+ok('v1 save migrates (v3, points kept, done mapped, next = parts, no re-reward)', s.v === 3 && s.points === 77 && s.level === 2 && ['canyon', 'crystals', 'reactor'].every(x => s.ch1.done.includes(x)) && (await Qid()) === 'parts' && s.lives === 9 && s.ch1.done.includes('power'), JSON.stringify({ v: s.v, p: s.points, done: s.ch1.done, q: await Qid() }));
 await E(() => localStorage.setItem('mkty_world_v1', JSON.stringify({ v: 1, points: 500, xp: 10, level: 5, ch1: { idx: 7, done: ['canyon', 'crystals', 'reactor', 'dish', 'launch', 'ledge', 'home'] } })));
 await boot('&fast=1'); s = await S(); ok('v1 finished save -> chapter done, depot built, robot visible at base', s.ch1.done.length === 9 && s.base.built.includes('depot') && (await E(() => MK.game.robotState().mode)) === 'done', JSON.stringify({ done: s.ch1.done.length, built: s.base.built }));
 
 // ---- fresh run (hook measured at normal speed, no ?fast) ----
 await boot('&reset=1');
-s = await S(); ok('reset gives fresh state', s.points === 0 && s.ch1.done.length === 0 && s.level === 1 && s.lives === 9 && s.v === 2);
+s = await S(); ok('reset gives fresh state', s.points === 0 && s.ch1.done.length === 0 && s.level === 1 && s.lives === 9 && s.v === 3);
 ok('reset param stripped from URL', !(await E(() => location.search)).includes('reset'));
 // ---- 60-second hook: reactor out, first crystal straight ahead, first reward, base lights back on ----
 ok('new game: base reactor is out (flickering red)', (await E(() => MK.game.power().level)) === 0 && (await Qid()) === 'power');

@@ -5,51 +5,51 @@ import { mergeGeometries } from '../../vendor/three/jsm/utils/BufferGeometryUtil
 // gold crescent, chunky rounded shoulder caps with gold pads, rounded limbs with dark joints and gold cuffs, dark segmented gloves with
 // gold knuckles, welding torch + dark hose in the right hand, steel I-beam in the left, gold knee pads and rounded ivory boots on gold soles.
 // Materials per vertex: glossy ivory, metallic gold, painted hat gold, dark rubber, glossy black glass, steel. 3 draws + sparks/flame.
-const COL = { ivory: '#88807c', ivoryS: '#7a736f', gold: '#a07812', hat: '#a27408', dark: '#24272d', rubber: '#16181c', steel: '#80858d', black: '#050608' };
-const MAT = { ivory: [0.0, 0.34], ivoryS: [0.0, 0.38], gold: [0.85, 0.3], hat: [0.3, 0.2], dark: [0.15, 0.55], rubber: [0.0, 0.62], steel: [0.8, 0.35], black: [0.1, 0.08] };
+export const COL = { ivory: '#88807c', ivoryS: '#7a736f', gold: '#a07812', hat: '#a27408', dark: '#24272d', rubber: '#16181c', steel: '#80858d', black: '#050608', eye: '#4fe8ff', leather: '#5a3a1e', holo: '#3fc8ff', flame: '#5fb8ff', lamp: '#ffe2a0', glyph: '#c88a1a' };
+export const MAT = { ivory: [0.0, 0.34], ivoryS: [0.0, 0.38], gold: [0.85, 0.3], hat: [0.3, 0.2], dark: [0.15, 0.55], rubber: [0.0, 0.62], steel: [0.8, 0.35], black: [0.1, 0.08], leather: [0.0, 0.7], eye: [0, 2.5], holo: [0, 2.5], flame: [0, 2.5], lamp: [0, 2.5], glyph: [0, 2.5] }; // roughness > 1.5 = self-lit (eyes / holo / flame baked into the single-mesh LOD)
 
 // geometry detail per preset (same detection as main.js): phone / q=low get coarser tessellation of the rounded volumes (Chapter-1 triangle budget)
 const _Q = new URLSearchParams(location.search).get('q'); const _MOB = _Q === 'mobile' || _Q === 'low' || (!_Q && (matchMedia('(pointer:coarse)').matches || Math.min(innerWidth, innerHeight) < 480));
-const LQ = _Q === 'low' ? 0.42 : _MOB ? 0.72 : 0.9; const sg = (n, lo = 3) => Math.max(lo, Math.round(n * LQ));
+export const LQ0 = _Q === 'low' ? 0.42 : _MOB ? 0.72 : 0.9; let LQ = LQ0; export const setLQ = (v) => { LQ = v; }; export const PRESET = { low: _Q === 'low', mobile: _MOB }; const sg = (n, lo = 3) => Math.max(lo, Math.round(n * LQ));
 // superellipsoid (rounded, soft "squircle" volumes): unit sphere vertices pushed onto |x|^p+|y|^p+|z|^p=1, then scaled to w,h,d
-function sq(w, h, d, p = 3, ws = 16, hs = 10, o = {}) { const g = new THREE.SphereGeometry(1, sg(ws, 6), sg(hs, 3), 0, Math.PI * 2, 0, o.th || Math.PI); const P = g.attributes.position, v = new THREE.Vector3();
+export function sq(w, h, d, p = 3, ws = 16, hs = 10, o = {}) { const g = new THREE.SphereGeometry(1, sg(ws, 6), sg(hs, 3), 0, Math.PI * 2, 0, o.th || Math.PI); const P = g.attributes.position, v = new THREE.Vector3();
   for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i); const n = Math.pow(Math.pow(Math.abs(v.x), p) + Math.pow(Math.abs(v.y), p) + Math.pow(Math.abs(v.z), p), 1 / p) || 1; v.divideScalar(n);
     const t = (v.y + 1) / 2, tx = o.taper ? 1 - o.taper * (1 - t) : 1; P.setXYZ(i, v.x * w / 2 * tx, v.y * h / 2, v.z * d / 2 * (o.taperZ ? 1 - o.taperZ * (1 - t) : 1)); }
   g.computeVertexNormals(); return g; }
-const cyl = (rt, rb, h, s = 12, open = false) => new THREE.CylinderGeometry(rt, rb, h, sg(s, 6), 1, open);
-const sph = (r, ws = 10, hs = 6) => new THREE.SphereGeometry(r, sg(ws, 6), sg(hs, 3));
-const tor = (R, t, rs = 4, ts = 14, arc = Math.PI * 2) => new THREE.TorusGeometry(R, t, rs, sg(ts, 6), arc);
-function capsule(a, b, r, rad = 10, cap = 3) { const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b), d = B.clone().sub(A); const g = new THREE.CapsuleGeometry(r, Math.max(0.001, d.length()), Math.max(1, Math.round(cap * LQ)), sg(rad, 5));
+export const cyl = (rt, rb, h, s = 12, open = false) => new THREE.CylinderGeometry(rt, rb, h, sg(s, 6), 1, open);
+export const sph = (r, ws = 10, hs = 6) => new THREE.SphereGeometry(r, sg(ws, 6), sg(hs, 3));
+export const tor = (R, t, rs = 4, ts = 14, arc = Math.PI * 2) => new THREE.TorusGeometry(R, t, rs, sg(ts, 6), arc);
+export function capsule(a, b, r, rad = 10, cap = 3) { const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b), d = B.clone().sub(A); const g = new THREE.CapsuleGeometry(r, Math.max(0.001, d.length()), Math.max(1, Math.round(cap * LQ)), sg(rad, 5));
   g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize())); g.translate((A.x + B.x) / 2, (A.y + B.y) / 2, (A.z + B.z) / 2); return g; }
-function ring(a, b, R, t) { const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b); const g = new THREE.TorusGeometry(R, t, 4, sg(12, 6)); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), B.clone().sub(A).normalize())); g.translate(B.x, B.y, B.z); return g; } // cuff ring at b, perpendicular to a->b
-function tube(pts, r, seg = 16, rad = 6) { return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(...p))), sg(seg, 6), r, sg(rad, 4)); }
-function crescent(R = 0.07) { const sh = new THREE.Shape(); const N = 18; // outer arc + inner arc (opening upper right, as on the concept chest)
+export function ring(a, b, R, t) { const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b); const g = new THREE.TorusGeometry(R, t, 4, sg(12, 6)); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), B.clone().sub(A).normalize())); g.translate(B.x, B.y, B.z); return g; } // cuff ring at b, perpendicular to a->b
+export function tube(pts, r, seg = 16, rad = 6) { return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(...p))), sg(seg, 6), r, sg(rad, 4)); }
+export function crescent(R = 0.07) { const sh = new THREE.Shape(); const N = 18; // outer arc + inner arc (opening upper right, as on the concept chest)
   const r2 = R * 0.78, cx = R * 0.42, cy = R * 0.3; const pts = []; for (let i = 0; i <= N; i++) { const a = 0.2 * Math.PI + (1.6 * Math.PI) * i / N + 0.12; pts.push([Math.cos(a) * R, Math.sin(a) * R]); }
   sh.moveTo(...pts[0]); for (const p of pts.slice(1)) sh.lineTo(...p); for (let i = N; i >= 0; i--) { const a = 0.2 * Math.PI + 0.12 + (1.6 * Math.PI) * i / N; const x = Math.cos(a) * R, y = Math.sin(a) * R; const dx = x - cx, dy = y - cy, dd = Math.hypot(dx, dy); const k = dd < r2 ? 1 : r2 / dd; sh.lineTo(cx + dx * Math.min(1, k * 1.0), cy + dy * Math.min(1, k)); }
   const g = new THREE.ExtrudeGeometry(sh, { depth: 0.014, bevelEnabled: false, curveSegments: 4 }); return g; }
-class Kit { constructor() { this.parts = []; }
+export class Kit { constructor() { this.parts = []; }
   add(g, col, o = {}) { g = g.index ? g.toNonIndexed() : g.clone(); const m = new THREE.Matrix4(); m.compose(new THREE.Vector3(...(o.p || [0, 0, 0])), new THREE.Quaternion().setFromEuler(new THREE.Euler(...(o.r || [0, 0, 0]), 'YXZ')), new THREE.Vector3(...(o.s || [1, 1, 1]))); g.applyMatrix4(m);
     for (const k of Object.keys(g.attributes)) if (k !== 'position' && k !== 'normal') g.deleteAttribute(k); if (!g.attributes.normal) g.computeVertexNormals();
     const c = new THREE.Color(COL[col] || col), n = g.attributes.position.count, cc = new Float32Array(n * 3), mr = new Float32Array(n * 2); const [me, ro] = MAT[col] || [0, 0.5];
     for (let i = 0; i < n; i++) { c.toArray(cc, i * 3); mr[i * 2] = me; mr[i * 2 + 1] = ro; } g.setAttribute('color', new THREE.BufferAttribute(cc, 3)); g.setAttribute('aMR', new THREE.BufferAttribute(mr, 2)); this.parts.push(g); return g; }
   build() { const g = mergeGeometries(this.parts, false); g.computeBoundingSphere(); return g; } }
 
-function material(env) { const m = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, metalness: 1, envMap: env || null, envMapIntensity: 0.95 });
+export function material(env) { const m = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, metalness: 1, envMap: env || null, envMapIntensity: 0.95 });
   m.onBeforeCompile = (sh) => {
     sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute vec2 aMR; varying vec2 vMR; varying vec3 vWN;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvMR = aMR; vWN = normalize(mat3(modelMatrix) * objectNormal);');
     sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec2 vMR; varying vec3 vWN;')
       .replace('#include <color_fragment>', '#include <color_fragment>\n diffuseColor.rgb *= mix(0.55, 1.0, smoothstep(-0.85, 0.55, vWN.y)); /* soft sky/ground occlusion: rounded volumes read like the concept */')
-      .replace('#include <metalnessmap_fragment>', 'float metalnessFactor = vMR.x;').replace('#include <roughnessmap_fragment>', 'float roughnessFactor = vMR.y;')
-      .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n totalEmissiveRadiance += diffuseColor.rgb * 0.14 * (1.0 - 0.7 * vMR.x); /* concept fill light on the shadow side */'); };
-  m.customProgramCacheKey = () => 'mk_robot2'; return m; }
-function faceTexture() { const W = 256, H = 150, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
+      .replace('#include <metalnessmap_fragment>', 'float metalnessFactor = vMR.x;').replace('#include <roughnessmap_fragment>', 'float roughnessFactor = min(vMR.y, 1.0);')
+      .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n totalEmissiveRadiance += diffuseColor.rgb * 0.14 * (1.0 - 0.7 * vMR.x); /* concept fill light on the shadow side */\n if (vMR.y > 1.5) totalEmissiveRadiance += diffuseColor.rgb * 5.0; /* self-lit parts */'); };
+  m.customProgramCacheKey = () => 'mk_robot3'; return m; }
+export function faceTexture() { const W = 256, H = 150, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
   const rr = (x, y, w, h, r) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
   g.clearRect(0, 0, W, H); g.shadowColor = '#2fd9ff'; g.shadowBlur = 22; g.fillStyle = '#8ff6ff'; for (const x of [82, 174]) { g.beginPath(); g.ellipse(x, 64, 17, 26, 0, 0, Math.PI * 2); g.fill(); g.fill(); }
   g.lineWidth = 8; g.lineCap = 'round'; g.strokeStyle = '#8ff6ff'; g.beginPath(); g.arc(128, 86, 24, 0.27 * Math.PI, 0.73 * Math.PI); g.stroke();
   g.shadowBlur = 0; const gl = g.createLinearGradient(0, 0, 0, 40); gl.addColorStop(0, 'rgba(255,255,255,0.16)'); gl.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gl; rr(26, 8, 204, 30, 14); g.fill(); // glossy glass reflection band
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; }
 
-export function makeRobot(scene, env) {
+export function builderKits() {
   const body = new Kit(), arm = new Kit();
   // proportions measured on the concept cut-out (feet y=0, hat top ~1.67): boots .2, knees .37, waist .5, torso .5-.95, head .94-1.38, brim 1.29
   for (const sx of [-1, 1]) { const x = sx < 0 ? -0.35 : 0.29, zf = sx < 0 ? 0.07 : -0.05, kb = 0.025; // wide stance, right leg a little forward (viewer-left), slight crouch (knees forward)
@@ -101,6 +101,10 @@ export function makeRobot(scene, env) {
     const at = (f) => TB.clone().addScaledVector(d, f); const put = (g, f, col) => { g.applyQuaternion(q); const p = at(f); g.translate(p.x, p.y, p.z); arm.add(g, col); };
     put(cyl(0.034, 0.038, L * 0.4, 10), 0.22, 'rubber'); put(cyl(0.045, 0.045, 0.035, 12), 0.44, 'gold'); put(cyl(0.02, 0.026, L * 0.4, 8), 0.66, 'steel'); put(cyl(0.012, 0.018, 0.05, 8), 0.9, 'gold'); }
   arm.add(tube([[0.06, -0.16, 0.28], [-0.02, -0.1, 0.3], [-0.15, -0.15, 0.26], [-0.27, -0.29, 0.2], [-0.33, -0.47, 0.16], [-0.35, -0.65, 0.16], [-0.38, -0.76, 0.22], [-0.46, -0.78, 0.32]], 0.026, 18, 5), 'rubber'); // dark hose: from the torch down the outside of the leg to the ground (concept)
+  return { body, arm, HT, TB, TT };
+}
+export function makeRobot(scene, env) {
+  const { body, arm, HT, TB, TT } = builderKits();
   const mat = material(env);
   const root = new THREE.Group(); root.name = 'game_robot';
   const SX = 0.86, SZ = 0.92; // overall slimming measured against the concept silhouette (width/height profile)
@@ -131,7 +135,7 @@ export function makeRobot(scene, env) {
   };
 }
 // dark segmented glove with gold knuckle band, fingers curled around a grip (side = +1 left hand, -1 right hand); r = wrist euler
-function gloveTo(kit, p, side, r) { const e = new THREE.Euler(...r, 'YXZ'), q = new THREE.Quaternion().setFromEuler(e); const P = new THREE.Vector3(...p);
+export function gloveTo(kit, p, side, r) { const e = new THREE.Euler(...r, 'YXZ'), q = new THREE.Quaternion().setFromEuler(e); const P = new THREE.Vector3(...p);
   const put = (g, off, col, rr) => { if (rr) g.applyQuaternion(new THREE.Quaternion().setFromEuler(new THREE.Euler(...rr))); g.applyQuaternion(q); const o = new THREE.Vector3(...off).applyQuaternion(q).add(P); g.translate(o.x, o.y, o.z); kit.add(g, col); };
   put(sq(0.13, 0.11, 0.13, 2.6, 7, 4), [0, 0, 0], 'dark'); // palm/back of hand
   put(sq(0.11, 0.03, 0.03, 3, 6, 3), [0, 0.03, 0.06], 'gold'); // knuckle band

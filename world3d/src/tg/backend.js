@@ -7,7 +7,7 @@
 export const ENDPOINT = 'https://lswbmgoeinblzuqzakvi.supabase.co/functions/v1/rewards';
 const LAUNCH_BASE = 30, STAR_PTS = 5;
 const uniq = (a, b) => [...new Set([...(Array.isArray(a) ? a : []), ...(Array.isArray(b) ? b : [])])];
-// Merge two v2 saves without ever losing progress (union of completed things, max of counters).
+// Merge two v2/v3 saves without ever losing progress (union of completed things, max of counters).
 export function mergeSaves(a, b) {
   if (!a || typeof a !== 'object') return b || null; if (!b || typeof b !== 'object') return a;
   const hi = ((a.level || 1) > (b.level || 1) || ((a.level || 1) === (b.level || 1) && (a.xp || 0) >= (b.xp || 0))) ? a : b;
@@ -18,6 +18,9 @@ export function mergeSaves(a, b) {
   for (const [k, v] of Object.entries(a.stats || {})) out.stats[k] = Math.max(Number(v) || 0, Number(out.stats[k]) || 0);
   const da = a.crystals || {}, db = b.crystals || {}; out.crystals = da.day === db.day ? { day: da.day, taken: uniq(db.taken, da.taken) } : ((da.day || '') > (db.day || '') ? da : db);
   const ya = a.daily || {}, yb = b.daily || {}; out.daily = ya.day === yb.day ? { day: ya.day, earned: Math.max(ya.earned || 0, yb.earned || 0) } : ((ya.day || '') > (yb.day || '') ? ya : yb);
+  // v3 (chapter 2): keep the richer ch2 block whole (jobs/robots/storage are internally consistent), union completed quests
+  if (a.ch2 || b.ch2) { const sc = (c) => !c || typeof c !== 'object' ? -1 : (Array.isArray(c.done) ? c.done.length : 0) * 1e6 + (c.level || 0) * 1e4 + (Array.isArray(c.museum) ? c.museum.length : 0) * 10 + (Array.isArray(c.robots) ? c.robots.length : 0) + (c.on ? 0.5 : 0);
+    const pick = sc(a.ch2) >= sc(b.ch2) ? a.ch2 : b.ch2; out.ch2 = { ...pick, done: uniq((b.ch2 || {}).done, (a.ch2 || {}).done) }; }
   return out;
 }
 export function userIdFrom(initData) { try { const u = JSON.parse(new URLSearchParams(initData).get('user')); return Number.isSafeInteger(u.id) && u.id > 0 ? u.id : null; } catch (e) { return null; } }

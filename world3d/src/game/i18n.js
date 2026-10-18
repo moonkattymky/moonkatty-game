@@ -1,7 +1,8 @@
+import { T2 } from './i18n_ch2.js';
 // Tiny i18n table: Russian primary, English fallback. Lang: ?lang= > Telegram user language > 'ru'.
 const T = {
   ru: {
-    level: 'Ур.', points: 'Moon Points', today: 'сегодня', quests: 'Задания', chapter: 'Глава 1', daily: 'Ежедневные',
+    level: 'Ур.', points: 'Moon Points', today: 'сегодня', quests: 'Задания', map: 'Карта', mapSoon: 'Голо-карта скоро', mapYou: 'ТЫ', mapGo: 'В ПУТЬ', mapNoQuest: 'Исследуй Луну', map_base: 'База', map_crystals: 'Кристаллы', map_cave: 'Портал', map_antenna: 'Антенна', map_reactor: 'Реактор', map_ledge: 'Уступ', map_launch: 'Старт', map_canyon: 'Каньон', map_crater: 'Кратер', map_r_hub: 'База Альфа · голокарта', map_r_canyon: 'Каньон высадки · голокарта', map_r_launch: 'Стартовый комплекс · голокарта', mapQuest: 'Задание', robotHi: 'Бип-буп! Привет, капитан!', radio1: 'База Альфа: груз кристаллов принят.', radio2: 'Ровер-2 в пути к складу.', radio3: 'Буровая: новая жила найдена!', radio4: 'Орбита: шаттл заходит на посадку.', radio5: 'Странные огоньки над кратером… опять медузы?', chapter: 'Глава 1', daily: 'Ежедневные',
     chapterTitle: 'База Альфа', dailySoon: 'Ежедневные задания появятся на этапе 2.', dailySoon2: 'Кристаллы уже обновляются каждый день — собирайте их!',
     done: 'Выполнено', active: 'Текущее', locked: 'Закрыто', close: 'Закрыть', m: 'м',
     questDone: 'Задание выполнено!', levelUp: 'Новый уровень!', capHit: 'Дневной лимит ⭐ достигнут', capPart: 'лимит дня',
@@ -28,7 +29,7 @@ const T = {
     building: 'Строитель строит: Склад', built: 'Склад построен!', robotArrives: 'Прибыл робот-Строитель!', baseGrows: 'База растёт',
     },
   en: {
-    level: 'Lv', points: 'Moon Points', today: 'today', quests: 'Quests', chapter: 'Chapter 1', daily: 'Daily',
+    level: 'Lv', points: 'Moon Points', today: 'today', quests: 'Quests', map: 'Map', mapSoon: 'Holo map coming soon', mapYou: 'YOU', mapGo: 'GO', mapNoQuest: 'Explore the Moon', map_base: 'Base', map_crystals: 'Crystal field', map_cave: 'Portal', map_antenna: 'Antenna', map_reactor: 'Reactor', map_ledge: 'Lookout', map_launch: 'Launch', map_canyon: 'Canyon', map_crater: 'Crater', map_r_hub: 'Base Alpha · holo map', map_r_canyon: 'Landing Canyon · holo map', map_r_launch: 'Launch Complex · holo map', mapQuest: 'Quest', robotHi: 'Beep-boop! Hi, captain!', radio1: 'Base Alpha: crystal cargo received.', radio2: 'Rover-2 en route to storage.', radio3: 'Drill rig: new vein found!', radio4: 'Orbit: shuttle on final approach.', radio5: 'Strange lights over the crater… jellies again?', chapter: 'Chapter 1', daily: 'Daily',
     chapterTitle: 'Base Alpha', dailySoon: 'Daily quests arrive in stage 2.', dailySoon2: 'Crystals already respawn every day — go collect them!',
     done: 'Done', active: 'Active', locked: 'Locked', close: 'Close', m: 'm',
     questDone: 'Quest complete!', levelUp: 'Level up!', capHit: 'Daily ⭐ limit reached', capPart: 'daily limit',
@@ -55,6 +56,7 @@ const T = {
     building: 'Builder is building: Depot', built: 'Depot built!', robotArrives: 'The Builder robot has arrived!', baseGrows: 'Your base grows',
     },
 };
+for (const l of ['ru', 'en']) Object.assign(T[l], T2[l]);
 export function pickLang(Q) {
   const q = Q.get('lang'); if (q && T[q]) return q;
   const tg = window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code; if (tg && T[tg.slice(0, 2)]) return tg.slice(0, 2);

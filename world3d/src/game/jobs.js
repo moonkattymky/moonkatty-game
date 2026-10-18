@@ -19,7 +19,7 @@ import * as THREE from 'three';
 //     per frame: job.update(dt); site.setStage(job.value); robot anim = job.walking ? 'walk' : 'work';
 //   ?fast=1 keeps short durations so automated tests can skip the wait (pass a small duration).
 // ============================================================================================
-export const fmtTime = (s) => { s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+export const fmtTime = (s) => { s = Math.max(0, Math.ceil(s)); if (s >= 3600) return Math.floor(s / 3600) + ':' + String(Math.floor(s / 60) % 60).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
 
 export function makeProgressLabel(scene, { accent = '#6fe7ff', size = 0.075 } = {}) {
   const W = 360, H = 108, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const g = cv.getContext('2d');
@@ -27,15 +27,15 @@ export function makeProgressLabel(scene, { accent = '#6fe7ff', size = 0.075 } = 
   const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false, depthWrite: false, toneMapped: false, sizeAttenuation: false });
   const sp = new THREE.Sprite(mat); sp.name = 'job_label'; sp.renderOrder = 20; sp.scale.set(size * W / H, size, 1); sp.center.set(0.5, 0); sp.visible = false; sp.frustumCulled = false; scene.add(sp);
   let last = '';
-  const draw = (frac, left, title) => {
-    const pct = Math.floor(frac * 100), txt = pct >= 100 ? '100% ✓' : pct + '% · ' + fmtTime(left), key = txt + '|' + title; if (key === last) return; last = key;
+  const draw = (frac, left, title, text) => {
+    const pct = Math.floor(frac * 100), txt = text != null ? text : pct >= 100 ? '100% ✓' : pct + '% · ' + fmtTime(left), key = txt + '|' + title; if (key === last) return; last = key;
     g.clearRect(0, 0, W, H); const r = 22; g.fillStyle = 'rgba(8,14,24,0.72)'; g.beginPath(); g.moveTo(4 + r, 4); g.arcTo(W - 4, 4, W - 4, H - 4, r); g.arcTo(W - 4, H - 4, 4, H - 4, r); g.arcTo(4, H - 4, 4, 4, r); g.arcTo(4, 4, W - 4, 4, r); g.closePath(); g.fill(); g.strokeStyle = 'rgba(111,231,255,0.55)'; g.lineWidth = 2; g.stroke();
     g.textAlign = 'center'; g.fillStyle = '#9fb3c8'; g.font = '600 22px system-ui, -apple-system, sans-serif'; g.fillText(title || '', W / 2, 32);
     g.fillStyle = '#ffffff'; g.font = '700 36px system-ui, -apple-system, sans-serif'; g.fillText(txt, W / 2, 70);
     g.fillStyle = 'rgba(255,255,255,0.15)'; g.fillRect(28, 84, W - 56, 6); g.fillStyle = accent; g.fillRect(28, 84, (W - 56) * Math.min(1, frac), 6);
     tex.needsUpdate = true; };
   return { sprite: sp,
-    set(pos, frac, secsLeft, title) { sp.visible = true; sp.position.copy(pos); draw(frac, secsLeft, title); },
+    set(pos, frac, secsLeft, title, text) { sp.visible = true; sp.position.copy(pos); draw(frac, secsLeft, title, text); },
     hide() { sp.visible = false; },
     dispose() { scene.remove(sp); tex.dispose(); mat.dispose(); } };
 }

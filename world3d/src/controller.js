@@ -57,7 +57,7 @@ export class Controller {
     const jump = this.jumpHeld || k.has('Space');
     if (jump && !this._jumpPrev && this.onGround) { this.vel.y = 6.5; this.onGround = false; }
     this.thrusting = false;
-    if (jump && !this.onGround && this.fuel > 0 && this.vel.y < 6) { this.vel.y += 24 * dt; this.fuel = Math.max(0, this.fuel - dt * 0.4); this.thrusting = true; }
+    if (jump && !this.onGround && this.fuel > 0 && this.vel.y < 6) { this.vel.y += 24 * dt; this.fuel = Math.max(0, this.fuel - dt * 0.4 / (this.fuelMul || 1)); this.thrusting = true; }
     this._jumpPrev = jump;
     this.vel.y -= 11 * dt;
     const footY = this.pos.y; this.pos.y += this.vel.y * dt;
