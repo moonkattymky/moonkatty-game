@@ -35,10 +35,11 @@
   @font-face{font-family:'MK Montserrat';font-weight:500 900;font-display:swap;src:url(../fonts/montserrat-lat.woff2) format('woff2');unicode-range:U+0000-00FF,U+2026}
   /* loading screen: concept style (deep navy stars, gold logo, our cat on the crescent moon, crystal progress bar) */
   #loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:9;text-align:center;box-sizing:border-box;
-    padding:max(18px,env(safe-area-inset-top),var(--tg-inset-top)) 22px max(24px,env(safe-area-inset-bottom),var(--tg-inset-bottom));color:#f3ead7;font-family:'MK Montserrat',system-ui,sans-serif;
-    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='90'%3E%3Cg fill='%23fff'%3E%3Ccircle cx='9' cy='12' r='.8' opacity='.8'/%3E%3Ccircle cx='47' cy='31' r='.6' opacity='.6'/%3E%3Ccircle cx='83' cy='9' r='1' opacity='.9'/%3E%3Ccircle cx='121' cy='44' r='.7' opacity='.7'/%3E%3Ccircle cx='31' cy='71' r='.9' opacity='.75'/%3E%3Ccircle cx='101' cy='78' r='.6' opacity='.55'/%3E%3C/g%3E%3C/svg%3E"),radial-gradient(70% 45% at 50% 38%,#1d2f66 0%,transparent 70%),radial-gradient(60% 40% at 15% 85%,#3a2a7055,transparent 70%),linear-gradient(#060b1d,#0b1530 55%,#060a18)}
-  #loading .logo{width:min(80vw,360px);height:auto}
-  #loading .moon{width:min(72vw,320px);height:auto;margin:1vh 0 3vh;filter:drop-shadow(0 0 28px rgba(243,223,168,.2)) drop-shadow(0 18px 30px rgba(0,0,0,.5));animation:mkfloat 4s ease-in-out infinite}
+    padding:max(18px,env(safe-area-inset-top),var(--tg-inset-top)) 0 max(24px,env(safe-area-inset-bottom),var(--tg-inset-bottom));color:#f3ead7;font-family:'MK Montserrat',system-ui,sans-serif;
+    overflow:hidden;background:url(../art/ui/stars.webp) 0 0/256px 256px repeat,radial-gradient(80% 50% at 50% 55%,#000a22 0%,#00051a 45%,#00020a 80%,#000208 100%) #000208}
+  #loading .cw{position:relative;line-height:0;isolation:isolate;width:min(92vw,440px,calc((100vh - 140px) * 540 / 612));margin-bottom:2vh}
+  #loading .cw::before{content:"";position:absolute;left:50%;top:68%;width:180%;height:92%;transform:translate(-50%,-50%);z-index:-1;background:radial-gradient(closest-side,#021638 0%,#010c27 50%,rgba(0,5,21,0) 100%)}
+  #loading .cover{display:block;width:100%;height:auto}
   #loading .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
   #loading small{font-size:14px;font-weight:800;letter-spacing:.16em;color:#f3ead7;text-shadow:0 0 10px rgba(95,227,255,.55)}
   #loading .bar{position:relative;width:min(280px,72vw);height:16px;border-radius:10px;background:#071028;border:1.5px solid #4aa9d6;box-shadow:0 0 14px rgba(47,182,255,.4),inset 0 2px 6px rgba(0,0,0,.65)}
@@ -46,7 +47,7 @@
   #loadbar{position:absolute;left:3px;top:3px;bottom:3px;width:8%;max-width:calc(100% - 6px);border-radius:6px;background:linear-gradient(180deg,#d6fbff,#5fe3ff 40%,#1f8fe0);box-shadow:0 0 12px #5fe3ff;transition:width .3s}
   #loading .err{display:none;font-size:13px;color:#ffb3a0;max-width:280px}#loading.failed .err{display:block}#loading.failed .bar{display:none}
   @keyframes mkfloat{50%{transform:translateY(-8px)}}
-  @media (prefers-reduced-motion:reduce){#loading .moon{animation:none}}
+  
   #views{display:none!important} html.debug #views{display:flex!important} /* dev camera buttons only with ?debug=1 (keys C / MK.setView keep working) */
   body.shot .hud,body.shot #views,body.shot #joy,body.shot #jump,body.shot #loading{display:none!important}
 </style>
@@ -59,7 +60,7 @@
 <div id="help" class="hud">WASD / arrows move · Shift run · Space jump / hold for jetpack · drag to orbit · wheel zoom · C concept cam</div>
 <div id="joy"><div id="knob"></div></div>
 <button id="jump">JET</button>
-<div id="loading" role="status" aria-live="polite"><img class="logo" src="../art/ui/logo.webp" width="720" height="269" alt="" decoding="async"><img class="moon" src="../art/ui/cat-moon.webp" width="640" height="657" alt="" decoding="async"><b class="sr">MOONKATTY: 9 LIVES</b><small id="loadtxt">LOADING BASE ALPHA…</small><div class="bar"><i class="gem"></i><div id="loadbar"></div></div><div class="err" id="loaderr">WebGL is unavailable or the download failed. Close and reopen the game.</div></div>
+<div id="loading" role="status" aria-live="polite"><div class="cw"><img class="cover" src="../art/ui/cover.webp" srcset="../art/ui/cover.webp 1x, ../art/ui/cover@2x.webp 2x" width="540" height="612" alt="" decoding="async"></div><b class="sr">MOONKATTY: 9 LIVES</b><small id="loadtxt">LOADING BASE ALPHA…</small><div class="bar"><i class="gem"></i><div id="loadbar"></div></div><div class="err" id="loaderr">WebGL is unavailable or the download failed. Close and reopen the game.</div></div>
 <script src="./boot.js?v=ef5e6750cf"></script>
 <script type="module" src="./app.min.js?v=ef5e6750cf"></script>
 </body>
