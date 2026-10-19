@@ -22,6 +22,8 @@ import { makeHoloMap, fogGet, fogSet, fogReveal } from './holomap.js';
 //   layout (world positions, all pre-resolved to free spots by main.js):
 //     gates {hub, canyon, launch}, regions {hub, canyon, launch} (centres), cracks [{x,z,tx,tz,w,len,region}], ore [{x,z}], parts [{x,z}],
 //     meteor {x,z,r}, rings [{x,z,yaw}], secrets [{id,x,z,y?}], depot {x,z,yaw}, robotSpawn {x,z}
+// TG glue: Telegram safe-area insets (CSS vars set by tg/telegram.js), cached ~0.5 s; 0 in a plain browser
+let _tgI = { t: 0, b: 0 }, _tgAt = -1e9; function tgInsets() { const n = performance.now(); if (n - _tgAt > 500) { _tgAt = n; try { const cs = getComputedStyle(document.documentElement); _tgI = { t: parseFloat(cs.getPropertyValue('--tg-inset-top')) || 0, b: parseFloat(cs.getPropertyValue('--tg-inset-bottom')) || 0, qp: null }; const q = document.getElementById('mk-track'); if (q && q.offsetParent !== null) { const r = q.getBoundingClientRect(); if (r.height > 0) _tgI.qp = { r: r.right, b: r.bottom }; } } catch (e) { } } return _tgI; }
 export function createGame({ scene, camera, ctrl, renderer, env, solids, setPower = () => { }, setNight = () => { }, setEarthDir = () => { }, sd = null, mobile = false, catRoot = null, earthDir = null, groundAt, visAt, Q, places, crystalSpots, layout: L }) {
   const FAST = Q.get('fast') === '1'; const lang = pickLang(Q); const t = makeT(lang);
   let dayOffset = 0; const clock = { off: 0 }; // test hooks: shift "today" / advance the job clock
@@ -358,9 +360,9 @@ export function createGame({ scene, camera, ctrl, renderer, env, solids, setPowe
     // marker: chip over the beacon when on screen, edge arrow otherwise
     if (showBeacon && tg && dist > 2.5) {
       v.set(tg.x, gy(tg) + 3.2, tg.z).project(camera); const W = innerWidth, Hh = innerHeight; const behind = v.z > 1;
-      let x = (v.x * 0.5 + 0.5) * W, y = (-v.y * 0.5 + 0.5) * Hh; const mT = 150, mB = 230, mX = 34; const label = Math.round(dist) + ' ' + t('m');
+      let x = (v.x * 0.5 + 0.5) * W, y = (-v.y * 0.5 + 0.5) * Hh; const tgI = tgInsets(), mT = 150 + tgI.t, mB = 230 + tgI.b, mX = 34 /* TG glue: edge arrow keeps clear of the inset-shifted quest panel / bottom controls */; const label = Math.round(dist) + ' ' + t('m');
       if (!behind && x > mX && x < W - mX && y > mT && y < Hh - mB) hud.marker('chip', x, y, 0, label);
-      else { let dx = x - W / 2, dy = y - Hh / 2; if (behind) { dx = -dx; dy = -dy; } if (Math.abs(dx) < 1e-3 && Math.abs(dy) < 1e-3) dy = 1; const cx = W / 2, cy = (mT + Hh - mB) / 2; const hx = W / 2 - mX, hy = (Hh - mB - mT) / 2; const k = Math.min(hx / Math.abs(dx || 1e-6), hy / Math.abs(dy || 1e-6)); hud.marker('arrow', cx + dx * k, cy + dy * k, Math.atan2(dx, -dy), label); }
+      else { let dx = x - W / 2, dy = y - Hh / 2; if (behind) { dx = -dx; dy = -dy; } if (Math.abs(dx) < 1e-3 && Math.abs(dy) < 1e-3) dy = 1; const cx = W / 2, cy = (mT + Hh - mB) / 2; const hx = W / 2 - mX, hy = (Hh - mB - mT) / 2; const k = Math.min(hx / Math.abs(dx || 1e-6), hy / Math.abs(dy || 1e-6)); let ax = cx + dx * k, ay = cy + dy * k; if (tgI.qp && ax < tgI.qp.r + 23 && ay < tgI.qp.b + 30) ay = tgI.qp.b + 30; /* TG glue: never cover the quest panel */ hud.marker('arrow', ax, ay, Math.atan2(dx, -dy), label); }
     } else hud.marker(null);
   }
 
