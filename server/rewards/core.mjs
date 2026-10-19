@@ -292,6 +292,7 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
    if(msg==='chapter_locked')return reply({ok:false,error:'chapter_locked',unlock_at:e.unlock_at||null},409);
    if(msg==='reason'||msg==='order')return reply({ok:false,error:msg},400);
    if(msg==='too_fast')return reply({ok:false,error:'too_fast'},409);
+   if(msg==='cap')return reply({ok:false,error:'cap'},409);
    if(msg==='no_skips')return reply({ok:false,error:'no_skips'},409);
    if(msg==='no_attempts')return reply({ok:false,error:'no_attempts'},429);
    if(msg==='answer'||msg==='code')return reply({ok:false,error:msg},400);
