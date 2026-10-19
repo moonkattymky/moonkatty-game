@@ -102,7 +102,7 @@ export class TelegramBackend {
       for (const item of [...q]) {
         let r; try { r = await this.call('world.reward', this.claimBody(item.n, item.reason)); } catch (e) { this.online = false; break; }
         if (r.ok || r.error === 'reason' || r.error === 'locked') { this.noteServer(r); q = q.filter(x => x.reason !== item.reason); this.online = true; continue; }
-        if (r.error === 'order' || r.error === 'too_fast') continue; // an earlier quest is still pending, or wait for the gap
+        if (r.error === 'order' || r.error === 'too_fast' || r.error === 'cap') continue; // an earlier quest is still pending, or wait for the gap
         if (r.status >= 500 || r.status === 429 || r.error === 'action' || r.error === 'auth') { this.online = r.error === 'action' ? false : this.online; break; }
         q = q.filter(x => x.reason !== item.reason); // other 4xx: invalid claim, drop it
       }

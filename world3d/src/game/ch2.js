@@ -19,17 +19,17 @@ import { makeHome } from './home.js';
 // staged rollout switches (v40 base/storage/robots, v41 + home, v42 + storm finale)
 export const FEAT = { home: true, storm: true, life: true };
 const CH2_ALL = [
-  { id: 'c2_collect', icon: '📦', kind: 'collect', pts: 20, xp: 20 },
-  { id: 'c2_home', icon: '🏠', kind: 'home', pts: 20, xp: 20 },
-  { id: 'c2_send', icon: '⛏️', kind: 'send', pts: 20, xp: 20 },
-  { id: 'c2_upgrade', icon: '🏗️', kind: 'level', lvl: 2, pts: 30, xp: 30 },
-  { id: 'c2_help', icon: '🆘', kind: 'help', pts: 25, xp: 25 },
-  { id: 'c2_daily', icon: '🗓️', kind: 'daily', pts: 20, xp: 20 },
-  { id: 'c2_deliver', icon: '💎', kind: 'deliver', pts: 30, xp: 30 },
-  { id: 'c2_l3', icon: '📡', kind: 'level', lvl: 3, pts: 40, xp: 40 },
-  { id: 'c2_storm', icon: '☄️', kind: 'storm', pts: 60, xp: 60 },
-  { id: 'c2_streak', icon: '🔥', kind: 'streak', need: 7, pts: 50, xp: 50 },
-  { id: 'c2_museum', icon: '🏺', kind: 'museum', pts: 50, xp: 50 },
+  { id: 'c2_collect', icon: '📦', kind: 'collect', pts: 15, xp: 20 },
+  { id: 'c2_home', icon: '🏠', kind: 'home', pts: 15, xp: 20 },
+  { id: 'c2_send', icon: '⛏️', kind: 'send', pts: 15, xp: 20 },
+  { id: 'c2_upgrade', icon: '🏗️', kind: 'level', lvl: 2, pts: 25, xp: 30 },
+  { id: 'c2_help', icon: '🆘', kind: 'help', pts: 20, xp: 25 },
+  { id: 'c2_daily', icon: '🗓️', kind: 'daily', pts: 15, xp: 20 },
+  { id: 'c2_deliver', icon: '💎', kind: 'deliver', pts: 25, xp: 30 },
+  { id: 'c2_l3', icon: '📡', kind: 'level', lvl: 3, pts: 35, xp: 40 },
+  { id: 'c2_storm', icon: '☄️', kind: 'storm', pts: 50, xp: 60 },
+  { id: 'c2_streak', icon: '🔥', kind: 'streak', need: 7, pts: 40, xp: 50 },
+  { id: 'c2_museum', icon: '🏺', kind: 'museum', pts: 40, xp: 50 },
 ];
 export const CH2 = CH2_ALL.filter(q => FEAT[q.kind] !== false);
 const ICON = { builder: '🏗️', geologist: '⛏️', archaeologist: '🔎', engineer: '🔧' };
@@ -220,7 +220,7 @@ export function createChapter2(ctx) {
   // ---------- daily ----------
   function track(id, n = 1) { const tk = econ.track(id, n); if (tk && !booting) hud.toast(`🗓️ ${t('taskDone')}: ${t('dt_' + id)}`); if (tk) { store.queueSave(); rerender(); } }
   async function claimLogin() { const r = econ.claimLogin(); if (!r) return; const g = await grant(r.pts, 'login'); hud.toast(`🎁 ${t('loginToast')}: +${g.granted} ⭐ +${r.ore} 🪨`); await store.save(); refreshTop(); rerender(); checkQuest(); }
-  async function claimTask(i) { const r = econ.claimTask(i); if (!r) return; const g = await grant(r.pts, 'daily'); hud.toast(`🗓️ +${g.granted} ⭐${r.all ? ` · ${t('allBonus')}: +${r.all.ore} 🪨` : ''}`); await store.save(); refreshTop(); rerender(); checkQuest(); }
+  async function claimTask(i) { const r = econ.claimTask(i); if (!r) return; const g = await grant(r.pts, 'daily:' + i); /* TG port: per-task ledger key (server: daily:0..2) */ hud.toast(`🗓️ +${g.granted} ⭐${r.all ? ` · ${t('allBonus')}: +${r.all.ore} 🪨` : ''}`); await store.save(); refreshTop(); rerender(); checkQuest(); }
   // ---------- actions ----------
   async function startJob(rid, kind, what) { const r = econ.start(rid, kind, what); if (!r.ok) { hud.toast('⚠️ ' + (r.why === 'cost' ? t('needRes') : r.why === 'level' ? t('needLvl') : r.why)); return r; }
     flush(); const rb = econ.robot(rid); hud.toast(`${JICON[kind]} ${name(rb)}: ${t('jobStarted')} · ${fmtTime(econ.left(r.job))}${kind === 'expedition' || kind === 'dig' ? ' · ' + t('walkOut') : ''}`);
