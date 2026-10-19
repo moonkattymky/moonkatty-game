@@ -1,6 +1,6 @@
 // Cache-first for the immutable, versioned 3D assets (bundle, GLB, icons); network-first for the HTML.
 // Never touches API calls (Supabase) or other paths. Bump VERSION with every build (tools/world3d/build.sh does it).
-const VERSION = '349d3b9d09';
+const VERSION = 'ac5ee54b25';
 const CACHE = 'mkty-world3d-' + VERSION;
 const PRECACHE = ['./', './index.html', './boot.js?v=' + VERSION, './app.min.js?v=' + VERSION, './assets/moonkatty.glb?v=39', './favicon.svg'];
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting()).catch(() => self.skipWaiting())); });
