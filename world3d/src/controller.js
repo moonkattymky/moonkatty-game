@@ -7,7 +7,7 @@ export class Controller {
     this.cam = camera; this.dom = dom; this.colliders = colliders;
     this.pos = new THREE.Vector3(); this.vel = new THREE.Vector3(); this.yaw = 0; this.onGround = true;
     this.fuel = 1; this.thrusting = false; this.keys = new Set(); this.joy = new THREE.Vector2(); this.jumpHeld = false; this._jumpPrev = false;
-    this.speedMul = 1; /* game ?fast=1 test aid; 1 = normal controls */ this.camYaw = 0; this.camPitch = 0.28; this.camDist = 7.5; this.camTarget = new THREE.Vector3(); this.enabled = true; this.camFree = true; this.camShift = 0; /* lateral framing offset (m, camera-right); 0 = cat centred */
+    this.speedMul = 1; /* game ?fast=1 test aid; 1 = normal controls */ this.camYaw = 0; this.camPitch = 0.28; this.camDist = 7.5; this.camTarget = new THREE.Vector3(); this.enabled = true; this.camFree = true; this.camShift = 0; this.camLift = 0; /* v65: extra look-target height (low camera looking slightly up) */ /* lateral framing offset (m, camera-right); 0 = cat centred */
     addEventListener('keydown', e => { this.keys.add(e.code); if (e.code === 'Space') e.preventDefault(); });
     addEventListener('keyup', e => this.keys.delete(e.code));
     addEventListener('blur', () => this.keys.clear());
@@ -75,7 +75,7 @@ export class Controller {
     if (this.camFree) this.updateCamera(dt);
   }
   updateCamera(dt) {
-    const want = this.pos.clone().add(new THREE.Vector3(0, 1.3, 0));
+    const want = this.pos.clone().add(new THREE.Vector3(0, 1.3 + (this.camLift || 0), 0));
     this.camTarget.lerp(want, Math.min(1, dt * 8));
     const cp = Math.cos(this.camPitch); const off = new THREE.Vector3(Math.sin(this.camYaw) * cp, Math.sin(this.camPitch), Math.cos(this.camYaw) * cp).multiplyScalar(this.camDist);
     const look = this.camShift ? this.camTarget.clone().add(new THREE.Vector3(Math.cos(this.camYaw), 0, -Math.sin(this.camYaw)).multiplyScalar(this.camShift)) : this.camTarget;

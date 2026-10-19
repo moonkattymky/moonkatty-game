@@ -24,7 +24,7 @@ export function makeHome(scene, { env, groundAt, door, origin, low = false, eart
   const I = new THREE.Group(); I.name = 'ch2_home'; I.position.copy(origin); scene.add(I);
   const R = 3.5, WH = 3.4; const W = (r) => R - (4.6 - r); // radii below are authored as distance-from-wall in a 4.6 m room
   // layout (angles around the room; 0 = straight ahead of the entry view): tightened toward the concept's composition
-  const LAY = { door: -0.92, rack: -0.2, rackR: 2.75, pet: -0.33, petR: 1.9, win: 0.66, bed: 0.47, bedR: 2.75, desk: 1.42, deskR: 2.85, shelf: 1.5, chair: 2.15, chairR: 2.35, robot: 1.2, robotR: 2.35, bedS: 1.05, cab: -1.47, cabR: 2.85 }; // v59: solved by projecting the concept's screen positions through the entry camera // solved so the entry view frames them like the concept
+  const LAY = { door: -0.92, rack: -0.2, rackR: 2.75, pet: -0.33, petR: 1.9, win: 0.66, bed: 0.47, bedR: 2.75, desk: 1.42, deskR: 2.85, shelf: 1.5, chair: 2.15, chairR: 2.35, robot: 0.88, robotR: 2.2, bedS: 1.05, cab: -1.47, cabR: 2.85 }; // v59: solved by projecting the concept's screen positions through the entry camera // solved so the entry view frames them like the concept
   const setL = (o) => o.traverse(x => x.layers.set(LAYER));
   const std = (o = {}) => new THREE.MeshStandardMaterial({ roughness: 0.62, metalness: 0.0, envMap: env || null, envMapIntensity: 0.32, ...o });
   // ---- shell: floor, quilted wall, ceiling with cove ----
@@ -204,7 +204,7 @@ export function makeHome(scene, { env, groundAt, door, origin, low = false, eart
   // entry framing (v58, per concept 2d260de8): cat just inside the door porthole facing the room, camera near the back wall,
   // wide lens + lateral shift so door/cat sit left, rack+pet house middle, bed centre-right, console+robot right, shelves far right
   const entry = { cat: { x: -1.9, z: -0.6 }, yaw: 1.35, stride: 0.0, camYaw: 0, camDist: 3.7, camPitch: 0.05, shift: 2.2, fov: 68,
-    portrait: { cat: { x: 0.08, z: 0.78 }, yaw: -0.3, camYaw: -0.524, camDist: 2.4, camPitch: 0.75, shift: 0, fov: 80, fixedShift: true } }; // tall phone screens: cat in front, bed + console + robot behind it
+    portrait: { cat: { x: -0.2, z: -0.55 }, yaw: 0.28, stride: 0.0, camYaw: -0.5, camDist: 3.4, camPitch: -0.08, lift: -0.45, shift: 0.92, fov: 88, fixedShift: true } /* v65: low eye-level 3/4 view toward bed/robot/holo (phi~0.95), cat walking in at bottom-left */ }; // tall phone screens: cat in front, bed + console + robot behind it
   const api = { group: I, LAYER, R, doorIn, consoleIn, entry, outside: outsideDoorW, doorW: { x: door.x, z: door.z }, robot, doorMesh: doorM,
     solids(real) { const fy = origin.y; return { CAT: real.CAT, standAt: () => fy, floorAt: () => fy, visAt: () => fy, top, over: () => 1e9, slabHit: () => Infinity, nearestFree: (x, z) => { const lx = x - origin.x, lz = z - origin.z, d = Math.hypot(lx, lz), m = R - 1.0; if (d > m) return { x: origin.x + lx / d * m, z: origin.z + lz / d * m, moved: d - m }; return { x, z, moved: 0 }; } }; },
     setOpen(v) { want = v ? 1 : 0; },
