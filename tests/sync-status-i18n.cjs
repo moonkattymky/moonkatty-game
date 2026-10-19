@@ -22,3 +22,14 @@ for(const lang of ['uk','de','zh']){
  assert.equal(c.MKTYI18n.t(en,{ru:'x'}),P[lang].strings[en],lang+' runtime translation');
 }
 console.log(`sync-status i18n OK: ${keys} strings × ${LANGS.length} languages, runtime t() resolves uk/de/zh`);
+
+// Regression guard: no tr('ru','en') English key in the 2D sources may be untranslated in every non-RU runtime pack.
+{const NR=['uk','es','pt','de','fr','it','tr','he','ar','ko','zh'];const I={};
+ for(const l of NR){const c=vm.createContext({console,Promise,localStorage:{getItem:k=>k==='mkty_lang'?l:null},Event:class{constructor(t){this.type=t;}},MutationObserver:class{disconnect(){}observe(){}},Node:{TEXT_NODE:3,ELEMENT_NODE:1},document:{body:{classList:{toggle(){}}},documentElement:{},getElementById:()=>null}});
+  c.globalThis=c;c.window=c;c.dispatchEvent=()=>{};vm.runInContext(read('locales/runtime/'+l+'.js'),c);vm.runInContext(read('i18n.js'),c);I[l]=c.MKTYI18n;}
+ const gaps=[];let n=0;
+ for(const f of fs.readdirSync(path.join(__dirname,'..')).filter(f=>f.endsWith('.js'))){const s=read(f);
+  for(const m of s.matchAll(/\b(?:tr|MKTYI18n\.tr)\('((?:[^'\\]|\\.)*)','((?:[^'\\]|\\.)*)'/g)){const en=m[2].replace(/\\'/g,"'");if(!/[A-Za-z]{2}/.test(en))continue;n++;
+   if(NR.every(l=>I[l].t(en)===en))gaps.push(f+': '+en);}}
+ assert.deepStrictEqual(gaps,[],'tr() keys untranslated in all non-RU languages:\n'+gaps.join('\n'));
+ console.log(`tr() coverage OK: ${n} tr() calls in 2D sources resolve in at least one non-RU pack, 0 full gaps`);}
