@@ -406,7 +406,7 @@ export function buildRocks(scene, culler, quality = 1) { LOD_SCALE = quality < 0
   const kinds = {
     rockA: makeKind(scene, 'rockA', [[creaseRock(protoGeom(1, 2, [1.25, 0.75, 1.05]), 62), 8], [creaseRock(protoGeom(1, 2, [1.25, 0.75, 1.05]), 62), 24], [creaseRock(protoGeom(0, 2, [1.25, 0.75, 1.05], 0.3), 62), 116]], A, mat, 2),
     debris: makeKind(scene, 'debris', [[creaseRock(chiselGeom(14, 6, 0), 50), 7.5]], debris, matDebris, 0),
-    scatter: makeKind(scene, 'scatter', [[pebbleGeom(23), 34]], scatter, matScatter, 0),
+    scatter: makeKind(scene, 'scatter', [[pebbleGeom(23), 27]], scatter, matScatter, 0),
     strata: makeKind(scene, 'strata', [[creaseRock(chiselGeom(9, 16, 2), 38), 6.5], [creaseRock(chiselGeom(9, 12, 1), 38), 14], [creaseRock(chiselGeom(9, 12, 0), 45), 95]], L.peak, matFar, 0),
     wall: makeKind(scene, 'wall', [[creaseRock(mesaGeom(protoGeom(1, 33, [1, 1, 1], 0.55), 33), 60), 118], [creaseRock(mesaGeom(protoGeom(0, 33, [1, 1, 1], 0.45), 33), 60), 3000]], L.wall, matWall, 0),
   };

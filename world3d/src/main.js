@@ -342,11 +342,11 @@ function frame(dt) {
 }
 // paused (app hidden / Telegram deactivated): stop rendering entirely; resume resets the clock so dt does not jump
 let paused = false, looping = false;
-TGAPI.onPause((p) => { paused = p; if (p) { ctrl.keys.clear(); ctrl.joy.set(0, 0); ctrl.jumpHeld = false; } else if (MK.ready && !looping && !SHOT) { clock.getDelta(); looping = true; requestAnimationFrame(loop); } });
-function loop() { if (paused) { looping = false; return; } looping = true; const dt = Math.min(clock.getDelta(), 0.05); const t0 = performance.now(); frame(dt); ftimes.push(performance.now() - t0); if (ftimes.length > 240) ftimes.shift(); requestAnimationFrame(loop); }
+TGAPI.onPause((p) => { paused = p; try { window.dispatchEvent(new CustomEvent('mk-pause', { detail: p })); } catch (e) { } if (p) { ctrl.keys.clear(); ctrl.joy.set(0, 0); ctrl.jumpHeld = false; } else if (MK.ready && !looping && !SHOT) { clock.getDelta(); looping = true; requestAnimationFrame(loop); } });
+function loop() { if (paused) { looping = false; return; } looping = true; if (window.__manual) { clock.getDelta(); requestAnimationFrame(loop); return; } /* capture tools step frames themselves (MK.step) */ const dt = Math.min(clock.getDelta(), 0.05); const t0 = performance.now(); frame(dt); ftimes.push(performance.now() - t0); if (ftimes.length > 240) ftimes.shift(); requestAnimationFrame(loop); }
 
 // test / screenshot API
-window.MK = { setCatPose: (o) => { catPose = o; }, isPaused: () => paused, terrain: TERRAIN_MOD, setPower, POW, THREE, composer, bloom, camera, scene, sky, renderer, env, solids, ctrl, rocks, colliders, VIEWS: Object.keys(VIEWS), head: () => headBone && [headBone.name, headBone.type, +headYaw.toFixed(2)],
+window.MK = { setCatPose: (o) => { catPose = o; }, step: (dt, n = 1) => { for (let i = 0; i < n; i++) frame(dt); }, isPaused: () => paused, terrain: TERRAIN_MOD, setPower, POW, THREE, composer, bloom, camera, scene, sky, renderer, env, solids, ctrl, rocks, colliders, VIEWS: Object.keys(VIEWS), head: () => headBone && [headBone.name, headBone.type, +headYaw.toFixed(2)],
   ready: false, game: game && game.api,
   anim: () => ({ mixer, actions, STRIDES, locomotion, current: current && current.getClip().name }), // test hook (walk/run blending)
   setView(v) { VIEWS[v](); camera.updateProjectionMatrix(); },
