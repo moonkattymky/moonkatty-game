@@ -102,7 +102,7 @@ export function createChapter2(ctx) {
     const W = innerWidth, H = innerHeight, on = inside && H > W;
     if (on) { const now = performance.now(); if (now - _hiT > 500) { _hiT = now; try {
       const q = document.getElementById('mk-track'), m = document.getElementById('mk-map'); const qb = q && q.offsetParent !== null ? q.getBoundingClientRect().bottom : 0, mt = m && m.offsetParent !== null ? m.getBoundingClientRect().top : H;
-      let head = _hiY(1.75), feet = _hiY(0); if (ctx.catRoot) { _hb.setFromObject(ctx.catRoot); if (!_hb.isEmpty()) { head = Infinity; feet = -Infinity; for (let k = 0; k < 8; k++) { _hv.set(k & 1 ? _hb.max.x : _hb.min.x, k & 2 ? _hb.max.y : _hb.min.y, k & 4 ? _hb.max.z : _hb.min.z).project(camera); const y = (1 - _hv.y) / 2 * H; head = Math.min(head, y); feet = Math.max(feet, y); } } } head -= _hiS; feet -= _hiS; _hiTarget = Math.max(0, Math.min(qb + 8 - head, mt - 2 - feet)); } catch (e) { _hiTarget = 0; } } }
+      let head = _hiY(1.75), feet = _hiY(0); if (ctx.catRoot) { _hb.setFromObject(ctx.catRoot); if (!_hb.isEmpty()) { const cx = (_hb.min.x + _hb.max.x) / 2, cz = (_hb.min.z + _hb.max.z) / 2; _hv.set(cx, _hb.max.y, cz).project(camera); head = (1 - _hv.y) / 2 * H; _hv.set(cx, _hb.min.y, cz).project(camera); feet = (1 - _hv.y) / 2 * H; } } head -= _hiS; feet -= _hiS; _hiTarget = Math.max(0, Math.min(qb + 8 - head, mt - 2 - feet)); } catch (e) { _hiTarget = 0; } } }
     else _hiTarget = 0;
     _hiS += (_hiTarget - _hiS) * Math.min(1, (dt || 0.016) * 6); if (_hiS < 0.5 && _hiTarget === 0) _hiS = 0;
     const s = Math.round(_hiS);
