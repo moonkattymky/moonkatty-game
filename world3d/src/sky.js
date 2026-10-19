@@ -111,7 +111,7 @@ export function buildSpace(scene, hullMat, lite = false) {
       q.setFromEuler(e.set(r() * 6, r() * 6, r() * 6)); m.compose(p, q, sc); belt.setMatrixAt(i, m); }
     belt.computeBoundingSphere(); belt.boundingSphere.radius += 250; belt.frustumCulled = true; belt.name = 'belt' + cI; bg.add(belt); });
   bg.userData.lite = lite; bg.userData.samples = []; for (let k = 0; k <= 16; k++) { const ph = Math.PI * (0.12 + 0.76 * k / 16); const c = new THREE.Vector3().copy(Rh).multiplyScalar(Math.cos(ph) * R0).addScaledVector(Ap, Math.sin(ph) * R0).addScaledVector(Nb, OFF); bg.userData.samples.push(new THREE.Sphere(c, 1700)); } /* pass 24: band coverage for the phone visibility test */
-  { const NP = lite ? 5000 : 15000, NCH = lite ? 1 : 3; const pm = new THREE.PointsMaterial({ size: lite ? 1.6 : 1.4, sizeAttenuation: false, vertexColors: true, fog: false });
+  { const NP = lite ? 5000 : 10500 /* v56: budget headroom */, NCH = lite ? 1 : 3; const pm = new THREE.PointsMaterial({ size: lite ? 1.6 : 1.4, sizeAttenuation: false, vertexColors: true, fog: false });
     for (let c = 0; c < NCH; c++) { const pos = new Float32Array(NP / NCH * 3), col = new Float32Array(NP / NCH * 3);
       for (let i = 0; i < NP / NCH; i++) { const ph = Math.PI * (0.12 + 0.76 * (c + r()) / NCH); place(ph, 0.8 + r() * 0.5); pos.set([p.x, p.y, p.z], i * 3); const k = 0.18 + r() ** 2 * 0.42; col.set([k * 0.95, k * 0.97, k * 1.04], i * 3); }
       const gp = new THREE.BufferGeometry(); gp.setAttribute('position', new THREE.BufferAttribute(pos, 3)); gp.setAttribute('color', new THREE.BufferAttribute(col, 3)); gp.computeBoundingSphere();
