@@ -39,7 +39,7 @@ body.mk-mapopen #mk-root,body.mk-mapopen #joy,body.mk-mapopen #jump,body.mk-mapo
 #mkm-go{white-space:nowrap;flex:none;border:1.5px solid #8a5c12;border-radius:7px;padding:9px 16px;background:linear-gradient(180deg,#f6d987,#C8912A);color:#2a1a04;font-weight:900;font-size:14px;letter-spacing:.06em;box-shadow:0 0 10px rgba(255,200,80,.6)}
 #mkm-x{position:absolute;right:max(14px,max(env(safe-area-inset-right),var(--tg-inset-right,0px)));top:max(14px,max(env(safe-area-inset-top),var(--tg-inset-top,0px)));width:42px;height:42px;border-radius:50%;border:1.5px solid rgba(110,220,255,.9);background:rgba(6,20,46,.8);color:#cff6ff;font-size:24px;line-height:38px;text-align:center;box-shadow:0 0 10px rgba(80,200,255,.6)}
 #mkm-zoom{position:absolute;right:max(14px,max(env(safe-area-inset-right),var(--tg-inset-right,0px)));top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px}
-@media (orientation:portrait){#mkm-zoom{top:auto;bottom:calc(112px + max(env(safe-area-inset-bottom),var(--tg-inset-bottom,0px)));transform:none;flex-direction:row}} .mkm-pin.c>span:not(.i){display:none}.mkm-pin.c{min-width:0;padding:3px 4px}
+@media (orientation:portrait){#mkm-zoom{top:calc(84px + max(env(safe-area-inset-top),var(--tg-inset-top,0px)));bottom:auto;transform:none;flex-direction:row}} .mkm-pin.c>span:not(.i){display:none}.mkm-pin.c{min-width:0;padding:3px 4px}
 #mkm-zoom button{width:40px;height:40px;border-radius:10px;border:1.5px solid rgba(110,220,255,.9);background:rgba(6,20,46,.8);color:#cff6ff;font-size:22px;font-weight:800}
 @media (max-width:560px){.mkm-pin{padding:4px 6px 3px;min-width:40px;font-size:8px;gap:2px;letter-spacing:.04em}.mkm-pin .i svg{width:20px;height:20px}.mkm-pin.h .i svg{width:12px;height:12px}.mkm-bot{width:24px;height:24px}}
 #mkm-title{position:absolute;left:50%;top:max(14px,max(env(safe-area-inset-top),var(--tg-inset-top,0px)));transform:translateX(-50%);font-size:11px;letter-spacing:.3em;color:#9fe6ff;font-weight:800;text-shadow:0 0 8px rgba(110,220,255,.9);text-transform:uppercase}
@@ -267,10 +267,10 @@ export function makeHoloMap({ renderer, t, onGo, world }) {
       T += dt; openK = Math.min(1, (performance.now() - openAt) / 450); U.uT.value = T; U.uOpen.value = openK < 1 ? openK * (0.6 + 0.4 * Math.sin(T * 60.0) * (1 - openK)) + openK * 0.4 : 1;
       const w = innerWidth, h = innerHeight; const pr = renderer.getPixelRatio(); const port = h > w;
       cam.aspect = w / h; cam.fov = port ? 62 : 42; cam.updateProjectionMatrix();
-      const dist = (port ? Math.max(23.5, 40 * 0.462 / cam.aspect) : 17) / zoom, ox = port ? 0.0 : 1.9; cam.position.set(ox, dist * (port ? 0.85 : 0.4), dist * (port ? 0.53 : 0.92)); cam.lookAt(ox, port ? -1.6 : -1.0, port ? 1.6 : -0.4); // v61 portrait: whole slab fits the width (solved: |x_ndc|<=0.96 at 390x844)
+      const dist = (port ? Math.max(23.5, 36.5 * 0.462 / cam.aspect) : 17) / zoom, ox = port ? 0.0 : 1.9; cam.position.set(ox, dist * (port ? 0.92 : 0.4), dist * (port ? 0.40 : 0.92)); cam.lookAt(ox, port ? -1.6 : -1.0, port ? -5.0 : -0.4); /* v62 portrait: slab ~full width, steeper + aimed further back so the slab sits low near the paw (screen y .40-.83) */ // v61 portrait: whole slab fits the width (solved: |x_ndc|<=0.96 at 390x844)
       board.rotation.y = yaw; board.scale.setScalar(0.25 + 0.75 * (1 - Math.pow(1 - openK, 3))); board.position.y = 0;
       board.rotation.x = 0; board.rotation.z = 0;
-      scene.userData.earth.rotation.y += dt * 0.03; scene.userData.earth.position.set(port ? 9 : 25, port ? 9 : -9, port ? -40 : -50);
+      scene.userData.earth.rotation.y += dt * 0.03; scene.userData.earth.position.set(port ? -3 : 25, port ? -35 : -9, port ? -68 : -50); // v62: in view above the slab's back edge
       // wrist in the lower-left foreground, projection cone from the screen to the board
       wrist.position.set(port ? -0.75 : -1.9, port ? -1.9 : -1.25, -5.0); wrist.rotation.set(-0.75, 0.15, -0.8, 'YXZ'); wrist.scale.setScalar(port ? 0.34 : 0.4);
       cam.updateMatrixWorld(true); const s0 = wrist.userData.scr.getWorldPosition(new THREE.Vector3()); const s1 = new THREE.Vector3(0, 0, 0); const mid = s0.clone().add(s1).multiplyScalar(0.5); const len = s0.distanceTo(s1);

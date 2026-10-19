@@ -152,7 +152,7 @@ function headLook(dt) {
 
 // runtime 'press' pose (shield finale): 2-bone CCD on the arm toward a world target (palm on the paw pad) + slight spine lean.
 // The GLB and its clips are untouched; this only adds bone rotations on top of the idle clip while catPose is set.
-let catPose = null, catModel = null; const _posePre = []; const _pq = new THREE.Quaternion(), _pq2 = new THREE.Quaternion(), _pa = new THREE.Vector3(), _pb = new THREE.Vector3(), _pc = new THREE.Vector3();
+let catPose = null, catModel = null, catStride = null; const _posePre = []; const _pq = new THREE.Quaternion(), _pq2 = new THREE.Quaternion(), _pa = new THREE.Vector3(), _pb = new THREE.Vector3(), _pc = new THREE.Vector3();
 function ccdStep(bone, end, target, w) { bone.getWorldPosition(_pa); end.getWorldPosition(_pb); const d0 = _pb.sub(_pa).normalize(), d1 = _pc.copy(target).sub(_pa).normalize(); _pq.setFromUnitVectors(d0, d1); if (w < 1) _pq.slerp(_pq2.identity(), 1 - w); bone.parent.getWorldQuaternion(_pq2); const inv = _pq2.clone().invert(); bone.quaternion.premultiply(inv.multiply(_pq).multiply(_pq2)); bone.updateMatrixWorld(true); }
 function applyCatPose() {
   if (!catPose || !catModel) return; const S = catPose.side || 'L'; const B = (n) => catModel.getObjectByName(n); const up = B('upperarm_' + S), fo = B('forearm_' + S), ha = B('hand_' + S), sp = B('spine'); if (!up || !fo || !ha) return;
@@ -321,7 +321,7 @@ function frame(dt) {
   prints.update(ctrl.pos, ctrl.yaw, ctrl.onGround, ctrl.speed);
   if (headBone && headBone.userData.pre) headBone.quaternion.copy(headBone.userData.pre);
   for (const [b, q] of _posePre) b.quaternion.copy(q); _posePre.length = 0;
-  if (mixer) { if (!ctrl.onGround) play(actions.jump ? 'jump' : 'idle', 0.15); else if (ctrl.speed > 0.6) locomotion(ctrl.speed); else play('idle'); mixer.update(dt); }
+  if (mixer) { if (catStride && (ctrl.speed > 0.6 || !ctrl.onGround || (catStride.t -= dt) <= 0)) catStride = null; if (!ctrl.onGround) play(actions.jump ? 'jump' : 'idle', 0.15); else if (ctrl.speed > 0.6) locomotion(ctrl.speed); else if (catStride && actions.walk) { play('walk', 0.2); actions.walk.timeScale = 0; actions.walk.time = catStride.ph * actions.walk.getClip().duration; } else play('idle'); mixer.update(dt); } // v64 catStride: frozen mid-stride walk pose (home entry), released on move/timeout
   applyCatPose();
   headLook(SHOT ? 1 : dt);
   flame.visible = ctrl.thrusting; if (flame.visible) flame.scale.y = 0.8 + Math.random() * 0.5;
@@ -346,7 +346,7 @@ TGAPI.onPause((p) => { paused = p; try { window.dispatchEvent(new CustomEvent('m
 function loop() { if (paused) { looping = false; return; } looping = true; if (window.__manual) { clock.getDelta(); requestAnimationFrame(loop); return; } /* capture tools step frames themselves (MK.step) */ const dt = Math.min(clock.getDelta(), 0.05); const t0 = performance.now(); frame(dt); ftimes.push(performance.now() - t0); if (ftimes.length > 240) ftimes.shift(); requestAnimationFrame(loop); }
 
 // test / screenshot API
-window.MK = { setCatPose: (o) => { catPose = o; }, step: (dt, n = 1) => { for (let i = 0; i < n; i++) frame(dt); }, isPaused: () => paused, terrain: TERRAIN_MOD, setPower, POW, THREE, composer, bloom, camera, scene, sky, renderer, env, solids, ctrl, rocks, colliders, VIEWS: Object.keys(VIEWS), head: () => headBone && [headBone.name, headBone.type, +headYaw.toFixed(2)],
+window.MK = { setCatPose: (o) => { catPose = o; }, setCatStride: (o) => { catStride = o ? { ph: o.ph ?? 0.25, t: o.t ?? 8 } : null; }, step: (dt, n = 1) => { for (let i = 0; i < n; i++) frame(dt); }, isPaused: () => paused, terrain: TERRAIN_MOD, setPower, POW, THREE, composer, bloom, camera, scene, sky, renderer, env, solids, ctrl, rocks, colliders, VIEWS: Object.keys(VIEWS), head: () => headBone && [headBone.name, headBone.type, +headYaw.toFixed(2)],
   ready: false, game: game && game.api,
   anim: () => ({ mixer, actions, STRIDES, locomotion, current: current && current.getClip().name }), // test hook (walk/run blending)
   setView(v) { VIEWS[v](); camera.updateProjectionMatrix(); },
