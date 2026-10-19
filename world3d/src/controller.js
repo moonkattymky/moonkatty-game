@@ -7,7 +7,7 @@ export class Controller {
     this.cam = camera; this.dom = dom; this.colliders = colliders;
     this.pos = new THREE.Vector3(); this.vel = new THREE.Vector3(); this.yaw = 0; this.onGround = true;
     this.fuel = 1; this.thrusting = false; this.keys = new Set(); this.joy = new THREE.Vector2(); this.jumpHeld = false; this._jumpPrev = false;
-    this.speedMul = 1; /* game ?fast=1 test aid; 1 = normal controls */ this.camYaw = 0; this.camPitch = 0.28; this.camDist = 7.5; this.camTarget = new THREE.Vector3(); this.enabled = true; this.camFree = true;
+    this.speedMul = 1; /* game ?fast=1 test aid; 1 = normal controls */ this.camYaw = 0; this.camPitch = 0.28; this.camDist = 7.5; this.camTarget = new THREE.Vector3(); this.enabled = true; this.camFree = true; this.camShift = 0; /* lateral framing offset (m, camera-right); 0 = cat centred */
     addEventListener('keydown', e => { this.keys.add(e.code); if (e.code === 'Space') e.preventDefault(); });
     addEventListener('keyup', e => this.keys.delete(e.code));
     addEventListener('blur', () => this.keys.clear());
@@ -78,9 +78,10 @@ export class Controller {
     const want = this.pos.clone().add(new THREE.Vector3(0, 1.3, 0));
     this.camTarget.lerp(want, Math.min(1, dt * 8));
     const cp = Math.cos(this.camPitch); const off = new THREE.Vector3(Math.sin(this.camYaw) * cp, Math.sin(this.camPitch), Math.cos(this.camYaw) * cp).multiplyScalar(this.camDist);
-    let p = this.camTarget.clone().add(off); const S = this.solids;
-    if (S) { /* camera never ends up inside a boulder / wall: slide in along the boom to the farthest clear point */ const n = Math.ceil(this.camDist / 0.3); for (let i = n; i >= 1; i--) { const t = i / n; const x = this.camTarget.x + off.x * t, y = this.camTarget.y + off.y * t, z = this.camTarget.z + off.z * t; if (S.top(x, z, 0.3) <= y - 0.35 || i === 1) { if (i < n) p = new THREE.Vector3(x, Math.max(y, S.top(x, z, 0.3) + 0.35), z); break; } } }
+    const look = this.camShift ? this.camTarget.clone().add(new THREE.Vector3(Math.cos(this.camYaw), 0, -Math.sin(this.camYaw)).multiplyScalar(this.camShift)) : this.camTarget;
+    let p = look.clone().add(off); const S = this.solids;
+    if (S) { /* camera never ends up inside a boulder / wall: slide in along the boom to the farthest clear point */ const n = Math.ceil(this.camDist / 0.3); for (let i = n; i >= 1; i--) { const t = i / n; const x = look.x + off.x * t, y = look.y + off.y * t, z = look.z + off.z * t; if (S.top(x, z, 0.3) <= y - 0.35 || i === 1) { if (i < n) p = new THREE.Vector3(x, Math.max(y, S.top(x, z, 0.3) + 0.35), z); break; } } }
     const gy = groundAt(p.x, p.z) + 0.6; if (p.y < gy) p.y = gy;
-    this.cam.position.copy(p); this.cam.lookAt(this.camTarget);
+    this.cam.position.copy(p); this.cam.lookAt(look);
   }
 }

@@ -245,7 +245,7 @@ export function createGame({ scene, camera, ctrl, renderer, env, solids, setPowe
   }
   const openSheet = (o) => { if (o !== sheetOpen) hx('select'); sheetOpen = o; hud.sheet(o, renderSheet); };
   // Telegram BackButton closes the top-most overlay first; with nothing open it leaves the 3D world
-  window.MKTYTG?.setBackInterceptor?.(() => { const pop = hud.$('#mk-pop'); if (puzzle.open) { puzzle.hide(); return true; } if (sheetOpen) { openSheet(false); return true; } if (pop && pop.classList.contains('on')) { pop.classList.remove('on'); return true; } if (miner.open) { miner.hide(); return true; } return false; });
+  window.MKTYTG?.setBackInterceptor?.(() => { const pop = hud.$('#mk-pop'); if (holo && holo.open) { holo.close(); return true; } /* TG BackButton closes the holo map first */ if (puzzle.open) { puzzle.hide(); return true; } if (sheetOpen) { openSheet(false); return true; } if (pop && pop.classList.contains('on')) { pop.classList.remove('on'); return true; } if (miner.open) { miner.hide(); return true; } return false; });
   backend.onPoints = (p) => { D().points = p; refreshTop(); };
   hud.$('#mk-qbtn').addEventListener('click', () => openSheet(!sheetOpen));
   hud.$('#mk-track').addEventListener('click', () => openSheet(true));
@@ -310,9 +310,9 @@ export function createGame({ scene, camera, ctrl, renderer, env, solids, setPowe
     const ore_ = ore.state ? L.ore.filter((p, i) => ore.state[i] && ore.state[i].alive && inR(p)) : [];
     return { region: rg, groundAt: terrainAt, me: { x: me().x, z: me().z, yaw: ctrl.yaw }, target: tg && inR(tg) ? tg : null, quest, pins, crystals: [...al, ...ore_], crew, base: rg.key === 'hub' ? base : null, fog: fogFor(rg) };
   }
-  function ensureMap() { if (holo) return holo; holo = makeHoloMap({ renderer, t, onGo: () => { goT = 6; } }); holo.getData = mapData; return holo; }
-  const MAP_FEAT = false; if (MAP_FEAT) hud.onMap = () => { if (!ready) return; ensureMap().toggle(); };
-  if (MAP_FEAT) addEventListener('keydown', e => { if (e.code === 'KeyM' && ready && !(holo && holo.open)) ensureMap().show(); });
+  function ensureMap() { if (holo) return holo; holo = makeHoloMap({ renderer, t, world: scene, onGo: () => { goT = 6; } }); holo.getData = mapData; return holo; }
+  hud.onMap = () => { if (!ready) return; ensureMap().toggle(); };
+  addEventListener('keydown', e => { if (e.code === 'KeyM' && ready && !(holo && holo.open)) ensureMap().show(); });
   function updateFog(dt) { fogT -= dt; if (fogT > 0) return; fogT = 0.5; const rg = mapRegion(); const a = fogFor(rg); if (fogReveal(a, rg, me().x, me().z, 30)) { fogSet(store, rg.key, a); store.queueSave(); } }
 
   // ---------- world life (chapter 2, FEAT.life, ?life=0 disables) ----------
