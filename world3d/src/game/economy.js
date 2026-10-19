@@ -47,7 +47,7 @@ export const STORY = ['old_probe', 'tracks', 'signal', 'cave_lights', 'frozen_fl
 export const ROBOT_XP = [0, 3, 8, 15, 25]; // xp needed for robot level 1..5
 export const DAILY_POOL = ['collect', 'send', 'crystals', 'help', 'points', 'jet', 'visit', 'home'];
 export const DAILY_NEED = { collect: 1, send: 1, crystals: 3, help: 1, points: 40, jet: 8, visit: 1, home: 1 };
-export const DAILY_PTS = 20, DAILY_ALL_ORE = 20;
+export const DAILY_PTS = 8, /* TG port: matches the server (rewards world.mjs WORLD_DAILY_PTS) */ DAILY_ALL_ORE = 20;
 const H = 3600e3;
 export const dayStr = (ms) => { const d = new Date(ms); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 const dayNum = (s) => { const [y, m, d] = s.split('-').map(Number); return Math.round(Date.UTC(y, m - 1, d) / 864e5); };
@@ -123,7 +123,7 @@ export function createEconomy({ data, now = () => Date.now(), scale = 1, onEvent
     const dl = S().daily; if (dl.day !== d) { const r = rng(hash('daily' + d)); const pool = DAILY_POOL.filter(k => k !== 'visit' || lvl() >= 3); const pick = []; while (pick.length < 3) { const k = pool[Math.floor(r() * pool.length)]; if (!pick.includes(k)) pick.push(k); } S().daily = { day: d, tasks: pick.map(id => ({ id, prog: 0, need: DAILY_NEED[id], done: false, claimed: false })), bonus: false }; }
   }
   function track(id, n = 1) { const dl = S().daily; let changed = null; for (const t of dl.tasks) if (t.id === id && !t.done) { t.prog = Math.min(t.need, t.prog + n); if (t.prog >= t.need) { t.done = true; changed = t; } } return changed; }
-  const loginReward = () => { const c = Math.max(1, S().streak.count); return { pts: Math.min(40, 10 + 5 * (c - 1)), ore: Math.min(30, 5 * c) }; };
+  const loginReward = () => { const c = Math.max(1, S().streak.count); return { pts: 5 /* TG port: server WORLD_LOGIN_PTS */, ore: Math.min(30, 5 * c) }; };
   function claimLogin() { const d = dayStr(T()); if (S().login.day === d) return null; S().login.day = d; const r = loginReward(); S().res.ore += r.ore; return r; }
   function claimTask(i) { const t = S().daily.tasks[i]; if (!t || !t.done || t.claimed) return null; t.claimed = true; let all = null; if (!S().daily.bonus && S().daily.tasks.every(x => x.claimed)) { S().daily.bonus = true; S().res.ore += DAILY_ALL_ORE; all = { ore: DAILY_ALL_ORE }; } return { pts: DAILY_PTS, all }; }
   // ---------- robots ----------

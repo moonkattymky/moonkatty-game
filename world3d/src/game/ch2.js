@@ -17,19 +17,19 @@ import { makeHome } from './home.js';
 //   - sheet tabs: Chapter (ch2 quests), Crew (robot panel), Daily (login reward, streak, 3 tasks)
 // ============================================================================================
 // staged rollout switches (v40 base/storage/robots, v41 + home, v42 + storm finale)
-export const FEAT = { home: true, storm: true, life: false };
+export const FEAT = { home: true, storm: true, life: true };
 const CH2_ALL = [
-  { id: 'c2_collect', icon: '📦', kind: 'collect', pts: 20, xp: 20 },
-  { id: 'c2_home', icon: '🏠', kind: 'home', pts: 20, xp: 20 },
-  { id: 'c2_send', icon: '⛏️', kind: 'send', pts: 20, xp: 20 },
-  { id: 'c2_upgrade', icon: '🏗️', kind: 'level', lvl: 2, pts: 30, xp: 30 },
-  { id: 'c2_help', icon: '🆘', kind: 'help', pts: 25, xp: 25 },
-  { id: 'c2_daily', icon: '🗓️', kind: 'daily', pts: 20, xp: 20 },
-  { id: 'c2_deliver', icon: '💎', kind: 'deliver', pts: 30, xp: 30 },
-  { id: 'c2_l3', icon: '📡', kind: 'level', lvl: 3, pts: 40, xp: 40 },
-  { id: 'c2_storm', icon: '☄️', kind: 'storm', pts: 60, xp: 60 },
-  { id: 'c2_streak', icon: '🔥', kind: 'streak', need: 7, pts: 50, xp: 50 },
-  { id: 'c2_museum', icon: '🏺', kind: 'museum', pts: 50, xp: 50 },
+  { id: 'c2_collect', icon: '📦', kind: 'collect', pts: 15, xp: 20 },
+  { id: 'c2_home', icon: '🏠', kind: 'home', pts: 15, xp: 20 },
+  { id: 'c2_send', icon: '⛏️', kind: 'send', pts: 15, xp: 20 },
+  { id: 'c2_upgrade', icon: '🏗️', kind: 'level', lvl: 2, pts: 25, xp: 30 },
+  { id: 'c2_help', icon: '🆘', kind: 'help', pts: 20, xp: 25 },
+  { id: 'c2_daily', icon: '🗓️', kind: 'daily', pts: 15, xp: 20 },
+  { id: 'c2_deliver', icon: '💎', kind: 'deliver', pts: 25, xp: 30 },
+  { id: 'c2_l3', icon: '📡', kind: 'level', lvl: 3, pts: 35, xp: 40 },
+  { id: 'c2_storm', icon: '☄️', kind: 'storm', pts: 50, xp: 60 },
+  { id: 'c2_streak', icon: '🔥', kind: 'streak', need: 7, pts: 40, xp: 50 },
+  { id: 'c2_museum', icon: '🏺', kind: 'museum', pts: 40, xp: 50 },
 ];
 export const CH2 = CH2_ALL.filter(q => FEAT[q.kind] !== false);
 const ICON = { builder: '🏗️', geologist: '⛏️', archaeologist: '🔎', engineer: '🔧' };
@@ -105,23 +105,23 @@ export function createChapter2(ctx) {
   const storm = { spots: [], t: 0, on: false, emberT: 0, replay: false };
   // damaged shield-emitter panels sit just outside the dome rim on the console side (concept: robots weld in front of the dome)
   const SPOTS = (() => { const fx = shieldC.x - consoleP.x, fz = shieldC.z - consoleP.z, fl = Math.hypot(fx, fz) || 1, ux = fx / fl, uz = fz / fl, rx = -uz, rz = ux; // u: console -> dome, r: screen-right of the cutscene camera
-    return [[6.5, 1.6], [8.5, 3.8], [6.0, -0.4]].map(([a, l]) => free({ x: consoleP.x + ux * a + rx * l, z: consoleP.z + uz * a + rz * l }, 1.5)); })();
+    return [[5.4, 1.5], [6.8, 3.3], [4.9, 0.0]].map(([a, l]) => free({ x: consoleP.x + ux * a + rx * l, z: consoleP.z + uz * a + rz * l }, 1.5)); })();
   const CUT = { on: false, t: 0, hold: false, dur: 0, saved: null };
   const cutBasis = () => { const fx = shieldC.x - consoleP.x, fz = shieldC.z - consoleP.z, fl = Math.hypot(fx, fz) || 1; const ux = fx / fl, uz = fz / fl; return { ux, uz, rx: -uz, rz: ux }; };
-  function pressPaw() { try { const { ux, uz, rx, rz } = cutBasis(); const CK_U = CUT.ku ?? 0.3, CK_R = CUT.kr ?? 0.72; const kx = consoleP.x + ux * CK_U - rx * CK_R, kz = consoleP.z + uz * CK_U - rz * CK_R; const cdx = -ux * (CUT.dist ?? 2.3) + rx * (CUT.right ?? 0.6) - (ux * CK_U - rx * CK_R), cdz = -uz * (CUT.dist ?? 2.3) + rz * (CUT.right ?? 0.6) - (uz * CK_U - rz * CK_R); const yaw = Math.atan2(cdx, cdz) + (CUT.turn ?? 0); if (ctrl.place) ctrl.place(kx, kz, yaw);
+  function pressPaw() { try { const { ux, uz, rx, rz } = cutBasis(); const CK_U = CUT.ku ?? 0.3, CK_R = CUT.kr ?? 0.85; const kx = consoleP.x + ux * CK_U - rx * CK_R, kz = consoleP.z + uz * CK_U - rz * CK_R; const cdx = -ux * (CUT.dist ?? 2.3) + rx * (CUT.right ?? 0.6) - (ux * CK_U - rx * CK_R), cdz = -uz * (CUT.dist ?? 2.3) + rz * (CUT.right ?? 0.6) - (uz * CK_U - rz * CK_R); const yaw = Math.atan2(cdx, cdz) + (CUT.turn ?? 0); if (ctrl.place) ctrl.place(kx, kz, yaw);
     const ex = kx - consoleP.x, ez = kz - consoleP.z, el = Math.hypot(ex, ez) || 1; const pad = new THREE.Vector3(); shield.console.updateMatrixWorld(true); shield.console.localToWorld(pad.set(0, 0.47, 0)); pad.x += ex / el * 0.2; pad.z += ez / el * 0.2; pad.y += 0.04; const side = (pad.x - kx) * Math.cos(yaw) - (pad.z - kz) * Math.sin(yaw) > 0 ? 'L' : 'R';
     const M = window.MK; if (M && M.setCatPose) { M.setCatPose({ target: pad, side, lean: 0.3, bend: 0.5 }); CUT.poseT = FAST ? 0.4 : 3.6; } } catch (e) { } }
   // dedicated cutscene camera (independent of the gameplay rig): low, close, cat large on the left, console bottom-left, dome centre-right, Earth top-right
   function cutCam() { const { ux, uz, rx, rz } = cutBasis(); const gy = groundAt(consoleP.x, consoleP.z); const C = camera; const D = CUT.dist ?? 2.3, R = CUT.right ?? 0.6, H = CUT.h ?? 1.05;
-    C.position.set(consoleP.x - ux * D + rx * R, gy + H, consoleP.z - uz * D + rz * R); const L = CUT.look ?? 3, LH = CUT.lookH ?? 5.5; C.lookAt(consoleP.x + ux * 30 + rx * L, gy + LH, consoleP.z + uz * 30 + rz * L); C.fov = CUT.fov ?? 60; C.updateProjectionMatrix(); C.updateMatrixWorld(); }
+    C.position.set(consoleP.x - ux * D + rx * R, gy + H, consoleP.z - uz * D + rz * R); const L = CUT.look ?? 5, LH = CUT.lookH ?? 5.5; C.lookAt(consoleP.x + ux * 30 + rx * L, gy + LH, consoleP.z + uz * 30 + rz * L); C.fov = CUT.fov ?? 60; C.updateProjectionMatrix(); C.updateMatrixWorld(); }
   function cutStart() { CUT.on = true; CUT.t = 0; CUT.dur = FAST ? 1.5 : 9; CUT.saved = { sm: ctrl.speedMul, fov: camera.fov }; ctrl.camFree = false; ctrl.speedMul = 0; cutCam(); }
   function cutEnd() { if (!CUT.on) return; CUT.on = false; ctrl.speedMul = CUT.saved ? CUT.saved.sm : 1; camera.fov = CUT.saved ? CUT.saved.fov : camera.fov; camera.updateProjectionMatrix(); ctrl.camFree = true; ctrl.camYaw = Math.atan2(camera.position.x - ctrl.pos.x, camera.position.z - ctrl.pos.z); }
   function cutUpdate(dt) { if (CUT.poseT > 0) { CUT.poseT -= dt; if (CUT.poseT <= 0 && !CUT.hold && window.MK && MK.setCatPose) MK.setCatPose(null); } if (!CUT.on) return; CUT.t += dt; if (ctrl.camFree && CUT.t > 0.2) { CUT.on = false; ctrl.speedMul = CUT.saved ? CUT.saved.sm : 1; return; } /* player tapped: skip */ if (CUT.t >= CUT.dur && !CUT.hold) { cutEnd(); return; } cutCam(); }
   // cutscene Earth: park it up and to the right of the dome as seen from the console (restored when the storm ends)
   function stormEarth(on) { if (!ctx.setEarthDir) return; if (!on) { ctx.setEarthDir(null); return; } const fx = shieldC.x - consoleP.x, fz = shieldC.z - consoleP.z, fl = Math.hypot(fx, fz) || 1; const f = new THREE.Vector3(fx / fl, 0, fz / fl), r = new THREE.Vector3(-f.z, 0, f.x); ctx.setEarthDir(f.multiplyScalar(0.82).addScaledVector(r, 0.55).add(new THREE.Vector3(0, 0.4, 0)).normalize()); }
   // temporary 'repair crew' NPC builders for the cutscene: every damaged panel without a real robot gets one (works with an empty save)
-  const npcs = []; function npcFor(sp, i) { let n = npcs[i]; if (!n) { const rob = makeCrewRobot(scene, env, 'builder', 2); rob.root.name = 'ch2_repair_npc'; n = npcs[i] = { rob, sparkT: 0 }; } const { ux, uz, rx, rz } = cutBasis(); const side = i % 2 ? 1 : -1; n.sp = sp; n.x = sp.x - ux * 0.75 + rx * 0.35 * side; n.z = sp.z - uz * 0.75 + rz * 0.35 * side; n.yaw = Math.atan2(sp.x - n.x, sp.z - n.z); n.rob.root.position.set(n.x, groundAt(n.x, n.z), n.z); n.rob.root.rotation.y = n.yaw; n.rob.root.visible = true; sp.npc = n; return n; }
-  function updateNpcs(dt, camP) { for (const n of npcs) { if (!n || !n.rob.root.visible) continue; const sp = n.sp; if (!storm.on || !sp || sp.hp <= 0) { n.rob.root.visible = false; continue; } n.rob.update(dt, 'work', camP); n.sparkT -= dt; if (n.sparkT <= 0) { n.sparkT = 0.09; shield.weld({ x: n.x + Math.sin(n.yaw) * 0.55, y: groundAt(n.x, n.z) + 0.55, z: n.z + Math.cos(n.yaw) * 0.55 }); } } }
+  const npcs = []; function npcFor(sp, i) { let n = npcs[i]; if (!n) { const rob = makeCrewRobot(scene, env, 'builder', 2); rob.root.name = 'ch2_repair_npc'; n = npcs[i] = { rob, sparkT: 0 }; } const { ux, uz, rx, rz } = cutBasis(); const side = i % 2 ? 1 : -1; n.sp = sp; n.x = sp.x - ux * 0.3 + rx * 0.8 * side; n.z = sp.z - uz * 0.3 + rz * 0.8 * side; n.yaw = Math.atan2(sp.x - n.x, sp.z - n.z); n.rob.root.position.set(n.x, groundAt(n.x, n.z), n.z); n.rob.root.rotation.y = n.yaw; n.rob.root.visible = true; sp.npc = n; return n; }
+  function updateNpcs(dt, camP) { for (const n of npcs) { if (!n || !n.sp) continue; const sp = n.sp; if (!storm.on || !sp || sp.hp <= 0) { n.rob.root.visible = false; n.far = false; continue; } const dn = Math.hypot(n.x - camP.x, n.z - camP.z); n.far = !!imp && dn > IMP_D - 3; n.rob.root.visible = !n.far; if (!n.far) n.rob.update(dt, 'work', camP); n.sparkT -= dt; if (n.sparkT <= 0) { n.sparkT = 0.09; shield.weld({ x: n.x + Math.sin(n.yaw) * 0.55, y: groundAt(n.x, n.z) + 0.55, z: n.z + Math.cos(n.yaw) * 0.55 }); } } }
   function startStorm() { if (!shield.start()) return; pressPaw(); cutStart(); stormEarth(true); storm.on = true; storm.t = 0; storm.spots = []; storm.replay = isDone('c2_storm'); shield.configure({ dur: FAST ? 8 : 32, fast: FAST, onHit: () => { } }); hud.toast('🐾 ' + t('stormStart')); }
   function updateStorm(dt) { const st = shield.state; if (st === 'off' && !storm.on) { shield.console.visible = FEAT.storm && S().on && isDone('c2_l3'); return; } shield.console.visible = true;
     ctx.setNight(shield.night); cutUpdate(dt); if (!storm.on) return; storm.t += dt; const D0 = FAST ? 8 : 32;
@@ -136,6 +136,7 @@ export function createChapter2(ctx) {
   // ---------- crew in the world ----------
   const crew = new Map(); const crewCols = [];
   let imp = null; const IMP_D = low ? 6 : ctx.mobile ? 7 : 8; // far crew -> one instanced billboard draw
+  let api_extraImp = null; // other systems (world life porters) add far robots to the crew impostor draw
   function ensureCrew() { if (!imp && ctx.renderer) { try { imp = makeImpostors(scene, ctx.renderer, env); } catch (e) { imp = null; } }
     S().robots.forEach((r, i) => { if (crew.has(r.id)) return; const rob = makeCrewRobot(scene, env, r.type, Math.min(3, econ.robotLevel(r)));
       const c = { r, rob, label: makeProgressLabel(scene, { size: 0.065 }), home: HOMES[i % HOMES.length], pos: new THREE.Vector3(), state: 'home', target: null, yaw: 0, col: { x: 0, z: 0, r: 0.45, h: 1.9 }, sparkT: 0 };
@@ -148,7 +149,7 @@ export function createChapter2(ctx) {
   // state machine: home -> (job) walkout -> site (work) -> (done) return -> home. Upgrades / engineer jobs are local (walk straight to the site).
   function updateCrew(dt) {
     const camR = regionOf(camera.position); const camP = camera.position; if (imp) { imp.begin(); imp.dim = 1 + 0.25 * shield.night; }
-    const showBot = (c, vis, mode, d) => { const far = imp && vis && d > IMP_D && imp.push(c.pos, c.r.type, c.yaw); c.rob.root.visible = vis && !far; if (vis && !far) c.rob.update(dt, mode, camP); };
+    const showBot = (c, vis, mode, d) => { const far = imp && vis && d > (storm.on && c.storm ? IMP_D - 3 : IMP_D) && imp.push(c.pos, c.r.type, c.yaw); /* storm: panel crew sits close to the console -> impostor sooner (budget) */ c.rob.root.visible = vis && !far; if (vis && !far) c.rob.update(dt, mode, camP); };
     for (const c of crew.values()) {
       const j = econ.jobOf(c.r.id); const local = j && (j.kind === 'upgrade' || j.kind === 'eng');
       let mode = 'idle', vis = true, region = 'hub';
@@ -219,7 +220,7 @@ export function createChapter2(ctx) {
   // ---------- daily ----------
   function track(id, n = 1) { const tk = econ.track(id, n); if (tk && !booting) hud.toast(`🗓️ ${t('taskDone')}: ${t('dt_' + id)}`); if (tk) { store.queueSave(); rerender(); } }
   async function claimLogin() { const r = econ.claimLogin(); if (!r) return; const g = await grant(r.pts, 'login'); hud.toast(`🎁 ${t('loginToast')}: +${g.granted} ⭐ +${r.ore} 🪨`); await store.save(); refreshTop(); rerender(); checkQuest(); }
-  async function claimTask(i) { const r = econ.claimTask(i); if (!r) return; const g = await grant(r.pts, 'daily'); hud.toast(`🗓️ +${g.granted} ⭐${r.all ? ` · ${t('allBonus')}: +${r.all.ore} 🪨` : ''}`); await store.save(); refreshTop(); rerender(); checkQuest(); }
+  async function claimTask(i) { const r = econ.claimTask(i); if (!r) return; const g = await grant(r.pts, 'daily:' + i); /* TG port: per-task ledger key (server: daily:0..2) */ hud.toast(`🗓️ +${g.granted} ⭐${r.all ? ` · ${t('allBonus')}: +${r.all.ore} 🪨` : ''}`); await store.save(); refreshTop(); rerender(); checkQuest(); }
   // ---------- actions ----------
   async function startJob(rid, kind, what) { const r = econ.start(rid, kind, what); if (!r.ok) { hud.toast('⚠️ ' + (r.why === 'cost' ? t('needRes') : r.why === 'level' ? t('needLvl') : r.why)); return r; }
     flush(); const rb = econ.robot(rid); hud.toast(`${JICON[kind]} ${name(rb)}: ${t('jobStarted')} · ${fmtTime(econ.left(r.job))}${kind === 'expedition' || kind === 'dig' ? ' · ' + t('walkOut') : ''}`);
@@ -337,11 +338,11 @@ export function createChapter2(ctx) {
     if (S().level >= 3 && dist2(me(), base.museumW) < 3.6 && regionOf(me()) === 'hub') { visitT += dt; if (visitT > 1) { visitT = -1e9; track('visit'); } }
     home.update(dt, camera.position, inside); if (!inside) homeAction(); if (inside && !bunnyHint && dist2(me(), hw({ x: Math.sin(-0.5) * 3.75, z: -Math.cos(-0.5) * 3.75 })) < 1.4) { bunnyHint = true; hud.toast('🐰 ' + t('bunnyHouse')); }
     if (!inside) { const p = me(); if (dist2(p, homeDoor) > 3.2 && !homeBusy) home.setOpen(false); }
-    updateCrew(dt); if (imp) imp.end(); base.update(dt); base.cull && base.cull(camera.position); updateStorm(dt); shield.update(dt, ctx.time(), camera.position); if (isSheetOpen() && (tickT === 0.5)) rerender(); }
+    updateCrew(dt); if (imp) for (const n of npcs) if (n && n.far && n.sp && n.sp.hp > 0) imp.push(n.rob.root.position, 'builder', n.yaw); if (imp && api_extraImp) api_extraImp(imp); if (imp) imp.end(); base.update(dt); base.cull && base.cull(camera.position); updateStorm(dt); shield.update(dt, ctx.time(), camera.position); if (isSheetOpen() && (tickT === 0.5)) rerender(); }
   const api = { econ, get on() { return S().on; }, quest: () => { const q = cur(); return q && { id: q.id, kind: q.kind }; }, crew: () => [...crew.values()].map(c => ({ id: c.r.id, type: c.r.type, state: c.state, x: c.pos.x, z: c.pos.z, visible: c.rob.root.visible, triHi: c.rob.triHi, triLo: c.rob.triLo, level: c.rob.level })),
     start: startJob, collect: doCollect, recruit, claimLogin, claimTask, helpResult: async (r) => { const j = S().jobs.find(j => j.help === 'asked'); if (!j) return false; helpJob = j; await helpResult(r); return true; },
     home: () => ({ inside, door: homeDoor, origin: { x: homeO.x, y: homeO.y, z: homeO.z }, doorIn: hw(home.doorIn), consoleIn: hw(home.consoleIn), outside: home.outside }), enterHome, exitHome, homeObj: home,
-    storm: () => ({ state: shield.state, on: storm.on, night: shield.night, spots: storm.spots.map(s => ({ x: s.x, z: s.z, hp: s.hp, rid: s.rid })), console: consoleP, center: shieldC }), startStorm, shield, cut: CUT, cutCam, poseStorm() { while (storm.on && storm.spots.length < 3) { const p = SPOTS[storm.spots.length]; const sp = { x: p.x, z: p.z, y: groundAt(p.x, p.z), hp: 1 }; storm.spots.push(sp); npcFor(sp, storm.spots.length - 1); } for (const c of crew.values()) if (c.storm) { const sp = c.storm; c.pos.set(sp.x + 0.85 * Math.sign((c.home.x - sp.x) || 1), groundAt(sp.x, sp.z), sp.z); c.rob.root.position.copy(c.pos); } }, // screenshot helper: robots already at their panels
+    storm: () => ({ state: shield.state, on: storm.on, night: shield.night, spots: storm.spots.map(s => ({ x: s.x, z: s.z, hp: s.hp, rid: s.rid })), console: consoleP, center: shieldC }), startStorm, shield, set extraImp(f) { api_extraImp = f; }, cut: CUT, cutCam, poseStorm() { storm.spots.forEach((sp, i) => { sp.hp = 1; if (!sp.rid) npcFor(sp, i); }); while (storm.on && storm.spots.length < 3) { const p = SPOTS[storm.spots.length]; const sp = { x: p.x, z: p.z, y: groundAt(p.x, p.z), hp: 1 }; storm.spots.push(sp); npcFor(sp, storm.spots.length - 1); } for (const c of crew.values()) if (c.storm) { const sp = c.storm; c.pos.set(sp.x + 0.85 * Math.sign((c.home.x - sp.x) || 1), groundAt(sp.x, sp.z), sp.z); c.rob.root.position.copy(c.pos); } }, // screenshot helper: robots already at their panels
     stepStorm(sec) { const t0 = ctx.time(); for (let k = 0, n = Math.ceil(sec / 0.05); k < n; k++) { updateStorm(0.05); updateCrew(0.05); if (imp) imp.end(); shield.update(0.05, t0 + k * 0.05, camera.position); } },
     base: () => ({ level: S().level, value: base.mesh.visible, pieces: base.pieces, museum: base.museumW, homes: HOMES, work: WORK, sites: { canyonSite, meteorSite, engSite } }), baseMesh: base, tick: () => { econ.tick(); flush(); checkQuest(); flush(); }, track };
   const mapCrew = () => [...crew.values()].map(c => { const j = econ.jobOf(c.r.id); return { x: c.pos.x, z: c.pos.z, type: c.r.type, prog: j ? econ.progress(j) : -1 }; });

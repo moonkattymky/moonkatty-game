@@ -318,9 +318,9 @@ export function createGame({ scene, camera, ctrl, renderer, env, solids, setPowe
   // ---------- world life (chapter 2, FEAT.life, ?life=0 disables) ----------
   let life = null; const LIFE_ON = FEAT.life && Q.get('life') !== '0';
   function updateLife(dt) {
-    if (!LIFE_ON) return; const show = ch2.on && regionOf(me()) === 'hub' && !ch2.inside;
+    if (!LIFE_ON) return; const show = ch2.on && regionOf(me()) === 'hub' && !ch2.inside && !(ch2.api && ch2.api.storm().on); // storm cutscene: world life off (night, budget)
     if (!life && show) { const base = sd ? sd(-1, 5) : L.regions.hub; const ra = Math.atan2(400 - base.z, 440 - base.x); const crater = { x: base.x + Math.cos(ra) * 170, z: base.z + Math.sin(ra) * 170 };
-      life = makeWorldLife({ scene, camera, env, groundAt: terrainAt, depotP, fields: spots.filter(s => Math.hypot(s.x - base.x, s.z - base.z) < 140), base, launch: L.regions.launch, crater, t, hud, low: Q.get('q') === 'low', mobile, ctrl, makeCrew: makeCrewRobot }); }
+      life = makeWorldLife({ scene, camera, env, groundAt: terrainAt, depotP, fields: spots.filter(s => Math.hypot(s.x - base.x, s.z - base.z) < 140), base, launch: L.regions.launch, crater, t, hud, low: Q.get('q') === 'low', mobile, ctrl, makeCrew: makeCrewRobot }); ch2.api.extraImp = (imp) => life && life.pushImp(imp); }
     if (!life) return; life.setVisible(show); if (show) life.update(dt, time, me(), ch2.mapCrew ? ch2.mapCrew() : []);
   }
   // ---------- frame ----------

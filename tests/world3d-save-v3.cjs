@@ -19,10 +19,10 @@ const U=f=>pathToFileURL(path.join(__dirname,'..','world3d','src',f)).href;
  const both=mergeSaves({...local,ch2:{...local.ch2,done:['a']}},{...local,ch2:{...local.ch2,done:['a','b'],level:3}});assert.deepEqual(both.ch2.done.sort(),['a','b']);assert.equal(both.ch2.level,3);
  // a full v3 save stays well under the server snapshot limit (60000 chars)
  assert.ok(JSON.stringify(d).length<60000);
- // unknown chapter-2 reasons are not paid by the server (error 'reason') and are not queued
+ // reasons the server does not know (error 'reason') are not paid and are not queued
  const ls=new Map(),mk=()=>({getItem:k=>ls.has(k)?ls.get(k):null,setItem:(k,v)=>ls.set(k,v),removeItem:k=>ls.delete(k)});
  const init='user='+encodeURIComponent(JSON.stringify({id:42}))+'&hash=x';
  const b=new TelegramBackend({initData:init,storage:mk(),session:mk(),fetcher:async(u,o)=>{const body=JSON.parse(o.body);return {status:body.action==='session'?200:400,json:async()=>body.action==='session'?{ok:true,session:{token:'t',expires_at:Date.now()+1e6}}:{ok:false,error:'reason'}};}});
- const r=await b.addPoints(10,'daily');assert.equal(r.granted,0);assert.equal(b.pending().length,0);
+ const r=await b.addPoints(10,'bogus:1');assert.equal(r.granted,0);assert.equal(b.pending().length,0);
  console.log('world3d-save-v3: all checks passed');
 })().catch(e=>{console.error(e);process.exit(1);});
