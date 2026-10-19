@@ -4,7 +4,7 @@ const assert=require('assert'),fs=require('fs'),path=require('path'),vm=require(
 const root=path.join(__dirname,'..');
 const read=f=>fs.readFileSync(path.join(root,f),'utf8');
 const ctx={};ctx.globalThis=ctx;ctx.window=ctx;vm.createContext(ctx);
-const files=['ru','uk','es','pt','de','fr','it','tr','he','ar','ko','zh'].map(c=>'locales/'+c+'.js').concat(['locales/daily-retention.js','locales/creator.js','locales/leaderboard.js','locales/social.js','locales/pacing.js','locales/guidance.js']);
+const files=['ru','uk','es','pt','de','fr','it','tr','he','ar','ko','zh'].map(c=>'locales/'+c+'.js').concat(['locales/daily-retention.js','locales/creator.js','locales/leaderboard.js','locales/social.js','locales/pacing.js','locales/guidance.js','locales/sync-status.js']);
 for(const f of files)vm.runInContext(read(f),ctx,{filename:f});
 const L=ctx.MKTYLocales;assert(L.ar&&L.ar.strings,'ar pack missing');
 const ar=L.ar.strings;const others=['es','pt','de','fr','it','tr','he','ko','zh'];

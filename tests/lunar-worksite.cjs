@@ -12,10 +12,11 @@ const baseHashes={
  // Reviewed nonvisual intro return and replay-label translation; pacing, route state and rewards remain unchanged.
  // Re-pinned 2026-10-17 (security hardening): story.js adopts server-issued challenge seeds.
  'story.js':'63d00c9a6c782f702fae62fe7fb6ebb679b7f20d9468f9aca55b6fbfd4adfdec',
- 'storage.js':'c8a4becffdff791e36ce0a709a8cd8dba2cfa5a4f4e8cde4732ab2565a9261c9',
+ // Re-pinned 2026-10-19 (i18n): storage.js / rewards-client.js status texts now go through MKTYI18n.t; wording unchanged.
+ 'storage.js':'2f5417f34184be838285f37238c2cd54d7e6903a3054548b8e856628d4a99816',
  'trace-codec.js':'baba00a4cc9a4ab309382220d3e37b7b35ddc925a582012d8d4d622c124ea865',
  // Re-pinned 2026-10-17 (security hardening): rewards-client.js no longer proposes route seeds.
- 'rewards-client.js':'042c4574d36f10cb532a536f1e9e623b9426ce8eafada6d5dbf048bcaeeb912b',
+ 'rewards-client.js':'4e1a46c4fb047fd419b00988721f9b184b8efb51ec8dc45cfd4263c3352383b6',
  'expedition-model.js':'5209ca04232a01204a3ab1019e32a4cef92c5600de2370cd62243a497ba3e571'
 };
 for(const [file,hash]of Object.entries(baseHashes))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex'),hash,file+' matches the pinned reviewed baseline (with convoy, Echo and closing-gate checkpoint corrections)');

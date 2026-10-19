@@ -6,6 +6,7 @@ const {LANGS,BUNDLES,scopedKeys,missing,readSource}=require('./guidance-locale-h
 const {keys,translations,legacyGuidanceSha256,legacyPackSha256}=require('./marker-keyboard-locales-fixture.json');
 const root=path.resolve(__dirname,'..'),read=readSource(root),source=vm.createContext({}),guidance=vm.createContext({});
 const auditKeys=['MOONKATTY // LUNAR CREW','Welcome to the Crew.','DEEP SPACE / NEW MODE','Story progress: 1 / 9 🌙','CREW','Done!'];
+const syncCtx=vm.createContext({});vm.runInContext(fs.readFileSync(path.join(__dirname,'..','locales/sync-status.js'),'utf8'),syncCtx);const syncKeys=lang=>Object.keys(syncCtx.MKTYLocales[lang]?.strings||{});
 const sha=value=>crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
 assert.equal(keys.length,4);assert.equal(new Set(keys).size,4);
 assert.deepEqual(Object.keys(translations),LANGS,'Every non-English locale has an explicit fixture');
@@ -33,6 +34,8 @@ for(const lang of LANGS){
  // i18n-coverage.cjs and excluded here so every older translation stays frozen.
  // The ru pin was re-frozen after the same audit's reviewed formal «вы» / «лунные очки» re-translation.
  for(const key of auditKeys){assert.equal(typeof full.strings[key],'string',lang+' audit key present: '+key);delete full.strings[key];}
+ // 2026-10-19: locales/sync-status.js only ADDS keys (save/sync status + tr() gaps; covered by sync-status-i18n.cjs), so they are excluded here too.
+ for(const key of syncKeys(lang)){assert.equal(typeof full.strings[key],'string',lang+' sync-status key present: '+key);delete full.strings[key];}
  assert.equal(sha(full),legacyPackSha256[lang],lang+' every old translation and locale metadata remain byte-identical');
 }
 const callsites=scopedKeys(read);

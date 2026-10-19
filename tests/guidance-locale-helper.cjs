@@ -3,7 +3,7 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
 const LANGS=['ru','uk','es','pt','de','fr','it','tr','he','ar','ko','zh'];
-const BUNDLES=['daily-retention','creator','leaderboard','social','pacing','guidance'];
+const BUNDLES=['daily-retention','creator','leaderboard','social','pacing','guidance','sync-status'];
 const SCOPES=[
  ['story.js','chapter guidance and recovery',' function renderNext(',' function descriptor('],
  ['operations.js','board guidance catalog',' const guidance=',' const tr='],

@@ -3,7 +3,7 @@
 (()=>{
  const allowed=/^mkty_(story_(plan_[1-9]_v1|history_[1-9])|operations_[1-9]_v1|campaign_checkpoint_[1-9]|field_finale_[89]_v1|legacy_v1|current_chapter|life1_(memory_code|code_[a-z_]+)|life3_(memory_verified|code_[a-z_]+|hint_[a-z_]+)|life9_coordinates|reactor5_checkpoint_v2|liftoff6_checkpoint_v1|expeditions_v1)$/;
  let loaded=false,loading=null,busy=false,timer=null,applying=false,conflict=null,generation=0,owner='',selectingRestore=false,guardUnreadable=false;
- const enabled=()=>!!window.Telegram?.WebApp?.initData,ru=()=>localStorage.getItem('mkty_lang')==='ru';
+ const enabled=()=>!!window.Telegram?.WebApp?.initData,ru=()=>localStorage.getItem('mkty_lang')==='ru';const L=(en,ru)=>window.MKTYI18n?.t?window.MKTYI18n.t(en,{ru}):(localStorage.getItem('mkty_lang')==='ru'?ru:en);/* i18n: all UI languages, RU fallback */
  function scope(){const current=window.MKTYStorage?.identity()||'guest';if(owner!==current){owner=current;loaded=false;loading=null;conflict=null;guardUnreadable=false;selectingRestore=false;generation++;}return current;}
  function snapshot(){const out={},all=window.MKTYStorage?.snapshot?.();if(all){for(const [k,v] of Object.entries(all))if(allowed.test(k))out[k]=v;return out;}const keys=window.MKTYStorage?.keys?.()||Array.from({length:localStorage.length},(_,i)=>localStorage.key(i));for(const k of keys)if(allowed.test(k))out[k]=localStorage.getItem(k);return out;}
  const stored=k=>window.MKTYStorage?.readItem?window.MKTYStorage.readItem(k):localStorage.getItem(k);
@@ -14,13 +14,13 @@
   if(!remote||!Number.isSafeInteger(remote.revision)||remote.revision<0||!remote.snapshot||typeof remote.snapshot!=='object'||Array.isArray(remote.snapshot))throw Error('snapshot_transport_invalid');
   return {...remote,snapshot:codec.unpackSnapshot(remote.snapshot)};
  }
- function status(text,action){let box=document.getElementById('cloudSaveStatus');if(!text){box?.remove();return;}if(!box){box=document.createElement('div');box.id='cloudSaveStatus';box.setAttribute('role','status');box.style.cssText='position:fixed;bottom:calc(10px + env(safe-area-inset-bottom));left:12px;right:12px;max-width:520px;margin:auto;z-index:18000;padding:12px;background:#e6f0f3;color:#183c4b;border:1px solid #6d919e;border-radius:10px;font:13px/1.45 system-ui';document.body.append(box);}box.replaceChildren(document.createTextNode(text));if(action){const b=document.createElement('button');b.type='button';b.style.cssText='display:block;min-height:44px;margin-top:8px';b.textContent=ru()?'Открыть облачное сохранение':'Open cloud save';b.onclick=()=>restoreAfterReload(conflict);box.append(b);}}
+ function status(text,action){let box=document.getElementById('cloudSaveStatus');if(!text){box?.remove();return;}if(!box){box=document.createElement('div');box.id='cloudSaveStatus';box.setAttribute('role','status');box.style.cssText='position:fixed;bottom:calc(10px + env(safe-area-inset-bottom));left:12px;right:12px;max-width:520px;margin:auto;z-index:18000;padding:12px;background:#e6f0f3;color:#183c4b;border:1px solid #6d919e;border-radius:10px;font:13px/1.45 system-ui';document.body.append(box);}box.replaceChildren(document.createTextNode(text));if(action){const b=document.createElement('button');b.type='button';b.style.cssText='display:block;min-height:44px;margin-top:8px';b.textContent=L('Open cloud save','Открыть облачное сохранение');b.onclick=()=>restoreAfterReload(conflict);box.append(b);}}
  function restoreAfterReload(remote){
   if(!remote)return;
   try{remote=validatedRemote(remote);}catch{transportWarning();return;}
   // Never replace a live controller's checkpoint before pagehide: its final save
   // would immediately overwrite the selected cloud copy with the old run.
-  const unavailable=()=>status(ru()?'Сначала восстановите сохранение на устройстве кнопкой «Повторить сохранение», затем откройте облачную копию.':'First restore device saving with “Retry saving”, then open the cloud copy.',true);
+  const unavailable=()=>status(L('First restore device saving with “Retry saving”, then open the cloud copy.','Сначала восстановите сохранение на устройстве кнопкой «Повторить сохранение», затем откройте облачную копию.'),true);
   if(window.MKTYStorage?.persistent===false){unavailable();return;}
   try{
    let tx=transaction();
@@ -144,7 +144,7 @@
   if(!Number.isSafeInteger(result.revision)||result.revision<0||(!result.conflict&&payload.snapshot&&result.revision<=payload.revision))throw Error('snapshot_transport_invalid');
   return payload.snapshot&&!result.conflict?result:validatedRemote(result);
  }
- function blocked(remote){conflict=remote;status(ru()?'На другом устройстве есть более новое сохранение. Текущий маршрут сохранён на этом устройстве; облачная копия не перезаписана.':'A newer save exists on another device. This route stays on this device; the cloud copy has not been overwritten.',true);}
+ function blocked(remote){conflict=remote;status(L('A newer save exists on another device. This route stays on this device; the cloud copy has not been overwritten.','На другом устройстве есть более новое сохранение. Текущий маршрут сохранён на этом устройстве; облачная копия не перезаписана.'),true);}
  function acknowledgeExact(remote,account,before){
   // A lost write receipt can leave the exact committed checkpoint marked dirty.
   // Reconcile metadata only; recovery choices and every progress byte stay intact.
@@ -179,7 +179,7 @@
    if(['trace_invalid','trace_too_large','snapshot_transport_invalid','snapshot_too_large','transport_unsupported'].includes(error?.message))transportWarning();
    else if(window.MKTYStorage?.persistent===false||['storage','storage_read'].includes(error?.message))storageWarning();
    else{
-    status(ru()?'Облако временно недоступно. Маршрут остаётся на этом устройстве.':'Cloud saving is temporarily unavailable. Your route stays on this device.');
+    status(L('Cloud saving is temporarily unavailable. Your route stays on this device.','Облако временно недоступно. Маршрут остаётся на этом устройстве.'));
     // A transient first download must not consume the only timer for local edits.
     try{if(dirty())schedule();}catch{storageWarning();}
    }
@@ -187,9 +187,9 @@
  }
  function schedule(){if(timer||!enabled())return;timer=setTimeout(()=>{timer=null;flush();},8000);}
  function oversized(s){return Object.values(s).some(v=>codec.utf8Bytes(v)>=codec.LIMITS.snapshotEntryBytes)||codec.utf8Bytes(JSON.stringify(s))>codec.LIMITS.snapshotBytes;}
- function transportWarning(){status(ru()?'Формат облачного сохранения пока не удалось проверить. Прогресс остаётся на этом устройстве; не очищайте данные игры и повторите позже.':'The cloud save format could not be verified. Progress stays on this device; keep the game data and retry later.');}
- function storageWarning(){status(ru()?'Сначала восстановите сохранение на устройстве кнопкой «Повторить сохранение». Облачная копия не перезаписана.':'Restore device saving with “Retry saving” before syncing. Your cloud copy has not been overwritten.');}
- function sizeWarning(){status(ru()?'Этот маршрут слишком большой для облачного сохранения. Прогресс сохранён только на этом устройстве; не очищайте данные игры и продолжайте здесь.':'This route is too large for cloud saving. Progress is saved only on this device; keep its game data and continue here.');}
+ function transportWarning(){status(L('The cloud save format could not be verified. Progress stays on this device; keep the game data and retry later.','Формат облачного сохранения пока не удалось проверить. Прогресс остаётся на этом устройстве; не очищайте данные игры и повторите позже.'));}
+ function storageWarning(){status(L('Restore device saving with “Retry saving” before syncing. Your cloud copy has not been overwritten.','Сначала восстановите сохранение на устройстве кнопкой «Повторить сохранение». Облачная копия не перезаписана.'));}
+ function sizeWarning(){status(L('This route is too large for cloud saving. Progress is saved only on this device; keep its game data and continue here.','Этот маршрут слишком большой для облачного сохранения. Прогресс сохранён только на этом устройстве; не очищайте данные игры и продолжайте здесь.'));}
  async function flush(){
   if(!enabled())return;if(window.MKTYStorage?.persistent===false){storageWarning();return;}const account=scope();await load();if(account!==scope()||!loaded||busy||conflict)return;
   let localSnapshot;try{durable();if(!dirty())return;localSnapshot=snapshot();durable();}catch{storageWarning();return;}
@@ -202,7 +202,7 @@
    if(['storage','storage_read'].includes(error?.message)){tooLarge=true;storageWarning();}
    else if(['snapshot_too_large','trace_too_large','body_too_large'].includes(error?.message)){tooLarge=true;sizeWarning();}
    else if(['transport_unsupported','snapshot_transport_invalid','trace_invalid'].includes(error?.message)){tooLarge=true;transportWarning();}
-   else status(ru()?'Сохранено на устройстве. Синхронизация продолжится после восстановления связи.':'Saved on this device. Sync will retry when the connection returns.');
+   else status(L('Saved on this device. Sync will retry when the connection returns.','Сохранено на устройстве. Синхронизация продолжится после восстановления связи.'));
   }
   finally{busy=false;if(!conflict&&!tooLarge)try{if(dirty())schedule();}catch{storageWarning();}}
  }

@@ -1,7 +1,7 @@
 /* Whitelisted paths only; a single initial language instead of all 12 packs. */
 (()=>{
  const codes=['ru','uk','es','pt','de','fr','it','tr','he','ar','ko','zh'],jobs={};
- const url=code=>'locales/runtime/'+code+'.js?v=20261011-marker-keyboard-1';
+ const url=code=>'locales/runtime/'+code+'.js?v=20261019-sync-i18n-1';
  function arabicFont(code){if(code!=='ar'||document.getElementById('arabicFont'))return;const link=document.createElement('link');link.id='arabicFont';link.rel='stylesheet';link.href='https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap';document.head.appendChild(link);}
  function load(code){arabicFont(code);
   if(!codes.includes(code)||window.MKTYLocales?.[code])return Promise.resolve();
