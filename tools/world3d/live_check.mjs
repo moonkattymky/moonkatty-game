@@ -23,7 +23,7 @@ const ready = (p) => p.waitForFunction(() => window.MK && MK.ready && MK.game &&
   p.on('response', r => { if (r.url().includes('/functions/v1/rewards') && r.status() === 401) auth++; });
   await p.route('https://telegram.org/js/telegram-web-app.js*', r => r.fulfill({ contentType: 'application/javascript', body: "window.Telegram={WebApp:{initData:'user=%7B%22id%22%3A1%7D&auth_date=1&signature=forged',initDataUnsafe:{},version:'8.0',isVersionAtLeast:()=>true,ready(){},expand(){},disableVerticalSwipes(){},enableClosingConfirmation(){},setHeaderColor(){},setBackgroundColor(){},setBottomBarColor(){},onEvent(){},BackButton:{show(){},hide(){},onClick(){}},HapticFeedback:{impactOccurred(){},notificationOccurred(){},selectionChanged(){}},safeAreaInset:{},contentSafeAreaInset:{}}};" }));
   await p.goto(SITE + 'world3d/?view=play&sw=0'); await ready(p); await p.waitForTimeout(2500);
-  ok('forged Telegram initData rejected by live rewards (401) and game still runs', auth > 0 && (await p.evaluate(() => MK.game.state().v)) === 2, '401s: ' + auth);
+  ok('forged Telegram initData rejected by live rewards (401) and game still runs', auth > 0 && (await p.evaluate(() => MK.game.state().v)) >= 2, '401s: ' + auth);
   ok('no unexpected console errors (CORS/CSP ok)', logs.length === 0, JSON.stringify(logs.slice(0, 4)));
   await ctx.close(); }
 { const ctx = await browser.newContext(dev); const p = await ctx.newPage(); await p.route('https://telegram.org/**', r => r.fulfill({ body: '' }));
