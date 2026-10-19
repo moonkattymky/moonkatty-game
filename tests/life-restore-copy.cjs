@@ -4,7 +4,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const {keys,legacyKeys,clauses}=require('./life-restore-copy-fixture.json');
 const root=path.resolve(__dirname,'..'),read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const langs=['ru','uk','es','pt','de','fr','it','tr','he','ar','ko','zh'];
-const bundles=['daily-retention','creator','leaderboard','social','pacing','guidance'];
+const bundles=['daily-retention','creator','leaderboard','social','pacing','guidance','sync-status'];
 function actualKeys(read){
  const html=read('index.html'),hub=read('mission-control.js'),pace=read('pacing.js');
  const rules=html.match(/<strong>9 LIVES<\/strong><p>([^<]+)<\/p>/);

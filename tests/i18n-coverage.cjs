@@ -4,7 +4,7 @@
 const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert');
 const dir=path.join(__dirname,'..','locales');
 const LANGS=['ru','uk','es','pt','de','fr','it','tr','he','ar','ko','zh'];
-const BUNDLES=['daily-retention','creator','leaderboard','social','pacing','guidance'];
+const BUNDLES=['daily-retention','creator','leaderboard','social','pacing','guidance','sync-status'];
 const html=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8');
 assert(html.includes('locale-loader.js'),'single locale loader');
 for(const l of LANGS)assert(fs.existsSync(path.join(dir,'runtime',l+'.js')),`runtime locale ${l}`);
