@@ -255,7 +255,7 @@ export function createGame({ scene, camera, ctrl, renderer, env, solids, setPowe
   hud.$('#mk-sheet .x').addEventListener('click', () => openSheet(false));
   hud.$('#mk-sheet .tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { tab = b.dataset.tab; renderSheet(); } });
   // ---------- Chapter 2 (starts when Chapter 1 is complete) ----------
-  const ch2 = createChapter2({ scene, env, camera, ctrl, store, hud, t, lang, FAST, depotP, groundAt, robotY, gates: G, layout: L, places: P, burst, miner, grant, addXP, refreshTop, regionOf, me, now: nowMs,
+  const ch2 = createChapter2({ backend: tgInit ? backend : null, scene, env, camera, ctrl, store, hud, t, lang, FAST, depotP, groundAt, robotY, gates: G, layout: L, places: P, burst, miner, grant, addXP, refreshTop, regionOf, me, now: nowMs,
     setNight, setEarthDir, sd, mobile, catRoot, earthDir, renderer, fade: (o) => hud.fade(o), time: () => time, free: (p, r) => { const f = solids.nearestFree(p.x, p.z, r); return { x: f.x, z: f.z }; }, low: Q.get('q') === 'low', openSheet: (o) => openSheet(o), isSheetOpen: () => sheetOpen, setTab: (x) => { tab = x; }, rerender: () => { if (sheetOpen) renderSheet(); } });
   let c2wait = 0;
 

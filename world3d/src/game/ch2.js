@@ -7,6 +7,7 @@ import { makeProgressLabel, fmtTime } from './jobs.js';
 import { esc } from './hud.js';
 import { makeShield } from './shield.js';
 import { makeHome } from './home.js';
+import { FLAGS as SOC_FLAGS, friendHelp, notify, bindSocial, applyFriendBoost } from '../tg/deferred.js'; // TG: friend help + notify opt-in
 // ============================================================================================
 // Chapter 2 "The Base Grows": world + UI layer over economy.js.
 //   - crew robots live in the world: idle at home spots in front of the storage module, walk to their work site,
@@ -329,7 +330,13 @@ export function createChapter2(ctx) {
     // museum
     if (s.level >= 3) { h += `<div class="c2-tag">🏺 ${esc(t('museum'))}</div>`; for (const [k, v] of Object.entries(MUSEUM)) { const got = v.items.filter(i => s.museum.includes(k + ':' + i)); h += `<div class="c2-card"><div class="c2-row"><span>${s.sets.includes(k) ? '🏆' : '🏺'} ${esc(t('set_' + k))} ${got.length}/4</span><small>${esc(t('bonus_' + v.bonus))}</small></div><div class="c2-row" style="margin-top:3px"><small>${v.items.map(i => (s.museum.includes(k + ':' + i) ? '✅' : '▫️') + ' ' + esc(t('art_' + i))).join('  ')}</small></div></div>`; } }
     // stubs pending the Telegram port
-    h += `<div class="c2-stub">${esc(t('friendHelp'))} — ${esc(t('soonTg'))}</div><div class="c2-stub">${esc(t('tgNotify'))} — ${esc(t('soonTg'))}</div>`;
+    if (soc.on && SOC_FLAGS.friendHelp) { const F = soc.friends; h += `<div class="c2-tag" id="c2-fh">${esc(t('friendHelp'))}${F ? ` · ${esc(t('fhToday'))} ${F.received_today}/${F.caps.receive}` : ''}</div>`;
+      if (F && F.friends.length) h += `<div class="c2-acts">` + F.friends.slice(0, 12).map(f => `<button class="c2-btn${f.helped ? '' : ' go'}" data-act="fh:${f.id}" ${f.helped ? 'disabled' : ''}><span>${esc(f.name)}</span><small>${esc(f.helped ? t('fhHelped') : t('fhHelp'))}</small></button>`).join('') + `</div>`;
+      else h += `<div class="c2-stub">${esc(t('fhNone'))}</div>`;
+      h += `<div class="c2-acts"><button class="c2-btn" data-act="fhinv"><span>${esc(t('fhInvite'))}</span><small></small></button></div>`; }
+    else h += `<div class="c2-stub">${esc(t('friendHelp'))} — ${esc(t('soonTg'))}</div>`;
+    if (soc.on && SOC_FLAGS.notify) h += `<div class="c2-acts"><button class="c2-btn${soc.notifyOn ? '' : ' go'}" data-act="ntf"><span>${soc.notifyOn ? '🔔 ' + esc(t('ntfOn')) : '🔕 ' + esc(t('ntfOff'))}</span><small>${esc(t('ntfNote'))}</small></button></div>`;
+    else h += `<div class="c2-stub">${esc(t('tgNotify'))} — ${esc(t('soonTg'))}</div>`;
     list.innerHTML = h; if (focusRid) { const el = list.querySelector(`[data-rid="${focusRid}"]`); if (el) el.scrollIntoView({ block: 'nearest' }); focusRid = null; } }
   function renderDaily(sub, list) { const s = S(); econ.rollDay(); const c = store.capInfo(); const lr = econ.loginReward(); const sk = s.streak;
     sub.innerHTML = `<span>${esc(t('daily'))}</span><span>⭐ ${c.earned}/${c.cap}</span>`;
@@ -339,7 +346,21 @@ export function createChapter2(ctx) {
     s.daily.tasks.forEach((tk, i) => { h += `<div class="mk-q ${tk.claimed ? 'done' : tk.done ? 'active' : ''}"><div class="ic">${tk.claimed ? '✅' : { collect: '📦', send: '🤖', crystals: '💎', help: '🤝', points: '⭐', jet: '🔥', visit: '🏺', home: '🏠' }[tk.id]}</div><div class="tx"><div class="tt">${esc(t('dt_' + tk.id))}</div><div class="c2-bar"><i style="width:${tk.prog / tk.need * 100}%"></i></div><div class="st">${Math.floor(tk.prog)}/${tk.need}</div></div><div class="rw">${tk.done && !tk.claimed ? `<button class="c2-btn go" data-act="task:${i}"><span>${esc(t('claim'))}</span><small>+${DAILY_PTS}⭐</small></button>` : `+${DAILY_PTS} ⭐`}</div></div>`; });
     h += `<div class="c2-stub">${esc(t('allBonus'))}: +${DAILY_ALL_ORE} 🪨 ${s.daily.bonus ? '✓' : ''}</div>`;
     list.innerHTML = h; }
+  // ---- TG social: friend help (+10% robot speed per received help) and opt-in notifications (sender off server-side) ----
+  const soc = { on: bindSocial(ctx.backend), friends: null, notifyOn: false, syncT: 3, schedT: 5 };
+  async function socialSync() { if (!soc.on) return; try {
+      const c = await friendHelp.accept(); if (c && c.ok && c.count > 0) { applyFriendBoost(S().jobs, c.count, now()); hud.toast(t('fhGot').replace('{n}', c.count)); store.queueSave(); }
+      const f = await friendHelp.list(); if (f && f.ok) soc.friends = f; const st = await notify.status(); if (st && st.ok) soc.notifyOn = !!st.opted_in; rerender(); } catch (e) { } }
+  function socialSchedule() { if (!soc.on || !soc.notifyOn) return; const t0 = now(), js = S().jobs.filter(j => j.end > t0); const s = S();
+    notify.robotReturned(js.length ? Math.min(...js.map(j => j.end - t0)) / 1000 : null);
+    const cap = econ.cap(), n = econ.stored(), rate = BASE[s.level].rate * (1 + 0.3 * s.eng.reactor); notify.storageFull(n < cap && rate > 0 ? (cap - n) / rate * 3600 * SCALE : null); }
+  async function socialClick(a, x) {
+    if (a === 'fh') { const r = await friendHelp.request(x); hud.toast(r && r.ok ? t('fhSent') : r && (r.error === 'target_cap' || r.error === 'helper_cap') ? t('fhCap') : t('fhErr')); await socialSync(); }
+    else if (a === 'fhinv') { const u = friendHelp.inviteUrl(); const T = window.Telegram && window.Telegram.WebApp; const share = 'https://t.me/share/url?url=' + encodeURIComponent(u || '');
+      try { if (T && T.openTelegramLink) T.openTelegramLink(share); else window.open(share, '_blank'); } catch (e) { } rerender(); }
+    else if (a === 'ntf') { const on = !soc.notifyOn; const r = await notify.optIn(on, ctx.lang); if (r && r.ok) { soc.notifyOn = !!r.opted_in; hud.toast(soc.notifyOn ? t('ntfOk') : t('ntfStop')); socialSchedule(); } else hud.toast(t(on ? 'ntfDenied' : 'fhErr')); rerender(); } }
   async function onClick(e) { const b = e.target.closest('[data-act]'); if (!b || b.disabled) return; const [a, x, y] = b.dataset.act.split(':');
+    if (a === 'fh' || a === 'fhinv' || a === 'ntf') { b.disabled = true; await socialClick(a, x); return; }
     if (a === 'up') await startJob(x, 'upgrade'); else if (a === 'ex') await startJob(x, 'expedition', y); else if (a === 'dg') await startJob(x, 'dig', y); else if (a === 'en') await startJob(x, 'eng', y);
     else if (a === 'hire') await recruit(x); else if (a === 'login') await claimLogin(); else if (a === 'task') await claimTask(+x); }
   hud.$('#mk-sheet .list').addEventListener('click', onClick);
@@ -351,7 +372,7 @@ export function createChapter2(ctx) {
   function boot() { show(); if (!S().on) return; ensureCrew(); econ.rollDay(); lastDay = store.today(); econ.tick(); flush(); syncBase(); booting = false;
     if (away.length) hud.popup({ icon: '🌙', head: t('awayHead'), title: away.slice(0, 3).join(' · '), note: away.slice(3, 6).join(' · ') }, 5200); away.length = 0;
     if (S().login.day !== store.today()) setTimeout(() => hud.toast('🎁 ' + t('dailyReady')), 1800); }
-  function update(dt) { if (!S().on) return; tickT -= dt; if (tickT <= 0) { tickT = 0.5; const res = econ.tick(); flush(); checkQuest(); flush(); if (res.length) store.queueSave();
+  function update(dt) { if (!S().on) return; if (soc.on) { soc.syncT -= dt; soc.schedT -= dt; if (soc.syncT <= 0) { soc.syncT = 300; socialSync(); } if (soc.schedT <= 0) { soc.schedT = 60; socialSchedule(); } } tickT -= dt; if (tickT <= 0) { tickT = 0.5; const res = econ.tick(); flush(); checkQuest(); flush(); if (res.length) store.queueSave();
       const up = S().jobs.find(j => j.kind === 'upgrade'); if (up) base.set(S().level, up.what, econ.progress(up)); track('points', 0); const tk = S().daily.tasks.find(x => x.id === 'points' && !x.done); if (tk) { tk.prog = Math.min(tk.need, D().daily.earned); if (tk.prog >= tk.need) track('points', 0.0001); }
       cb.classList.toggle('ask', S().jobs.some(j => j.help === 'asked')); }
     dayT -= dt; if (dayT <= 0) { dayT = 5; if (store.today() !== lastDay) { lastDay = store.today(); econ.rollDay(); store.queueSave(); rerender(); } }
