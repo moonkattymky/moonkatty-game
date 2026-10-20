@@ -23,13 +23,13 @@ function tufts(L, cx, cy, cz, rx, ry, rz, n, len, hex, slot, filt, part = P_BODY
     const g = new THREE.ConeGeometry(l * 0.7, l, 4, 1, true).translate(0, l / 2, 0); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir)); g.translate(px, py, pz); L.push(prep(g, hex, 0.06, part, slot)); } }
 function eye(L, x, y, z, r, slot, iris = '#2f74ff', yaw = 0, Q = 1) { const s = Math.sign(x) || 1, a = Math.max(6, Math.round(12 * Q)), b = Math.max(4, Math.round(8 * Q)); L.push(prep(new THREE.SphereGeometry(r, a, b).scale(1, 1.08, 0.72).rotateY(yaw * s).translate(x, y, z), '#03050b', 0, P_BODY, slot));
   L.push(prep(new THREE.SphereGeometry(r * 0.6, Math.max(6, a - 2), Math.max(3, b - 2)).scale(1, 1.08, 0.3).rotateY(yaw * s).translate(x, y - r * 0.1, z + r * 0.52), iris, 0.45, P_BODY, slot));
-  L.push(prep(new THREE.SphereGeometry(r * 0.19, Q > 0.6 ? 6 : 4, Q > 0.6 ? 4 : 2).translate(x + r * 0.32, y + r * 0.38, z + r * 0.72), '#ffffff', 2.6, P_BODY, slot)); if (Q > 0.6) L.push(prep(new THREE.SphereGeometry(r * 0.12, 5, 3).translate(x - r * 0.25, y - r * 0.3, z + r * 0.74), '#cfe6ff', 1.6, P_BODY, slot)); }
+  L.push(prep(new THREE.SphereGeometry(r * 0.19, Q > 0.6 ? 6 : 4, Q > 0.6 ? 4 : 2).translate(x + r * 0.32, y + r * 0.38, z + r * 0.72), '#ffffff', 2.6, P_BODY, slot)); if (Q > 0.4) L.push(prep(new THREE.SphereGeometry(r * 0.12, 5, 3).translate(x - r * 0.25, y - r * 0.3, z + r * 0.74), '#cfe6ff', 1.6, P_BODY, slot)); }
 
 // ---- Moon Bunny: ~0.95 m to the ear tips, faces +Z, feet at y=0 ----
 function bunnyGeo(slot, Q) { const L = [], ws = Math.round(18 * Q), hs = Math.round(12 * Q), FUR = '#bcc4e4', FUR2 = '#dfe3f6';
-  L.push(prep(furry(0.24, 0.27, 0.22, ws, hs, 0.05).translate(0, 0.27, -0.01), FUR, 0.07, P_FUR, slot)); // body
+  L.push(prep(furry(0.24, 0.27, 0.22, ws, hs, 0.09).translate(0, 0.27, -0.01), FUR, 0.1, P_FUR, slot)); // body (v74: fluffier)
   if (Q > 0.3) L.push(prep(furry(0.17, 0.19, 0.12, ws, hs, 0.05).translate(0, 0.27, 0.12), FUR2, 0.07, P_FUR, slot)); // chest fluff
-  L.push(prep(furry(0.21, 0.19, 0.19, ws, hs, 0.035).translate(0, 0.63, 0.03), FUR, 0.07, P_FUR, slot)); // head
+  L.push(prep(furry(0.21, 0.19, 0.19, ws, hs, 0.06).translate(0, 0.63, 0.03), FUR, 0.1, P_FUR, slot)); // head
   for (const s of [-1, 1]) { L.push(prep(furry(0.09, 0.075, 0.08, Math.round(10 * Q), Math.round(6 * Q), 0.05).translate(s * 0.1, 0.565, 0.13), FUR2, 0.06, P_BODY, slot)); // cheeks
     L.push(prep(ell(0.06, 0.09, 0.06, Math.round(8 * Q), Math.round(6 * Q)).translate(s * 0.12, 0.33, 0.16), FUR2, 0.05, P_BODY, slot)); // little arms
     L.push(prep(ell(0.075, 0.048, 0.13, Math.round(10 * Q), Math.round(6 * Q)).translate(s * 0.1, 0.045, 0.08), FUR2, 0.05, P_BODY, slot)); // big feet
@@ -37,41 +37,41 @@ function bunnyGeo(slot, Q) { const L = [], ws = Math.round(18 * Q), hs = Math.ro
     // tall ears: fluffy outer + glowing blue/lilac inner, flex from the base (aW 0 at the root .. 1 at the tip)
     const part = s < 0 ? P_EARL : P_EARR, wf = (x, y) => Math.max(0, Math.min(1, (y - 0.74) / 0.36));
     const ear = new THREE.CapsuleGeometry(0.058, 0.26, Math.max(2, Math.round(4 * Q)), Math.max(6, Math.round(10 * Q))).scale(1, 1, 0.55).rotateZ(-s * 0.16).translate(s * 0.085, 0.92, -0.01); L.push(prep(ear, FUR, 0.06, part, slot, wf));
-    const inn = new THREE.CapsuleGeometry(0.036, 0.2, Math.max(1, Math.round(3 * Q)), Math.max(5, Math.round(8 * Q))).scale(1, 1, 0.25).rotateZ(-s * 0.16).translate(s * 0.087, 0.93, 0.034); L.push(prep(inn, '#5f7fff', 2.8, part, slot, wf));
+    const inn = new THREE.CapsuleGeometry(0.036, 0.2, Math.max(1, Math.round(3 * Q)), Math.max(5, Math.round(8 * Q))).scale(1, 1, 0.25).rotateZ(-s * 0.16).translate(s * 0.087, 0.93, 0.034); L.push(prep(inn, '#4f8bff', 4.2, part, slot, wf));
     if (Q > 0.6) L.push(prep(new THREE.CapsuleGeometry(0.02, 0.12, 2, 6).scale(1, 1, 0.3).rotateZ(-s * 0.16).translate(s * 0.087, 0.9, 0.04), '#f2a9e0', 1.6, part, slot, wf)); }
-  tufts(L, 0, 0.27, -0.01, 0.24, 0.27, 0.22, Math.round((Q > 0.3 ? 60 : 36) * Q), 0.04, FUR, slot, (x, y, z) => y > -0.6, P_FUR);
-  tufts(L, 0, 0.63, 0.03, 0.21, 0.19, 0.19, Math.round(26 * Q), 0.03, FUR, slot, (x, y, z) => z < 0.55 || y > 0.5, P_FUR);
+  tufts(L, 0, 0.27, -0.01, 0.24, 0.27, 0.22, Math.round((Q > 0.3 ? 60 : 36) * Q), 0.055, FUR, slot, (x, y, z) => y > -0.6, P_FUR);
+  tufts(L, 0, 0.63, 0.03, 0.21, 0.19, 0.19, Math.round(26 * Q), 0.045, FUR, slot, (x, y, z) => z < 0.55 || y > 0.5, P_FUR);
   tufts(L, 0, 0.27, 0.12, 0.17, 0.19, 0.12, Math.round(14 * Q), 0.03, FUR2, slot, (x, y, z) => z > 0.3, P_FUR);
   L.push(prep(furry(0.085, 0.08, 0.08, Math.round(10 * Q), Math.round(6 * Q), 0.08).translate(0, 0.17, -0.24), FUR2, 0.08, P_BODY, slot)); // pom tail
-  eye(L, -0.085, 0.645, 0.18, 0.064, slot, '#2f74ff', 0.22, Q); eye(L, 0.085, 0.645, 0.18, 0.064, slot, '#2f74ff', 0.22, Q);
+  eye(L, -0.088, 0.645, 0.178, 0.078, slot, '#1d3f9a', 0.24, Q); eye(L, 0.088, 0.645, 0.178, 0.078, slot, '#1d3f9a', 0.24, Q); // v74: bigger, darker, glossier
   L.push(prep(new THREE.SphereGeometry(0.02, 6, 4).scale(1.2, 0.8, 0.8).translate(0, 0.585, 0.218), '#f3a6bd', 0.3, P_BODY, slot)); // nose
   L.push(prep(new THREE.TorusGeometry(0.018, 0.004, 3, 8, Math.PI).rotateZ(Math.PI).translate(0, 0.565, 0.212), '#9c7f96', 0, P_BODY, slot)); // mouth
   // forehead crystal (+ two small shards) and blue sparkles in the fur
-  L.push(prep(new THREE.OctahedronGeometry(1, 0).scale(0.032, 0.062, 0.02).rotateX(-0.25).translate(0, 0.75, 0.175), '#7fe6ff', 2.6, P_BODY, slot));
+  L.push(prep(new THREE.OctahedronGeometry(1, 0).scale(0.04, 0.075, 0.024).rotateX(-0.25).translate(0, 0.755, 0.178), '#8feaff', 4.2, P_GLOW, slot));
   for (const s of [-1, 1]) L.push(prep(new THREE.OctahedronGeometry(1, 0).scale(0.016, 0.03, 0.012).rotateZ(s * 0.6).translate(s * 0.035, 0.735, 0.172), '#9fd0ff', 2.2, P_BODY, slot));
-  for (let i = 0; i < Math.round(12 * Q); i++) { const a = rnd() * Math.PI * 2, y = 0.12 + rnd() * 0.6, r = y > 0.45 ? 0.2 : 0.24; L.push(prep(new THREE.OctahedronGeometry(0.008 + rnd() * 0.006, 0).translate(Math.cos(a) * r, y, Math.sin(a) * r * 0.95), '#8fd4ff', 3.0, P_BODY, slot)); }
+  for (let i = 0; i < Math.round(8 * Q); i++) { const a = rnd() * Math.PI * 2, y = 0.12 + rnd() * 0.6, r = y > 0.45 ? 0.2 : 0.24; L.push(prep(new THREE.OctahedronGeometry(0.008 + rnd() * 0.006, 0).translate(Math.cos(a) * r, y, Math.sin(a) * r * 0.95), '#8fd4ff', 3.0, P_BODY, slot)); }
   return L; }
 
 // ---- Crystal Hedgehog: ~0.5 m tall incl. crystal spines, faces +Z ----
 function hedgehogGeo(slot, Q) { const L = []; const ws = Math.round(16 * Q), hs = Math.round(10 * Q);
-  L.push(prep(ell(0.23, 0.18, 0.28, ws, hs).translate(0, 0.2, -0.02), '#2c4f9e', 0.4, P_BODY, slot)); // body under the spines
-  L.push(prep(furry(0.145, 0.13, 0.13, ws, hs, 0.03).translate(0, 0.16, 0.2), '#d2b089', 0, P_BODY, slot)); // face + belly
-  L.push(prep(new THREE.ConeGeometry(0.075, 0.14, Math.max(5, Math.round(10 * Q))).rotateX(Math.PI / 2).translate(0, 0.15, 0.33), '#d9ba95', 0, P_BODY, slot)); // snout
+  L.push(prep(ell(0.23, 0.18, 0.28, ws, hs).translate(0, 0.2, -0.02), '#5e3f2a', 0.0, P_BODY, slot)); // body under the spines (v74: brown like the concept)
+  L.push(prep(furry(0.145, 0.13, 0.13, ws, hs, 0.03).translate(0, 0.16, 0.2), '#b88a5e', 0.04, P_BODY, slot)); // face + belly
+  L.push(prep(new THREE.ConeGeometry(0.075, 0.14, Math.max(5, Math.round(10 * Q))).rotateX(Math.PI / 2).translate(0, 0.15, 0.33), '#c49a6c', 0, P_BODY, slot)); // snout
   L.push(prep(new THREE.SphereGeometry(0.03, 6, 4).translate(0, 0.155, 0.4), '#15100e', 0, P_BODY, slot)); // nose
   eye(L, -0.068, 0.22, 0.285, 0.04, slot, '#3a2a20', 0.35, Q); eye(L, 0.068, 0.22, 0.285, 0.04, slot, '#3a2a20', 0.35, Q);
   for (const s of [-1, 1]) { L.push(prep(new THREE.SphereGeometry(0.04, 6, 4).scale(1, 1, 0.5).translate(s * 0.12, 0.3, 0.19), '#8a6448', 0, P_BODY, slot)); for (const z of [0.12, -0.14]) L.push(prep(ell(0.045, 0.035, 0.06, 5, 3).translate(s * 0.13, 0.03, z), '#5d4535', 0, P_LEG, slot)); }
   // crystal spines over the back: elongated octahedra along the body normal, light/dark blues, tips shimmer (aW)
-  const N = Math.round(190 * Q); for (let i = 0; i < N; i++) { const u = 1 - 2 * (i + 0.5) / N, a = i * 2.39996 + rnd() * 0.3, sq = Math.sqrt(1 - u * u); /* fibonacci sphere: even coverage */ const nx = sq * Math.cos(a), ny = u, nz = sq * Math.sin(a); if (ny < -0.25 || nz > 0.45 + ny * 0.3) continue;
+  const N = Math.round((Q > 0.4 ? 245 : 190) * Q); for (let i = 0; i < N; i++) { const u = 1 - 2 * (i + 0.5) / N, a = i * 2.39996 + rnd() * 0.3, sq = Math.sqrt(1 - u * u); /* fibonacci sphere: even coverage */ const nx = sq * Math.cos(a), ny = u, nz = sq * Math.sin(a); if (ny < -0.25 || nz > 0.45 + ny * 0.3) continue;
     const px = nx * 0.24, py = 0.2 + ny * 0.18, pz = -0.02 + nz * 0.29; const dir = new THREE.Vector3(nx * 0.7, ny * 0.8 + 0.45, nz * 0.4 - 0.75).normalize(); const l = 0.2 + rnd() * 0.14;
     const g = new THREE.OctahedronGeometry(1, 0).scale(0.05, l / 2, 0.04).translate(0, l * 0.42, 0); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir)); g.translate(px, py, pz);
-    L.push(prep(g, rnd() < 0.5 ? '#2a62f0' : rnd() < 0.5 ? '#4f98ff' : '#1d3fc0', 0.55 + rnd() * 0.5, P_WAVE, slot, (x, y, z) => Math.max(0, Math.hypot(x - px, y - py, z - pz) / l) * 0.25)); }
+    L.push(prep(g, rnd() < 0.5 ? '#2f6cff' : rnd() < 0.5 ? '#63b0ff' : '#2147d6', 0.8 + rnd() * 0.7, P_WAVE, slot, (x, y, z) => Math.max(0, Math.hypot(x - px, y - py, z - pz) / l) * 0.25)); }
   return L; }
 
 // ---- Glowbug: ~0.22 m, dark body, big glowing cyan abdomen (pulses), round eyes, 6 legs, antennae with glowing tips ----
 function bugGeo(slot, Q) { const L = []; const ws = Math.max(5, Math.round(9 * Q)), hs = Math.max(3, Math.round(6 * Q)), lo = Q < 0.6;
   L.push(prep(ell(0.075, 0.065, 0.07, ws, hs).translate(0, 0.085, 0.06), '#20242f', 0.05, P_BODY, slot)); // head/thorax
-  L.push(prep(ell(0.1, 0.09, 0.12, ws, hs).translate(0, 0.1, -0.06), '#4fd8ff', 2.4, P_GLOW, slot)); // glowing abdomen
-  L.push(prep(ell(0.093, 0.04, 0.1, ws, hs).translate(0, 0.14, -0.05), '#2a3140', 0.0, P_BODY, slot)); // wing case over the glow
+  L.push(prep(ell(0.1, 0.09, 0.12, ws, hs).translate(0, 0.1, -0.06), '#5fe4ff', 3.6, P_GLOW, slot)); // glowing abdomen (v74: brighter)
+  L.push(prep(ell(0.093, 0.04, 0.1, ws, hs).translate(0, 0.14, -0.05), '#2a3550', 0.15, P_BODY, slot)); // wing case over the glow
   for (const s of [-1, 1]) { L.push(prep(new THREE.SphereGeometry(0.03, lo ? 5 : 7, lo ? 3 : 5).translate(s * 0.035, 0.1, 0.115), '#e8eef8', 0.2, P_BODY, slot)); L.push(prep(new THREE.SphereGeometry(0.018, lo ? 4 : 6, lo ? 2 : 4).translate(s * 0.037, 0.1, 0.138), '#05070c', 0, P_BODY, slot)); if (!lo) L.push(prep(new THREE.SphereGeometry(0.006, 4, 2).translate(s * 0.032, 0.108, 0.155), '#ffffff', 2.5, P_BODY, slot));
     L.push(prep(new THREE.CylinderGeometry(0.004, 0.004, 0.09, 3, 1, true).rotateX(-0.5).rotateZ(-s * 0.35).translate(s * 0.03, 0.18, 0.1), '#1a1d26', 0, P_LEG, slot)); L.push(prep(new THREE.OctahedronGeometry(0.012, 0).translate(s * 0.048, 0.22, 0.125), '#8ff0ff', 2.6, P_GLOW, slot));
     for (const z of [0.07, 0.0, -0.07]) { const g = new THREE.CylinderGeometry(0.006, 0.004, 0.11, 3, 1, true).rotateZ(s * 1.0).translate(s * 0.095, 0.045, z); L.push(prep(g, '#161920', 0, P_LEG, slot, () => 1)); } }
@@ -79,16 +79,16 @@ function bugGeo(slot, Q) { const L = []; const ws = Math.max(5, Math.round(9 * Q
 
 // ---- Dust Jelly: bell ~1 m wide (scaled up for the far drifting ones), cute face, frilled rim, glowing tentacles ----
 function jellyGeo(slot, Q) { const L = [], vf = Q < 0.2; /* low-tier far jelly: coarser */ const ws = vf ? 6 : Math.max(8, Math.round(18 * Q)), hs = vf ? 3 : Math.max(4, Math.round(8 * Q)), Y = 1.25;
-  L.push(prep(new THREE.SphereGeometry(0.5, ws, hs, 0, Math.PI * 2, 0, Math.PI * 0.56).scale(1, 0.8, 1).translate(0, Y - 0.06, 0), '#7458f0', 0.85, P_BELL, slot)); // bell
-  if (!vf) L.push(prep(new THREE.SphereGeometry(0.32, Math.max(6, Math.round(12 * Q)), Math.max(3, Math.round(6 * Q))).scale(1, 0.75, 1).translate(0, Y + 0.05, 0), '#b496ff', 1.3, P_BELL, slot)); // inner glow
+  L.push(prep(new THREE.SphereGeometry(0.5, ws, hs, 0, Math.PI * 2, 0, Math.PI * 0.56).scale(1, 0.8, 1).translate(0, Y - 0.06, 0), '#5b2cf0', 1.5, P_BELL, slot)); // bell (v74: brighter purple-blue glow)
+  if (!vf) L.push(prep(new THREE.SphereGeometry(0.32, Math.max(6, Math.round(12 * Q)), Math.max(3, Math.round(6 * Q))).scale(1, 0.75, 1).translate(0, Y + 0.05, 0), '#9a62ff', 2.0, P_BELL, slot)); // inner glow
   L.push(prep(new THREE.TorusGeometry(0.47, 0.045, 3, ws).rotateX(Math.PI / 2).translate(0, Y - 0.12, 0), '#9478ff', 1.3, P_BELL, slot)); // frilled rim
   const nF = Q > 0.4 ? Math.round(9 * Q) : 0; for (let k = 0; k < nF; k++) { const a = k / nF * Math.PI * 2; L.push(prep(new THREE.SphereGeometry(0.06, 5, 3).scale(1, 0.6, 1).translate(Math.cos(a) * 0.47, Y - 0.15, Math.sin(a) * 0.47), '#a58cff', 1.2, P_BELL, slot)); }
   eye(L, -0.15, Y + 0.08, 0.38, 0.075, slot, '#4a5cff', 0.38, Q); eye(L, 0.15, Y + 0.08, 0.38, 0.075, slot, '#4a5cff', 0.38, Q);
   if (Q > 0.4) for (const s of [-1, 1]) L.push(prep(new THREE.SphereGeometry(0.05, 6, 3).scale(1, 0.55, 0.4).translate(s * 0.25, Y - 0.02, 0.38), '#ff9fd2', 1.3, P_BODY, slot));
   L.push(prep(new THREE.TorusGeometry(0.03, 0.007, 3, 8, Math.PI).rotateZ(Math.PI).translate(0, Y - 0.02, 0.44), '#5a3f8a', 0, P_BODY, slot));
   // tentacles (thin, long, glowing cyan-violet) + 4 thicker frilly oral arms; wave in the shader, weight grows toward the tip
-  const nT = vf ? 5 : Math.max(6, Math.round(11 * Q)); for (let k = 0; k < nT; k++) { const a = k / nT * Math.PI * 2 + 0.2, r = 0.38 + (k % 2) * 0.06, len = 0.9 + rnd() * 0.5; const pts = []; for (let j = 0; j <= 6; j++) { const u = j / 6; pts.push(new THREE.Vector3(Math.cos(a) * r * (1 - u * 0.25) + Math.sin(u * 5 + k) * 0.05, Y - 0.14 - u * len, Math.sin(a) * r * (1 - u * 0.25) + Math.cos(u * 4 + k) * 0.05)); }
-    L.push(prep(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), vf ? 3 : Math.max(4, Math.round(9 * Q)), 0.012, 3, false), k % 3 ? '#62b8ff' : '#a47cff', 2.4, P_WAVE, slot, (x, y) => Math.max(0, (Y - 0.14 - y) / len))); }
+  const nT = vf ? 5 : Math.max(6, Math.round(11 * Q)); for (let k = 0; k < nT; k++) { const a = k / nT * Math.PI * 2 + 0.2, r = 0.38 + (k % 2) * 0.06, len = 1.3 + rnd() * 0.6; const pts = []; for (let j = 0; j <= 6; j++) { const u = j / 6; pts.push(new THREE.Vector3(Math.cos(a) * r * (1 - u * 0.25) + Math.sin(u * 5 + k) * 0.05, Y - 0.14 - u * len, Math.sin(a) * r * (1 - u * 0.25) + Math.cos(u * 4 + k) * 0.05)); }
+    L.push(prep(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), vf ? 3 : Math.max(4, Math.round(9 * Q)), 0.018, 3, false), k % 3 ? '#6cc8ff' : '#b48cff', 3.2, P_WAVE, slot, (x, y) => Math.max(0, (Y - 0.14 - y) / len))); }
   for (let k = 0; k < 4; k++) { const a = k / 4 * Math.PI * 2 + 0.6; const pts = []; for (let j = 0; j <= 5; j++) { const u = j / 5; pts.push(new THREE.Vector3(Math.cos(a) * 0.12 * (1 + u), Y - 0.12 - u * 0.75, Math.sin(a) * 0.12 * (1 + u))); }
     L.push(prep(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), Math.max(3, Math.round(7 * Q)), 0.02, 3, false), '#8a7cff', 1.5, P_WAVE, slot, (x, y) => Math.max(0, (Y - 0.12 - y) / 0.75))); }
   return L; }
