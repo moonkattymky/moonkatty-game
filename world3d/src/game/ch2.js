@@ -92,10 +92,31 @@ export function createChapter2(ctx) {
   const hw = (p) => ({ x: homeO.x + p.x, z: homeO.z + p.z });
   let inside = false, homeBusy = false, realSolids = null, outCam = null, entryAt = null, bunnyHint = false;
   const wait = (s) => new Promise(r => setTimeout(r, s * 1000));
+  // TG glue (home inset framing): with a large top safe-area inset the quest panel (#mk-track, top max(92px, inset+82px))
+  // is pushed down onto the portrait home composition. Fit the cat (screen-space bbox top/bottom at the bbox centre)
+  // into the band [panel bottom + 8 px, Map button top - 2 px]: shift the projection down (camera.setViewOffset) and,
+  // only if the band is shorter than the cat, zoom out slightly (camera.zoom <= 1, about the screen centre).
+  // Camera pose / composition / controls are unchanged. Measured every 0.5 s, eased. 0 inset -> cat already inside the
+  // band -> shift 0, zoom 1 -> no-op. Cleared on exit.
+  const _hv = new THREE.Vector3(), _hb = new THREE.Box3(); let _hiT = -1e9, _hiTS = 0, _hiTZ = 1, _hiS = 0, _hiZ = 1;
+  function homeInsetFrame(dt) {
+    const W = innerWidth, H = innerHeight, on = inside && H > W, cy = H / 2;
+    if (on && ctx.catRoot) { const now = performance.now(); if (now - _hiT > 500) { _hiT = now; try {
+      const q = document.getElementById('mk-track'), m = document.getElementById('mk-map'); const qb = q && q.offsetParent !== null ? q.getBoundingClientRect().bottom : 0, mt = m && m.offsetParent !== null ? m.getBoundingClientRect().top : H;
+      _hb.setFromObject(ctx.catRoot); if (!_hb.isEmpty()) { const cx = (_hb.min.x + _hb.max.x) / 2, cz = (_hb.min.z + _hb.max.z) / 2, sy = (y) => { _hv.set(cx, y, cz).project(camera); const ym = (1 - _hv.y) / 2 * H; return (ym - _hiS - cy) / _hiZ + cy; };
+        const head = sy(_hb.max.y), feet = sy(_hb.min.y), top = qb + 8, bot = mt - 2; let z = 1, s = 0;
+        if (head < top) { if (feet - head > bot - top && bot > top) z = Math.max(0.85, (bot - top) / (feet - head)); const h2 = cy + (head - cy) * z, f2 = cy + (feet - cy) * z; s = Math.max(0, Math.min(top - h2, bot - f2)); }
+        _hiTS = s; _hiTZ = z; } } catch (e) { _hiTS = 0; _hiTZ = 1; } } }
+    else { _hiTS = 0; _hiTZ = 1; }
+    const k = Math.min(1, (dt || 0.016) * 6); _hiS += (_hiTS - _hiS) * k; _hiZ += (_hiTZ - _hiZ) * k; if (_hiTS === 0 && _hiS < 0.5) _hiS = 0; if (_hiTZ === 1 && _hiZ > 0.999) _hiZ = 1;
+    const sR = Math.round(_hiS); if (camera.zoom !== _hiZ) { camera.zoom = _hiZ; camera.updateProjectionMatrix(); }
+    if (sR > 0) { const v = camera.view; if (!v || !v.enabled || v.offsetY !== -sR || v.fullWidth !== W || v.fullHeight !== H) camera.setViewOffset(W, H, 0, -sR, W, H); }
+    else if (camera.view && camera.view.enabled) camera.clearViewOffset();
+  }
   async function enterHome() { if (homeBusy || inside) return; homeBusy = true; home.setOpen(true); await wait(FAST ? 0.15 : 0.6); ctx.fade(true); await wait(FAST ? 0.1 : 0.35);
     try { home.snapshot(ctx.renderer, scene, { base: shieldC }); } catch (e) { } home.enterPrep(); realSolids = ctrl.solids; ctrl.solids = home.solids(realSolids); home.group.visible = true; camera.layers.set(home.LAYER); ctx.renderer.shadowMap.autoUpdate = false; if (ctx.catRoot) ctx.catRoot.traverse(o => o.layers.enable(home.LAYER));
     outCam = { d: ctrl.camDist, p: ctrl.camPitch }; const asp = camera.aspect || 1.7, E = asp < 1 ? home.entry.portrait : home.entry, di = hw(E.cat); ctrl.place(di.x, di.z, E.yaw, false); ctrl.camYaw = E.camYaw; ctrl.camDist = E.camDist; ctrl.camPitch = E.camPitch; outCam.fov = camera.fov; camera.fov = E.fov; camera.updateProjectionMatrix(); ctrl.camShift = E.fixedShift ? E.shift : E.shift * Math.min(1, asp / 1.6); ctrl.camLift = E.lift || 0; entryAt = { x: di.x, z: di.z }; try { if (window.MK && MK.setCatStride) MK.setCatStride({ ph: E.stride ?? 0.25, t: 8 }); } catch (e) { } inside = true; home.setOpen(false); await wait(0.1); ctx.fade(false); homeBusy = false; track('home'); rerender(); }
-  async function exitHome() { if (homeBusy || !inside) return; homeBusy = true; ctx.fade(true); await wait(FAST ? 0.1 : 0.35); camera.layers.set(0); ctx.renderer.shadowMap.autoUpdate = true; ctx.renderer.shadowMap.needsUpdate = true; ctrl.solids = realSolids; home.group.visible = false; inside = false; ctrl.camShift = 0; ctrl.camLift = 0; try { if (window.MK && MK.setCatStride) MK.setCatStride(null); } catch (e) { } if (outCam && outCam.fov) { camera.fov = outCam.fov; camera.updateProjectionMatrix(); } home.setOpen(true);
+  async function exitHome() { if (homeBusy || !inside) return; homeBusy = true; ctx.fade(true); await wait(FAST ? 0.1 : 0.35); camera.layers.set(0); ctx.renderer.shadowMap.autoUpdate = true; ctx.renderer.shadowMap.needsUpdate = true; ctrl.solids = realSolids; home.group.visible = false; inside = false; ctrl.camShift = 0; ctrl.camLift = 0; _hiS = _hiTS = 0; _hiZ = _hiTZ = 1; try { camera.zoom = 1; camera.clearViewOffset(); camera.updateProjectionMatrix(); } catch (e) { } try { if (window.MK && MK.setCatStride) MK.setCatStride(null); } catch (e) { } if (outCam && outCam.fov) { camera.fov = outCam.fov; camera.updateProjectionMatrix(); } home.setOpen(true);
     const o = home.outside; ctrl.place(o.x, o.z, homeDoor.yaw, true); if (outCam) { ctrl.camDist = outCam.d; ctrl.camPitch = outCam.p; } await wait(0.1); ctx.fade(false); await wait(FAST ? 0.2 : 0.8); home.setOpen(false); homeBusy = false; rerender(); }
   function homeAction() { const p = me();
     if (!inside) { if (FEAT.home && regionOf(p) === 'hub' && dist2(p, homeDoor) < 2.8) { home.setOpen(true); return { act: 'c2:home:in', label: '🚪 ' + t('homeEnter') }; } return null; }
@@ -336,7 +357,7 @@ export function createChapter2(ctx) {
     dayT -= dt; if (dayT <= 0) { dayT = 5; if (store.today() !== lastDay) { lastDay = store.today(); econ.rollDay(); store.queueSave(); rerender(); } }
     if (ctrl.thrusting) { jetT += dt; if (jetT >= 1) { track('jet', 1); jetT -= 1; } }
     if (S().level >= 3 && dist2(me(), base.museumW) < 3.6 && regionOf(me()) === 'hub') { visitT += dt; if (visitT > 1) { visitT = -1e9; track('visit'); } }
-    home.update(dt, camera.position, inside); if (inside && ctrl.camShift > 0 && entryAt && dist2(me(), entryAt) > 0.3) { ctrl.camShift = Math.max(0, ctrl.camShift - dt * 1.1); ctrl.camLift = Math.max(0, (ctrl.camLift || 0) - dt * 0.6); if (ctrl.camPitch < 0.05) ctrl.camPitch = Math.min(0.05, ctrl.camPitch + dt * 0.3); } /* entry framing (concept composition) eases back to a centred follow cam once the cat walks */ if (!inside) homeAction(); if (inside && !bunnyHint && dist2(me(), hw({ x: Math.sin(-0.5) * 3.75, z: -Math.cos(-0.5) * 3.75 })) < 1.4) { bunnyHint = true; hud.toast('🐰 ' + t('bunnyHouse')); }
+    home.update(dt, camera.position, inside); homeInsetFrame(dt); /* TG glue: keep the cat clear of the inset-shifted quest panel */ if (inside && ctrl.camShift > 0 && entryAt && dist2(me(), entryAt) > 0.3) { ctrl.camShift = Math.max(0, ctrl.camShift - dt * 1.1); ctrl.camLift = Math.max(0, (ctrl.camLift || 0) - dt * 0.6); if (ctrl.camPitch < 0.05) ctrl.camPitch = Math.min(0.05, ctrl.camPitch + dt * 0.3); } /* entry framing (concept composition) eases back to a centred follow cam once the cat walks */ if (!inside) homeAction(); if (inside && !bunnyHint && dist2(me(), hw({ x: Math.sin(-0.5) * 3.75, z: -Math.cos(-0.5) * 3.75 })) < 1.4) { bunnyHint = true; hud.toast('🐰 ' + t('bunnyHouse')); }
     if (!inside) { const p = me(); if (dist2(p, homeDoor) > 3.2 && !homeBusy) home.setOpen(false); }
     updateCrew(dt); if (imp) for (const n of npcs) if (n && n.far && n.sp && n.sp.hp > 0) imp.push(n.rob.root.position, 'builder', n.yaw); if (imp && api_extraImp) api_extraImp(imp); if (imp) imp.end(); base.update(dt); base.cull && base.cull(camera.position); updateStorm(dt); shield.update(dt, ctx.time(), camera.position); if (isSheetOpen() && (tickT === 0.5)) rerender(); }
   const api = { econ, get on() { return S().on; }, quest: () => { const q = cur(); return q && { id: q.id, kind: q.kind }; }, crew: () => [...crew.values()].map(c => ({ id: c.r.id, type: c.r.type, state: c.state, x: c.pos.x, z: c.pos.z, visible: c.rob.root.visible, triHi: c.rob.triHi, triLo: c.rob.triLo, level: c.rob.level })),
