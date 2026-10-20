@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Kit, sq, cyl, sph, tor, capsule, ring, tube, crescent, gloveTo, material, faceTexture, builderKits, setLQ, LQ0, PRESET } from './robot.js';
+import { Kit, sq, cyl, sph, tor, capsule, ring, tube, crescent, gloveTo, material, faceTexture, builderKits, setLQ, LQ0, PRESET, setCosmetic } from './robot.js';
 // ============================================================================================
 // Chapter 2 robot crew, derived 1:1 from the approved concept sheet (c3d81f09): same ivory/gold body language as the Builder,
 // types differ by head gear, locomotion and tool:
@@ -107,20 +107,36 @@ function glyph(kit, p, r) { // engraved sun/eye glyph on the tablet: thin self-l
   for (const sx of [-1, 1]) add(new THREE.BoxGeometry(0.012, 0.07, 0.004), 'glyph', [sx * 0.07, -0.08, 0]); add(new THREE.BoxGeometry(0.19, 0.27, 0.002), 'hat', [0, 0, -0.003]); }
 function builder() { const k = builderKits(); return { body: k.body, arm: k.arm, HY: 1.15, SH: [-0.37, 0.78, 0], faceZ: 0.313, HT: k.HT, builder: true }; }
 const BUILD = { geologist, archaeologist, engineer, builder };
+// v72 cosmetics (navy / gold / ivory / cyan house style). Paints remap palette names in the vertex colours; decals swap the chest crescent.
+// lock: null = free, {lvl:n} = robot level n, {set:'station'} = completed museum set. All baked into the existing merged meshes: 0 extra draws.
+const _p = (c, mr) => ({ c, mr });
+export const PAINTS = {
+  classic: { sw: '#e8e2d6', lock: null, map: {} },
+  navy: { sw: '#22305a', lock: null, map: { ivory: _p('#1c2847', [0.1, 0.3]), ivoryS: _p('#17203a', [0.1, 0.34]) } },
+  cyan: { sw: '#3aa8c8', lock: { lvl: 2 }, map: { ivory: _p('#2b7590', [0.1, 0.3]), ivoryS: _p('#225f75', [0.1, 0.34]) } },
+  royal: { sw: '#c9a032', lock: { lvl: 3 }, map: { ivory: _p('#1c2847', [0.15, 0.26]), ivoryS: _p('#17203a', [0.15, 0.3]), gold: _p('#c0941a', [0.9, 0.22]), hat: _p('#c0941a', [0.9, 0.22]), dark: _p('#2a3a66', [0.3, 0.45]) } },
+  pearl: { sw: '#f4f1ea', lock: { set: 'station' }, map: { ivory: _p('#b2aea8', [0.05, 0.22]), ivoryS: _p('#a19c96', [0.05, 0.26]), gold: _p('#8d949c', [0.85, 0.25]), hat: _p('#8d949c', [0.85, 0.25]) } },
+  relic: { sw: '#9a7424', lock: { set: 'ancient' }, map: { ivory: _p('#7a5a1c', [0.7, 0.32]), ivoryS: _p('#6a4c16', [0.7, 0.36]), gold: _p('#2b6f86', [0.5, 0.3]) } },
+};
+export const DECALS = { crescent: { lock: null }, star: { lock: null }, paw: { lock: { lvl: 2 } }, bolt: { lock: { set: 'meteor' } } };
+export const cosOf = (r) => ({ p: PAINTS[r && r.cos && r.cos.p] ? r.cos.p : 'classic', d: DECALS[r && r.cos && r.cos.d] ? r.cos.d : 'crescent' });
+export const cosUnlocked = (lock, lvl, sets) => !lock || (lock.lvl ? lvl >= lock.lvl : !!(sets && sets.includes(lock.set)));
+// impostor tint: index into PAINTS order (0 = classic -> no tint)
+export const PAINT_IDS = Object.keys(PAINTS);
 function holoTexture() { const c = document.createElement('canvas'); c.width = 256; c.height = 180; const g = c.getContext('2d'); g.fillStyle = 'rgba(40,170,255,0.22)'; g.fillRect(0, 0, 256, 180); g.strokeStyle = 'rgba(140,230,255,0.9)'; g.lineWidth = 3; g.strokeRect(4, 4, 248, 172);
   g.lineWidth = 1; g.strokeStyle = 'rgba(120,210,255,0.45)'; for (let x = 0; x < 256; x += 16) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, 180); g.stroke(); } for (let y = 0; y < 180; y += 16) { g.beginPath(); g.moveTo(0, y); g.lineTo(256, y); g.stroke(); }
   g.strokeStyle = 'rgba(200,245,255,0.95)'; g.lineWidth = 3; g.beginPath(); g.arc(160, 80, 38, 0, 7); g.stroke(); g.strokeRect(40, 40, 70, 90); g.beginPath(); g.moveTo(40, 130); g.lineTo(200, 150); g.stroke(); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; }
 
 const SX = 0.86, SZ = 0.92;
 // type: builder|geologist|archaeologist|engineer. returns { root, update(dt, mode, camPos), setLevel(l), tris, type }
-export function makeCrewRobot(scene, env, type, level = 1) {
+export function makeCrewRobot(scene, env, type, level = 1, cos = null) {
   const mat = makeCrewRobot.mat ||= material(env); const root = new THREE.Group(); root.name = 'crew_' + type; root.visible = false; scene.add(root);
-  const hi = new THREE.Group(); root.add(hi); let lo = null, parts = null, lvl = level, ph = Math.random() * 10;
+  const hi = new THREE.Group(); root.add(hi); let lo = null, parts = null, lvl = level, look = cos || { p: 'classic', d: 'crescent' }, ph = Math.random() * 10;
   const faceTex = makeCrewRobot.faceTex ||= faceTexture(); const flameTex = makeCrewRobot.flameTex ||= (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(220,245,255,1)'); gr.addColorStop(0.4, 'rgba(90,180,255,0.7)'); gr.addColorStop(1, 'rgba(40,120,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })();
   function build() {
     for (const c of [...hi.children]) { hi.remove(c); c.geometry?.dispose(); } if (lo) { root.remove(lo); lo.geometry.dispose(); }
     // hi
-    setLQ(LQ0); const P = BUILD[type](lvl); parts = P;
+    const pm = (PAINTS[look.p] || PAINTS.classic).map; setCosmetic(pm, look.d); setLQ(LQ0); const P = BUILD[type](lvl); parts = P;
     const bodyM = new THREE.Mesh(P.body.build().scale(SX, 1, SZ), mat); bodyM.castShadow = true; bodyM.name = 'crew_body'; hi.add(bodyM);
     const pivot = new THREE.Group(); pivot.position.set(P.SH[0] * SX, P.SH[1], P.SH[2]); hi.add(pivot); const armM = new THREE.Mesh(P.arm.build().scale(SX, 1, SZ), mat); armM.castShadow = true; pivot.add(armM);
     let bitM = null; if (P.bit) { bitM = new THREE.Mesh(P.bit.build(), mat); bitM.position.copy(P.bitPos).multiply(new THREE.Vector3(SX, 1, SZ)); bitM.quaternion.copy(P.bitQ); const bw = new THREE.Group(); bw.add(bitM); armM.add(bw); }
@@ -129,7 +145,7 @@ export function makeCrewRobot(scene, env, type, level = 1) {
     let holo = null; if (P.holo && !PRESET.low) { holo = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.3), new THREE.MeshBasicMaterial({ map: makeCrewRobot.holoTex ||= holoTexture(), transparent: true, depthWrite: false, side: THREE.DoubleSide, toneMapped: false, color: new THREE.Color(1.3, 1.5, 1.8), blending: THREE.AdditiveBlending })); holo.position.set(0.2, 0.86, 0.5); holo.rotation.set(-0.2, -0.3, 0); hi.add(holo); }
     let flame = null; if (P.hover) { flame = new THREE.Sprite(new THREE.SpriteMaterial({ map: flameTex, color: new THREE.Color(0.9, 2.0, 4.0), blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false })); flame.position.set(0, 0.06, 0); flame.scale.set(0.34, 0.5, 1); hi.add(flame); }
     // lo: single mesh at reduced tessellation, arm merged at rest pose, eyes baked
-    setLQ(PRESET.low ? 0.26 : 0.3); const Q = BUILD[type](lvl); bakedFace(Q.body, P.HT ? 1.17 : Q.HY, (Q.faceZ + 0.005), Q.round ? 1.1 : 1);
+    setLQ(PRESET.low ? 0.26 : 0.3); const Q = BUILD[type](lvl); setCosmetic(null, null); bakedFace(Q.body, P.HT ? 1.17 : Q.HY, (Q.faceZ + 0.005), Q.round ? 1.1 : 1);
     const armG = Q.arm.build(); armG.translate(Q.SH[0], Q.SH[1], Q.SH[2]); const g = [Q.body.build(), armG]; if (Q.bit) { const bg = Q.bit.build(); bg.applyQuaternion(Q.bitQ); bg.translate(Q.bitPos.x + Q.SH[0], Q.bitPos.y + Q.SH[1], Q.bitPos.z + Q.SH[2]); g.push(bg); }
     const merged = mergeAll(g).scale(SX, 1, SZ); lo = new THREE.Mesh(merged, mat); lo.name = 'crew_lod'; lo.castShadow = false; root.add(lo); setLQ(LQ0);
     Object.assign(api, { pivot, armM, bitM, face, flame, holo, bodyM, triHi: [bodyM, armM, face, bitM].filter(Boolean).reduce((s, m) => s + m.geometry.attributes.position.count / 3, 0), triLo: merged.attributes.position.count / 3 });
@@ -137,6 +153,7 @@ export function makeCrewRobot(scene, env, type, level = 1) {
   const _w = new THREE.Vector3();
   const api = { root, type, get level() { return lvl; },
     setLevel(l) { if (l === lvl) return; lvl = l; build(); },
+    get look() { return look; }, get paintIdx() { return Math.max(0, PAINT_IDS.indexOf(look.p)); }, setLook(c) { c = c || { p: 'classic', d: 'crescent' }; if (c.p === look.p && c.d === look.d) return; look = { p: c.p, d: c.d }; build(); },
     // mode: idle|walk|work|drive; cam: camera world position (hi mesh within near distance; ?q=low: lo beyond 7 m)
     update(dt, mode, cam) { ph += dt; const near = PRESET.low ? 3.5 : PRESET.mobile ? 4 : 5; // hi mesh only up close (far crew are impostors, see impostors.js) root.getWorldPosition(_w); const d = cam ? _w.distanceTo(cam) : 0; const useHi = d < near; hi.visible = useHi; lo.visible = !useHi;
       const carry = mode === 'carry' || mode === 'carryidle' || mode === 'wavecarry', wav = mode === 'wave' || mode === 'wavecarry'; if (carry || wav) { if (!api.cry) { const g = makeCrewRobot.cryG ||= new THREE.OctahedronGeometry(0.17, 0).scale(0.8, 1.5, 0.8); const m = makeCrewRobot.cryM ||= new THREE.MeshBasicMaterial({ color: new THREE.Color(0.5, 2.2, 3.0), toneMapped: false }); api.cry = new THREE.Mesh(g, m); api.cry.name = 'crew_crystal'; api.cry.position.set(-0.3, 0.66, 0.5); root.add(api.cry); } }

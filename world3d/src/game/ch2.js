@@ -1,7 +1,7 @@
 import { makeImpostors } from './impostors.js';
 import * as THREE from 'three';
 import { createEconomy, BASE, MAX_LEVEL, EXPEDITIONS, DIGS, ENG, MUSEUM, TYPES, MAX_PER_TYPE, DAILY_PTS, DAILY_ALL_ORE, ROBOT_XP } from './economy.js';
-import { makeCrewRobot } from './robots.js';
+import { makeCrewRobot, PAINTS, DECALS, cosOf, cosUnlocked } from './robots.js';
 import { makeBaseGrowth } from './basegrow.js';
 import { makeProgressLabel, fmtTime } from './jobs.js';
 import { esc } from './hud.js';
@@ -160,7 +160,7 @@ export function createChapter2(ctx) {
   let imp = null; const IMP_D = low ? 6 : ctx.mobile ? 7 : 8; // far crew -> one instanced billboard draw
   let api_extraImp = null; // other systems (world life porters) add far robots to the crew impostor draw
   function ensureCrew() { if (!imp && ctx.renderer) { try { imp = makeImpostors(scene, ctx.renderer, env); } catch (e) { imp = null; } }
-    S().robots.forEach((r, i) => { if (crew.has(r.id)) return; const rob = makeCrewRobot(scene, env, r.type, Math.min(3, econ.robotLevel(r)));
+    S().robots.forEach((r, i) => { if (crew.has(r.id)) return; const rob = makeCrewRobot(scene, env, r.type, Math.min(3, econ.robotLevel(r)), cosOf(r));
       const c = { r, rob, label: makeProgressLabel(scene, { size: 0.065 }), home: HOMES[i % HOMES.length], pos: new THREE.Vector3(), state: 'home', target: null, yaw: 0, col: { x: 0, z: 0, r: 0.45, h: 1.9 }, sparkT: 0 };
       const j = econ.jobOf(r.id); if (j && j.kind !== 'upgrade' && j.kind !== 'eng') { const s = siteOf(j); place(c, s, s); c.state = 'site'; } else if (j) { const s = siteOf(j); place(c, s, depotP); c.state = 'site'; } else { place(c, c.home, { x: c.home.x + Math.sin(yaw) * 5, z: c.home.z + Math.cos(yaw) * 5 }); c.state = 'home'; }
       c.lastKind = j ? j.kind : null; crew.set(r.id, c); });
@@ -171,7 +171,7 @@ export function createChapter2(ctx) {
   // state machine: home -> (job) walkout -> site (work) -> (done) return -> home. Upgrades / engineer jobs are local (walk straight to the site).
   function updateCrew(dt) {
     const camR = regionOf(camera.position); const camP = camera.position; if (imp) { imp.begin(); imp.dim = 1 + 0.25 * shield.night; }
-    const showBot = (c, vis, mode, d) => { const far = imp && vis && d > (storm.on ? IMP_D - 3 : IMP_D) /* v51: during the storm ALL crew go impostor sooner (no 3.3k lo meshes in the console view) */ && imp.push(c.pos, c.r.type, c.yaw); /* storm: panel crew sits close to the console -> impostor sooner (budget) */ c.rob.root.visible = vis && !far; if (vis && !far) c.rob.update(dt, mode, camP); };
+    const showBot = (c, vis, mode, d) => { const far = imp && vis && d > (storm.on ? IMP_D - 3 : IMP_D) /* v51: during the storm ALL crew go impostor sooner (no 3.3k lo meshes in the console view) */ && imp.push(c.pos, c.r.type, c.yaw, c.rob.paintIdx); /* storm: panel crew sits close to the console -> impostor sooner (budget) */ c.rob.root.visible = vis && !far; if (vis && !far) c.rob.update(dt, mode, camP); };
     for (const c of crew.values()) {
       const j = econ.jobOf(c.r.id); const local = j && (j.kind === 'upgrade' || j.kind === 'eng');
       let mode = 'idle', vis = true, region = 'hub';
@@ -315,6 +315,19 @@ export function createChapter2(ctx) {
     if (r.type === 'archaeologist') for (const G of DIGS) { const ok = L >= G.lvl; btn(`dg:${r.id}:${G.id}`, `${t(G.id)}`, `🏺×${G.rolls} · ${fmtDur(G.dur / sm)}`, ok, ok ? '' : `🔒 ${t('needLvl')} ${G.lvl}`); }
     if (r.type === 'engineer') for (const [k, U] of Object.entries(ENG)) { const lv = s.eng[k]; if (lv >= 3) { btn(`en:${r.id}:${k}`, `${t('eng_' + k)} (3/3)`, t('engMax'), false, ''); continue; } const busy = s.jobs.some(j => j.kind === 'eng' && j.what === k); const ok = econ.canAfford(U.cost[lv]) && !busy; btn(`en:${r.id}:${k}`, `${t('eng_' + k)} (${lv}/3)`, `${costTxt(U.cost[lv])} · ${fmtDur(U.dur[lv] / sm)}`, ok, ok ? '' : busy ? '…' : t('needRes')); }
     return out.join(''); }
+  // v72 robot cosmetics: paint + chest emblem per robot (save ch2.robots[i].cos = {p, d}, additive; missing -> classic/crescent)
+  let cosRid = null; const DEC_IC = { crescent: '☾', star: '★', paw: '🐾', bolt: '⚡' };
+  const lockTxt = (l) => l.lvl ? `🔒 ${t('lookLvl')} ${l.lvl}` : `🔒 ${t('set_' + l.set)}`;
+  function lookRow(r, lv, s) { const cur = cosOf(r); const open = cosRid === r.id;
+    let h = `<div class="c2-row c2-look" style="margin-top:5px"><button class="c2-btn" data-act="cs:${r.id}" style="flex:0 0 auto;min-width:0;padding:4px 10px"><span>🎨 ${esc(t('look'))} ${open ? '▴' : '▾'}</span></button><small><i style="display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:-1px;background:${PAINTS[cur.p].sw};border:1px solid #d9b24a"></i> ${esc(t('pt_' + cur.p))} · ${DEC_IC[cur.d]}</small></div>`;
+    if (!open) return h;
+    const btn = (act, on, ok, lock, inner, title) => `<button class="c2-btn${on ? ' go' : ''}" data-act="${act}" ${ok ? '' : 'disabled'} title="${esc(title)}" style="min-width:0;margin:0;padding:5px 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center">${inner}<small style="font-size:10px;line-height:1.15">${ok ? esc(title) : esc(lockTxt(lock))}</small></button>`;
+    const GRID = `<div class="c2-look-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px">`;
+    h += `<div class="c2-tag" style="margin:6px 0 2px">${esc(t('lookPaint'))}</div>${GRID}` + Object.entries(PAINTS).map(([k, v]) => btn(`cp:${r.id}:${k}`, cur.p === k, cosUnlocked(v.lock, lv, s.sets), v.lock, `<span><i style="display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:-3px;background:${v.sw};border:2px solid #d9b24a;box-shadow:0 0 0 1px #0b1430"></i></span>`, t('pt_' + k))).join('') + `</div>`;
+    h += `<div class="c2-tag" style="margin:6px 0 2px">${esc(t('lookDecal'))}</div>${GRID.replace('repeat(3', 'repeat(4')}` + Object.entries(DECALS).map(([k, v]) => btn(`cd:${r.id}:${k}`, cur.d === k, cosUnlocked(v.lock, lv, s.sets), v.lock, `<span style="color:${cur.d === k ? '#1b2650' : '#c9962a'};font-size:16px">${DEC_IC[k]}</span>`, t('dc_' + k))).join('') + `</div>`;
+    return h; }
+  function setLook(rid, kind, v) { const s = S(); const r = s.robots.find(q => q.id === rid); if (!r) return; const lv = econ.robotLevel(r); const tab = kind === 'p' ? PAINTS : DECALS; if (!tab[v] || !cosUnlocked(tab[v].lock, lv, s.sets)) return;
+    const c = cosOf(r); c[kind] = v; r.cos = c; const cr = crew.get(rid); if (cr) cr.rob.setLook(c); store.queueSave(); hud.toast('🎨 ' + t('lookSaved')); rerender(); }
   function renderCrew(sub, list) { const s = S(); const cap = econ.cap(), n = econ.stored(); const rate = BASE[s.level].rate * (1 + 0.3 * s.eng.reactor);
     sub.innerHTML = `<span>🤖 ${esc(t('robotsN'))} ${s.robots.length}/${econ.slots()}</span><span>${esc(t('baseLvl'))} ${s.level}</span>`;
     let h = `<div class="c2-card"><div class="c2-row"><span>📦 ${esc(t('storage'))} ${n}/${cap}</span><small>+${Math.round(rate)}${esc(t('perH'))}</small></div><div class="c2-bar"><i style="width:${Math.min(100, n / cap * 100)}%"></i></div><div class="c2-row" style="margin-top:6px"><span>${esc(t('res'))}: 💎 ${s.res.cry} · 🪨 ${s.res.ore}</span><small>${esc(t('storageHint'))}</small></div></div>`;
@@ -322,7 +335,7 @@ export function createChapter2(ctx) {
       h += `<div class="c2-card${ask ? ' ask' : ''}${focusRid === r.id ? ' hl' : ''}" data-rid="${r.id}"><div class="c2-row"><span>${ICON[r.type]} ${esc(name(r))} <small>${esc(t('lvlShort'))} ${lv}${nx != null ? ` · XP ${r.xp}/${nx}` : ''}</small></span><small>${j ? (ask ? '🆘 ' + esc(t('helpAsk')) : JICON[j.kind] + ' ' + esc(jobTitle(j))) : esc(t('idle'))}</small></div>`;
       if (j) h += `<div class="c2-bar"><i style="width:${econ.progress(j) * 100}%"></i></div><div class="c2-row" style="margin-top:4px"><small>${Math.floor(econ.progress(j) * 100)}% · ${fmtTime(econ.left(j))}</small><small>${j.bonus ? '+' + Math.round(j.bonus * 100) + '%' : ''}</small></div>`;
       else h += `<div class="c2-acts">${actionsFor(r)}</div>`;
-      h += `</div>`; }
+      h += lookRow(r, lv, s) + `</div>`; }
     // recruit
     const slots = econ.slots(); h += `<div class="c2-tag">${esc(t('recruit'))} · ${esc(t('slots'))} ${s.robots.length}/${slots}</div>`;
     if (s.robots.length < slots) { h += `<div class="c2-acts">` + TYPES.map(ty => { const ok = econ.countType(ty) < MAX_PER_TYPE; return `<button class="c2-btn${ok ? ' go' : ''}" data-act="hire:${ty}" ${ok ? '' : 'disabled'}><span>${ICON[ty]} ${esc(t('rb_' + ty))}</span><small>${ok ? esc(t('hire')) : esc(t('maxType'))}</small></button>`; }).join('') + `</div>`; }
@@ -362,7 +375,8 @@ export function createChapter2(ctx) {
   async function onClick(e) { const b = e.target.closest('[data-act]'); if (!b || b.disabled) return; const [a, x, y] = b.dataset.act.split(':');
     if (a === 'fh' || a === 'fhinv' || a === 'ntf') { b.disabled = true; await socialClick(a, x); return; }
     if (a === 'up') await startJob(x, 'upgrade'); else if (a === 'ex') await startJob(x, 'expedition', y); else if (a === 'dg') await startJob(x, 'dig', y); else if (a === 'en') await startJob(x, 'eng', y);
-    else if (a === 'hire') await recruit(x); else if (a === 'login') await claimLogin(); else if (a === 'task') await claimTask(+x); }
+    else if (a === 'hire') await recruit(x); else if (a === 'login') await claimLogin(); else if (a === 'task') await claimTask(+x);
+    else if (a === 'cs') { cosRid = cosRid === x ? null : x; focusRid = x; rerender(); } else if (a === 'cp') setLook(x, 'p', y); else if (a === 'cd') setLook(x, 'd', y); }
   hud.$('#mk-sheet .list').addEventListener('click', onClick);
   // ---------- lifecycle ----------
   let tickT = 0, jetT = 0, visitT = 0, dayT = 0, lastDay = '';
@@ -381,7 +395,7 @@ export function createChapter2(ctx) {
     home.update(dt, camera.position, inside); homeInsetFrame(dt); /* TG glue: keep the cat clear of the inset-shifted quest panel */ if (inside && ctrl.camShift > 0 && entryAt && dist2(me(), entryAt) > 0.3) { ctrl.camShift = Math.max(0, ctrl.camShift - dt * 1.1); ctrl.camLift = Math.max(0, (ctrl.camLift || 0) - dt * 0.6); if (ctrl.camPitch < 0.05) ctrl.camPitch = Math.min(0.05, ctrl.camPitch + dt * 0.3); } /* entry framing (concept composition) eases back to a centred follow cam once the cat walks */ if (!inside) homeAction(); if (inside && !bunnyHint && dist2(me(), hw({ x: Math.sin(-0.5) * 3.75, z: -Math.cos(-0.5) * 3.75 })) < 1.4) { bunnyHint = true; hud.toast('🐰 ' + t('bunnyHouse')); }
     if (!inside) { const p = me(); if (dist2(p, homeDoor) > 3.2 && !homeBusy) home.setOpen(false); }
     updateCrew(dt); if (imp) for (const n of npcs) if (n && n.far && n.sp && n.sp.hp > 0) imp.push(n.rob.root.position, 'builder', n.yaw); if (imp && api_extraImp) api_extraImp(imp); if (imp) imp.end(); base.update(dt); base.cull && base.cull(camera.position); updateStorm(dt); shield.update(dt, ctx.time(), camera.position); if (isSheetOpen() && (tickT === 0.5)) rerender(); }
-  const api = { econ, get on() { return S().on; }, quest: () => { const q = cur(); return q && { id: q.id, kind: q.kind }; }, crew: () => [...crew.values()].map(c => ({ id: c.r.id, type: c.r.type, state: c.state, x: c.pos.x, z: c.pos.z, visible: c.rob.root.visible, triHi: c.rob.triHi, triLo: c.rob.triLo, level: c.rob.level })),
+  const api = { econ, get on() { return S().on; }, quest: () => { const q = cur(); return q && { id: q.id, kind: q.kind }; }, crew: () => [...crew.values()].map(c => ({ id: c.r.id, type: c.r.type, state: c.state, x: c.pos.x, z: c.pos.z, visible: c.rob.root.visible, triHi: c.rob.triHi, triLo: c.rob.triLo, level: c.rob.level, look: c.rob.look, paint: c.rob.paintIdx })),
     start: startJob, collect: doCollect, recruit, claimLogin, claimTask, helpResult: async (r) => { const j = S().jobs.find(j => j.help === 'asked'); if (!j) return false; helpJob = j; await helpResult(r); return true; },
     home: () => ({ inside, door: homeDoor, origin: { x: homeO.x, y: homeO.y, z: homeO.z }, doorIn: hw(home.doorIn), consoleIn: hw(home.consoleIn), outside: home.outside }), enterHome, exitHome, homeObj: home,
     storm: () => ({ state: shield.state, on: storm.on, night: shield.night, spots: storm.spots.map(s => ({ x: s.x, z: s.z, hp: s.hp, rid: s.rid })), console: consoleP, center: shieldC }), startStorm, shield, set extraImp(f) { api_extraImp = f; }, cut: CUT, cutCam, poseStorm() { storm.spots.forEach((sp, i) => { sp.hp = 1; if (!sp.rid) npcFor(sp, i); }); while (storm.on && storm.spots.length < 3) { const p = SPOTS[storm.spots.length]; const sp = { x: p.x, z: p.z, y: groundAt(p.x, p.z), hp: 1 }; storm.spots.push(sp); npcFor(sp, storm.spots.length - 1); } for (const c of crew.values()) if (c.storm) { const sp = c.storm; c.pos.set(sp.x + 0.85 * Math.sign((c.home.x - sp.x) || 1), groundAt(sp.x, sp.z), sp.z); c.rob.root.position.copy(c.pos); } }, // screenshot helper: robots already at their panels

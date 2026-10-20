@@ -23,14 +23,23 @@ export function capsule(a, b, r, rad = 10, cap = 3) { const A = new THREE.Vector
   g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize())); g.translate((A.x + B.x) / 2, (A.y + B.y) / 2, (A.z + B.z) / 2); return g; }
 export function ring(a, b, R, t) { const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b); const g = new THREE.TorusGeometry(R, t, 4, sg(12, 6)); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), B.clone().sub(A).normalize())); g.translate(B.x, B.y, B.z); return g; } // cuff ring at b, perpendicular to a->b
 export function tube(pts, r, seg = 16, rad = 6) { return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(...p))), sg(seg, 6), r, sg(rad, 4)); }
-export function crescent(R = 0.07) { const sh = new THREE.Shape(); const N = 18; // outer arc + inner arc (opening upper right, as on the concept chest)
+// v72 cosmetics: optional paint scheme (palette-name -> colour / [metal, rough]) applied while a crew robot's Kit is filled, and an optional
+// chest decal swapped in for the crescent. Both only change vertex colours / the emblem shape inside the merged body -> no new draws or materials.
+let PAINT = null, DECAL = null; export const setCosmetic = (paint, decal) => { PAINT = paint || null; DECAL = decal && decal !== 'crescent' ? decal : null; };
+function decalShape(kind, R) { const sh = new THREE.Shape(); const P = [];
+  if (kind === 'star') { for (let i = 0; i < 10; i++) { const a = Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? R * 0.42 : R; P.push([Math.cos(a) * r, Math.sin(a) * r]); } }
+  else if (kind === 'bolt') { P.push(...[[0.25, 1], [-0.45, -0.05], [-0.02, -0.05], [-0.3, -1], [0.5, 0.15], [0.06, 0.15], [0.4, 1]].map(([x, y]) => [x * R, y * R])); }
+  else if (kind === 'paw') { const pad = new THREE.Shape(); pad.absellipse(0, -R * 0.3, R * 0.5, R * 0.42, 0, Math.PI * 2); const toes = [[-0.62, 0.32], [-0.22, 0.72], [0.22, 0.72], [0.62, 0.32]].map(([x, y]) => { const t = new THREE.Shape(); t.absellipse(x * R, y * R, R * 0.2, R * 0.25, 0, Math.PI * 2); return t; }); return [pad, ...toes]; }
+  else return null; sh.moveTo(...P[0]); for (const q of P.slice(1)) sh.lineTo(...q); sh.closePath(); return sh; }
+export function crescent(R = 0.07) { if (DECAL) { const sh = decalShape(DECAL, R * 1.05); if (sh) return new THREE.ExtrudeGeometry(sh, { depth: 0.014, bevelEnabled: false, curveSegments: DECAL === 'paw' ? 2 : 4 }); } // emblems stay <= the crescent's triangles
+ const sh = new THREE.Shape(); const N = 18; // outer arc + inner arc (opening upper right, as on the concept chest)
   const r2 = R * 0.78, cx = R * 0.42, cy = R * 0.3; const pts = []; for (let i = 0; i <= N; i++) { const a = 0.2 * Math.PI + (1.6 * Math.PI) * i / N + 0.12; pts.push([Math.cos(a) * R, Math.sin(a) * R]); }
   sh.moveTo(...pts[0]); for (const p of pts.slice(1)) sh.lineTo(...p); for (let i = N; i >= 0; i--) { const a = 0.2 * Math.PI + 0.12 + (1.6 * Math.PI) * i / N; const x = Math.cos(a) * R, y = Math.sin(a) * R; const dx = x - cx, dy = y - cy, dd = Math.hypot(dx, dy); const k = dd < r2 ? 1 : r2 / dd; sh.lineTo(cx + dx * Math.min(1, k * 1.0), cy + dy * Math.min(1, k)); }
   const g = new THREE.ExtrudeGeometry(sh, { depth: 0.014, bevelEnabled: false, curveSegments: 4 }); return g; }
 export class Kit { constructor() { this.parts = []; }
   add(g, col, o = {}) { g = g.index ? g.toNonIndexed() : g.clone(); const m = new THREE.Matrix4(); m.compose(new THREE.Vector3(...(o.p || [0, 0, 0])), new THREE.Quaternion().setFromEuler(new THREE.Euler(...(o.r || [0, 0, 0]), 'YXZ')), new THREE.Vector3(...(o.s || [1, 1, 1]))); g.applyMatrix4(m);
     for (const k of Object.keys(g.attributes)) if (k !== 'position' && k !== 'normal') g.deleteAttribute(k); if (!g.attributes.normal) g.computeVertexNormals();
-    const c = new THREE.Color(COL[col] || col), n = g.attributes.position.count, cc = new Float32Array(n * 3), mr = new Float32Array(n * 2); const [me, ro] = MAT[col] || [0, 0.5];
+    const pc = PAINT && PAINT[col]; const c = new THREE.Color((pc && pc.c) || COL[col] || col), n = g.attributes.position.count, cc = new Float32Array(n * 3), mr = new Float32Array(n * 2); const [me, ro] = (pc && pc.mr) || MAT[col] || [0, 0.5];
     for (let i = 0; i < n; i++) { c.toArray(cc, i * 3); mr[i * 2] = me; mr[i * 2 + 1] = ro; } g.setAttribute('color', new THREE.BufferAttribute(cc, 3)); g.setAttribute('aMR', new THREE.BufferAttribute(mr, 2)); this.parts.push(g); return g; }
   build() { const g = mergeGeometries(this.parts, false); g.computeBoundingSphere(); return g; } }
 
