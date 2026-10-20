@@ -14,6 +14,7 @@ import { DEPOT_STAGES } from './activities.js';
 import { groundAt as terrainAt } from '../terrain.js';
 import { createChapter2, FEAT } from './ch2.js';
 import { makeWorldLife } from './worldlife.js';
+import { makeCreatures } from './creatures.js';
 import { BASE } from './economy.js';
 import { makeHoloMap, fogGet, fogSet, fogReveal } from './holomap.js';
 
@@ -90,7 +91,7 @@ export function createGame({ scene, camera, ctrl, renderer, env, solids, setPowe
     if (D().base.built.includes('depot')) { depot.set(1, false); if (!ctrl.colliders.includes(depotCollider)) ctrl.colliders.push(depotCollider); robotState.mode = 'done'; placeRobot(weldSpot, depotP, true); }
   };
   let powerLevel = 1, powerAnim = 0, hookT = 0;
-  async function grant(n, why) { const r = await store.addPoints(n, why); refreshTop(); return r; }
+  const grantLog = []; async function grant(n, why) { grantLog.push(why); if (grantLog.length > 50) grantLog.shift(); const r = await store.addPoints(n, why); refreshTop(); return r; }
   async function reward(q, extra = {}) {
     if (busy || isDone(q.id)) return; busy = true; const pts = q.pts + (extra.bonus || 0); const r = await store.addPoints(pts, 'quest:' + q.id); const ups = addXP(D(), q.xp); hx('notify', 'success');
     if (!isDone(q.id)) D().ch1.done.push(q.id); D().ch1.prog = 0; D().stats.quests++; syncIdx(); await store.save(); refreshTop();
@@ -101,7 +102,7 @@ export function createGame({ scene, camera, ctrl, renderer, env, solids, setPowe
   async function pickCrystal(i) {
     crystals.setAlive(i, false); D().crystals.taken.push(i); D().stats.crystals++; const s = spots[i]; burst.fire(s.x, s.y + 1.0, s.z);
     const r = await store.addPoints(3, 'crystal:' + i); addXP(D(), 5); hx('impact', 'light');
-    hud.toast(r.granted ? `💎 ${t('crystalToast')} +${r.granted} ⭐` : `💎 ${t('capHit')}`); store.queueSave(); refreshTop(); if (ch2.on) ch2.track('crystals');
+    hud.toast(r.granted ? `💎 ${t('crystalToast')} +${r.granted} ⭐` : `💎 ${t('capHit')}`); store.queueSave(); refreshTop(); if (ch2.on) ch2.track('crystals'); if (ch2.petHappy) ch2.petHappy();
   }
   // ---------- regions + travel gates (no more running across the map) ----------
   const regionOf = (p) => { let best = 'hub', bd = Math.hypot(p.x - L.regions.hub.x, p.z - L.regions.hub.z) - 120; for (const k of ['canyon', 'launch']) { const d = Math.hypot(p.x - L.regions[k].x, p.z - L.regions[k].z); if (d < bd) { bd = d; best = k; } } return best; };
@@ -203,7 +204,7 @@ export function createGame({ scene, camera, ctrl, renderer, env, solids, setPowe
       if (sprint.state === 'run' || sprint.state === 'countdown' || sprint.state === 'done') { const tm = sprint.state === 'done' && sprint.last ? sprint.last.time : sprint.time; const st = sprint.stars(tm); hud.sprint(true, tm, `${t('sprintRing')} ${Math.min(sprint.n, rings.pts.length)}/${rings.pts.length}`, '★'.repeat(st) + '☆'.repeat(3 - st)); } } };
   // ---------- secrets ----------
   async function openCache(c) {
-    if (D().secrets.includes(c.id)) return; D().secrets.push(c.id); D().stats.secrets++; c.fx.mesh.visible = false; burst.fire(c.x, c.y + 0.8, c.z);
+    if (D().secrets.includes(c.id)) return; D().secrets.push(c.id); D().stats.secrets++; c.fx.mesh.visible = false; burst.fire(c.x, c.y + 0.8, c.z); c.fx.hl = 0; if (ch2.petHappy) ch2.petHappy();
     hx('notify', 'success'); const r = await grant(15, 'secret:' + c.id); addXP(D(), 15); refreshTop(); store.queueSave();
     const q = cur(); const n = D().secrets.length;
     if (q && q.kind === 'secret' && q.cache === c.id) await reward(q, { note: `🗝️ ${t('secrets')} ${n}/${caches.length} · ${t('secretsHint')}` });
@@ -255,7 +256,22 @@ export function createGame({ scene, camera, ctrl, renderer, env, solids, setPowe
   hud.$('#mk-sheet .x').addEventListener('click', () => openSheet(false));
   hud.$('#mk-sheet .tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { tab = b.dataset.tab; renderSheet(); } });
   // ---------- Chapter 2 (starts when Chapter 1 is complete) ----------
-  const ch2 = createChapter2({ backend: tgInit ? backend : null, scene, env, camera, ctrl, store, hud, t, lang, FAST, depotP, groundAt, robotY, gates: G, layout: L, places: P, burst, miner, grant, addXP, refreshTop, regionOf, me, now: nowMs,
+  // ---------- v73 moon creatures: one merged draw (bunny / hedgehog / glowbugs / dust jellies) ----------
+  const CR_LOW = Q.get('q') === 'low'; const creatures = makeCreatures(scene, env, { low: CR_LOW, mobile }); if (CR_LOW) { const tr = scene.getObjectByName('tracks'); if (tr) tr.visible = false; } // v73 low budget: pays for the creatures draw tris
+  const caveC = (() => { const c = caches.find(c => c.id === 'cave'); if (!c) return null; const yaw = c.yaw || 0; return { x: c.x + Math.cos(yaw) * 2.4, z: c.z - Math.sin(yaw) * 2.4 }; })(); // glowbug colony beside the portal-cave cache
+  const bugs = Array.from({ length: creatures.NB }, (_, i) => ({ a: i * 2.4, r: 0.55 + (i % 3) * 0.45, s: 0.22 + (i % 4) * 0.07, ph: i * 1.7, flee: 0 }));
+  const hedge = (() => { const dp = depotP; const c = spots.map((s, i) => ({ s, d: Math.hypot(s.x - dp.x, s.z - dp.z) })).filter(o => o.d > 28 && o.d < 75).sort((a, b) => a.d - b.d); const o = c[Math.floor(c.length / 2)] || c[0]; if (!o) return null; const a = Math.atan2(o.s.x - dp.x, o.s.z - dp.z) + 0.5; return { x: o.s.x + Math.sin(a) * 1.7, z: o.s.z + Math.cos(a) * 1.7, a: 0, busy: false }; })();
+  const CR_VIEW = CR_LOW ? 18 : mobile ? 24 : 32;
+  function updateCreatures(dt) { const cam = camera.position, p = me(), inHub = regionOf(p) === 'hub' && !ch2.inside;
+    for (let i = 0; i < creatures.NB; i++) { const sl = creatures.S.bug + i; if (!caveC || !inHub || Math.hypot(cam.x - caveC.x, cam.z - caveC.z) > CR_VIEW) { creatures.hide(sl); continue; }
+      const b = bugs[i], dc = dist2(p, caveC); b.flee = Math.max(0, Math.min(1, b.flee + (dc < 3.2 ? dt * 2 : -dt * 0.4))); const r = b.r + b.flee * 1.3; b.a += dt * b.s * (1 + b.flee * 2.5) / r;
+      const x = caveC.x + Math.cos(b.a) * r, z = caveC.z + Math.sin(b.a) * r; creatures.set(sl, x, terrainAt(x, z) + 0.01, z, Math.atan2(-Math.sin(b.a), Math.cos(b.a)), 1.45, [b.ph, 0.55 + 0.45 * Math.sin(time * 2.4 + b.ph) + b.flee * 0.6, 0, 1], 0, 0, 1, 0.4); }
+    const H = hedge, P = D().pets; if (H && ch2.on && inHub) { const found = !!(P && P.hedgehog), dcat = dist2(p, H), dcam = Math.hypot(cam.x - H.x, cam.z - H.z);
+      if (!found && dcat < 2.3 && !H.busy) { H.busy = true; (async () => { P.hedgehog = true; store.queueSave(); const r = await grant(20, 'hedgehog'); addXP(D(), 20); refreshTop(); burst.fire(H.x, terrainAt(H.x, H.z) + 0.6, H.z); hud.popup({ icon: '🦔', head: t('hogFound'), title: t('hogTitle'), pts: r.granted, xp: 20, note: r.capped ? t('capHit') : t('hogNote') }, 4200); ch2.petHappy && ch2.petHappy(); H.busy = false; })(); }
+      if (dcam < (found ? 40 : 15)) { if (found) H.a += dt * 0.25; const x = H.x + (found ? Math.cos(H.a) * 0.9 : 0), z = H.z + (found ? Math.sin(H.a) * 0.9 : 0); const yaw = found ? Math.atan2(-Math.sin(H.a), Math.cos(H.a)) : Math.atan2(p.x - H.x, p.z - H.z); creatures.set(creatures.S.hedgehog, x, terrainAt(x, z), z, yaw, 1.05, [1.3, 0, 0, found ? 0.25 : 0.12 + 0.1 * Math.sin(time * 5)], 0, 0, found ? 1 : 0.93 + 0.04 * Math.sin(time * 3), 0.6); } else creatures.hide(creatures.S.hedgehog); }
+    else creatures.hide(creatures.S.hedgehog);
+    creatures.flush(time, camera); }
+  const ch2 = createChapter2({ backend: tgInit ? backend : null, scene, env, camera, ctrl, store, hud, t, lang, FAST, depotP, groundAt, robotY, creatures, cachesLeft: () => caches.filter(c => c.fx.mesh.visible), gates: G, layout: L, places: P, burst, miner, grant, addXP, refreshTop, regionOf, me, now: nowMs,
     setNight, setEarthDir, sd, mobile, catRoot, earthDir, renderer, fade: (o) => hud.fade(o), time: () => time, free: (p, r) => { const f = solids.nearestFree(p.x, p.z, r); return { x: f.x, z: f.z }; }, low: Q.get('q') === 'low', openSheet: (o) => openSheet(o), isSheetOpen: () => sheetOpen, setTab: (x) => { tab = x; }, rerender: () => { if (sheetOpen) renderSheet(); } });
   let c2wait = 0;
 
@@ -322,12 +338,12 @@ export function createGame({ scene, camera, ctrl, renderer, env, solids, setPowe
   function updateLife(dt) {
     if (!LIFE_ON) return; const show = ch2.on && regionOf(me()) === 'hub' && !ch2.inside && !(ch2.api && ch2.api.storm().on); // storm cutscene: world life off (night, budget)
     if (!life && show) { const base = sd ? sd(-1, 5) : L.regions.hub; const ra = Math.atan2(400 - base.z, 440 - base.x); const crater = { x: base.x + Math.cos(ra) * 170, z: base.z + Math.sin(ra) * 170 };
-      life = makeWorldLife({ scene, camera, env, groundAt: terrainAt, depotP, fields: spots.filter(s => Math.hypot(s.x - base.x, s.z - base.z) < 140), base, launch: L.regions.launch, crater, t, hud, low: Q.get('q') === 'low', mobile, ctrl, makeCrew: makeCrewRobot }); ch2.api.extraImp = (imp) => life && life.pushImp(imp); }
+      life = makeWorldLife({ scene, camera, env, creatures, groundAt: terrainAt, depotP, fields: spots.filter(s => Math.hypot(s.x - base.x, s.z - base.z) < 140), base, launch: L.regions.launch, crater, t, hud, low: Q.get('q') === 'low', mobile, ctrl, makeCrew: makeCrewRobot }); ch2.api.extraImp = (imp) => life && life.pushImp(imp); }
     if (!life) return; life.setVisible(show); if (show) life.update(dt, time, me(), ch2.mapCrew ? ch2.mapCrew() : []);
   }
   // ---------- frame ----------
   function update(dt) {
-    if (!ready) return; time += dt; updateFog(dt); if (goT > 0) goT -= dt; updateLife(dt);
+    if (!ready) return; time += dt; updateFog(dt); if (goT > 0) goT -= dt; for (let k = 0; k < creatures.NJ; k++) creatures.hide(creatures.S.jelly + k); updateLife(dt); updateCreatures(dt);
     if (ctrl.thrusting) lastThrust = time;
     crystals.update(time); burst.update(dt); ore.update(time, dt); pow.update(time, dt); updatePower(dt); for (const k in G) G[k].fx.update(time); for (const c of caches) if (c.fx.mesh.visible) c.fx.update(time);
     for (let i = 0; i < spots.length; i++) { if (!crystals.alive[i]) continue; const s = spots[i]; if (Math.hypot(s.x - ctrl.pos.x, s.z - ctrl.pos.z) < 1.7 && Math.abs(ctrl.pos.y - s.y) < 3.5) pickCrystal(i); }
@@ -438,6 +454,6 @@ export function createGame({ scene, camera, ctrl, renderer, env, solids, setPowe
     cacheAt: (id) => caches.find(c => c.id === id),
     async mineTry(needle) { if (!miner.open || mineTarget < 0) return null; if (!miner.holding) miner.press(); const r = miner.release(needle); await mineResult(r); return r; },
   };
-  api.map = () => ensureMap(); api.life = () => life; api.mapData = () => mapData();
+  api.grants = () => grantLog.slice(); api.creatures = () => ({ cr: creatures, hedge, cave: caveC, wanted: Array.from({ length: creatures.NS }, (_, i) => creatures.wanted(i)), shown: Array.from({ length: creatures.NS }, (_, i) => creatures.visible(i)) }); api.map = () => ensureMap(); api.life = () => life; api.mapData = () => mapData();
   return { update, api, get map() { return holo; } };
 }

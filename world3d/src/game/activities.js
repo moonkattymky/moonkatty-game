@@ -114,7 +114,7 @@ export function makeCache(scene, p, env) {
   const mat = new THREE.MeshStandardMaterial({ vertexColors: true, metalness: 0.45, roughness: 0.4, envMap: env || null, emissive: '#3fd9ff', emissiveIntensity: 0 });
   mat.onBeforeCompile = (sh) => { sh.fragmentShader = sh.fragmentShader.replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n totalEmissiveRadiance *= step(0.9, vColor.b) * step(vColor.r, 0.6);'); };
   const m = new THREE.Mesh(_cacheGeo, mat); m.name = 'game_cache'; m.position.set(p.x, p.y, p.z); m.rotation.y = p.yaw || 0; m.castShadow = true; scene.add(m);
-  return { mesh: m, update(t) { mat.emissiveIntensity = 1.4 + Math.sin(t * 3 + p.x) * 0.8; } };
+  const fx = { mesh: m, hl: 0, update(t) { mat.emissiveIntensity = fx.hl > 0 ? 3.2 + Math.sin(t * 9) * 1.8 : 1.4 + Math.sin(t * 3 + p.x) * 0.8; } }; return fx; // v73 hl: the Moon Bunny sniffed it out
 }
 
 // ---------- the first base module the builder robot builds: storage depot, revealed bottom-up by a clip plane + holo ghost ----------

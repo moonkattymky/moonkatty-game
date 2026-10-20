@@ -205,7 +205,8 @@ export function makeHome(scene, { env, groundAt, door, origin, low = false, eart
   // wide lens + lateral shift so door/cat sit left, rack+pet house middle, bed centre-right, console+robot right, shelves far right
   const entry = { cat: { x: -1.9, z: -0.6 }, yaw: 1.35, stride: 0.0, camYaw: 0, camDist: 3.7, camPitch: 0.05, shift: 2.2, fov: 68,
     portrait: { cat: { x: -0.2, z: -0.55 }, yaw: 0.28, stride: 0.0, camYaw: -0.15, /* v71: was -0.5; window porthole clear of the quest panel */ camDist: 3.4, camPitch: -0.08, lift: -0.45, shift: 0.92, fov: 88, fixedShift: true } /* v65: low eye-level 3/4 view toward bed/robot/holo (phi~0.95), cat walking in at bottom-left */ }; // tall phone screens: cat in front, bed + console + robot behind it
-  const api = { group: I, LAYER, R, doorIn, consoleIn, entry, outside: outsideDoorW, doorW: { x: door.x, z: door.z }, robot, doorMesh: doorM,
+  const petW = onWall(LAY.pet, LAY.petR); const pet = { x: petW.x + Math.sin(petW.yaw) * 0.27, z: petW.z + Math.cos(petW.yaw) * 0.27, y: 0.25, yaw: petW.yaw }; // v73: Moon Bunny cushion (home-local)
+  const api = { group: I, LAYER, R, doorIn, consoleIn, entry, pet, outside: outsideDoorW, doorW: { x: door.x, z: door.z }, robot, doorMesh: doorM,
     solids(real) { const fy = origin.y; return { CAT: real.CAT, standAt: () => fy, floorAt: () => fy, visAt: () => fy, top, over: () => 1e9, slabHit: () => Infinity, nearestFree: (x, z) => { const lx = x - origin.x, lz = z - origin.z, d = Math.hypot(lx, lz), m = R - 1.0; if (d > m) return { x: origin.x + lx / d * m, z: origin.z + lz / d * m, moved: d - m }; return { x, z, moved: 0 }; } }; },
     setOpen(v) { want = v ? 1 : 0; },
     snapshot(renderer, sc, camWorld) { // live views for the two portholes (taken on entry, from the real world)

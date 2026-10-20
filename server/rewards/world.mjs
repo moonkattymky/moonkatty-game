@@ -17,6 +17,7 @@ export const WORLD_SECRETS=['ledge','hub','cave','canyon','launch','echo'];
 export const WORLD_CRYSTALS=10, WORLD_PARTS=3, WORLD_MINE=3, QUEST_GAP_MS=8000, SPRINT_STAR_PTS=5;
 // chapter 2: amounts are server-side (15-50 range like chapter 1, scaled by the quest weight in world3d/src/game/ch2.js)
 export const WORLD_QUESTS2=[['c2_collect',15],['c2_home',15],['c2_send',15],['c2_upgrade',25],['c2_help',20],['c2_daily',15],['c2_deliver',25],['c2_l3',35],['c2_storm',50],['c2_streak',40],['c2_museum',40]];
+export const WORLD_BUNNY_FINDS=3, WORLD_BUNNY_PTS=4, WORLD_HEDGEHOG_PTS=20;
 export const WORLD_LOGIN_PTS=5, WORLD_DAILY_PTS=8, WORLD_DAILY_TASKS=3;
 const CH1_DONE_KEY='world3d:c1:q:'+WORLD_QUESTS[WORLD_QUESTS.length-1][0];
 const MAX_SNAPSHOT=60000;
@@ -37,6 +38,9 @@ export function worldRewardSpec(reason,{stars=0,day}={}){
  if(reason==='login')return {key:'world3d:d:'+day+':login',type:'world3d.login',points:WORLD_LOGIN_PTS,ch2:true};
  if((m=/^daily:(\d)$/.exec(reason))&&Number(m[1])<WORLD_DAILY_TASKS)return {key:'world3d:d:'+day+':daily:'+m[1],type:'world3d.daily',points:WORLD_DAILY_PTS,ch2:true};
  if(reason==='daily')return {key:null,slotPrefix:'world3d:d:'+day+':daily:',type:'world3d.daily',points:WORLD_DAILY_PTS,ch2:true};
+ // v73 moon creatures: Moon Bunny away finds (<=3/day, daily slot) + Crystal Hedgehog (one-time); both chapter 2, inside the daily cap
+ if((m=/^bunny:(\d)$/.exec(reason))&&Number(m[1])<WORLD_BUNNY_FINDS)return {key:'world3d:d:'+day+':bunny:'+m[1],type:'world3d.bunny',points:WORLD_BUNNY_PTS,ch2:true};
+ if(reason==='hedgehog')return {key:'world3d:c2:cr:hedgehog',type:'world3d.hedgehog',points:WORLD_HEDGEHOG_PTS,ch2:true};
  if((m=/^crystal:(\d{1,2})$/.exec(reason))&&Number(m[1])<WORLD_CRYSTALS)return {key:'world3d:d:'+day+':crystal:'+Number(m[1]),type:'world3d.crystal',points:3};
  if((m=/^part:(\d)$/.exec(reason))&&Number(m[1])<WORLD_PARTS)return {key:'world3d:c1:part:'+m[1],type:'world3d.part',points:5};
  if((m=/^mine:(power|ore):(\d):(ok|perfect)$/.exec(reason))&&Number(m[2])<WORLD_MINE)return {key:'world3d:c1:mine:'+m[1]+':'+m[2],type:'world3d.mine',points:m[3]==='perfect'?10:5};
