@@ -92,25 +92,25 @@ export function createChapter2(ctx) {
   const hw = (p) => ({ x: homeO.x + p.x, z: homeO.z + p.z });
   let inside = false, homeBusy = false, realSolids = null, outCam = null, entryAt = null, bunnyHint = false;
   const wait = (s) => new Promise(r => setTimeout(r, s * 1000));
-  // TG glue (home inset framing): with a large top safe-area inset the quest panel (#mk-track, top max(92px, inset+82px))
-  // is pushed down onto the portrait home composition. Fit the cat (screen-space bbox top/bottom at the bbox centre)
-  // into the band [panel bottom + 8 px, Map button top - 2 px]: shift the projection down (camera.setViewOffset) and,
-  // only if the band is shorter than the cat, zoom out slightly (camera.zoom <= 1, about the screen centre).
-  // Camera pose / composition / controls are unchanged. Measured every 0.5 s, eased. 0 inset -> cat already inside the
-  // band -> shift 0, zoom 1 -> no-op. Cleared on exit.
+  // v71 portrait home framing (upstreamed from the Telegram port's homeInsetFrame): fit the cat into the band [quest panel bottom + 14 px, Map button top - 6 px]. The projection is
+  // shifted down (camera.setViewOffset) so the cat's feet sit just above the Map button (less empty rug), never pushing the
+  // helmet under the panel (the window porthole is kept clear by the portrait camYaw in home.js); only if the band is too short, zoom out slightly (camera.zoom >= 0.78). Camera pose unchanged.
+  // Measured from the DOM every 0.5 s, eased; follows safe-area insets automatically. Desktop/landscape: off. Cleared on exit.
   const _hv = new THREE.Vector3(), _hb = new THREE.Box3(); let _hiT = -1e9, _hiTS = 0, _hiTZ = 1, _hiS = 0, _hiZ = 1;
   function homeInsetFrame(dt) {
     const W = innerWidth, H = innerHeight, on = inside && H > W, cy = H / 2;
     if (on && ctx.catRoot) { const now = performance.now(); if (now - _hiT > 500) { _hiT = now; try {
-      const q = document.getElementById('mk-track'), m = document.getElementById('mk-map'); const qb = q && q.offsetParent !== null ? q.getBoundingClientRect().bottom : 0, mt = m && m.offsetParent !== null ? m.getBoundingClientRect().top : H;
-      _hb.setFromObject(ctx.catRoot); if (!_hb.isEmpty()) { const cx = (_hb.min.x + _hb.max.x) / 2, cz = (_hb.min.z + _hb.max.z) / 2, sy = (y) => { _hv.set(cx, y, cz).project(camera); const ym = (1 - _hv.y) / 2 * H; return (ym - _hiS - cy) / _hiZ + cy; };
-        const head = sy(_hb.max.y), feet = sy(_hb.min.y), top = qb + 8, bot = mt - 2; let z = 1, s = 0;
-        if (head < top) { if (feet - head > bot - top && bot > top) z = Math.max(0.85, (bot - top) / (feet - head)); const h2 = cy + (head - cy) * z, f2 = cy + (feet - cy) * z; s = Math.max(0, Math.min(top - h2, bot - f2)); }
-        _hiTS = s; _hiTZ = z; } } catch (e) { _hiTS = 0; _hiTZ = 1; } } }
+      const q = document.getElementById('mk-track'), m = document.getElementById('mk-map'); const qr = q && q.offsetParent !== null ? q.getBoundingClientRect() : null, qb = qr ? qr.bottom : 0, mt = m && m.offsetParent !== null ? m.getBoundingClientRect().top : H;
+      const un = (ym) => (ym - _hiS - cy) / _hiZ + cy, pj = (x, y, z) => { _hv.set(x, y, z).project(camera); return [(_hv.x + 1) / 2 * W, un((1 - _hv.y) / 2 * H), _hv.z < 1]; };
+      _hb.setFromObject(ctx.catRoot); if (!_hb.isEmpty()) { const cx = (_hb.min.x + _hb.max.x) / 2, cz = (_hb.min.z + _hb.max.z) / 2;
+        const top = pj(cx, _hb.max.y, cz)[1]; const feet = pj(cx, _hb.min.y, cz)[1], T = qb + 14, B = mt - 6;
+        let z = 1; if (B > T && feet - top > B - T) z = Math.max(0.78, (B - T) / (feet - top));
+        const t2 = cy + (top - cy) * z, f2 = cy + (feet - cy) * z; let s = B - f2; if (t2 + s < T) s = T - t2;
+        _hiTS = Math.max(-40, Math.min(90, s)); _hiTZ = z; } } catch (e) { _hiTS = 0; _hiTZ = 1; } } }
     else { _hiTS = 0; _hiTZ = 1; }
-    const k = Math.min(1, (dt || 0.016) * 6); _hiS += (_hiTS - _hiS) * k; _hiZ += (_hiTZ - _hiZ) * k; if (_hiTS === 0 && _hiS < 0.5) _hiS = 0; if (_hiTZ === 1 && _hiZ > 0.999) _hiZ = 1;
+    const k = Math.min(1, (dt || 0.016) * 6); _hiS += (_hiTS - _hiS) * k; _hiZ += (_hiTZ - _hiZ) * k; if (_hiTS === 0 && Math.abs(_hiS) < 0.5) _hiS = 0; if (_hiTZ === 1 && _hiZ > 0.999) _hiZ = 1;
     const sR = Math.round(_hiS); if (camera.zoom !== _hiZ) { camera.zoom = _hiZ; camera.updateProjectionMatrix(); }
-    if (sR > 0) { const v = camera.view; if (!v || !v.enabled || v.offsetY !== -sR || v.fullWidth !== W || v.fullHeight !== H) camera.setViewOffset(W, H, 0, -sR, W, H); }
+    if (sR !== 0) { const v = camera.view; if (!v || !v.enabled || v.offsetY !== -sR || v.fullWidth !== W || v.fullHeight !== H) camera.setViewOffset(W, H, 0, -sR, W, H); }
     else if (camera.view && camera.view.enabled) camera.clearViewOffset();
   }
   async function enterHome() { if (homeBusy || inside) return; homeBusy = true; home.setOpen(true); await wait(FAST ? 0.15 : 0.6); ctx.fade(true); await wait(FAST ? 0.1 : 0.35);
