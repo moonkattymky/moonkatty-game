@@ -32,7 +32,7 @@ export function makeAtlas() {
   const orm = (r, mt) => `rgb(0,${Math.round(r * 255)},${Math.round(mt * 255)})`;
   // paint helper: albedo, emissive, rough, metal
   const P = (x, y, w, h, alb, emi = null, rough = 0.5, metal = 0.02) => { a.fillStyle = alb; a.fillRect(x, y, w, h); e.fillStyle = emi || '#000'; e.fillRect(x, y, w, h); m.fillStyle = orm(rough, metal); m.fillRect(x, y, w, h); };
-  const GOLD = '#e9bd58', GOLD2 = '#f3d58e', GOLDD = '#b8873c', IV = '#d2c8b4', IVL = '#b3a892', IVD = '#9b907c';
+  const GOLD = '#e9bd58', GOLD2 = '#f3d58e', GOLDD = '#b8873c', IV = '#dcdde0', IVL = '#b6b9bf', IVD = '#9a9ea6';
   const gold = (x, y, w, h, c = GOLD) => P(x, y, w, h, c, null, 0.28, 0.95);
   const win = (x, y, w, h, frame = 2) => { gold(x - frame, y - frame, w + frame * 2, h + frame * 2); const g = a.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, '#ffcf7a'); g.addColorStop(1, '#d0782a'); a.fillStyle = g; a.fillRect(x, y, w, h); const ge = e.createLinearGradient(0, y, 0, y + h); ge.addColorStop(0, '#b07a40'); ge.addColorStop(1, '#94501e'); e.fillStyle = ge; e.fillRect(x, y, w, h); m.fillStyle = orm(0.2, 0.0); m.fillRect(x, y, w, h); };
   const lines = (x, y, w, h, stepX, stepY, col = IVL, lw = 2, stagger = false) => { a.fillStyle = col; if (stepY) for (let yy = y; yy < y + h; yy += stepY) a.fillRect(x, yy, w, lw); if (stepX) for (let yy = y, row = 0; yy < y + h; yy += (stepY || h), row++) for (let xx = x + (stagger && row % 2 ? stepX / 2 : 0); xx < x + w; xx += stepX) a.fillRect(xx, yy, lw, Math.min(stepY || h, y + h - yy)); };

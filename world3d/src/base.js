@@ -45,17 +45,17 @@ export function dome(b, s, d, r, o = {}) {
   colliders.push({ x, z, r: r * 1.15 }); const seg = r > 4 ? 18 : 14;
   // wide skirt platform (concept: low stepped deck ringed in gold, warm edge lights)
   b.add('dark', G.cyl(r * 1.5, r * 1.58, 0.45, seg), { pos: [x, y - 0.25, z], color: '#3a4250' });
-  b.add('ivory', G.cyl(r * 1.4, r * 1.48, 0.3, seg), { pos: [x, y + 0.05, z], color: '#b8ad98' });
+  b.add('ivory', G.cyl(r * 1.4, r * 1.48, 0.3, seg), { pos: [x, y + 0.05, z], color: '#babdc3' });
   b.add('gold', G.torus(r * 1.46, 0.09, 3, 14), { pos: [x, y + 0.33, z], rot: [PI / 2, 0, 0], color: C.gold });
   b.add('gold', G.torus(r * 1.12, 0.12, 3, 14), { pos: [x, y + 0.36, z], rot: [PI / 2, 0, 0], color: C.gold });
   for (let k = 0; k < 8; k++) { const a = k / 8 * PI * 2 + 0.2; b.add('glow', G.box(0.18, 0.08, 0.18), { pos: [x + Math.sin(a) * r * 1.3, y + 0.38, z + Math.cos(a) * r * 1.3], color: C.win, intensity: 3 }); }
   const wallH = r * 0.45, yw = y + 0.3;
-  b.add('tex', G.cyl(r, r * 1.05, wallH, seg, true), { region: 'domeWall', pos: [x, yw, z], rot: [0, o.rotA || 0.2, 0], color: '#e0d6c6', ao: [yw - 0.4, yw + wallH * 1.4] });
+  b.add('tex', G.cyl(r, r * 1.05, wallH, seg, true), { region: 'domeWall', pos: [x, yw, z], rot: [0, o.rotA || 0.2, 0], color: '#e8e9ec', ao: [yw - 0.4, yw + wallH * 1.4] });
   const dA = o.doorA ?? faceCam;
   door(b, x, yw, z, dA, r * 0.97, 1.3, Math.min(1.9, wallH * 0.8));
   b.add('gold', G.torus(r * 1.01, 0.12, 3, seg), { pos: [x, yw + wallH, z], rot: [PI / 2, 0, 0], color: C.gold });
   const sy = 0.8, yd = yw + wallH;
-  b.add('tex', G.cap(r, seg, 4), { region: 'domeCap', pos: [x, yd, z], rot: [0, (o.rotA || 0.2) + 0.1, 0], scale: [1, sy, 1], color: '#d6ccbb' });
+  b.add('tex', G.cap(r, seg, 4), { region: 'domeCap', pos: [x, yd, z], rot: [0, (o.rotA || 0.2) + 0.1, 0], scale: [1, sy, 1], color: '#e2e4e8' });
   const top = yd + r * sy;
   b.add('ivory', G.cyl(r * 0.18, r * 0.24, 0.5, 16), { pos: [x, top - 0.15, z], color: C.ivory2 });
   b.add('gold', G.torus(r * 0.2, 0.06, 3, 16), { pos: [x, top + 0.33, z], rot: [PI / 2, 0, 0], color: C.gold });
