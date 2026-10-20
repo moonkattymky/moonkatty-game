@@ -89,6 +89,20 @@ const assert=require('node:assert/strict');
   // whole line pays exactly the table once
   for(const [id] of WORLD_QUESTS2.slice(3)){now+=9000;r=await call('world.reward',{reason:'quest:'+id});assert.equal(r.ok,true,id+' '+r.error);}
   const sum=WORLD_QUESTS2.reduce((a,[,p])=>a+p,0);assert.equal(db.events.filter(e=>e.event_key.startsWith('world3d:c2:q:')).reduce((a,e)=>a+e.points,0),sum);
+  // v73 moon creatures: bunny away finds (3 daily slots, 4 pts) + hedgehog (one-time 20), both inside the daily cap
+  {const {WORLD_BUNNY_FINDS,WORLD_BUNNY_PTS,WORLD_HEDGEHOG_PTS}=await import('../server/rewards/world.mjs');
+   assert.equal(WORLD_BUNNY_FINDS,3);assert.equal(WORLD_BUNNY_PTS,4);assert.equal(WORLD_HEDGEHOG_PTS,20);
+   assert.throws(()=>worldRewardSpec('bunny:3',{day:'d'}));assert.throws(()=>worldRewardSpec('bunny:x',{day:'d'}));assert.throws(()=>worldRewardSpec('hedgehog:1',{day:'d'}));
+   now+=86400000;const p1=db.player.moon_points;
+   for(let i=0;i<3;i++){r=await call('world.reward',{reason:'bunny:'+i,points:999});assert.equal(r.granted,4);}
+   r=await call('world.reward',{reason:'bunny:1'});assert.equal(r.duplicate,true);
+   r=await call('world.reward',{reason:'hedgehog'});assert.equal(r.granted,20);assert.equal(r.key,'world3d:c2:cr:hedgehog');
+   r=await call('world.reward',{reason:'hedgehog'});assert.equal(r.duplicate,true);
+   assert.equal(db.player.moon_points,p1+12+20);
+   now+=86400000;const d2=new Date(now).toISOString().slice(0,10);r=await call('world.reward',{reason:'hedgehog'});assert.equal(r.duplicate,true);
+   db.events.push({event_key:'world3d:d:'+d2+':fill3',points:298,created_at:new Date(now).toISOString()});
+   r=await call('world.reward',{reason:'bunny:0'});assert.equal(r.granted,2);assert.equal(r.capped,true);
+   r=await call('world.reward',{reason:'bunny:1'});assert.equal(r.granted,0);}
   // state lists today's + one-time keys only (bounded queries)
   r=await call('world.state');assert.ok(r.world.claimed.includes('world3d:c2:q:c2_museum'));assert.ok(!r.world.claimed.some(k=>k.includes(':'+day+':')));
  }
