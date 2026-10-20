@@ -16,6 +16,7 @@ const ENV=k=>(typeof Deno!=='undefined'&&Deno.env?.get?.(k))||'';
 const BOT_ID=(/^(\d{5,15}):/.exec((typeof Deno!=='undefined'&&Deno.env?.get?.('TELEGRAM_BOT_TOKEN'))||'')||[])[1]||'8659740610',PUBLIC_KEY='e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
 import {createPace} from './pace.mjs';
 import {createWorld} from './world.mjs';
+import {createWorldSocial} from './worldsocial.mjs';
 const LIFE_RESTORE_MS=12*60*60*1000, MAX_LIVES=9, LIFE1_MIN_MS=90*1000;
 const REFERRAL_BONUS=200, REFERRAL_INVITEE_BONUS=200; // paid once, only after the invitee completes LIFE #1
 export function parseReferrer(start_param){const m=/^ref_([1-9][0-9]{0,15})$/.exec(start_param||'');const id=m?Number(m[1]):0;return Number.isSafeInteger(id)&&id>0?id:null;}
@@ -36,7 +37,7 @@ export function rateRulesFor(action,body={},rules=RATE_RULES){
  const bucket=(action==='life.complete'||action==='life.complete.v2')&&body.proof!==undefined&&body.proof!==null?'proof':
   (action==='campaign.cloud'||action==='campaign.cloud.v2')&&body.snapshot!==undefined?'cloud':
   action==='campaign.open'?'open':
-  action==='world.reward'||action==='world.save'?'world':
+  action==='world.reward'||action==='world.save'||action==='world.help'||action==='world.notify.optin'||action==='world.notify.schedule'?'world':
   ['cipher.solve','youtube.redeem','creator.submit','social.submit','social.telegram.verify','social.youtube.verify'].includes(action)?'submit':null;
  if(bucket&&rules[bucket])out.push({bucket,...rules[bucket]});
  return out;
@@ -199,6 +200,7 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
  // abuse protection, never a reason to lose a legitimate player's reward.
  async function rateCheck(id,rules){try{return await rest('/rest/v1/rpc/mkty_rate_limit',{method:'POST',body:JSON.stringify({p_id:id,p_rules:rules,p_now:clock().toISOString()})});}catch{return null;}}
  const world=createWorld({rest,rpc,insertReward,clock});
+ const wsocial=createWorldSocial({rest,rpc,clock,senderEnabled:ENV('NOTIFY_SENDER_ENABLED')==='1'});
  const daily=createDaily({rest,clock,insertReward,applyPoints,secret:cipherSecret});
 
  const creator=createCreator({rest,clock,insertReward,applyPoints,adminIds:adminIds instanceof Set?adminIds:parseAdminIds(adminIds)});
@@ -249,6 +251,14 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
    if(action==='world.state')return json({ok:true,...await world.state(player),player:publicPlayer(player)});
    if(action==='world.save')return json({ok:true,...await world.save(player,body)});
    if(action==='world.reward'){const r=await world.reward(player,body);return json({ok:true,...r,player:publicPlayer(r.player)});}
+   if(action.startsWith('world.')&&action!=='world.state'&&action!=='world.save'&&action!=='world.reward'){ // friend help + notify opt-in (additive, Oct 2026)
+    if(action==='world.friends')return json({ok:true,...await wsocial.friends(player)});
+    if(action==='world.help')return json({ok:true,...await wsocial.help(player,body)});
+    if(action==='world.help.claim')return json({ok:true,...await wsocial.claim(player)});
+    if(action==='world.notify.optin')return json({ok:true,...await wsocial.optIn(player,body)});
+    if(action==='world.notify.schedule')return json({ok:true,...await wsocial.schedule(player,body)});
+    if(action==='world.notify.status')return json({ok:true,...await wsocial.status(player)});
+   }
    if(action==='referrals.stats')return json({ok:true,referrals:await referralStats(player),player:publicPlayer(player)});
    if(action==='referrals.claim'){
     const result=await claimReferral(player,body.referral_id,body.source_event_key);
@@ -293,6 +303,9 @@ export function createHandler({url,key,fetcher=fetch,verify=verifyTelegram,clock
    if(msg==='reason'||msg==='order')return reply({ok:false,error:msg},400);
    if(msg==='too_fast')return reply({ok:false,error:'too_fast'},409);
    if(msg==='cap')return reply({ok:false,error:'cap'},409);
+   if(msg==='friend'||msg==='not_friend'||msg==='self')return reply({ok:false,error:'friend'},400);
+   if(msg==='due'||msg==='kind')return reply({ok:false,error:msg},400);
+   if(msg==='target_cap'||msg==='helper_cap')return reply({ok:false,error:msg},429);
    if(msg==='no_skips')return reply({ok:false,error:'no_skips'},409);
    if(msg==='no_attempts')return reply({ok:false,error:'no_attempts'},429);
    if(msg==='answer'||msg==='code')return reply({ok:false,error:msg},400);
