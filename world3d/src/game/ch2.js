@@ -119,7 +119,41 @@ export function createChapter2(ctx) {
     outCam = { d: ctrl.camDist, p: ctrl.camPitch }; const asp = camera.aspect || 1.7, E = asp < 1 ? home.entry.portrait : home.entry, di = hw(E.cat); ctrl.place(di.x, di.z, E.yaw, false); ctrl.camYaw = E.camYaw; ctrl.camDist = E.camDist; ctrl.camPitch = E.camPitch; outCam.fov = camera.fov; camera.fov = E.fov; camera.updateProjectionMatrix(); ctrl.camShift = E.fixedShift ? E.shift : E.shift * Math.min(1, asp / 1.6); ctrl.camLift = E.lift || 0; entryAt = { x: di.x, z: di.z }; try { if (window.MK && MK.setCatStride) MK.setCatStride({ ph: E.stride ?? 0.25, t: 8 }); } catch (e) { } inside = true; home.setOpen(false); await wait(0.1); ctx.fade(false); homeBusy = false; track('home'); rerender(); }
   async function exitHome() { if (homeBusy || !inside) return; homeBusy = true; ctx.fade(true); await wait(FAST ? 0.1 : 0.35); camera.layers.set(0); ctx.renderer.shadowMap.autoUpdate = true; ctx.renderer.shadowMap.needsUpdate = true; ctrl.solids = realSolids; home.group.visible = false; inside = false; ctrl.camShift = 0; ctrl.camLift = 0; _hiS = _hiTS = 0; _hiZ = _hiTZ = 1; try { camera.zoom = 1; camera.clearViewOffset(); camera.updateProjectionMatrix(); } catch (e) { } try { if (window.MK && MK.setCatStride) MK.setCatStride(null); } catch (e) { } if (outCam && outCam.fov) { camera.fov = outCam.fov; camera.updateProjectionMatrix(); } home.setOpen(true);
     const o = home.outside; ctrl.place(o.x, o.z, homeDoor.yaw, true); if (outCam) { ctrl.camDist = outCam.d; ctrl.camPitch = outCam.p; } await wait(0.1); ctx.fade(false); await wait(FAST ? 0.2 : 0.8); home.setOpen(false); homeBusy = false; rerender(); }
+  // ---------- v73 Moon Bunny: tame (after the home quest), take along (follows the cat, sniffs out hidden caches, cheers at finds)
+  // or leave home (sleeps in the pet house, finds a little while the player is away: <=3 finds per day, Moon Points through the
+  // regular rewards path 'bunny:<n>' -> server daily slots + daily cap) ----------
+  const CR = ctx.creatures, PB = () => store.data.pets.bunny; const FIND_MS = FAST ? 2000 : 2 * 3600e3, FIND_MAX = 3, FIND_PTS = 4, FIND_CRY = 2;
+  const bun = { x: 0, y: 0, z: 0, yaw: 0, hop: 0, happy: 0, init: false, sniff: null, sniffT: 0, seen: new Set(), was: '' };
+  const petHappy = () => { if (CR && PB().tamed) bun.happy = 1.6; };
+  const wildAt = () => { const o = home.outside, a = homeDoor.yaw + Math.PI / 2; return { x: o.x + Math.sin(a) * 3.0, z: o.z + Math.cos(a) * 3.0 }; };
+  const wildOn = () => FEAT.home && S().done.includes('c2_home');
+  async function petAway() { const P = PB(), now_ = now(); if (!CR || !P.tamed || P.along || !P.t) { P.t = now_; return; } const today = store.today(); if (P.day !== today) { P.day = today; P.n = 0; }
+    const k = Math.min(FIND_MAX - P.n, Math.floor((now_ - P.t) / FIND_MS)); P.t = now_; if (k <= 0) return; let pts = 0;
+    for (let i = 0; i < k; i++) { const slot = P.n; P.n++; S().res.cry += FIND_CRY; const r = await grant(FIND_PTS, 'bunny:' + slot); pts += r.granted || 0; }
+    store.queueSave(); refreshTop(); hud.popup({ icon: '🐰', head: t('petFindHead'), title: `+${pts} ⭐ · +${k * FIND_CRY} 💎`, note: `${t('petFindNote')} (${P.n}/${FIND_MAX})` }, 4200); }
+  function petTame() { const P = PB(); if (P.tamed) return; P.tamed = true; P.along = true; P.t = now(); bun.init = false; store.queueSave(); bun.happy = 1.6; hud.popup({ icon: '🐰', head: t('petTamedHead'), title: t('petTamed'), note: t('petTamedNote') }, 5200); rerender(); }
+  function petSet(along) { const P = PB(); if (!P.tamed || P.along === along) return; P.along = along; P.t = now(); bun.init = false; store.queueSave(); hud.toast('🐰 ' + t(along ? 'petAlongToast' : 'petHomeToast')); rerender(); }
+  function updatePet(dt) { if (!CR) return; const P = PB(), p = me(), T = ctx.time(), sl = CR.S.bunny; bun.happy = Math.max(0, bun.happy - dt);
+    const clearHl = () => { if (bun.sniff) { bun.sniff.fx.hl = 0; bun.sniff = null; } };
+    if (!S().on || CUT.on) { CR.hide(sl); return; } if (P.tamed) P.t = now();
+    if (!P.tamed) { clearHl(); if (!wildOn() || inside || regionOf(p) !== 'hub') { CR.hide(sl); return; } const w = wildAt(), dc = dist2(p, w); const k = (T % 2.6) / 2.6, hy = k < 0.25 ? Math.sin(k / 0.25 * Math.PI) * 0.12 : 0; const yaw = Math.atan2(p.x - w.x, p.z - w.z);
+      CR.set(sl, w.x, groundAt(w.x, w.z) + hy, w.z, dc < 9 ? yaw : yaw + Math.sin(T * 0.4) * 1.2, 1, [1.1, dc < 2.4 ? 0.5 : 0, 0, 0]); return; }
+    if (!P.along) { clearHl(); if (!inside) { CR.hide(sl); return; } const pp = home.pet, w = hw(pp); CR.set(sl, w.x, homeO.y + 0.17, w.z, pp.yaw, 0.6, [1.1, 0, 1, 0], 0, 0, 1 + Math.sin(T * 1.6) * 0.035); return; }
+    // along: follow at the cat's side, lead toward a sniffed-out cache, hop while moving, spin + ear wiggle when happy
+    const fy = Math.sin(ctrl.yaw), fz = Math.cos(ctrl.yaw); let tx = p.x - fy * 1.0 + fz * 0.75, tz = p.z - fz * 1.0 - fy * 0.75;
+    bun.sniffT -= dt; if (bun.sniffT <= 0 && !inside) { bun.sniffT = 0.5; let best = null, bd = 26; for (const c of (ctx.cachesLeft ? ctx.cachesLeft() : [])) { if (regionOf(c) !== regionOf(p)) continue; const d = dist2(p, c); if (d < bd) { bd = d; best = c; } }
+      if (best !== bun.sniff) { clearHl(); bun.sniff = best; if (best) { best.fx.hl = 1; if (!bun.seen.has(best.id)) { bun.seen.add(best.id); hud.toast('🐰 ' + t('petSniff')); } } } }
+    if (inside) clearHl(); if (bun.sniff) { const c = bun.sniff, d = dist2(p, c) || 1; const lead = Math.min(2.2, d - 0.6); tx = p.x + (c.x - p.x) / d * lead; tz = p.z + (c.z - p.z) / d * lead; }
+    const gyAt = (x, z) => { if (inside) return homeO.y; const g = groundAt(x, z); return ctrl.pos.y - groundAt(p.x, p.z) > 0.5 && dist2(p, { x, z }) < 2.5 ? ctrl.pos.y : g; };
+    const key = (inside ? 'in' : 'out') + regionOf(p); if (!bun.init || key !== bun.was || Math.hypot(tx - bun.x, tz - bun.z) > 12) { bun.x = tx; bun.z = tz; bun.yaw = ctrl.yaw; bun.init = true; bun.was = key; }
+    const dx = tx - bun.x, dz = tz - bun.z, d = Math.hypot(dx, dz); let hy = 0;
+    if (d > 0.22) { const sp = Math.min(d * 2.6, 7.5) * dt, m = Math.min(1, sp / d); bun.x += dx * m; bun.z += dz * m; bun.hop += dt * 10; hy = Math.abs(Math.sin(bun.hop)) * 0.13; const want = Math.atan2(dx, dz); bun.yaw += Math.atan2(Math.sin(want - bun.yaw), Math.cos(want - bun.yaw)) * Math.min(1, dt * 10); }
+    else { const look = bun.sniff ? Math.atan2(bun.sniff.x - bun.x, bun.sniff.z - bun.z) : Math.atan2(p.x - bun.x, p.z - bun.z); bun.yaw += Math.atan2(Math.sin(look - bun.yaw), Math.cos(look - bun.yaw)) * Math.min(1, dt * 4); }
+    let yaw = bun.yaw; if (bun.happy > 0) { const u = 1 - bun.happy / 1.6; yaw += u * Math.PI * 2; hy = Math.max(hy, Math.abs(Math.sin(u * Math.PI * 3)) * 0.25); }
+    CR.set(sl, bun.x, gyAt(bun.x, bun.z) + hy, bun.z, yaw, 1, [1.1, bun.happy > 0 ? 1 : bun.sniff ? 0.4 : 0, 0, 0]); }
+  if (typeof document !== 'undefined') document.addEventListener('visibilitychange', () => { if (!document.hidden && S().on) petAway(); });
   function homeAction() { const p = me();
+    if (inside && CR && PB().tamed && dist2(p, hw(home.pet)) < 1.7) return { act: 'c2:pet:toggle', label: PB().along ? '🏠 ' + t('petLeave') : '🐰 ' + t('petTake') };
     if (!inside) { if (FEAT.home && regionOf(p) === 'hub' && dist2(p, homeDoor) < 2.8) { home.setOpen(true); return { act: 'c2:home:in', label: '🚪 ' + t('homeEnter') }; } return null; }
     if (dist2(p, hw(home.doorIn)) < 1.5) return { act: 'c2:home:out', label: '🚪 ' + t('homeExit') };
     if (dist2(p, hw(home.consoleIn)) < 1.6) return { act: 'c2:home:console', label: '🖥️ ' + t('homeConsole') };
@@ -270,12 +304,14 @@ export function createChapter2(ctx) {
     // 2) storage
     if (here === 'hub' && dist2(p, depotP) < 3.7) { if (holding) holdT += dt; if (holdT >= (FAST ? 0.25 : 0.8)) { holdT = 0; holding = false; doCollect(); } return { act: 'c2:collect', label: `📦 ${t('collect')} ${econ.stored()}`, frac: Math.min(1, holdT / (FAST ? 0.25 : 0.8)) }; }
     holdT = 0;
+    // v73: tame the wild Moon Bunny by the home module
+    if (CR && !PB().tamed && wildOn() && here === 'hub' && dist2(p, wildAt()) < 2.4) return { act: 'c2:pet:tame', label: '🐰 ' + t('petTameBtn') };
     // 3) talk to a robot
     let best = null, bd = 2.7; for (const c of crew.values()) { if (!c.rob.root.visible || (c.state !== 'home' && c.state !== 'site')) continue; const d = dist2(p, c.pos); if (d < bd) { bd = d; best = c; } }
     if (best) return { act: 'c2:robot:' + best.r.id, label: `${ICON[best.r.type]} ${name(best.r)} · ${t('talk')}` };
     return null;
   }
-  function actDown(a) { if (a === 'c2:home:in') return enterHome(); if (a === 'c2:home:out') return exitHome(); if (a === 'c2:home:console') { ctx.setTab('crew'); openSheet(true); const q = cur(); if (q && q.kind === 'home') reward(q, '🖥️ ' + t('homeConsole')); return; } if (a === 'c2:help') miner.press(); else if (a === 'c2:collect' || a === 'c2:repair') holding = true; else if (a === 'c2:storm') startStorm(); else if (a.startsWith('c2:robot:')) { focusRid = a.slice(9); ctx.setTab('crew'); openSheet(true); } }
+  function actDown(a) { if (a === 'c2:home:in') return enterHome(); if (a === 'c2:home:out') return exitHome(); if (a === 'c2:home:console') { ctx.setTab('crew'); openSheet(true); const q = cur(); if (q && q.kind === 'home') reward(q, '🖥️ ' + t('homeConsole')); return; } if (a === 'c2:help') miner.press(); else if (a === 'c2:collect' || a === 'c2:repair') holding = true; else if (a === 'c2:storm') startStorm(); else if (a.startsWith('c2:robot:')) { focusRid = a.slice(9); ctx.setTab('crew'); openSheet(true); } else if (a === 'c2:pet:tame') petTame(); else if (a === 'c2:pet:toggle') petSet(!PB().along); }
   function actUp(a) { if (a === 'c2:help' && miner.holding) helpResult(miner.release()); holding = false; }
   // ---------- target / tracker ----------
   function target() { const q = cur(); if (!q || !S().on) return null; if (inside) return q.kind === 'home' ? { ...hw(home.consoleIn), y: homeO.y } : { ...hw(home.doorIn), y: homeO.y }; if (q.kind === 'home') return { ...homeDoor }; const here = regionOf(me()); const route = (p, region) => region && region !== here ? gates[here] : p;
@@ -336,6 +372,7 @@ export function createChapter2(ctx) {
       if (j) h += `<div class="c2-bar"><i style="width:${econ.progress(j) * 100}%"></i></div><div class="c2-row" style="margin-top:4px"><small>${Math.floor(econ.progress(j) * 100)}% · ${fmtTime(econ.left(j))}</small><small>${j.bonus ? '+' + Math.round(j.bonus * 100) + '%' : ''}</small></div>`;
       else h += `<div class="c2-acts">${actionsFor(r)}</div>`;
       h += lookRow(r, lv, s) + `</div>`; }
+    if (CR && PB().tamed) { const P = PB(), today = P.day === store.today() ? P.n : 0; h += `<div class="c2-card c2-pet"><div class="c2-row"><span>🐰 ${esc(t('petName'))}</span><small>${esc(t(P.along ? 'petStateAlong' : 'petStateHome'))}</small></div><div class="c2-row" style="margin-top:3px"><small>${esc(t(P.along ? 'petAlongHint' : 'petHomeHint'))}</small><small>🔎 ${today}/${FIND_MAX}</small></div><div class="c2-acts"><button class="c2-btn${P.along ? ' go' : ''}" data-act="pet:along" ${P.along ? 'disabled' : ''}><span>🐾 ${esc(t('petTake'))}</span><small></small></button><button class="c2-btn${P.along ? '' : ' go'}" data-act="pet:home" ${P.along ? '' : 'disabled'}><span>🏠 ${esc(t('petLeave'))}</span><small></small></button></div></div>`; }
     // recruit
     const slots = econ.slots(); h += `<div class="c2-tag">${esc(t('recruit'))} · ${esc(t('slots'))} ${s.robots.length}/${slots}</div>`;
     if (s.robots.length < slots) { h += `<div class="c2-acts">` + TYPES.map(ty => { const ok = econ.countType(ty) < MAX_PER_TYPE; return `<button class="c2-btn${ok ? ' go' : ''}" data-act="hire:${ty}" ${ok ? '' : 'disabled'}><span>${ICON[ty]} ${esc(t('rb_' + ty))}</span><small>${ok ? esc(t('hire')) : esc(t('maxType'))}</small></button>`; }).join('') + `</div>`; }
@@ -376,17 +413,17 @@ export function createChapter2(ctx) {
     if (a === 'fh' || a === 'fhinv' || a === 'ntf') { b.disabled = true; await socialClick(a, x); return; }
     if (a === 'up') await startJob(x, 'upgrade'); else if (a === 'ex') await startJob(x, 'expedition', y); else if (a === 'dg') await startJob(x, 'dig', y); else if (a === 'en') await startJob(x, 'eng', y);
     else if (a === 'hire') await recruit(x); else if (a === 'login') await claimLogin(); else if (a === 'task') await claimTask(+x);
-    else if (a === 'cs') { cosRid = cosRid === x ? null : x; focusRid = x; rerender(); } else if (a === 'cp') setLook(x, 'p', y); else if (a === 'cd') setLook(x, 'd', y); }
+    else if (a === 'pet') petSet(x === 'along'); else if (a === 'cs') { cosRid = cosRid === x ? null : x; focusRid = x; rerender(); } else if (a === 'cp') setLook(x, 'p', y); else if (a === 'cd') setLook(x, 'd', y); }
   hud.$('#mk-sheet .list').addEventListener('click', onClick);
   // ---------- lifecycle ----------
   let tickT = 0, jetT = 0, visitT = 0, dayT = 0, lastDay = '';
   function begin(first) { const s = S(); if (s.on) return; s.on = true; s.storage = { cry: 24, ore: 30, t: now() }; econ.rollDay(); lastDay = store.today(); ensureCrew(); syncBase(); store.save();
     if (first) hud.popup({ icon: '🤖', head: t('chapter2'), title: t('ch2Intro'), note: t('ch2IntroSub') }, 4200); show(); }
   function show() { home.doorMesh.visible = FEAT.home && !!S().on; cb.style.display = S().on ? 'inline-block' : 'none'; tb.style.display = S().on ? '' : 'none'; }
-  function boot() { show(); if (!S().on) return; ensureCrew(); econ.rollDay(); lastDay = store.today(); econ.tick(); flush(); syncBase(); booting = false;
+  function boot() { show(); if (!S().on) return; petAway(); ensureCrew(); econ.rollDay(); lastDay = store.today(); econ.tick(); flush(); syncBase(); booting = false;
     if (away.length) hud.popup({ icon: '🌙', head: t('awayHead'), title: away.slice(0, 3).join(' · '), note: away.slice(3, 6).join(' · ') }, 5200); away.length = 0;
     if (S().login.day !== store.today()) setTimeout(() => hud.toast('🎁 ' + t('dailyReady')), 1800); }
-  function update(dt) { if (!S().on) return; if (soc.on) { soc.syncT -= dt; soc.schedT -= dt; if (soc.syncT <= 0) { soc.syncT = 300; socialSync(); } if (soc.schedT <= 0) { soc.schedT = 60; socialSchedule(); } } tickT -= dt; if (tickT <= 0) { tickT = 0.5; const res = econ.tick(); flush(); checkQuest(); flush(); if (res.length) store.queueSave();
+  function update(dt) { updatePet(dt); if (!S().on) return; if (soc.on) { soc.syncT -= dt; soc.schedT -= dt; if (soc.syncT <= 0) { soc.syncT = 300; socialSync(); } if (soc.schedT <= 0) { soc.schedT = 60; socialSchedule(); } } tickT -= dt; if (tickT <= 0) { tickT = 0.5; const res = econ.tick(); flush(); checkQuest(); flush(); if (res.length) store.queueSave();
       const up = S().jobs.find(j => j.kind === 'upgrade'); if (up) base.set(S().level, up.what, econ.progress(up)); track('points', 0); const tk = S().daily.tasks.find(x => x.id === 'points' && !x.done); if (tk) { tk.prog = Math.min(tk.need, D().daily.earned); if (tk.prog >= tk.need) track('points', 0.0001); }
       cb.classList.toggle('ask', S().jobs.some(j => j.help === 'asked')); }
     dayT -= dt; if (dayT <= 0) { dayT = 5; if (store.today() !== lastDay) { lastDay = store.today(); econ.rollDay(); store.queueSave(); rerender(); } }
@@ -402,5 +439,6 @@ export function createChapter2(ctx) {
     stepStorm(sec) { const t0 = ctx.time(); for (let k = 0, n = Math.ceil(sec / 0.05); k < n; k++) { updateStorm(0.05); updateCrew(0.05); if (imp) imp.end(); shield.update(0.05, t0 + k * 0.05, camera.position); } },
     base: () => ({ level: S().level, value: base.mesh.visible, pieces: base.pieces, museum: base.museumW, homes: HOMES, work: WORK, sites: { canyonSite, meteorSite, engSite } }), baseMesh: base, tick: () => { econ.tick(); flush(); checkQuest(); flush(); }, track };
   const mapCrew = () => [...crew.values()].map(c => { const j = econ.jobOf(c.r.id); return { x: c.pos.x, z: c.pos.z, type: c.r.type, prog: j ? econ.progress(j) : -1 }; });
-  return { mapCrew, get inside() { return inside; }, begin, boot, update, action, actDown, actUp, target, trackHTML, renderChapter, renderCrew, renderDaily, track, api, get on() { return S().on; }, cur };
+  Object.assign(api, { pet: () => ({ ...PB(), x: bun.x, z: bun.z, sniff: bun.sniff && bun.sniff.id, happy: bun.happy, wild: wildOn() ? wildAt() : null, home: home.pet ? hw(home.pet) : null }), petTame, petSet, petAway, petHappy, action, actDown });
+  return { mapCrew, get inside() { return inside; }, begin, boot, update, action, actDown, actUp, target, trackHTML, renderChapter, renderCrew, renderDaily, track, api, petHappy, get on() { return S().on; }, cur };
 }

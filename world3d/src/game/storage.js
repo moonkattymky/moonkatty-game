@@ -26,7 +26,9 @@ export function dayKey(ms) { const d = new Date(ms); return `${d.getFullYear()}-
 // v2 (Chapter 1 overhaul): ch1.done is the source of truth (idx is derived), + lives, secrets, base build, activity sub-state.
 // v3 (Chapter 2): + ch2 (base level, storage, robots, timed jobs with absolute timestamps, daily tasks / streak / login, museum).
 const defaults = () => ({ v: 3, points: 0, xp: 0, level: 1, lives: 9, daily: { day: '', earned: 0 }, crystals: { day: '', taken: [] },
-  ch1: { idx: 0, prog: 0, done: [], crossed: [], mined: [], powered: [], parts: [], sprint: 0 }, secrets: [], base: { built: [] }, ch2: ch2Defaults(), stats: { crystals: 0, quests: 0, secrets: 0, falls: 0, hits: 0 } });
+  ch1: { idx: 0, prog: 0, done: [], crossed: [], mined: [], powered: [], parts: [], sprint: 0 }, secrets: [], base: { built: [] }, ch2: ch2Defaults(), stats: { crystals: 0, quests: 0, secrets: 0, falls: 0, hits: 0 }, pets: petDefaults() });
+// v73 (still save v3, additive): Moon creatures - tamed Moon Bunny (along / home, away finds per local day), Crystal Hedgehog found
+export const petDefaults = () => ({ bunny: { tamed: false, along: true, t: 0, day: '', n: 0 }, hedgehog: false });
 // old v1 quest ids -> new ids (already-earned quests are skipped, never re-rewarded)
 const V1_MAP = { canyon: ['canyon'], crystals: ['crystals'], dish: ['parts', 'dish'], reactor: ['reactor'], launch: ['launch'], ledge: ['secret'], home: ['home'] };
 export function migrate(d) {
@@ -47,7 +49,7 @@ export function createStore({ backend = new LocalBackend(), dailyCap = DAILY_CAP
   const roll = () => { const d = today(); if (data.daily.day !== d) data.daily = { day: d, earned: 0 }; if (data.crystals.day !== d) data.crystals = { day: d, taken: [] }; };
   const store = {
     get data() { return data; }, dailyCap, today,
-    async load() { const d = migrate(await backend.load()); data = Object.assign(defaults(), d || {}); for (const k of ['daily', 'crystals', 'ch1', 'stats', 'base']) data[k] = Object.assign(defaults()[k], (d || {})[k] || {}); if (!Array.isArray(data.secrets)) data.secrets = []; { const c = defaults().ch2, o = (d || {}).ch2 || {}; data.ch2 = Object.assign(c, o); for (const k of ['storage', 'res', 'eng', 'streak', 'login', 'daily']) data.ch2[k] = Object.assign(ch2Defaults()[k], o[k] || {}); for (const k of ['robots', 'jobs', 'log', 'museum', 'sets', 'story', 'done']) if (!Array.isArray(data.ch2[k])) data.ch2[k] = ch2Defaults()[k]; } if (data.ch1.done.length && !data.ch1.done.includes('power')) data.ch1.done.unshift('power'); if (!(data.lives >= 1 && data.lives <= 9)) data.lives = 9; roll(); return data; },
+    async load() { const d = migrate(await backend.load()); data = Object.assign(defaults(), d || {}); for (const k of ['daily', 'crystals', 'ch1', 'stats', 'base']) data[k] = Object.assign(defaults()[k], (d || {})[k] || {}); if (!Array.isArray(data.secrets)) data.secrets = []; { const pd = petDefaults(), po = (d || {}).pets || {}; data.pets = Object.assign(pd, po); data.pets.bunny = Object.assign(petDefaults().bunny, po.bunny || {}); } { const c = defaults().ch2, o = (d || {}).ch2 || {}; data.ch2 = Object.assign(c, o); for (const k of ['storage', 'res', 'eng', 'streak', 'login', 'daily']) data.ch2[k] = Object.assign(ch2Defaults()[k], o[k] || {}); for (const k of ['robots', 'jobs', 'log', 'museum', 'sets', 'story', 'done']) if (!Array.isArray(data.ch2[k])) data.ch2[k] = ch2Defaults()[k]; } if (data.ch1.done.length && !data.ch1.done.includes('power')) data.ch1.done.unshift('power'); if (!(data.lives >= 1 && data.lives <= 9)) data.lives = 9; roll(); return data; },
     async save() { clearTimeout(saveT); saveT = null; roll(); await backend.save(data); },
     queueSave() { if (!saveT) saveT = setTimeout(() => store.save(), 250); },
     async wipe() { await backend.wipe(); data = defaults(); roll(); },

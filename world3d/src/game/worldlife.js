@@ -79,7 +79,7 @@ function makeAudio() {
     step() { noise(0.06, 380, 1.2, 0.05); }, radio() { noise(0.35, 1800, 0.8, 0.04); setTimeout(() => blip(1200, 1200, 0.05, 0.03, 'sine'), 360); }, whoosh() { noise(1.4, 500, 0.6, 0.03); } };
 }
 
-export function makeWorldLife({ scene, camera, env, groundAt, depotP, fields, base, launch, crater, t, hud, low, mobile, ctrl, dish, makeCrew }) {
+export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, depotP, fields, base, launch, crater, t, hud, low, mobile, ctrl, dish, makeCrew }) {
   const mat = vcMat(env); const root = new THREE.Group(); root.name = 'world_life'; scene.add(root);
   const parts = makeParticles(scene, low ? 140 : mobile ? 340 : 520); const bb = makeBillboards(scene, 12); if (low) { parts.pts.visible = false; parts.emit = () => { }; } /* ?q=low: no particle draw (call budget) */ const audio = makeAudio();
   // sky ships: 2 shuttles + 1 satellite, merged-geometry meshes moved along arcs high in the sky
@@ -127,6 +127,10 @@ export function makeWorldLife({ scene, camera, env, groundAt, depotP, fields, ba
   mb.addEventListener('click', () => { audio.setMuted(!audio.muted); mb.textContent = audio.muted ? '🔇' : '🔊'; }); (hud.root || document.body).appendChild(mb);
   const sub = (key) => { const s = t(key); if (s && s !== key) hud.toast('📻 ' + s); };
 
+  // v73: Dust Jellies are real creatures (creatures.js) instead of billboards: bb size s ~ bell 0.75*s -> creature scale; near ones (k 2,3) get the detailed slots
+  const JR = low ? 55 : mobile ? 80 : 110;
+  function jelly(bi, k, x, y, z, s) { if (!creatures) { bb.set(bi, x, y, z, s, 0, k * 1.3); return; } bb.set(bi, 0, -999, 0, 0, 0); const sl = creatures.S.jelly + (k >= 2 ? k - 2 : 2 + k), sc = s * 0.75, cam = camera.position;
+    if (k >= 2 && Math.hypot(x - cam.x, z - cam.z) > JR) { creatures.hide(sl); return; } creatures.set(sl, x, y - 1.25 * sc, z, T * 0.08 + k * 1.7, sc, [k * 1.3, 1, 0, 1], 0.06 * Math.sin(T * 0.5 + k), 0, 1 + 0.07 * Math.sin(T * 1.7 + k), 1.6); }
   function update(dt, time, cat, robots) {
     if (!on) return; T += dt; bb.U.uT.value = T;
     const cam = camera.position;
@@ -140,9 +144,9 @@ export function makeWorldLife({ scene, camera, env, groundAt, depotP, fields, ba
     let bi = 0; for (const s of ships) { if (s.m.visible) { s.m.localToWorld(v.set(-2.5, 0, 0)); bb.set(bi, v.x, v.y, v.z, 7, 3, 0); } else bb.set(bi, 0, -999, 0, 0, 3); bi++; }
     starT -= dt; if (starT <= 0) { starT = 1.5 + Math.random() * 3; stars.push({ a: Math.random() * 6.28, t: 0, h: 120 + Math.random() * 80, r: 220 + Math.random() * 120, dir: Math.random() * 6.28 }); if (stars.length > 3) stars.shift(); }
     for (let k = 0; k < 3; k++) { const s = stars[k]; if (s && s.t < 1.2) { s.t += dt; const x = cam.x + Math.cos(s.a) * s.r + Math.cos(s.dir) * s.t * 60, z = cam.z + Math.sin(s.a) * s.r + Math.sin(s.dir) * s.t * 60, y = cam.y + s.h - s.t * 35; bb.set(bi, x, y, z, 6 * (1 - s.t / 1.2) + 0.5, 2, 0, s.dir); } else bb.set(bi, 0, -999, 0, 0, 2); bi++; }
-    for (let k = 0; k < 4; k++) { if (k < 2) { const a = k * 1.7 + T * 0.03; const x = J.x + Math.cos(a) * (14 + k * 6), z = J.z + Math.sin(a) * (14 + k * 6), y = groundAt(J.x, J.z) + 22 + k * 7 + Math.sin(T * 0.6 + k) * 3; bb.set(bi++, x, y, z, 8 + k * 2, 0, k * 1.3); } else { /* two cyan jellies drifting over the open ground beyond the drill (concept: upper right) */ const a = k * 2.1 + T * 0.05; const cx = D.x + ux * 26, cz = D.z + uz * 26; const x = cx + Math.cos(a) * 9, z = cz + Math.sin(a) * 9, y = groundAt(cx, cz) + 12 + (k - 2) * 5 + Math.sin(T * 0.7 + k) * 1.5; bb.set(bi++, x, y, z, 3.2 + (k - 2) * 0.8, 0, k * 1.3); } }
+    for (let k = 0; k < 4; k++) { if (k < 2) { const a = k * 1.7 + T * 0.03; const x = J.x + Math.cos(a) * (14 + k * 6), z = J.z + Math.sin(a) * (14 + k * 6), y = groundAt(J.x, J.z) + 22 + k * 7 + Math.sin(T * 0.6 + k) * 3; jelly(bi++, k, x, y, z, 8 + k * 2); } else { /* two cyan jellies drifting over the open ground beyond the drill (concept: upper right) */ const a = k * 2.1 + T * 0.05; const cx = D.x + ux * 26, cz = D.z + uz * 26; const x = cx + Math.cos(a) * 9, z = cz + Math.sin(a) * 9, y = groundAt(cx, cz) + 12 + (k - 2) * 5 + Math.sin(T * 0.7 + k) * 1.5; jelly(bi++, k, x, y, z, 3.2 + (k - 2) * 0.8); } }
     { const cyc = 75, k = T % cyc; if (k < 6) { const a = bunnyPath.a0 + k * 0.05; const r = 320; const x = base.x + Math.cos(a) * r, z = base.z + Math.sin(a) * r; bb.set(bi, x, groundAt(x, z) + 3 + Math.abs(Math.sin(k * 6)) * 2.5, z, 5, 1, 0); } else bb.set(bi, 0, -999, 0, 0, 1); bi++; }
-    bb.flush();
+    bb.flush(); if (low) bb.mesh.visible = false; /* v73 ?q=low: jellies + bunny are real creatures now; the billboard draw (ship glows / shooting stars) pays for the creature draw */
     // rover on its loop: follows the ground, dust trail, crystals while hauling back
     { const u = ((T * 4.2) / loopLen) % 1; loop.getPointAt(u, v); const gy = groundAt(v.x, v.z); const tng = loop.getTangentAt(u); rover.position.set(v.x, gy, v.z); rover.rotation.y = Math.atan2(tng.x, tng.z);
       const e = 0.9; const fy = groundAt(v.x + tng.x * e, v.z + tng.z * e), by = groundAt(v.x - tng.x * e, v.z - tng.z * e); rover.rotation.x = -Math.atan2(fy - by, 2 * e) ; { const dR = Math.hypot(v.x - cam.x, v.z - cam.z); rover.visible = dR < VR; rover.geometry = dR < HID ? rvG[1] : rvG[0]; }
