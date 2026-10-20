@@ -233,9 +233,10 @@ export function terrainMaterial(patch = false, canyon = false) {
         }
         return acc; }`)
       .replace('#include <lights_fragment_end>', `#include <lights_fragment_end>
-      reflectedLight.directDiffuse *= 1.45; reflectedLight.indirectDiffuse *= 0.85; /* pass 41: brighter sunlit regolith, deeper shade (concept contrast) */`)
+      reflectedLight.directDiffuse *= 2.3; reflectedLight.indirectDiffuse *= 0.3; /* v70: harder sun/shade split */ /* pass 41: brighter sunlit regolith, deeper shade (concept contrast) */`)
       .replace('#include <opaque_fragment>', `{ vec3 kd = normalize((viewMatrix * vec4(${TFILL}, 0.0)).xyz); outgoingLight += diffuseColor.rgb * vec3(0.98, 0.96, 0.92) * 0.55 * max(dot(normal, kd), 0.0);
         vec2 lu = vec2(vWP.x / 150.0 + 0.5, 0.5 - vWP.z / 150.0); if (lu.x > 0.0 && lu.x < 1.0 && lu.y > 0.0 && lu.y < 1.0) outgoingLight += diffuseColor.rgb * texture2D(uLampMap, lu).rgb * 9.0 * uLampK; }
+      { float lq = dot(outgoingLight, vec3(0.299, 0.587, 0.114)); outgoingLight *= mix(0.4, 1.6, smoothstep(0.04, 0.6, lq)) * (1.0 - smoothstep(60.0, 140.0, length(vWP - cameraPosition))) + (1.0 - smoothstep(60.0, 140.0, length(vWP - cameraPosition))) * 0.0 + smoothstep(60.0, 140.0, length(vWP - cameraPosition)); } /* v70: near-field S-curve: deeper shade, brighter sunlit regolith */
       #include <opaque_fragment>`)
       .replace('#include <color_fragment>', `#include <color_fragment>
       ${patch ? '' : `if (uPatchOn > 0.5 && length(vWP.xz - vec2(${PATCH.x.toFixed(1)}, ${PATCH.z.toFixed(1)})) < ${PATCH.cut.toFixed(1)}) discard; if (uPatch2On > 0.5 && length(vWP.xz - vec2(${PATCH2.x.toFixed(1)}, ${PATCH2.z.toFixed(1)})) < ${PATCH2.cut.toFixed(1)}) discard; if (uPatch3On > 0.5) { vec2 d3 = vWP.xz - vec2(${PATCH3.x.toFixed(2)}, ${PATCH3.z.toFixed(2)}); vec2 u3 = vec2(${PATCH3.rect.ux.toFixed(5)}, ${PATCH3.rect.uz.toFixed(5)}); if (abs(dot(d3, u3)) < ${(PATCH3.rect.hl-PATCH3.cut).toFixed(1)} && abs(dot(d3, vec2(-u3.y, u3.x))) < ${(PATCH3.rect.hw-PATCH3.cut).toFixed(1)}) discard; } /* covered by the high-res region patches */`}
@@ -246,7 +247,7 @@ export function terrainMaterial(patch = false, canyon = false) {
       { float w4 = ${canyon ? '0.35' : '(1.0 - 0.65 * kEc)'} * pFlat * (1.0 - smoothstep(60.0, 110.0, tDist)) * smoothstep(8.0, 16.0, tDist); if (w4 > 0.01) { vec3 c4 = craters(vWP.xz + 13.3, 1.7); cr.x *= mix(1.0, c4.x, w4); cr.x *= mix(1.0, c4.x * c4.x, w4); cr.yz += c4.yz * 1.7 * w4; } }
       float tMid = (1.0 - smoothstep(55.0, 140.0, tDist)) * smoothstep(6.0, 14.0, tDist)${patch ? ' * pFlat' : ''}; // mid-ground craters (2-3 m) between the ledge and the base
       { float speck = (smoothstep(0.78, 0.95, vn(vWP.xz * 13.0)) - 0.6 * smoothstep(0.8, 0.95, vn(vWP.xz * 9.0 + 3.1))) * pFlat; float grain = vn(vWP.xz * 31.0) * 0.4 + vn(vWP.xz * 67.0) * 0.3 + vn(vWP.xz * 140.0) * 0.15 + hh(floor(vWP.xz * 90.0)) * 0.15;
-        diffuseColor.rgb *= mix(1.0, (0.86 + 0.26 * tN) * (1.0 + 0.22 * speck), tFade) * mix(1.0, cr.x * (0.66 + 0.68 * grain), tNear) * (1.0 + 0.45 * (1.0 - smoothstep(3.0, 24.0, tDist)));
+        diffuseColor.rgb *= mix(1.0, (0.8 + 0.4 * tN) * (1.0 + 0.24 * speck), tFade) * mix(1.0, cr.x * (0.6 + 0.8 * grain), tNear) /* v70: stronger regolith mottling + grain contrast */ * (1.0 + 0.1 * (1.0 - smoothstep(3.0, 24.0, tDist))) /* v70: less near lift (was clipping flat) */;
         if (tMid > 0.01) { vec2 pc = floor(vWP.xz * 2.2); float pr = hh(pc + 3.3); vec2 pf = fract(vWP.xz * 2.2) - 0.5 + (vec2(hh(pc), hh(pc + 7.1)) - 0.5) * 0.5; float pd = length(pf); float aa = clamp(1.0 - fwidth(vWP.x * 2.2) * 2.0, 0.0, 1.0);
           float peb = (1.0 - smoothstep(0.1, 0.17, pd)) * step(0.55, pr) * aa; float mot = vn(vWP.xz * 0.9 + 5.0) * 0.6 + vn(vWP.xz * 3.1) * 0.4;
           diffuseColor.rgb *= mix(1.0, (0.8 + 0.4 * mot) * (1.0 - 0.45 * peb * step(0.8, pr) + 0.22 * peb * (1.0 - step(0.8, pr))), tMid); }
