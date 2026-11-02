@@ -41,14 +41,14 @@ export function makeShield(scene, { center, R, groundAt, consoleP, low = false, 
       float flick = 0.85 + 0.15 * sin(uTime * 2.0 + dot(id, vec2(1.7, 2.3)));
       // impact ripples: a ring running across the cells + a flash at the hit
       float rip = 0.0, fl = 0.0; for (int i = 0; i < 6; i++) { vec4 H = uHits[i]; float age = uTime - H.w; if (age < 0.0 || age > 3.0) continue; float d = distance(vW, H.xyz); rip += exp(-pow((d - age * 16.0) / 2.6, 2.0)) * exp(-age * 1.0) * 2.0; fl += exp(-d * 0.9) * exp(-age * 6.0) * 1.2; }
-      vec3 lineC = vec3(0.03, 0.65, 1.0), tint = vec3(0.003, 0.144, 0.35);
+      vec3 lineC = vec3(0.02, 0.72, 1.05), tint = vec3(0.0, 0.2, 0.42);
       float lineK = (1.0 - smoothstep(0.0, 0.022, e)); float edgeK = 1.0 - smoothstep(0.0, 0.008, e);
-      vec3 col = tint * (0.07 + 0.22 * pow(fres, 2.0) + exp(-h * 10.0) * 0.5) + lineC * (lineK * (0.9 + 0.6 * fres) * flick + glowL * 0.08 + edgeK * 0.7 + pow(fres, 5.0) * 0.18 + exp(-h * 12.0) * 0.55 + lead * 1.3 + rip * (0.2 + lineK * 1.1))
+      vec3 col = tint * (0.12 + 0.3 * pow(fres, 2.0) + exp(-h * 10.0) * 0.9) + lineC * (lineK * (1.15 + 0.7 * fres) * flick + glowL * 0.08 + edgeK * 0.7 + pow(fres, 5.0) * 0.18 + exp(-h * 12.0) * 1.1 + lead * 1.3 + rip * (0.2 + lineK * 1.1))
         + vec3(0.25, 0.85, 1.0) * edgeK * 0.25 * (0.6 + fres) + vec3(1.2, 0.45, 0.08) * fl * (0.35 + lineK);
       float aT = clamp(0.16 + 0.28 * pow(fres, 2.0) + lineK * 0.35 + exp(-h * 10.0) * 0.2, 0.0, 0.8);
       gl_FragColor = vec4(col * uAlpha, aT * uAlpha);
     }` });
-  const dg = new THREE.SphereGeometry(R, low ? 40 : 64, low ? 12 : 20, 0, Math.PI * 2, 0, Math.PI / 2);
+  const dg = new THREE.SphereGeometry(R, low ? 40 : 56, low ? 12 : 14, 0, Math.PI * 2, 0, Math.PI / 2);
   const dome = new THREE.Mesh(dg, dm); dome.name = 'ch2_shield_dome'; dome.position.set(center.x, cy, center.z); dome.scale.set(1, HY, 1); dome.renderOrder = 5; dome.frustumCulled = false; dome.visible = false; root.add(dome);
   // ---- meteor trails: instanced billboards (head + tapered fiery tail) ----
   const qg = new THREE.InstancedBufferGeometry(); qg.setAttribute('position', new THREE.Float32BufferAttribute([-0.5, 0, 0, 0.5, 0, 0, 0.5, 1, 0, -0.5, 1, 0], 3)); qg.setIndex([0, 1, 2, 0, 2, 3]);
@@ -74,10 +74,10 @@ export function makeShield(scene, { center, R, groundAt, consoleP, low = false, 
   cg.push(col(new THREE.CylinderGeometry(0.66, 0.72, 0.2, 8).rotateY(O).translate(0, 0.1, 0), '#ece2cc'), col(new THREE.CylinderGeometry(0.735, 0.735, 0.035, 8, 1, true).rotateY(O).translate(0, 0.19, 0), '#d6a136'), col(new THREE.CylinderGeometry(0.69, 0.69, 0.03, 8).rotateY(O).translate(0, 0.215, 0), '#d6a136'),
     col(new THREE.CylinderGeometry(0.52, 0.6, 0.2, 8).rotateY(O).translate(0, 0.33, 0), '#e6dac2'), col(new THREE.CylinderGeometry(0.535, 0.535, 0.035, 8, 1, true).rotateY(O).translate(0, 0.43, 0), '#d6a136'), col(new THREE.CylinderGeometry(0.5, 0.51, 0.03, 8).rotateY(O).translate(0, 0.445, 0), '#2a2f38'));
   for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; const ca = Math.cos(a), sa = Math.sin(a); cg.push(col(new THREE.BoxGeometry(0.34, 0.035, 0.02).rotateY(-a + Math.PI / 2).translate(ca * 0.57, 0.33, sa * 0.57), '#4fd8ff'), col(new THREE.BoxGeometry(0.2, 0.025, 0.02).rotateY(-a + Math.PI / 2).translate(ca * 0.705, 0.1, sa * 0.705), k % 2 ? '#ffb030' : '#4fd8ff'), col(new THREE.BoxGeometry(0.05, 0.2, 0.05).translate(Math.cos(a + O) * 0.66, 0.1, Math.sin(a + O) * 0.66), '#d6a136')); }
-  cg.push(col(new THREE.TorusGeometry(0.43, 0.025, 6, 32).rotateX(Math.PI / 2).translate(0, 0.465, 0), '#4fd8ff'));
-  const cm = new THREE.MeshStandardMaterial({ vertexColors: true, metalness: 0.55, roughness: 0.4, envMap: env || null }); cm.onBeforeCompile = (sh) => { sh.fragmentShader = sh.fragmentShader.replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n totalEmissiveRadiance += vColor.rgb * (step(0.8, vColor.b) * step(vColor.r, 0.4) * 2.5 + step(0.95, vColor.r) * step(vColor.b, 0.3) * 1.8);'); }; cm.customProgramCacheKey = () => 'ch2_console';
+  cg.push(col(new THREE.TorusGeometry(0.43, 0.025, 4, 24).rotateX(Math.PI / 2).translate(0, 0.465, 0), '#4fd8ff'));
+  const cm = new THREE.MeshStandardMaterial({ vertexColors: true, metalness: 0.55, roughness: 0.4, envMap: env || null }); cm.onBeforeCompile = (sh) => { sh.fragmentShader = sh.fragmentShader.replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n totalEmissiveRadiance += vColor.rgb * (step(0.8, vColor.b) * step(vColor.r, 0.4) * 3.6 + step(0.95, vColor.r) * step(vColor.b, 0.3) * 1.8);'); }; cm.customProgramCacheKey = () => 'ch2_console';
   const cons = new THREE.Mesh(mergeGeometries(cg), cm); cons.name = 'ch2_console'; const cgy = groundAt(consoleP.x, consoleP.z); cons.position.set(consoleP.x, cgy, consoleP.z); cons.receiveShadow = true; cons.scale.set(1, 1.2, 1); cons.visible = false; scene.add(cons); // shown by Chapter 2 once the finale unlocks
-  const btnM = new THREE.MeshBasicMaterial({ map: pawTexture(), toneMapped: false, color: new THREE.Color(0.75, 1.15, 1.35) }); const btn = new THREE.Mesh(new THREE.CircleGeometry(0.41, 32).rotateX(-Math.PI / 2), btnM); btn.position.y = 0.47; cons.add(btn);
+  const btnM = new THREE.MeshBasicMaterial({ map: pawTexture(), toneMapped: false, color: new THREE.Color(0.6, 1.25, 1.6) }); const btn = new THREE.Mesh(new THREE.CircleGeometry(0.41, 32).rotateX(-Math.PI / 2), btnM); btn.position.y = 0.47; cons.add(btn);
   // ---- storm state ----
   let state = 'off', T = 0, sT = 0, nextM = 0, hitI = 0, night = 0, alpha = 0; const S = { dur: 30, onHit: null };
   let camA = 0, poseK = 0; const domePoint = () => { const a = camA + (Math.random() - 0.5) * (poseK ? 1.3 : 2.2), el = poseK ? 0.22 + Math.random() * 0.45 : 0.25 + Math.random() * 1.1; return new THREE.Vector3(center.x + Math.cos(a) * Math.cos(el) * R, cy + Math.sin(el) * R * HY, center.z + Math.sin(a) * Math.cos(el) * R); };

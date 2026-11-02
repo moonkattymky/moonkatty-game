@@ -175,7 +175,7 @@ function rockMaterial(fog = true, bump = 2.2, smooth = false, key = 0.0, far = f
       { vec3 fnD = normalize(cross(dFdx(vWP), dFdy(vWP))); vec3 tw = pow(abs(fnD), vec3(4.0)); tw /= tw.x + tw.y + tw.z + 1e-4; float fnK = 1.0 - smoothstep(15.0, 70.0, length(vWP - cameraPosition));
         if (fnK > 0.01) { vec2 nx = texture2D(uDet, vWP.zy / 2.6).gb - 0.5, ny = texture2D(uDet, vWP.xz / 2.6).gb - 0.5, nz = texture2D(uDet, vWP.xy / 2.6).gb - 0.5;
           vec3 gw = vec3(0.0, nx.y, nx.x) * tw.x + vec3(ny.x, 0.0, ny.y) * tw.y + vec3(nz.x, nz.y, 0.0) * tw.z; normal = normalize(normal + (viewMatrix * vec4(gw * 3.2 * fnK, 0.0)).xyz); } } /* pass 40: triplanar detail normal: faces are no longer flat */`)
-      .replace('#include <opaque_fragment>', `${key > 0 ? `{ vec3 kd = normalize((viewMatrix * vec4(${KEY}, 0.0)).xyz); float kl = max(dot(normal, kd), 0.0); outgoingLight = outgoingLight * 0.6 + diffuseColor.rgb * vec3(1.0, 0.96, 0.9) * (${(key * 1.75).toFixed(2)} * pow(kl, 2.6) + ${(amb * 0.35).toFixed(2)}); { float lq = dot(outgoingLight, vec3(0.299, 0.587, 0.114)); float nf = 1.0 - smoothstep(40.0, 120.0, length(vWP - cameraPosition)); outgoingLight *= mix(1.0, mix(0.6, 2.6, smoothstep(0.03, 0.45, lq)), nf); } } /* v69: darker shadow side + sharper sunlit faces; v70: near-field S-curve */` : ''}
+      .replace('#include <opaque_fragment>', `${key > 0 ? `{ vec3 kd = normalize((viewMatrix * vec4(${KEY}, 0.0)).xyz); float kl = max(dot(normal, kd), 0.0); outgoingLight = outgoingLight * 0.6 + diffuseColor.rgb * vec3(1.0, 0.96, 0.9) * (${(key * 1.75).toFixed(2)} * pow(kl, 2.6) + ${(amb * 0.35).toFixed(2)}); { float lq = dot(outgoingLight, vec3(0.299, 0.587, 0.114)); float nf = 1.0 - smoothstep(40.0, 120.0, length(vWP - cameraPosition)); outgoingLight *= mix(1.0, mix(0.5, 2.85, smoothstep(0.03, 0.45, lq)), nf); outgoingLight = mix(outgoingLight, outgoingLight * vec3(0.86, 0.92, 1.08), (1.0 - smoothstep(0.0, 0.35, kl)) * nf * 0.6); } } /* v69: darker shadow side + sharper sunlit faces; v70: near-field S-curve */` : ''}
       #include <opaque_fragment>`);
   };
   return m;
@@ -196,13 +196,13 @@ export class InstanceCuller {
   update(camera, force = false) {
     camera.updateMatrixWorld();
     const moved = camera.position.distanceToSquared(this.lastPos) > 0.5; const turned = !this.last.equals(camera.matrixWorld);
-    if (!force && !moved && !turned) return; this.lastPos.copy(camera.position); this.last.copy(camera.matrixWorld);
+    const stF = !!globalThis.__mkStorm; const stCh = stF !== this._stF; this._stF = stF; /* v75: re-LOD when the storm toggles */ if (!force && !moved && !turned && !stCh) return; this.lastPos.copy(camera.position); this.last.copy(camera.matrixWorld);
     this.pm.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); this.frustum.setFromProjectionMatrix(this.pm);
     const cx = camera.position.x, cy = camera.position.y, cz = camera.position.z;
     for (const k of this.kinds) {
       const counts = k.lods.map(() => 0); const arr = k.lods.map(l => l.mesh.instanceMatrix.array);
       for (const it of k.items) {
-        const d2 = ((it.x - cx) ** 2 + (it.y - cy) ** 2 + (it.z - cz) ** 2) * it.lodK; // size-aware LOD: small rocks drop detail sooner
+        const d2 = ((it.x - cx) ** 2 + (it.y - cy) ** 2 + (it.z - cz) ** 2) * it.lodK * (globalThis.__mkStorm ? 2.6 : 1); /* v75: storm view budget */ // size-aware LOD: small rocks drop detail sooner
         let li = -1; for (let i = 0; i < k.lods.length; i++) if (d2 < k.lods[i].d2) { li = i; break; }
         if (li < 0) continue;
         this.sphere.center.set(it.x, it.y, it.z); this.sphere.radius = it.r + 2.5;

@@ -105,17 +105,19 @@ export function makeCreatures(scene, env, { low = false, mobile = false } = {}) 
   const uM = Array.from({ length: NS }, () => new THREE.Matrix4().makeScale(0, 0, 0)), uA = Array.from({ length: NS }, () => new THREE.Vector4(0, 1, 0, 0)), U = { uM: { value: uM }, uA: { value: uA }, uT: { value: 0 } };
   const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.0, envMap: env || null, envMapIntensity: 0.7 });
   mat.onBeforeCompile = (sh) => { Object.assign(sh.uniforms, U);
-    sh.vertexShader = sh.vertexShader.replace('#include <common>', `#include <common>\nattribute float aE; attribute float aS; attribute float aP; attribute float aW; uniform mat4 uM[${NS}]; uniform vec4 uA[${NS}]; uniform float uT; varying float vE; varying float vP; varying float vPulse;`)
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', `#include <common>\nattribute float aE; attribute float aS; attribute float aP; attribute float aW; uniform mat4 uM[${NS}]; uniform vec4 uA[${NS}]; uniform float uT; varying float vE; varying float vP; varying float vPulse; varying vec3 vFP;`)
       .replace('#include <beginnormal_vertex>', `#include <beginnormal_vertex>\n int si = int(aS + 0.5); mat4 SM = uM[si]; vec4 SA = uA[si]; objectNormal = normalize(mat3(SM) * objectNormal);`)
       .replace('#include <begin_vertex>', `vec3 transformed = vec3(position); float ph = SA.x;
         if (aP > 0.5 && aP < 2.5) { float sd = aP < 1.5 ? -1.0 : 1.0; float w = aW * aW; transformed.x += sd * (sin(uT * 2.1 + ph) * 0.03 + SA.y * sin(uT * 13.0 + ph) * 0.035 + SA.z * 0.09) * w; transformed.y -= SA.z * w * 0.2; transformed.z += (sin(uT * 1.7 + ph + sd) * 0.02 - SA.z * 0.26) * w; }
         else if (aP > 2.5 && aP < 3.5) { transformed.x += sin(uT * 2.2 + position.y * 4.0 + ph) * aW * 0.09 * SA.w; transformed.z += cos(uT * 1.8 + position.y * 3.5 + ph * 1.3) * aW * 0.09 * SA.w; }
         else if (aP > 3.5 && aP < 4.5) { transformed.y += max(0.0, sin(uT * 22.0 + ph + position.z * 60.0)) * 0.012 * SA.w; }
-        transformed = (SM * vec4(transformed, 1.0)).xyz; vE = aE; vP = aP; vPulse = SA.y;`);
-    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying float vE; varying float vP; varying float vPulse;')
+        transformed = (SM * vec4(transformed, 1.0)).xyz; vE = aE; vP = aP; vPulse = SA.y; vFP = position;`);
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying float vE; varying float vP; varying float vPulse; varying vec3 vFP;')
+      .replace('#include <color_fragment>', `#include <color_fragment>
+        if (vP > 6.5) { vec3 q = vFP * vec3(140.0, 46.0, 140.0); float st = fract(sin(dot(floor(q), vec3(12.9898, 78.233, 37.719))) * 43758.5453); diffuseColor.rgb *= 0.8 + 0.34 * st; } /* v75: strand speckle so the fur reads as hair, not plastic */`)
       .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>\n totalEmissiveRadiance += vColor.rgb * vE * ((vP > 5.5 && vP < 6.5) ? vPulse : 1.0);
         if (vP > 4.5 && vP < 5.5) { float fr = pow(1.0 - abs(dot(normal, normalize(vViewPosition))), 2.0); totalEmissiveRadiance += vColor.rgb * fr * 1.4; }
-        if (vP > 6.5) { float fr = pow(1.0 - abs(dot(normal, normalize(vViewPosition))), 3.0); totalEmissiveRadiance += vec3(0.35, 0.55, 1.0) * fr * 0.9; } /* fluffy bunny: soft blue rim glow */`); };
+        if (vP > 6.5) { float fr = pow(1.0 - abs(dot(normal, normalize(vViewPosition))), 3.0); totalEmissiveRadiance += vec3(0.4, 0.62, 1.0) * fr * 1.25; } /* fluffy bunny: soft blue rim glow */`); };
   const mesh = new THREE.Mesh(geo, mat); mesh.name = 'creatures'; mesh.frustumCulled = false; mesh.castShadow = false; mesh.receiveShadow = false; mesh.matrixAutoUpdate = false; mesh.visible = false; scene.add(mesh);
   mesh.layers.enable(1); // also drawn inside the home module (home layer)
   const vis = new Array(NS).fill(false), want = new Array(NS).fill(false), sph = Array.from({ length: NS }, () => new THREE.Sphere()); const _q = new THREE.Quaternion(), _e = new THREE.Euler(), _p = new THREE.Vector3(), _s = new THREE.Vector3(), _fr = new THREE.Frustum(), _m = new THREE.Matrix4();
@@ -125,7 +127,7 @@ export function makeCreatures(scene, env, { low = false, mobile = false } = {}) 
     hide(i) { want[i] = false; if (LOD && i === S.bunny) want[S.bunnyLo] = false; },
     visible: (i) => vis[i] || (LOD && i === S.bunny && vis[S.bunnyLo]), wanted: (i) => want[i] || (LOD && i === S.bunny && want[S.bunnyLo]),
     flush(T, camera) { U.uT.value = T; if (camera) camP = camera.position; if (camera) _fr.setFromProjectionMatrix(_m.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)); // frustum-cull per slot: off-screen creatures cost nothing
-      for (let i = 0; i < NS; i++) { vis[i] = want[i] && (!camera || _fr.intersectsSphere(sph[i])); if (!vis[i]) uM[i].makeScale(0, 0, 0); } const k = vis.map(x => x ? 1 : 0).join(''); if (k !== key) { key = k; let n = 0; const A = IDX.array; for (let i = 0; i < NS; i++) if (vis[i]) { for (let j = i ? ends[i - 1] : 0; j < ends[i]; j++) A[n++] = j; } geo.setDrawRange(0, n); IDX.needsUpdate = true; IDX.addUpdateRange ? (IDX.clearUpdateRanges(), IDX.addUpdateRange(0, n)) : 0; api.drawn = n / 3; } mesh.visible = key.includes('1'); },
+      for (let i = 0; i < NS; i++) { vis[i] = want[i] && !globalThis.__mkStorm && (!camera || _fr.intersectsSphere(sph[i])); if (!vis[i]) uM[i].makeScale(0, 0, 0); } const k = vis.map(x => x ? 1 : 0).join(''); if (k !== key) { key = k; let n = 0; const A = IDX.array; for (let i = 0; i < NS; i++) if (vis[i]) { for (let j = i ? ends[i - 1] : 0; j < ends[i]; j++) A[n++] = j; } geo.setDrawRange(0, n); IDX.needsUpdate = true; IDX.addUpdateRange ? (IDX.clearUpdateRanges(), IDX.addUpdateRange(0, n)) : 0; api.drawn = n / 3; } mesh.visible = key.includes('1'); },
   };
   return api;
 }
