@@ -62,7 +62,7 @@ export function builderKits() {
   const body = new Kit(), arm = new Kit();
   // proportions measured on the concept cut-out (feet y=0, hat top ~1.67): boots .2, knees .37, waist .5, torso .5-.95, head .94-1.38, brim 1.29
   for (const sx of [-1, 1]) { const x = sx < 0 ? -0.35 : 0.29, zf = sx < 0 ? 0.07 : -0.05, kb = 0.025; // wide stance, right leg a little forward (viewer-left), slight crouch (knees forward)
-    const by = sx < 0 ? -0.15 : 0.45; body.add(sq(0.34, 0.2, 0.46, 2.4, 10, 6), 'ivory', { p: [x, 0.12, zf + 0.05], r: [0, by, 0] }); body.add(sq(0.36, 0.065, 0.48, 3.2, 10, 3), 'gold', { p: [x, 0.035, zf + 0.05], r: [0, by, 0] }); // chunky rounded boot on a gold sole
+    const by = sx < 0 ? -0.15 : 0.45; body.add(sq(0.34, 0.2, 0.46, 2.4, 10, 6), 'ivory', { p: [x, 0.12, zf + 0.05], r: [0, by, 0] }); body.add(sq(0.36, 0.065, 0.48, 3.2, 10, 3), 'gold', { p: [x, 0.035, zf + 0.05], r: [0, by, 0] }); body.add(sq(0.355, 0.05, 0.475, 2.6, 10, 3), 'gold', { p: [x, 0.2, zf + 0.05], r: [0, by, 0] }); // chunky rounded boot on a gold sole
     body.add(sq(0.2, 0.09, 0.05, 3, 6, 3), 'gold', { p: [x + Math.sin(by) * 0.22, 0.17, zf + 0.05 + Math.cos(by) * 0.22], r: [0, by, 0] }); // gold toe-cap plate
     body.add(cyl(0.055, 0.055, 0.02, 8), 'gold', { p: [x + sx * 0.16, 0.14, zf], r: [0, 0, Math.PI / 2] }); // gold ankle disc
     body.add(sq(0.27, 0.25, 0.27, 2.5, 8, 5, { taper: -0.12 }), 'ivory', { p: [x * 0.97, 0.28, zf + kb * 0.5] }); // shin
@@ -78,7 +78,7 @@ export function builderKits() {
   body.add(tor(0.16, 0.02, 3, 14), 'gold', { p: [0, 0.94, 0.0], r: [Math.PI / 2, 0, 0], s: [1.3, 1.1, 1] }); // gold collar
   body.add(cyl(0.12, 0.13, 0.07, 12), 'dark', { p: [0, 0.955, 0] }); // neck
   for (const sx of [-1, 1]) { // rounded ivory shoulder pads with gold trim (concept: mostly ivory, gold edging along the front/lower rim)
-    const so = sx < 0 ? 0.37 : 0.41, sy = sx < 0 ? 0 : -0.035; body.add(sq(0.28, 0.28, 0.32, 2.3, 12, 7), 'ivory', { p: [sx * so, 0.8 + sy, 0] });
+    const so = sx < 0 ? 0.37 : 0.41, sy = sx < 0 ? 0 : -0.035; body.add(sq(0.28, 0.28, 0.32, 2.3, 12, 7), 'gold', { p: [sx * so, 0.8 + sy, 0] });
     body.add(sq(0.3, 0.045, 0.34, 2.4, 10, 3), 'gold', { p: [sx * (so + 0.005), 0.69 + sy, 0], r: [0, 0, -sx * 0.12] }); // gold lower rim
     body.add(sq(0.05, 0.22, 0.05, 2.5, 4, 5), 'gold', { p: [sx * (so + 0.03), 0.81 + sy, 0.165], r: [0, 0, -sx * 0.2] }); } // gold front edge strip
   // left arm (+x, static): elbow out, glove gripping the I-beam end from above
@@ -89,9 +89,9 @@ export function builderKits() {
     const L = 0.84, c = [0.12, 0.45, 0.4], R = [-0.3, -0.12, 0.2]; for (const [w, h, d, dy, col] of [[L, 0.022, 0.17, 0.08, 'steel'], [L, 0.022, 0.17, -0.08, 'steel'], [L, 0.16, 0.03, 0, 'dark']]) body.add(new THREE.BoxGeometry(w, h, d), col, { p: [c[0], c[1] + dy, c[2]], r: R }); }
   // head (built separately, then tilted a little forward / sideways about the neck like the concept): wide soft squircle shell, ear discs, glossy black screen, gold hard hat
   const head = new Kit();
-  head.add(sq(0.74, 0.46, 0.58, 3.2, 18, 11), 'ivory', { p: [0, 1.15, 0] });
-  for (const sx of [-1, 1]) { head.add(cyl(0.125, 0.13, 0.06, 12), 'gold', { p: [sx * 0.375, 1.14, -0.01], r: [0, 0, Math.PI / 2] }); head.add(cyl(0.088, 0.088, 0.065, 10), 'dark', { p: [sx * 0.385, 1.14, -0.01], r: [0, 0, Math.PI / 2] }); head.add(cyl(0.045, 0.045, 0.07, 6), 'gold', { p: [sx * 0.39, 1.14, -0.01], r: [0, 0, Math.PI / 2] }); }
-  head.add(sq(0.55, 0.3, 0.07, 3.6, 14, 7), 'black', { p: [0, 1.15, 0.275] }); // screen
+  head.add(sq(0.8, 0.52, 0.58, 2.7, 18, 11), 'ivory', { p: [0, 1.15, 0] });
+  for (const sx of [-1, 1]) { head.add(cyl(0.125, 0.13, 0.06, 12), 'gold', { p: [sx * 0.405, 1.14, -0.01], r: [0, 0, Math.PI / 2] }); head.add(cyl(0.088, 0.088, 0.065, 10), 'dark', { p: [sx * 0.415, 1.14, -0.01], r: [0, 0, Math.PI / 2] }); head.add(cyl(0.045, 0.045, 0.07, 6), 'gold', { p: [sx * 0.42, 1.14, -0.01], r: [0, 0, Math.PI / 2] }); }
+  head.add(sq(0.58, 0.32, 0.07, 3.4, 14, 7), 'black', { p: [0, 1.15, 0.275] }); // screen
   // gold hard hat: rounder, taller dome, a proud raised centre ridge + two side ridges, rolled brim (wider at the front visor), front tabs
   const HB = 1.29; head.add(sq(0.74, 0.64, 0.7, 1.9, 22, 8, { th: Math.PI / 2 }), 'hat', { p: [0, HB, 0.0] });
   head.add(sq(0.075, 0.67, 0.73, 2.2, 6, 8, { th: Math.PI / 2 }), 'hat', { p: [0, HB, 0] }); // raised centre ridge (a fin standing proud of the dome)
