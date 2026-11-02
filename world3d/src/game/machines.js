@@ -24,30 +24,30 @@ export function roverHi() { const L = [];
   L.push(col(sq(2.0, 0.55, 3.5, 7, 10, 5).translate(0, 0.92, 0), C.iv), col(box(1.86, 0.2, 3.2).translate(0, 0.62, 0), C.dark), col(box(2.05, 0.06, 3.56).translate(0, 1.13, 0), C.gold));
   for (const s of [-1, 1]) L.push(col(box(0.04, 0.12, 2.4).translate(s * 1.0, 0.86, 0), C.gold));
   // cab
-  L.push(col(sq(1.72, 0.6, 1.15, 7, 10, 5).translate(0, 1.4, 1.05), C.iv2), col(box(1.0, 0.22, 0.06).rotateX(-0.38).translate(0, 1.48, 1.6), C.glass, 0.35));
+  L.push(col(sq(1.72, 0.5, 0.95, 7, 10, 5).translate(0, 1.35, 1.2), C.iv2), col(box(1.0, 0.22, 0.06).rotateX(-0.38).translate(0, 1.48, 1.6), C.glass, 0.35));
   for (const s of [-1, 1]) L.push(col(box(0.05, 0.16, 0.42).translate(s * 0.86, 1.46, 1.02), C.glass, 0.3));
-  L.push(col(box(1.05, 0.07, 0.14).translate(0, 1.73, 1.2), C.gold)); for (const x of [-0.3, 0, 0.3]) L.push(col(box(0.16, 0.06, 0.06).translate(x, 1.74, 1.29), C.lamp, 2.5));
+  L.push(col(box(1.05, 0.07, 0.14).translate(0, 1.63, 1.3), C.gold)); for (const x of [-0.3, 0, 0.3]) L.push(col(box(0.16, 0.06, 0.06).translate(x, 1.64, 1.39), C.lamp, 2.5));
   // headlights + bumper
   for (const s of [-1, 1]) L.push(col(cyl(0.16, 0.16, 0.05, 10).rotateX(Math.PI / 2).translate(s * 0.62, 1.0, 1.75), C.gold), col(cyl(0.12, 0.12, 0.06, 10).rotateX(Math.PI / 2).translate(s * 0.62, 1.0, 1.78), C.lamp, 5.0), col(cyl(0.2, 0.2, 0.02, 10).rotateX(Math.PI / 2).translate(s * 0.62, 1.0, 1.8), '#ffe9b0', 1.6));
   L.push(col(box(1.8, 0.14, 0.16).translate(0, 0.72, 1.76), C.gold));
   // open cargo bed
-  L.push(col(box(1.8, 0.08, 1.9).translate(0, 1.18, -0.6), C.metal));
-  for (const s of [-1, 1]) L.push(col(box(0.08, 0.42, 1.9).translate(s * 0.88, 1.39, -0.6), C.iv), col(box(0.11, 0.05, 1.96).translate(s * 0.88, 1.62, -0.6), C.gold));
-  for (const z of [-1.52, 0.33]) L.push(col(box(1.8, 0.42, 0.08).translate(0, 1.39, z), C.iv), col(box(1.86, 0.05, 0.11).translate(0, 1.62, z), C.gold));
+  L.push(col(box(1.8, 0.08, 2.3).translate(0, 1.18, -0.55), C.metal));
+  for (const s of [-1, 1]) L.push(col(box(0.08, 0.3, 2.3).translate(s * 0.88, 1.33, -0.55), C.iv), col(box(0.11, 0.05, 2.36).translate(s * 0.88, 1.5, -0.55), C.gold));
+  for (const z of [-1.72, 0.62]) L.push(col(box(1.8, 0.3, 0.08).translate(0, 1.33, z), C.iv), col(box(1.86, 0.05, 0.11).translate(0, 1.5, z), C.gold));
   const CR = [[-0.5, -1.2, 0.55, 0.16, 0.2], [-0.15, -1.25, 0.75, 0.2, -0.1], [0.25, -1.15, 0.6, 0.17, -0.25], [0.55, -1.25, 0.45, 0.14, -0.4], [-0.45, -0.7, 0.7, 0.19, 0.3], [0.0, -0.6, 0.95, 0.24, 0.05], [0.4, -0.7, 0.65, 0.18, -0.3], [-0.5, -0.15, 0.5, 0.15, 0.35], [-0.1, -0.1, 0.62, 0.17, 0.12], [0.3, -0.15, 0.55, 0.16, -0.2], [0.6, -0.2, 0.4, 0.13, -0.45]];
-  CR.forEach(([x, z, h, w, rz], i) => L.push(crystal(x, 1.25, z, h * 1.05, w * 1.7, rz, (i % 3 - 1) * 0.15, i % 4 ? C.cry : C.cry2, i % 4 ? 2.0 : 2.6)));
+  CR.forEach(([x, z, h, w, rz], i) => L.push(crystal(x, 1.2, z * 1.15 - 0.05, h * 0.8, w * 2.0, rz * 0.8, (i % 3 - 1) * 0.15, i % 4 ? C.cry : C.cry2, i % 4 ? 1.1 : 1.5)));
   // wheels: chunky tyre, gold hub, ivory cap; ivory fenders with a gold edge
-  for (const z of [-1.15, 0, 1.15]) for (const s of [-1, 1]) { const x = s * 1.07;
+  for (const z of [-1.2, 0, 1.2]) for (const s of [-1, 1]) { const x = s * 1.07;
     L.push(col(cyl(0.5, 0.5, 0.44, 10).rotateZ(Math.PI / 2).translate(x, 0.48, z), C.tire), col(cyl(0.24, 0.24, 0.46, 6).rotateZ(Math.PI / 2).translate(x, 0.48, z), C.gold));
  }
-  for (const z of [-1.15, 0, 1.15]) for (const s of [-1, 1]) { const x = s * 1.07; L.push(col(new THREE.TorusGeometry(0.6, 0.045, 3, 8, Math.PI).rotateY(Math.PI / 2).translate(x + s * 0.25, 0.5, z), C.gold)); }
+  for (const z of [-1.2, 0, 1.2]) for (const s of [-1, 1]) { const x = s * 1.07; L.push(col(new THREE.TorusGeometry(0.6, 0.045, 3, 8, Math.PI).rotateY(Math.PI / 2).translate(x + s * 0.25, 0.5, z), C.gold)); }
   // cargo bed detail: corner posts, cross ribs, side lamps, tie-down rail
-  for (const x of [-0.88, 0.88]) for (const z of [-1.52, 0.33]) L.push(col(box(0.12, 0.55, 0.12).translate(x, 1.45, z), C.gold));
-  for (const z of [-1.05, -0.6, -0.15]) L.push(col(box(1.72, 0.03, 0.05).translate(0, 1.23, z), C.dgold));
-  for (const s of [-1, 1]) L.push(col(box(0.04, 0.06, 1.7).translate(s * 0.93, 1.5, -0.6), C.dgold), col(box(0.06, 0.08, 0.1).translate(s * 0.93, 1.3, -1.45), C.red, 3.0));
+  for (const x of [-0.88, 0.88]) for (const z of [-1.72, 0.62]) L.push(col(box(0.12, 0.4, 0.12).translate(x, 1.38, z), C.gold));
+  for (const z of [-1.25, -0.55, 0.15]) L.push(col(box(1.72, 0.03, 0.05).translate(0, 1.23, z), C.dgold));
+  for (const s of [-1, 1]) L.push(col(box(0.04, 0.06, 2.1).translate(s * 0.93, 1.42, -0.55), C.dgold), col(box(0.06, 0.08, 0.1).translate(s * 0.93, 1.25, -1.65), C.red, 3.0));
   L.push(rod([0.7, 1.85, 0.75], [0.7, 2.8, 0.7], 0.02, C.metal, 4), col(new THREE.SphereGeometry(0.06, 6, 4).translate(0.7, 2.82, 0.7), C.red, 3.5));
   return merge(L); }
-export function roverLo() { const L = [col(box(2.0, 0.55, 3.5).translate(0, 0.92, 0), C.iv), col(box(2.05, 0.06, 3.56).translate(0, 1.13, 0), C.gold), col(box(1.7, 0.75, 1.1).translate(0, 1.5, 1.05), C.iv2), col(box(1.3, 0.3, 0.05).translate(0, 1.6, 1.61), C.glass, 0.35), col(box(1.8, 0.4, 1.9).translate(0, 1.38, -0.6), C.iv)];
+export function roverLo() { const L = [col(box(2.0, 0.55, 3.5).translate(0, 0.92, 0), C.iv), col(box(2.05, 0.06, 3.56).translate(0, 1.13, 0), C.gold), col(box(1.7, 0.5, 0.95).translate(0, 1.35, 1.2), C.iv2), col(box(1.0, 0.22, 0.05).translate(0, 1.45, 1.68), C.glass, 0.35), col(box(1.8, 0.3, 2.3).translate(0, 1.33, -0.55), C.iv)];
   for (const [x, z, h] of [[-0.4, -1.1, 0.6], [0.3, -1.0, 0.7], [0, -0.4, 0.9], [-0.4, -0.1, 0.55], [0.45, -0.2, 0.5]]) L.push(crystal(x, 1.4, z, h, 0.2, 0, 0, C.cry, 1.4));
   for (const z of [-1.15, 0, 1.15]) for (const s of [-1, 1]) L.push(col(cyl(0.46, 0.46, 0.4, 7).rotateZ(Math.PI / 2).translate(s * 1.07, 0.46, z), C.tire));
   for (const s of [-1, 1]) L.push(col(box(0.22, 0.18, 0.05).translate(s * 0.62, 1.0, 1.77), C.lamp, 4.5));
@@ -76,7 +76,7 @@ export function drillHi() { const L = []; const HZ = DRILL_HEAD.z;
   L.push(col(box(1.9, 0.06, 1.9).translate(0, 1.36, -1.45), C.metal), col(cyl(0.6, 0.66, 0.24, 14).translate(0, 1.5, -1.2), C.gold), col(cyl(0.48, 0.5, 0.3, 12).translate(0, 1.77, -1.2), C.iv));
   // articulated arm: twin gold lower boom up to the elbow, upper boom out over the rear, hydraulic cylinders, joints
   const SH = [0, 1.9, -1.2], EL = [0, 3.95, -1.45], WR = [0, 3.15, HZ];
-  L.push(...truss(SH, EL, 0.36, 0.3, 4, 0.045), ...truss([0, EL[1], EL[2]], [0, WR[1] + 0.2, WR[2]], 0.3, 0.26, 3, 0.038)); // v57 lattice/truss booms (concept): 4 gold chords + zig-zag braces
+  L.push(...truss(SH, EL, 0.52, 0.44, 4, 0.065), ...truss([0, EL[1], EL[2]], [0, WR[1] + 0.2, WR[2]], 0.44, 0.36, 3, 0.055)); // v57 lattice/truss booms (concept): 4 gold chords + zig-zag braces
 
   L.push(rod([0, 1.6, -0.6], [0, 2.75, -1.3], 0.09, C.metal, 6), rod([0, 2.1, -0.9], [0, 2.75, -1.3], 0.13, C.iv2, 6));   // lift cylinder
   L.push(rod([0, 3.85, -1.3], [0, 3.4, -2.15], 0.07, C.metal, 6), rod([0, 3.85, -1.3], [0, 3.65, -1.75], 0.1, C.iv2, 6));     // reach cylinder
