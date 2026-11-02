@@ -56,6 +56,8 @@ export function chunkGeom(detail, seed, top = 0.5) {
   for (let i = 0; i < P.count; i++) { const up = N.getY(i); const y = P.getY(i); const ao = THREE.MathUtils.clamp(0.7 + (y + 0.3) * 0.4, 0.65, 1.0); const c = (0.21 + Math.max(0, up) * 0.03 + nz[i] * 0.03) * ao; col[i * 3] = c * 1.04; col[i * 3 + 1] = c; col[i * 3 + 2] = c * 0.93; }
   g.setAttribute('color', new THREE.BufferAttribute(col, 3)); g.computeBoundingSphere(); return g;
 }
+/* v78: smooth-shaded rounded stone (welded icosphere, gentle noise, lifted vertex AO) */
+export function roundStone(detail, seed) { const g = chunkGeom(detail, seed, 0.8); const C = g.attributes.color; for (let i = 0; i < C.count; i++) { const k = 1.75; C.setXYZ(i, Math.min(1, C.getX(i) * k), Math.min(1, C.getY(i) * k), Math.min(1, C.getZ(i) * k)); } g.scale(0.62, 0.62, 0.62); g.computeBoundingSphere(); return g; }
 // chiselled boulder: icosphere cut by random planes -> flat facets with crisp edges (angular, chunky), flat-shaded, top-lit vertex colours
 export function chiselGeom(seed, cuts = 11, detail = 2) {
   const r = seeded(seed * 13 + 1); const g = new THREE.IcosahedronGeometry(1, detail); const P = g.attributes.position; const v = new THREE.Vector3(); const n = new THREE.Vector3();
@@ -407,10 +409,10 @@ export function buildRocks(scene, culler, quality = 1) { LOD_SCALE = quality < 0
   // v68: concept foreground boulders are tall jagged blocks, not low slabs -> stretch the near peak rocks up (the ledge rock under the cat keeps its height)
   for (const it of L.peak) { const d = Math.hypot(it.x - K.cam.x, it.z - K.cam.z); if (d < 26 && Math.hypot(it.x - LEDGE.x, it.z - LEDGE.z) > 1.0) { const k = 0.82; /* v77: rounder, smaller, gaps between (scattered) */ it.y -= it.s[1] * 0.53 * 0.18; it.s[1] *= k; it.s[0] *= 0.86; it.s[2] *= 0.86; } }
   const kinds = {
-    rockA: makeKind(scene, 'rockA', [[creaseRock(protoGeom(1, 2, [1.25, 0.75, 1.05]), 62), 8], [creaseRock(protoGeom(1, 2, [1.25, 0.75, 1.05]), 62), 24], [creaseRock(protoGeom(0, 2, [1.25, 0.75, 1.05], 0.3), 62), 116]], A, mat, 2),
-    debris: makeKind(scene, 'debris', [[creaseRock(chiselGeom(14, 6, 0), 50), 7.5]], debris, matDebris, 0),
+    rockA: makeKind(scene, 'rockA', [[creaseRock(protoGeom(1, 2, [1.25, 0.75, 1.05], 0.12), 180, 1), 8], [creaseRock(protoGeom(1, 2, [1.25, 0.75, 1.05], 0.12), 180, 1), 24], /* v78: smooth-shaded rounded boulders, no strata terraces/per-face tones */ [creaseRock(protoGeom(0, 2, [1.25, 0.75, 1.05], 0.3), 62), 116]], A, mat, 2),
+    debris: makeKind(scene, 'debris', [[roundStone(0, 14), 7.5]] /* v78 smooth pale pebbles, same 20 tris */, debris, matDebris, 0),
     scatter: makeKind(scene, 'scatter', [[pebbleGeom(23), SCAT_D]], scatter, matScatter, 0),
-    strata: makeKind(scene, 'strata', [[creaseRock(chiselGeom(9, 16, 2), 72), 6.5], [creaseRock(chiselGeom(9, 12, 1), 72), 14], [creaseRock(chiselGeom(9, 12, 0), 45), 95]], L.peak, matFar, 0),
+    strata: makeKind(scene, 'strata', [[roundStone(2, 9), 6.5], [roundStone(1, 9), 14], /* v78: smooth rounded pale stones near camera (same tri count as the chisel LODs) */ [roundStone(0, 9), 95]], L.peak, matFar, 0),
     wall: makeKind(scene, 'wall', [[creaseRock(mesaGeom(protoGeom(1, 33, [1, 1, 1], 0.55), 33), 60), 118], [creaseRock(mesaGeom(protoGeom(0, 33, [1, 1, 1], 0.45), 33), 60), 3000]], L.wall, matWall, 0),
   };
     for (const k of Object.values(kinds)) culler.add(k);
