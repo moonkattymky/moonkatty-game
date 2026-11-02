@@ -57,8 +57,7 @@ export function chunkGeom(detail, seed, top = 0.5) {
   g.setAttribute('color', new THREE.BufferAttribute(col, 3)); g.computeBoundingSphere(); return g;
 }
 /* v78: smooth-shaded rounded stone (welded icosphere, gentle noise, lifted vertex AO) */
-export function roundStone(detail, seed) { const g = chunkGeom(detail, seed, 0.8); const C = g.attributes.color; for (let i = 0; i < C.count; i++) { const k = 1.45; C.setXYZ(i, Math.min(1, C.getX(i) * k), Math.min(1, C.getY(i) * k), Math.min(1, C.getZ(i) * k)); } { /* v79: chisel 6 planes -> angular silhouette, smooth shading */ const P = g.attributes.position; let R = 0; for (let i = 0; i < P.count; i++) R = Math.max(R, Math.hypot(P.getX(i), P.getY(i), P.getZ(i))); let sd = seed * 7.13 + 1; const fr = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; }; for (let j = 0; j < 8; j++) { const th = fr() * 6.283, ph = Math.acos(fr() * 1.6 - 0.6); const nx = Math.sin(ph) * Math.cos(th), ny = Math.cos(ph), nz = Math.sin(ph) * Math.sin(th), o = R * (0.5 + fr() * 0.12); for (let i = 0; i < P.count; i++) { const d = P.getX(i) * nx + P.getY(i) * ny + P.getZ(i) * nz; if (d > o) P.setXYZ(i, P.getX(i) - nx * (d - o), P.getY(i) - ny * (d - o), P.getZ(i) - nz * (d - o)); } } g.computeVertexNormals(); }
-  g.scale(0.62, 0.62, 0.62); g.computeBoundingSphere(); return g; }
+export function roundStone(detail, seed) { const g = chunkGeom(detail, seed, 0.8); const C = g.attributes.color; for (let i = 0; i < C.count; i++) { const k = 1.75; C.setXYZ(i, Math.min(1, C.getX(i) * k), Math.min(1, C.getY(i) * k), Math.min(1, C.getZ(i) * k)); } g.scale(0.62, 0.62, 0.62); g.computeBoundingSphere(); return g; }
 // chiselled boulder: icosphere cut by random planes -> flat facets with crisp edges (angular, chunky), flat-shaded, top-lit vertex colours
 export function chiselGeom(seed, cuts = 11, detail = 2) {
   const r = seeded(seed * 13 + 1); const g = new THREE.IcosahedronGeometry(1, detail); const P = g.attributes.position; const v = new THREE.Vector3(); const n = new THREE.Vector3();
@@ -375,8 +374,8 @@ export function buildRocks(scene, culler, quality = 1) { LOD_SCALE = quality < 0
   { const out = []; let nSplit = 0; const big = L.peak.map((it, i) => { _v.set(it.x, it.y + it.s[1] * 0.5, it.z).project(ccam); return { it, i, px: (_v.x * 0.5 + 0.5) * 1024, py: (0.5 - _v.y * 0.5) * 576, d: Math.hypot(it.x - K.cam.x, it.z - K.cam.z), sm: Math.max(...it.s) }; })
       .filter(o => o.py > 470 && o.px > -80 && o.px < 1100 && o.d < 14 && o.sm > 1.0 && Math.hypot(o.it.x - LEDGE.x, o.it.z - LEDGE.z) > 2.6).sort((a, b) => b.sm - a.sm).slice(0, 9);
     const drop = new Set(big.map(o => o.i));
-    for (const { it } of big) { const n = 4 + Math.floor(rnd() * 2); const R0 = Math.max(it.s[0], it.s[2]) * 2.1; /* v79: scattered, not bunched */ nSplit++;
-      for (let k = 0; k < n; k++) { const a = k / n * 6.283 + rnd() * 0.8, rr = k === 0 ? 0 : R0 * (0.55 + rnd() * 0.75); const x = it.x + Math.cos(a) * rr, z = it.z + Math.sin(a) * rr; if (nearTrack(x, z, 0.8) || Math.hypot(x - K.cat.x, z - K.cat.z) < 1.2) continue;
+    for (const { it } of big) { const n = 5 + Math.floor(rnd() * 3); const R0 = Math.max(it.s[0], it.s[2]) * 0.75; nSplit++;
+      for (let k = 0; k < n; k++) { const a = k / n * 6.283 + rnd() * 0.8, rr = k === 0 ? 0 : R0 * (0.45 + rnd() * 0.55); const x = it.x + Math.cos(a) * rr, z = it.z + Math.sin(a) * rr; if (nearTrack(x, z, 0.8) || Math.hypot(x - K.cat.x, z - K.cat.z) < 1.2) continue;
         const sc = (k === 0 ? 0.62 : 0.32 + rnd() * 0.26); const sx = it.s[0] * sc, sy = it.s[1] * sc * (1.15 + rnd() * 0.5), sz = it.s[2] * sc; const g0 = groundAt(x, z);
         out.push({ x, y: g0 + sy * (0.18 + rnd() * 0.12), z, s: [sx, sy, sz], r: [(rnd() - 0.5) * 0.5, rnd() * 6.28, (rnd() - 0.5) * 0.5] }); } }
     const kept = L.peak.filter((_, i) => !drop.has(i)); L.peak.length = 0; L.peak.push(...kept, ...out); window.__split = nSplit; }
