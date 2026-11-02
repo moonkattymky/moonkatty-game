@@ -62,12 +62,12 @@ const shardMat = () => new THREE.ShaderMaterial({ uniforms: { uTime: { value: 0 
       c += cyan * thr * thr * coreH * 0.3 * pulse + mix(cyan, hot, 0.45) * pow(nv, 4.0) * exp(-pow((vH - 0.26) / 0.26, 2.0)) * mix(0.1, 1.0, smoothstep(0.35, 0.9, cell)) * 1.0 * pulse;                      // inner glow core
       c += cyan * streak * 0.5;                                   // refracted fracture planes
       c += royal * fr * 0.25 + cyan * pow(1.0 - nv, 8.0) * 0.6 + mix(ice, hot, 0.5) * pow(1.0 - nv, 4.0) * 0.55 * (0.5 + 0.5 * vH); // v58 bright white-ice fresnel rim                                                        // soft fresnel
-      c += mix(ice, hot, 0.4) * pow(1.0 - vH, 9.0) * 1.8 * pulse * (0.4 + 0.6 * exp(-ax * ax / 0.08));                  // glowing base
+      c += mix(ice, hot, 0.6) * pow(1.0 - vH, 6.0) * 3.2 * pulse /* v78 brighter base */ * (0.4 + 0.6 * exp(-ax * ax / 0.08));                  // glowing base
       // edge highlights: soft and only on SOME facet edges (per-facet random), brighter toward the tip - no uniform wireframe outline
       float e = min(min(vB.x, vB.y), vB.z); float w = fwidth(e);
-      float sel = mix(0.3, 1.0, step(0.45, h3(floor(ln * 4.0 + 0.5) + floor(vSeed * 3.0) + 7.0))) * mix(0.55, 1.0, vE);
-      float soft = 1.0 - smoothstep(0.0, 0.07, e), core = 1.0 - smoothstep(w * 0.5, w * 2.2, e);
-      c += mix(cyan, ice, 0.45) * soft * soft * 1.25 * sel * (0.45 + 0.55 * vH) + mix(ice, hot, 0.6) * core * 0.9 * sel * smoothstep(0.15, 1.0, vH); // v58 brighter white facet edges
+      float sel = mix(0.7, 1.0, step(0.45, h3(floor(ln * 4.0 + 0.5) + floor(vSeed * 3.0) + 7.0))) * mix(0.55, 1.0, vE);
+      float soft = 1.0 - smoothstep(0.0, 0.07, e), core = 1.0 - smoothstep(w * 0.6, w * 3.0, e); /* v78 crisper white edges */
+      c += mix(cyan, ice, 0.45) * soft * soft * 1.25 * sel * (0.45 + 0.55 * vH) + mix(ice, hot, 0.5) * core * 1.4 * sel * (0.5 + 0.5 * vH); // v58 brighter white facet edges
       c += ice * smoothstep(0.9, 1.0, vH) * 0.25;                                  // bright tips
       if (vS > 0.5) c = c * vec3(0.35, 0.33, 0.4) + vec3(0.5, 0.12, 0.05) * core; // mined / cracked
       gl_FragColor = vec4(c, 1.0); }` });
@@ -81,8 +81,8 @@ const glowMat = () => new THREE.ShaderMaterial({ uniforms: { uTime: { value: 0 }
     void main(){ float r = length(vP); if (r > 1.0) discard; float pulse = 0.75 + 0.25 * sin(uTime * 2.4 + vSeed); vec3 add; float occ;
       // premultiplied blend (One, OneMinusSrcAlpha): the halo both adds blue light and dims what is behind it, so it reads as a deep blue glow even on
       // bright regolith (pure additive blue on a light background turns lavender)
-      if (vK < 0.5) { vec2 e = vec2(vP.x, vP.y - 0.08) * 1.15; float rr = dot(e, e); float h = exp(-rr * 6.5) * 2.0 * pulse; float wr = smoothstep(0.03, 0.14, rr); // halo ringing the silhouette (no tint over the crystal body)
-        add = vec3(0.04, 0.75, 1.8) * h * wr * (1.0 - smoothstep(0.18, 0.6, rr)); occ = min(0.25, h * 0.14 * wr); /* v77: no dark ring around the body */ /* v75: tight glow hugging the cluster, no big dark ring */
+      if (vK < 0.5) { vec2 e = vec2(vP.x, vP.y - 0.08) * 1.15; float rr = dot(e, e); float h = exp(-rr * 11.0) * 2.4 * pulse; /* v78 tighter */ float wr = smoothstep(0.03, 0.14, rr); // halo ringing the silhouette (no tint over the crystal body)
+        add = vec3(0.04, 0.75, 1.8) * h * wr * (1.0 - smoothstep(0.1, 0.36, rr)); occ = min(0.25, h * 0.14 * wr); /* v77: no dark ring around the body */ /* v75: tight glow hugging the cluster, no big dark ring */
         vec2 b = vec2(vP.x / 0.62, (vP.y + 0.5) / 0.13); add += vec3(0.25, 0.9, 2.4) * exp(-dot(b, b)) * 1.6 * pulse; add += vec3(0.45, 1.4, 2.0) * exp(-rr * 32.0) * 0.45 * pulse; occ = max(occ, exp(-rr * 32.0) * 0.12); // v57 round white-hot core
         vec2 sp = vec2(vP.x - 0.18, vP.y + 0.42) * 6.0; float tw = pow(0.5 + 0.5 * sin(uTime * 3.7 + vSeed * 5.0), 3.0); add += vec3(0.3, 1.45, 2.4) * (exp(-abs(sp.x) * 9.0) * exp(-abs(sp.y) * 1.3) + exp(-abs(sp.y) * 9.0) * exp(-abs(sp.x) * 1.3)) * 0.45 * tw; } // twinkling sparkle at the base // white-cyan flare at the base
       else { float a = (pow(1.0 - r, 3.0) * 1.1 + smoothstep(0.08, 0.0, abs(r - fract(uTime * 0.45 + vSeed))) * 0.16 * (1.0 - r)) * pulse;
