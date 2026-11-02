@@ -44,10 +44,11 @@ const ready = () => page.waitForFunction(() => window.MK && MK.ready && MK.game 
 const E = (f, a) => page.evaluate(f, a); const W = (ms) => page.waitForTimeout(ms);
 const until = async (fn, arg, ms = 25000) => { const t0 = Date.now(); let v; while (Date.now() - t0 < ms) { v = await E(fn, arg); if (v && v.ok) return v; await W(300); } return v; };
 const KEY = 'mkty_world_v1_tg_' + ME;
-const go = async () => { for (let k = 0; k < 3; k++) { await page.goto(BASE + '?view=play&fast=1'); const r = await page.waitForFunction(() => window.MK && MK.ready && MK.game && MK.game.ready && MK.game.ch2.on, null, { timeout: 120000 }).then(() => 1, () => 0); if (r) break; console.log('reload retry', k); } await W(2000); };
+const go = async () => { for (let k = 0; k < 3; k++) { await page.goto(BASE + '?view=play&fast=1'); const r = await page.waitForFunction(() => window.MK && MK.ready && MK.game && MK.game.ready && MK.game.ch2.on, null, { timeout: 180000 }).then(() => 1, () => 0); if (r) break; console.log('reload retry', k); } await W(2000); };
 await page.goto(BASE + '?view=play&fast=1'); await ready(); await W(1500);
 await E((K) => { const s = JSON.parse(localStorage.getItem(K)) || MK.game.state(); s.ch1 = s.ch1 || {}; s.ch1.done = ['power', 'canyon', 'crystals', 'parts', 'dish', 'reactor', 'launch', 'secret', 'home']; s.base = s.base || {}; s.base.built = ['depot'];
-  s.ch2 = Object.assign(s.ch2 || {}, { on: true, done: ['c2_collect', 'c2_home', 'c2_send'], level: 2, robots: [{ id: 'r1', type: 'builder', xp: 0 }], jobs: [] }); delete s.pets; localStorage.setItem(K, JSON.stringify(s)); }, KEY);
+  s.ch2 = Object.assign(s.ch2 || {}, { on: true, done: ['c2_collect', 'c2_home', 'c2_send'], level: 2, robots: [{ id: 'r1', type: 'builder', xp: 0 }], jobs: [] }); delete s.pets; return JSON.stringify(s); }, KEY).then(seed => page.addInitScript(([K, v]) => { if (!sessionStorage.getItem('__mk_seed')) { localStorage.setItem(K, v); sessionStorage.setItem('__mk_seed', '1'); } }, [KEY, seed])); // v81: seed before app load (old page autosave clobbered a direct write)
+
 await go();
 let P = await E(() => MK.game.ch2.pet()); ok('old save -> pet defaults, wild bunny offered', P.tamed === false && !!P.wild, JSON.stringify({ tamed: P.tamed, wild: !!P.wild }));
 await E((w) => MK.game.teleport(w.x + 1.2, w.z + 1.2, 0), P.wild); await W(1200); await E(() => MK.game.ch2.actDown('c2:pet:tame')); await W(800);
