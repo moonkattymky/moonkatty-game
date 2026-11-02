@@ -27,7 +27,7 @@ export function makeBeacon(scene) {
 }
 
 // daily pickups: blue energy-crystal clusters (see crystal.js), grounded, glow + halo; hidden instance = scale 0
-export function makeCrystals(scene, spots) { return makeCrystalField(scene, spots, { scale: 0.95, name: 'game_crystals' }); }
+export function makeCrystals(scene, spots) { return makeCrystalField(scene, spots, { scale: 1.9, name: 'game_crystals' } /* v77: large clusters like the crystal concept */); }
 
 export function makeBurst(scene) {
   const N = 28; const pos = new Float32Array(N * 3), vel = new Float32Array(N * 3);
