@@ -35,7 +35,7 @@ export function buildCluster(list, n = list.length, tmN = list.length) { const p
   return g; }
 export function clusterGeometry() { // in-world: 6 of the 7 shards on desktop, 5 on phone / low (budget)
   return _geo || (_geo = TIER === 0 ? buildCluster(CLUSTER, 6, 2) : buildCluster(CLUSTER, 5, TIER === 1 ? 1 : 0)); }
-const shardMat = () => new THREE.ShaderMaterial({ uniforms: { uTime: { value: 0 } }, toneMapped: false,
+const shardMat = () => new THREE.ShaderMaterial({ uniforms: { uTime: { value: 0 } }, toneMapped: false, transparent: true, /* v77: drawn in the transparent pass AFTER its halo (renderOrder 3) so the glow rings the body instead of washing over it */
   vertexShader: `attribute vec3 aBary; attribute float aH; attribute float aState; varying vec3 vB; varying float vH; varying float vE; varying vec3 vV; varying float vS; varying float vSeed; varying vec3 vLP; varying vec3 vWP;
     void main(){ vLP = position; mat4 im = modelMatrix * instanceMatrix; vec4 wp = im * vec4(position, 1.0); vWP = wp.xyz; vV = cameraPosition - wp.xyz; vB = aBary; vH = aH > 1.5 ? aH - 2.0 : aH; vE = aH > 1.5 ? 0.0 : 1.0; vS = aState; vSeed = im[3].x * 0.37 + im[3].z * 0.11; gl_Position = projectionMatrix * viewMatrix * wp; }`,
   fragmentShader: `uniform float uTime; varying vec3 vB; varying float vH; varying float vE; varying vec3 vV; varying float vS; varying float vSeed; varying vec3 vLP; varying vec3 vWP;
@@ -82,7 +82,7 @@ const glowMat = () => new THREE.ShaderMaterial({ uniforms: { uTime: { value: 0 }
       // premultiplied blend (One, OneMinusSrcAlpha): the halo both adds blue light and dims what is behind it, so it reads as a deep blue glow even on
       // bright regolith (pure additive blue on a light background turns lavender)
       if (vK < 0.5) { vec2 e = vec2(vP.x, vP.y - 0.08) * 1.15; float rr = dot(e, e); float h = exp(-rr * 6.5) * 2.0 * pulse; float wr = smoothstep(0.03, 0.14, rr); // halo ringing the silhouette (no tint over the crystal body)
-        add = vec3(0.04, 0.75, 1.8) * h * wr * (1.0 - smoothstep(0.18, 0.6, rr)); occ = min(0.4, h * 0.28 * wr); /* v75: tight glow hugging the cluster, no big dark ring */
+        add = vec3(0.04, 0.75, 1.8) * h * wr * (1.0 - smoothstep(0.18, 0.6, rr)); occ = min(0.25, h * 0.14 * wr); /* v77: no dark ring around the body */ /* v75: tight glow hugging the cluster, no big dark ring */
         vec2 b = vec2(vP.x / 0.62, (vP.y + 0.5) / 0.13); add += vec3(0.25, 0.9, 2.4) * exp(-dot(b, b)) * 1.6 * pulse; add += vec3(0.45, 1.4, 2.0) * exp(-rr * 32.0) * 0.45 * pulse; occ = max(occ, exp(-rr * 32.0) * 0.12); // v57 round white-hot core
         vec2 sp = vec2(vP.x - 0.18, vP.y + 0.42) * 6.0; float tw = pow(0.5 + 0.5 * sin(uTime * 3.7 + vSeed * 5.0), 3.0); add += vec3(0.3, 1.45, 2.4) * (exp(-abs(sp.x) * 9.0) * exp(-abs(sp.y) * 1.3) + exp(-abs(sp.y) * 9.0) * exp(-abs(sp.x) * 1.3)) * 0.45 * tw; } // twinkling sparkle at the base // white-cyan flare at the base
       else { float a = (pow(1.0 - r, 3.0) * 1.1 + smoothstep(0.08, 0.0, abs(r - fract(uTime * 0.45 + vSeed))) * 0.16 * (1.0 - r)) * pulse;
@@ -99,7 +99,7 @@ export function makeCrystalField(scene, spots, { scale = 1, name = 'game_crystal
   const M = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), s = new THREE.Vector3(), p = new THREE.Vector3();
   for (const g of groups) { const n = g.ids.length;
     const sgeo = geo.clone(); sgeo.setAttribute('aState', new THREE.InstancedBufferAttribute(new Float32Array(n), 1)); const ggeo = glowGeometry().clone(); ggeo.setAttribute('aState', new THREE.InstancedBufferAttribute(new Float32Array(n), 1));
-    g.im = new THREE.InstancedMesh(sgeo, sm, n); g.im.name = name; g.gl = new THREE.InstancedMesh(ggeo, gm, n); g.gl.name = name + '_glow'; g.gl.renderOrder = 2; g.im.castShadow = false; scene.add(g.im, g.gl); }
+    g.im = new THREE.InstancedMesh(sgeo, sm, n); g.im.name = name; g.gl = new THREE.InstancedMesh(ggeo, gm, n); g.gl.name = name + '_glow'; g.gl.renderOrder = 2; g.im.castShadow = false; g.im.renderOrder = 3; scene.add(g.im, g.gl); }
   const update = (t, dt = 0) => { sm.uniforms.uTime.value = t; gm.uniforms.uTime.value = t;
     for (const g of groups) { const sa = g.im.geometry.attributes.aState, ga = g.gl.geometry.attributes.aState; g.ids.forEach((i, k) => { const c = spots[i]; shake[i] = Math.max(0, shake[i] - dt * 3); e.set(Math.sin(t * 45) * 0.07 * shake[i], i * 2.399, 0); q.setFromEuler(e); p.set(c.x, c.y, c.z); s.setScalar(alive[i] ? scale * (0.85 + 0.3 * ((i * 0.618) % 1)) : 0); M.compose(p, q, s); g.im.setMatrixAt(k, M); g.gl.setMatrixAt(k, M); sa.setX(k, cracked[i]); ga.setX(k, cracked[i]); });
       g.im.instanceMatrix.needsUpdate = true; g.gl.instanceMatrix.needsUpdate = true; sa.needsUpdate = true; ga.needsUpdate = true; const vis = g.ids.some(i => alive[i]); g.im.visible = vis && g.on !== false; g.gl.visible = g.im.visible; } };
@@ -111,7 +111,7 @@ export function makeCrystalField(scene, spots, { scale = 1, name = 'game_crystal
 export function makeStaticCrystals(scene, list, name, k = 1, glowK = 1) {
   const n = list.length; const sgeo = clusterGeometry().clone(); sgeo.setAttribute('aState', new THREE.InstancedBufferAttribute(new Float32Array(n), 1));
   const ggeo = glowGeometry().clone(); ggeo.setAttribute('aState', new THREE.InstancedBufferAttribute(new Float32Array(n), 1));
-  const im = new THREE.InstancedMesh(sgeo, shardMat(), n), gl = new THREE.InstancedMesh(ggeo, glowMat(), n); im.name = name; gl.name = name + '_glow'; gl.renderOrder = 2; im.castShadow = false;
+  const im = new THREE.InstancedMesh(sgeo, shardMat(), n), gl = new THREE.InstancedMesh(ggeo, glowMat(), n); im.name = name; gl.name = name + '_glow'; gl.renderOrder = 2; im.castShadow = false; im.renderOrder = 3;
   const M = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), v = new THREE.Vector3(), sc = new THREE.Vector3();
   list.forEach((it, i) => { q.setFromEuler(e.set(it.tilt * 0.6, it.ph, it.tilt * 0.3)); M.compose(v.set(it.x, it.y + 0.25 * it.s, it.z), q, sc.setScalar(it.s * k)); im.setMatrixAt(i, M); q.identity(); M.compose(v, q, sc.multiplyScalar(glowK)); gl.setMatrixAt(i, M); });
   im.computeBoundingSphere(); gl.computeBoundingSphere(); gl.boundingSphere.radius += 4 * k * 2.5; im.add(gl); gl.matrixAutoUpdate = false; gl.matrix.identity(); gl.matrixWorldAutoUpdate = true;
