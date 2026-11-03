@@ -55,6 +55,7 @@ help.push({ helper_id: 777002, target_id: ME });
 await page.goto(BASE + '?view=play&fast=1&q=low'); await page.waitForFunction(() => window.MK && MK.ready && MK.game && MK.game.ready && MK.game.ch2.on, null, { timeout: 200000 });
 await page.waitForFunction(() => document.body.innerText.includes('Друзья помогли'), null, { timeout: 60000 }).catch(() => { });
 const toast = await E(() => document.body.innerText.includes('Друзья помогли (1)'));
+await page.waitForFunction(([K, e0]) => { try { const j = (JSON.parse(localStorage.getItem(K)).ch2.jobs || []).find(x => x.id === 'jT'); return j && j.end < e0; } catch (e) { return false; } }, [KEY, now0 + 600000], { timeout: 15000 }).catch(() => { }); // help is saved via a 250 ms debounced queueSave
 const end1 = await E((K) => { const s = JSON.parse(localStorage.getItem(K)); const j = (s.ch2.jobs || []).find(x => x.id === 'jT'); return j ? j.end : null; }, KEY);
 ok('received help applied: toast + job remaining time / 1.1', toast && end1 && end1 < now0 + 600000 - 40000, JSON.stringify({ toast, left_before: 600000, left_after: end1 ? end1 - now0 : null }));
 ok('help consumed on the server', help.every(h => h.c), JSON.stringify(help));

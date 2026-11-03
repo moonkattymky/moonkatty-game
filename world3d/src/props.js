@@ -376,7 +376,7 @@ export function buildRocks(scene, culler, quality = 1) { LOD_SCALE = quality < 0
       .filter(o => o.py > 470 && o.px > -80 && o.px < 1100 && o.d < 14 && o.sm > 1.0 && Math.hypot(o.it.x - LEDGE.x, o.it.z - LEDGE.z) > 2.6).sort((a, b) => b.sm - a.sm).slice(0, 9);
     const drop = new Set(big.map(o => o.i));
     for (const { it } of big) { const n = 4 + Math.floor(rnd() * 2); const R0 = Math.max(it.s[0], it.s[2]) * 2.1; /* v79: scattered, not bunched */ nSplit++;
-      for (let k = 0; k < n; k++) { const a = k / n * 6.283 + rnd() * 0.8, rr = k === 0 ? 0 : R0 * (0.55 + rnd() * 0.75); const x = it.x + Math.cos(a) * rr, z = it.z + Math.sin(a) * rr; if (nearTrack(x, z, 0.8) || Math.hypot(x - K.cat.x, z - K.cat.z) < 1.2) continue;
+      for (let k = 0; k < n; k++) { const a = k / n * 6.283 + rnd() * 0.8, rr = k === 0 ? 0 : R0 * (0.55 + rnd() * 0.75); const x = it.x + Math.cos(a) * rr, z = it.z + Math.sin(a) * rr; if (nearTrack(x, z, 0.8) || Math.hypot(x - K.cat.x, z - K.cat.z) < 1.2) continue; { _v.set(x, groundAt(x, z), z).project(ccam); const qx = (_v.x * 0.5 + 0.5) * 1024, qy = (0.5 - _v.y * 0.5) * 576; if (qx > 390 && qx < 700 && qy > 455) continue; } /* v84: keep the concept's open crater floor bottom-centre */
         const sc = (k === 0 ? 0.78 : 0.3 + rnd() * 0.3); const sx = it.s[0] * sc, sy = it.s[1] * sc * (1.6 + rnd() * 0.8) /* v82 taller spires */, sz = it.s[2] * sc; const g0 = groundAt(x, z);
         out.push({ x, y: g0 + sy * (0.18 + rnd() * 0.12), z, s: [sx, sy, sz], r: [(rnd() - 0.5) * 0.5, rnd() * 6.28, (rnd() - 0.5) * 0.5] }); } }
     const kept = L.peak.filter((_, i) => !drop.has(i)); L.peak.length = 0; L.peak.push(...kept, ...out); window.__split = nSplit; }
