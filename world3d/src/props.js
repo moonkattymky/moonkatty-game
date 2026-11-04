@@ -1,6 +1,6 @@
 import { makeStaticCrystals } from './game/crystal.js';
 import * as THREE from 'three';
-import { groundAt, groundMesh, LEDGE, slopeAt, F, Rt, LOOKOUT, REGIONS, sd, CONCEPT, CAVE, PORTAL, canyonPoint, canyonS, canyonInfo, regolithDetail } from './terrain.js';
+import { groundAt, groundMesh, LEDGE, slopeAt, F, Rt, LOOKOUT, REGIONS, sd, CONCEPT, CAVE, PORTAL, canyonPoint, canyonS, canyonInfo, regolithDetail, HOME_CAM } from './terrain.js';
 import { noise2, seeded } from './noise.js';
 import { colliders, LAMPS } from './base.js';
 import { KEEP } from './world.js';
@@ -382,7 +382,7 @@ export function buildRocks(scene, culler, quality = 1) { LOD_SCALE = quality < 0
     const kept = L.peak.filter((_, i) => !drop.has(i)); L.peak.length = 0; L.peak.push(...kept, ...out); window.__split = nSplit; }
   // merge lists: two prototypes (3 LODs each), one debris layer, one strata layer -> 8 instanced draws total
   const half = (l) => [l.filter((_, i) => i % 2 === 0), l.filter((_, i) => i % 2 === 1)]; const [c0, c1] = half(L.cliff);
-  const A = [...L.bA, ...L.bC, ...L.bB, ...c0, ...c1]; // one boulder prototype (saves 3 main + 2 shadow draws)
+  const A = [...L.bA, ...L.bC, ...L.bB, ...c0, ...c1].filter(it => Math.hypot(it.x - HOME_CAM.x, it.z - HOME_CAM.z) > 3.2 + (Array.isArray(it.s) ? Math.max(it.s[0], it.s[2]) : it.s)); // one boulder prototype (saves 3 main + 2 shadow draws); v100: no slab in the home view's foreground
   // pass 20: rock seated on a slope: up axis follows the ground normal, sunk on the downhill side so nothing floats on steep walls
   const _qa = new THREE.Quaternion(), _qb = new THREE.Quaternion(), _eu = new THREE.Euler(), _n = new THREE.Vector3(), _up = new THREE.Vector3(0, 1, 0);
   const slopeRock = (x, z, sz, rr) => { const e = Math.max(1.0, sz * 0.8); const hx = groundAt(x + e, z) - groundAt(x - e, z), hz = groundAt(x, z + e) - groundAt(x, z - e); _n.set(-hx / (2 * e), 1, -hz / (2 * e)).normalize(); const steep = 1 - _n.y;

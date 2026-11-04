@@ -5,8 +5,8 @@ import { mergeGeometries } from '../../vendor/three/jsm/utils/BufferGeometryUtil
 // gold crescent, chunky rounded shoulder caps with gold pads, rounded limbs with dark joints and gold cuffs, dark segmented gloves with
 // gold knuckles, welding torch + dark hose in the right hand, steel I-beam in the left, gold knee pads and rounded ivory boots on gold soles.
 // Materials per vertex: glossy ivory, metallic gold, painted hat gold, dark rubber, glossy black glass, steel. 3 draws + sparks/flame.
-export const COL = { ivory: '#88807c', ivoryS: '#7a736f', gold: '#a07812', hat: '#a27408', dark: '#24272d', rubber: '#16181c', steel: '#80858d', black: '#050608', eye: '#4fe8ff', leather: '#5a3a1e', holo: '#3fc8ff', flame: '#5fb8ff', lamp: '#ffe2a0', glyph: '#c88a1a' };
-export const MAT = { ivory: [0.0, 0.34], ivoryS: [0.0, 0.38], gold: [0.85, 0.3], hat: [0.3, 0.2], dark: [0.15, 0.55], rubber: [0.0, 0.62], steel: [0.8, 0.35], black: [0.1, 0.08], leather: [0.0, 0.7], eye: [0, 2.5], holo: [0, 2.5], flame: [0, 2.5], lamp: [0, 2.5], glyph: [0, 2.5] }; // roughness > 1.5 = self-lit (eyes / holo / flame baked into the single-mesh LOD)
+export const COL = { ivory: '#958b7d', ivoryS: '#867d71', gold: '#a07812', hat: '#a27408', dark: '#24272d', rubber: '#16181c', steel: '#80858d', black: '#050608', eye: '#4fe8ff', leather: '#5a3a1e', holo: '#3fc8ff', flame: '#5fb8ff', lamp: '#ffe2a0', glyph: '#c88a1a' };
+export const MAT = { ivory: [0.0, 0.2], ivoryS: [0.0, 0.26], gold: [0.85, 0.3], hat: [0.3, 0.2], dark: [0.15, 0.55], rubber: [0.0, 0.62], steel: [0.8, 0.35], black: [0.1, 0.08], leather: [0.0, 0.7], eye: [0, 2.5], holo: [0, 2.5], flame: [0, 2.5], lamp: [0, 2.5], glyph: [0, 2.5] }; // roughness > 1.5 = self-lit (eyes / holo / flame baked into the single-mesh LOD)
 
 // geometry detail per preset (same detection as main.js): phone / q=low get coarser tessellation of the rounded volumes (Chapter-1 triangle budget)
 const _Q = new URLSearchParams(location.search).get('q'); const _MOB = _Q === 'mobile' || _Q === 'low' || (!_Q && (matchMedia('(pointer:coarse)').matches || Math.min(innerWidth, innerHeight) < 480));
@@ -25,7 +25,7 @@ export function ring(a, b, R, t) { const A = new THREE.Vector3(...a), B = new TH
 export function tube(pts, r, seg = 16, rad = 6) { return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(...p))), sg(seg, 6), r, sg(rad, 4)); }
 // v72 cosmetics: optional paint scheme (palette-name -> colour / [metal, rough]) applied while a crew robot's Kit is filled, and an optional
 // chest decal swapped in for the crescent. Both only change vertex colours / the emblem shape inside the merged body -> no new draws or materials.
-let PAINT = null, DECAL = null; export const setCosmetic = (paint, decal) => { PAINT = paint || null; DECAL = decal && decal !== 'crescent' ? decal : null; };
+let PAINT = null, DECAL = null; export const hasDecal = () => !!DECAL; export const setCosmetic = (paint, decal) => { PAINT = paint || null; DECAL = decal && decal !== 'crescent' ? decal : null; };
 function decalShape(kind, R) { const sh = new THREE.Shape(); const P = [];
   if (kind === 'star') { for (let i = 0; i < 10; i++) { const a = Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? R * 0.42 : R; P.push([Math.cos(a) * r, Math.sin(a) * r]); } }
   else if (kind === 'bolt') { P.push(...[[0.25, 1], [-0.45, -0.05], [-0.02, -0.05], [-0.3, -1], [0.5, 0.15], [0.06, 0.15], [0.4, 1]].map(([x, y]) => [x * R, y * R])); }
@@ -58,31 +58,38 @@ export function faceTexture() { const W = 256, H = 150, c = document.createEleme
   g.shadowBlur = 0; const gl = g.createLinearGradient(0, 0, 0, 40); gl.addColorStop(0, 'rgba(255,255,255,0.16)'); gl.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gl; rr(26, 8, 204, 30, 14); g.fill(); // glossy glass reflection band
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; }
 
+// v100 concept legs: short cream legs, gold knee ring, cream boots with gold cuffs (no tracks / no hover). o: [{x, z, yaw}] per leg
+export function conceptLegs(kit, L = [{ x: -0.31, z: 0 }, { x: 0.31, z: 0 }]) {
+  for (const { x, z, yaw = 0 } of L) { const r = [0, yaw, 0];
+    kit.add(sq(0.31, 0.21, 0.42, 2.3, 10, 6), 'ivory', { p: [x, 0.1, z + 0.05], r }); // rounded cream boot (toe forward)
+    kit.add(tor(0.115, 0.03, 3, 12), 'gold', { p: [x, 0.215, z + 0.02], r: [PI2, 0, 0] }); // gold boot cuff
+    kit.add(sq(0.2, 0.17, 0.2, 2.4, 8, 4), 'ivory', { p: [x * 0.97, 0.29, z + 0.02] }); // shin
+    kit.add(tor(0.1, 0.026, 3, 10), 'gold', { p: [x * 0.95, 0.37, z + 0.025], r: [PI2, 0, 0] }); // gold knee ring
+    kit.add(sq(0.23, 0.15, 0.23, 2.4, 8, 4), 'ivoryS', { p: [x * 0.88, 0.45, z * 0.5 + 0.015] }); } } // thigh
+const PI2 = Math.PI / 2;
+// v100 concept chest: gold panel with a warm glowing lamp (cosmetic decal, if any, sits above the lamp)
+export function conceptChest(kit, y0 = 0, z = 0.19) {
+  kit.add(sq(0.4, 0.31, 0.05, 5, 8, 5, { taper: 0.08 }), 'gold', { p: [0, 0.74 + y0, z] });
+  kit.add(sq(0.19, 0.14, 0.03, 4, 6, 4), 'dark', { p: [0, 0.725 + y0, z + 0.027] }); // lamp bezel
+  kit.add(sq(0.15, 0.1, 0.03, 3, 6, 4), 'lamp', { p: [0, 0.725 + y0, z + 0.037] }); // warm glowing lamp
+  if (hasDecal()) kit.add(crescent(0.035), 'gold', { p: [0, 0.81 + y0, z + 0.025] }); }
 export function builderKits() {
   const body = new Kit(), arm = new Kit();
   // proportions measured on the concept cut-out (feet y=0, hat top ~1.67): boots .2, knees .37, waist .5, torso .5-.95, head .94-1.38, brim 1.29
-  for (const sx of [-1, 1]) { const x = sx < 0 ? -0.35 : 0.29, zf = sx < 0 ? 0.07 : -0.05, kb = 0.025; // wide stance, right leg a little forward (viewer-left), slight crouch (knees forward)
-    const by = sx < 0 ? -0.15 : 0.45; body.add(sq(0.34, 0.2, 0.46, 2.4, 10, 6), 'ivory', { p: [x, 0.12, zf + 0.05], r: [0, by, 0] }); body.add(sq(0.36, 0.065, 0.48, 3.2, 10, 3), 'gold', { p: [x, 0.035, zf + 0.05], r: [0, by, 0] }); body.add(sq(0.355, 0.05, 0.475, 2.6, 10, 3), 'gold', { p: [x, 0.2, zf + 0.05], r: [0, by, 0] }); // chunky rounded boot on a gold sole
-    body.add(sq(0.2, 0.09, 0.05, 3, 6, 3), 'gold', { p: [x + Math.sin(by) * 0.22, 0.17, zf + 0.05 + Math.cos(by) * 0.22], r: [0, by, 0] }); // gold toe-cap plate
-    body.add(cyl(0.055, 0.055, 0.02, 8), 'gold', { p: [x + sx * 0.16, 0.14, zf], r: [0, 0, Math.PI / 2] }); // gold ankle disc
-    body.add(sq(0.27, 0.25, 0.27, 2.5, 8, 5, { taper: -0.12 }), 'ivory', { p: [x * 0.97, 0.28, zf + kb * 0.5] }); // shin
-    body.add(sph(0.085, 6, 4), 'dark', { p: [x * 0.94, 0.38, zf + kb - 0.01] }); body.add(sq(0.21, 0.17, 0.09, 3.2, 6, 4), 'gold', { p: [x * 0.95, 0.37, zf + kb + 0.125], r: [-0.12, 0, 0] }); // dark knee + chunky gold knee pad
-    body.add(sq(0.25, 0.16, 0.24, 2.4, 6, 4), 'ivoryS', { p: [x * 0.86, 0.455, zf * 0.5 + kb * 0.6] }); } // thigh
+  conceptLegs(body, [{ x: -0.35, z: 0.07, yaw: -0.15 }, { x: 0.29, z: -0.05, yaw: 0.45 }]); // wide stance, right leg a little forward
   body.add(sq(0.46, 0.12, 0.3, 2.4, 10, 4), 'dark', { p: [0, 0.515, 0] }); // waist joint
   body.add(sq(0.56, 0.2, 0.36, 3.2, 10, 5), 'ivoryS', { p: [-0.02, 0.44, 0.0] }); // hip block (concept: lower torso fills the gap above the thighs)
   body.add(sq(0.66, 0.47, 0.42, 4.6, 16, 9, { taper: 0.12, taperZ: 0.05 }), 'ivory', { p: [0, 0.73, 0] }); // boxier torso shell (concept: less round)
-  body.add(sq(0.44, 0.33, 0.06, 6, 10, 6, { taper: 0.1 }), 'ivory', { p: [0, 0.74, 0.19] }); // flat front chest plate carrying the moon
-  for (const sx of [-1, 1]) body.add(new THREE.BoxGeometry(0.012, 0.3, 0.02), 'ivoryS', { p: [sx * 0.225, 0.74, 0.215] }); // plate seams
+  conceptChest(body);
   body.add(sq(0.52, 0.05, 0.36, 3, 10, 3), 'gold', { p: [0, 0.535, 0] }); // gold belt line
-  body.add(crescent(0.08), 'gold', { p: [0.015, 0.76, 0.222], r: [0.0, 0, 0] }); // chest crescent on the plate
   body.add(tor(0.16, 0.02, 3, 14), 'gold', { p: [0, 0.94, 0.0], r: [Math.PI / 2, 0, 0], s: [1.3, 1.1, 1] }); // gold collar
   body.add(cyl(0.12, 0.13, 0.07, 12), 'dark', { p: [0, 0.955, 0] }); // neck
   for (const sx of [-1, 1]) { // rounded ivory shoulder pads with gold trim (concept: mostly ivory, gold edging along the front/lower rim)
-    const so = sx < 0 ? 0.37 : 0.41, sy = sx < 0 ? 0 : -0.035; body.add(sq(0.28, 0.28, 0.32, 2.3, 12, 7), 'gold', { p: [sx * so, 0.8 + sy, 0] });
+    const so = sx < 0 ? 0.37 : 0.41, sy = sx < 0 ? 0 : -0.035; body.add(sq(0.28, 0.28, 0.32, 2.3, 12, 7), 'ivory', { p: [sx * so, 0.8 + sy, 0] });
     body.add(sq(0.3, 0.045, 0.34, 2.4, 10, 3), 'gold', { p: [sx * (so + 0.005), 0.69 + sy, 0], r: [0, 0, -sx * 0.12] }); // gold lower rim
     body.add(sq(0.05, 0.22, 0.05, 2.5, 4, 5), 'gold', { p: [sx * (so + 0.03), 0.81 + sy, 0.165], r: [0, 0, -sx * 0.2] }); } // gold front edge strip
   // left arm (+x, static): elbow out, glove gripping the I-beam end from above
-  body.add(capsule([0.43, 0.74, 0], [0.56, 0.64, -0.02], 0.1, 8, 2), 'ivory'); body.add(sph(0.072, 6, 4), 'dark', { p: [0.565, 0.62, 0.0] });
+  body.add(capsule([0.43, 0.74, 0], [0.56, 0.64, -0.02], 0.1, 8, 2), 'ivory'); body.add(sph(0.075, 6, 4), 'gold', { p: [0.565, 0.62, 0.0] });
   body.add(capsule([0.56, 0.62, 0.03], [0.53, 0.6, 0.25], 0.112, 8, 2), 'ivory'); body.add(ring([0.56, 0.62, 0.03], [0.535, 0.6, 0.24], 0.11, 0.02), 'gold');
   gloveTo(body, [0.52, 0.58, 0.36], 1, [1.25, 0.0, 0.1]); // fingers wrap down over the beam flange
   { // steel I-beam, low across the front, rising to the left hand (concept: ends under the glove, does not stick out past it)
@@ -102,7 +109,7 @@ export function builderKits() {
   const HT = new THREE.Matrix4().makeTranslation(0, 0.95, 0).multiply(new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(0.07, 0, -0.05, 'YXZ'))).multiply(new THREE.Matrix4().makeTranslation(0, -0.95, 0));
   for (const g of head.parts) { g.applyMatrix4(HT); body.parts.push(g); }
   // right arm (-x, animated around the shoulder): upper arm, dark elbow, thick forearm pointing forward, gold cuff, glove gripping the torch, hose
-  arm.add(capsule([0, -0.02, 0], [-0.2, -0.17, 0.0], 0.1, 8, 2), 'ivory'); arm.add(sph(0.072, 6, 4), 'dark', { p: [-0.215, -0.205, 0.02] });
+  arm.add(capsule([0, -0.02, 0], [-0.2, -0.17, 0.0], 0.1, 8, 2), 'ivory'); arm.add(sph(0.075, 6, 4), 'gold', { p: [-0.215, -0.205, 0.02] });
   arm.add(capsule([-0.2, -0.22, 0.04], [0.04, -0.2, 0.22], 0.114, 8, 2), 'ivory'); arm.add(ring([-0.2, -0.22, 0.04], [0.035, -0.2, 0.21], 0.114, 0.024), 'gold');
   gloveTo(arm, [0.08, -0.2, 0.3], -1, [0.75, 0.35, 0.0]); // fist around the torch handle
   const TB = new THREE.Vector3(0.06, -0.15, 0.29), TT = new THREE.Vector3(0.41, -0.35, 0.44); // torch back end, nozzle tip (lands on the beam)

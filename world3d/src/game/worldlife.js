@@ -7,6 +7,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from '../../vendor/three/jsm/utils/BufferGeometryUtils.js';
 import { DRILL_HEAD } from './machines.js';
+import { setRut, setCrater } from '../terrain.js';
 
 const col = (g, hex, e = 0) => { g = g.index ? g.toNonIndexed() : g; const c = new THREE.Color(hex), n = g.attributes.position.count, a = new Float32Array(n * 3), ae = new Float32Array(n); for (let i = 0; i < n; i++) { c.toArray(a, i * 3); ae[i] = e; } g.setAttribute('color', new THREE.BufferAttribute(a, 3)); g.setAttribute('aE', new THREE.BufferAttribute(ae, 1)); if (g.attributes.uv) g.deleteAttribute('uv'); return g; };
 const merge = (list) => mergeGeometries(list.map(g => g.index ? g.toNonIndexed() : g));
@@ -139,7 +140,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const dd = { x: D.x - depotP.x, z: D.z - depotP.z }, dl = Math.hypot(dd.x, dd.z) || 1, ux = dd.x / dl, uz = dd.z / dl, px = -uz, pz = ux;
   drill.position.set(D.x, groundAt(D.x, D.z), D.z); drill.rotation.y = Math.atan2(depotP.x - D.x, depotP.z - D.z) + 0.5;
   // rover: depot -> around the drill -> back (closed loop), all inside the open patch
-  /* v98: concept d04ca995 - the crystal hauler crosses the foreground centre-right of the main view (oval in front of the drill, clear of the cat spot) */ const lc = { x: D.x - ux * 4 + px * 4, z: D.z - uz * 4 + pz * 4 }; const loopPts = []; for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2, au = Math.cos(a) * 4.2, ap = Math.sin(a) * 2.3; loopPts.push(new THREE.Vector3(lc.x + ux * au + px * ap, 0, lc.z + uz * au + pz * ap)); }
+  /* v98: concept d04ca995 - the crystal hauler crosses the foreground centre-right of the main view (oval in front of the drill, clear of the cat spot) */ const lc = { x: D.x - ux * 4 + px * 4, z: D.z - uz * 4 + pz * 4 }; const loopPts = []; for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2, au = Math.cos(a) * 4.2, ap = Math.sin(a) * 2.3; loopPts.push(new THREE.Vector3(lc.x + ux * au + px * ap, 0, lc.z + uz * au + pz * ap)); } setRut(lc.x, lc.z, 4.2, 2.3, ux, uz); setCrater(9, 19, 5); /* v100: big crater on the open plain right of the base */ /* v100: worn wheel ruts + faint gold guide line along the rover oval (terrain shader) */
   const loop = new THREE.CatmullRomCurve3(loopPts, true); const loopLen = loop.getLength();
   // porters: two crew robots shuttling crystals drill -> depot; they wave at the cat when it comes close
   const porters = makeCrew ? [['builder', 0, -7], ['geologist', 0.27, 0.8]].map(([ty, o, ln]) => { const r = makeCrew(scene, env, ty, 2); r.root.name = 'life_porter'; return { r, o, ln, wave: 0 }; }) /* v97: separate lanes + phase so they never stack behind the cat */ : [];
