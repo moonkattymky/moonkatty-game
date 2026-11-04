@@ -109,10 +109,10 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const loopPts = [[depotP.x + ux * 4 + px * 2.5, depotP.z + uz * 4 + pz * 2.5], [D.x + px * 7 - ux * 3, D.z + pz * 7 - uz * 3], [D.x + ux * 8, D.z + uz * 8], [D.x - px * 7 - ux * 3, D.z - pz * 7 - uz * 3], [depotP.x + ux * 4 - px * 2.5, depotP.z + uz * 4 - pz * 2.5]].map(([x, z]) => new THREE.Vector3(x, 0, z));
   const loop = new THREE.CatmullRomCurve3(loopPts, true); const loopLen = loop.getLength();
   // porters: two crew robots shuttling crystals drill -> depot; they wave at the cat when it comes close
-  const porters = makeCrew ? [['builder', 0], ['geologist', 0.5]].map(([ty, o]) => { const r = makeCrew(scene, env, ty, 2); r.root.name = 'life_porter'; return { r, o, wave: 0 }; }) : [];
+  const porters = makeCrew ? [['builder', 0, -7], ['geologist', 0.27, 0.8]].map(([ty, o, ln]) => { const r = makeCrew(scene, env, ty, 2); r.root.name = 'life_porter'; return { r, o, ln, wave: 0 }; }) /* v97: separate lanes + phase so they never stack behind the cat */ : [];
   // v51: a builder welding at the depot wall near the base (orange spark bursts); impostor when far, like the porters
-  const welder = makeCrew ? (() => { const r = makeCrew(scene, env, 'builder', 2); r.root.name = 'life_welder'; const x = depotP.x - px * 2.9 + ux * 0.4, z = depotP.z - pz * 2.9 + uz * 0.4; return { r, x, z, yaw: Math.atan2(depotP.x - x, depotP.z - z), far: false }; })() : null;
-  const IMP_D = low ? 6 : mobile ? 7 : 8; const NEAR = low ? 3.2 : mobile ? 3.7 : 4.6; /* v51: life robots show hi only (no lo band) -> impostor beyond NEAR */ // same as the crew: far porters become impostors (one shared instanced draw)
+  const welder = makeCrew ? (() => { const r = makeCrew(scene, env, 'builder', 2); r.root.name = 'life_welder'; const x = depotP.x - px * 4.5 + ux * 6.5, z = depotP.z - pz * 4.5 + uz * 6.5; /* v97: out of the depot cage onto open plaza */ return { r, x, z, yaw: Math.atan2(depotP.x - x, depotP.z - z), far: false }; })() : null;
+  const IMP_D = low ? 6 : mobile ? 7 : 8; const NEAR = low ? 3.2 : mobile ? 3.2 : 3.2; /* v97: porters now cross the drill plaza -> tighter hi band keeps desktop ≤100k */ /* v51: life robots show hi only (no lo band) -> impostor beyond NEAR */ // same as the crew: far porters become impostors (one shared instanced draw)
   const pA = { x: D.x - ux * 3 + px * 2, z: D.z - uz * 3 + pz * 2 }, pB = { x: depotP.x + ux * 2.5 + px * 1.2, z: depotP.z + uz * 2.5 + pz * 1.2 };
   if (welder) { const gx = welder.x, gz = welder.z; welder.y = groundAt(gx, gz); }
   // steam vents near the base
@@ -155,7 +155,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
     // drill: bit spins + bobs, sparks at the ground
     // porters: walk A->B carrying a crystal, return empty; wave when the cat is near
     for (const P of porters) { const cyc = 22, k = ((T / cyc + P.o) % 1); const go = k < 0.5, u = go ? k * 2 : (k - 0.5) * 2; const e = u < 0.1 ? 0 : u > 0.9 ? 1 : (u - 0.1) / 0.8; const a = go ? pA : pB, b = go ? pB : pA;
-      const x = a.x + (b.x - a.x) * e, z = a.z + (b.z - a.z) * e; const dc = cat ? Math.hypot(cat.x - x, cat.z - z) : 99; if (dc < 4.5 && P.wave <= 0) P.wave = 3.5; P.wave -= dt;
+      const x = a.x + (b.x - a.x) * e + px * P.ln, z = a.z + (b.z - a.z) * e + pz * P.ln; const dc = cat ? Math.hypot(cat.x - x, cat.z - z) : 99; if (dc < 4.5 && P.wave <= 0) P.wave = 3.5; P.wave -= dt;
       const R = P.r.root; const gy = groundAt(x, z); R.position.set(x, gy, z); const dcam = Math.hypot(x - cam.x, gy + 0.6 - cam.y, z - cam.z); /* v76: 3D distance like the crew hi/lo switch -> no lo mesh inside the near band (impostor instead) */ P.far = dcam >= NEAR && dcam < 90; const vis = dcam < NEAR; R.visible = vis; P.yaw = Math.atan2(b.x - a.x, b.z - a.z); if (!vis) continue;
       const moving = u >= 0.1 && u <= 0.9; let yaw = Math.atan2(b.x - a.x, b.z - a.z); if (P.wave > 0 && cat) yaw = Math.atan2(cat.x - x, cat.z - z); R.rotation.y = yaw;
       const mode = P.wave > 0 ? (go ? 'wavecarry' : 'wave') : go ? (moving ? 'carry' : 'carryidle') : (moving ? 'walk' : 'idle'); P.r.update(dt, mode, P.wave > 0 && dcam < 6 ? null : cam); }
