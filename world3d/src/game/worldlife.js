@@ -6,7 +6,7 @@
 // Cheap by design: few draw calls, low-poly merged meshes, one particle system, distance culling.
 import * as THREE from 'three';
 import { mergeGeometries } from '../../vendor/three/jsm/utils/BufferGeometryUtils.js';
-import { drillHi, drillLo, drillHeadGeo, DRILL_HEAD } from './machines.js';
+import { DRILL_HEAD } from './machines.js';
 
 const col = (g, hex, e = 0) => { g = g.index ? g.toNonIndexed() : g; const c = new THREE.Color(hex), n = g.attributes.position.count, a = new Float32Array(n * 3), ae = new Float32Array(n); for (let i = 0; i < n; i++) { c.toArray(a, i * 3); ae[i] = e; } g.setAttribute('color', new THREE.BufferAttribute(a, 3)); g.setAttribute('aE', new THREE.BufferAttribute(ae, 1)); if (g.attributes.uv) g.deleteAttribute('uv'); return g; };
 const merge = (list) => mergeGeometries(list.map(g => g.index ? g.toNonIndexed() : g));
@@ -19,6 +19,26 @@ function roverGeo() { const L = [col(new THREE.BoxGeometry(1.6, 0.5, 2.6).transl
   for (const x of [-0.5, 0.5]) L.push(col(new THREE.CylinderGeometry(0.1, 0.1, 0.06, 8).rotateX(Math.PI / 2).translate(x, 0.85, 1.32), '#fff2c8', 3.0));
   for (let k = 0; k < 7; k++) L.push(col(new THREE.OctahedronGeometry(1, 0).scale(0.16, 0.38 + (k % 3) * 0.08, 0.16).rotateZ((k - 3) * 0.12).translate(-0.45 + (k % 4) * 0.3, 1.6 + (k % 3) * 0.04, -0.75 + Math.floor(k / 4) * 0.5), '#5fc4ff', 2.2));
   return merge(L); }
+// v99: own drill rig 1:1 with concept d04ca995 - 4-wheel ivory truck, vertical gold lattice mast at the front, tiered steel auger (separate spinning mesh), cab at the rear w/ blue screen
+function rigGeo(hi, aug) { const B = (w, h, d) => new THREE.BoxGeometry(w, h, d), Y = (r1, r2, h, n) => new THREE.CylinderGeometry(r1, r2, h, n), seg = hi ? 10 : 6, L = [];
+  const rod = (a, b, r, c, n = 4) => { const A = new THREE.Vector3(...a), Bv = new THREE.Vector3(...b), d = Bv.clone().sub(A), g = Y(r, r, d.length(), n, 1, true); g.translate(0, d.length() / 2, 0); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize())); g.translate(...a); return col(g, c); };
+  L.push(col(B(1.9, 0.3, 4.3).translate(0, 0.78, -0.35), '#34312e'), col(B(2.0, 0.5, 3.0).translate(0, 1.16, 0.15), '#e4dac4'), col(B(2.04, 0.06, 3.04).translate(0, 1.43, 0.15), '#c8912a'), col(B(1.9, 0.28, 1.0).translate(0, 1.05, -1.9), '#8f9298'));
+  L.push(col(B(1.5, 1.0, 1.1).translate(0.15, 1.95, 1.05), '#ece4d2'), col(B(0.05, 0.5, 0.75).translate(0.91, 2.05, 1.05), '#3a7bd5', 1.6), col(B(1.2, 0.35, 0.05).translate(0.15, 2.1, 1.62), '#2b3d5c', 0.3), col(B(1.54, 0.06, 1.14).translate(0.15, 2.48, 1.05), '#c8912a'));
+  for (const z of [-1.35, 1.0]) for (const s of [-1, 1]) { L.push(col(Y(0.52, 0.52, 0.44, seg).rotateZ(Math.PI / 2).translate(s * 1.08, 0.52, z), '#262422'), col(Y(0.22, 0.22, 0.46, hi ? 8 : 4).rotateZ(Math.PI / 2).translate(s * 1.09, 0.52, z), '#c8912a')); }
+  const MZ = -2.7, MT = 5.6, CX = 0.62, CZ = 0.55; // v99 s2: mast is a gold lattice cage around the auger (auger built into the mast, concept), cross-head on top, front deck carries it
+  L.push(col(B(1.7, 0.22, 1.4).translate(0, 1.0, MZ), '#8f9298'), col(B(1.74, 0.05, 1.44).translate(0, 1.13, MZ), '#c8912a'));
+  if (hi) { for (const x of [-CX, CX]) for (const dz of [-CZ, CZ]) L.push(rod([x, 1.1, MZ + dz], [x, MT, MZ + dz], 0.055, '#d6a136', 5)); for (let k = 0; k < 6; k++) { const y0 = 1.25 + k * 0.72, y1 = y0 + 0.72; for (const x of [-CX, CX]) L.push(rod([x, y0, MZ + CZ], [x, y1, MZ - CZ], 0.022, '#b8842a', 3)); L.push(rod([-CX, y0, MZ + CZ], [CX, y1, MZ + CZ], 0.022, '#b8842a', 3)); }
+    for (const s of [-1, 1]) L.push(rod([s * 0.5, 1.45, 0.0], [s * 0.6, 2.9, MZ + CZ], 0.045, '#9aa0a8', 5), rod([s * 0.5, 1.45, 0.0], [s * 0.54, 2.0, -0.9], 0.08, '#e4dac4', 5));
+    L.push(rod([0.4, MT + 0.3, MZ + 0.35], [0.4, MT + 1.0, MZ + 0.35], 0.09, '#5a5650', 6), rod([CX, 3.0, MZ + CZ], [0.7, 1.45, 0.4], 0.03, '#2e2d2c', 3));
+    for (const s of [-1, 1]) L.push(col(new THREE.SphereGeometry(0.1, 6, 4).translate(s * CX, MT + 0.42, MZ - CZ), s > 0 ? '#ff5040' : '#ffc860', 4.0)); }
+  else { for (const x of [-CX, CX]) L.push(col(B(0.14, MT - 1.1, 0.14).translate(x, (MT + 1.1) / 2, MZ + CZ), '#c8912a'), col(B(0.14, MT - 1.1, 0.14).translate(x, (MT + 1.1) / 2, MZ - CZ), '#c8912a')); }
+  L.push(col(B(1.5, 0.35, 1.35).translate(0, MT + 0.12, MZ), '#d6cbb2'), col(B(1.55, 0.06, 1.4).translate(0, MT + 0.32, MZ), '#c8912a'));
+  if (aug) L.push(...augerList(false).map(g => g.translate(0, 1.2, -2.7)));
+  return merge(L); }
+function augerList(hi) { const Y = (r1, r2, h, n) => new THREE.CylinderGeometry(r1, r2, h, n), n = hi ? 8 : 6, L = [col(Y(0.4, 0.4, 0.7, n).translate(0, 2.75, 0), '#d8d4cc')]; /* v99: bit tris <= old drill head (312) */
+  const T = hi ? 5 : 4; for (let k = 0; k < T; k++) { const t = k / (T - 1), r = 0.52 - t * 0.3, y = 2.25 - k * (2.6 / T); L.push(col(Y(r * 0.78, r, 2.6 / T * 0.8, n).translate(0, y, 0), '#b9bec6')); if (k % 2 === 0) L.push(col(new THREE.CylinderGeometry(r + 0.04, r + 0.04, 0.07, n, 1, true).translate(0, y + 2.6 / T * 0.42, 0), '#d6a136')); }
+  L.push(col(Y(0.2, 0.02, 0.55, n).translate(0, -0.55, 0), '#ff9a3c', 3.5)); return L; }
+function augerGeo(hi) { return merge(augerList(hi)); }
 // v98: own cargo hauler 1:1 with concept d04ca995 - low 6-wheel chassis, cream crystal tub w/ gold trim + hex insets, knobby tyres w/ gold hubs, 2 big round headlights
 function haulerGeo(hi) { const B = (w, h, d) => new THREE.BoxGeometry(w, h, d), Y = (r1, r2, h, n) => new THREE.CylinderGeometry(r1, r2, h, n), seg = hi ? 10 : 6, L = [];
   L.push(col(B(1.7, 0.32, 3.3).translate(0, 0.62, 0), '#3b3a3a'), col(B(1.9, 0.22, 0.3).translate(0, 0.6, 1.72), '#2e2d2c'), col(B(1.9, 0.18, 0.25).translate(0, 0.6, -1.7), '#2e2d2c'));
@@ -101,9 +121,9 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const sat = new THREE.Mesh(satGeo(), mat); sat.name = 'life_sat'; sat.scale.setScalar(3); root.add(sat); sat.visible = !LITE;
   const lift = new THREE.Mesh(shG, mat); lift.name = 'life_liftoff'; lift.scale.setScalar(2.6); root.add(lift); let liftT = 5;
   // ground vehicles
-  const HID = low ? 0 : mobile ? 5 : 6, /* v98: hauler crosses stats views; hi only very close */ HIDD = low ? 0 : mobile ? 10 : 11; /* v51 LOD: hand-built machines up close, cheap LO beyond (geometry swap = same single draw) */ const rvG = [haulerGeo(false), low ? null : haulerGeo(true)], drG = [drillLo(), low ? null : drillHi()];
+  const HID = low ? 0 : mobile ? 5 : 6, /* v98: hauler crosses stats views; hi only very close */ HIDD = low ? 0 : mobile ? 10 : 11; /* v51 LOD: hand-built machines up close, cheap LO beyond (geometry swap = same single draw) */ const rvG = [haulerGeo(false), low ? null : haulerGeo(true)], drG = [rigGeo(false, low), low ? null : rigGeo(true, false)] /* v99: own rig (concept), machines.js untouched */;
   const rover = new THREE.Mesh(rvG[0], mat); rover.name = 'life_rover'; rover.userData.hi = rvG[1]; if (!low) { const bm = new THREE.MeshBasicMaterial({ color: 0xffc070, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false }); const bg = new THREE.ConeGeometry(1.1, 5.0, 10, 1, true).translate(0, -2.5, 0).rotateX(-Math.PI / 2 + 0.22); for (const sx of [-0.62, 0.62]) { const b = new THREE.Mesh(bg, bm); b.name = 'life_rover_beam'; b.position.set(sx, 0.92, 1.62); rover.add(b); } } /* v98: headlight beams on the dust */ rover.scale.setScalar(1.0); rover.castShadow = true; root.add(rover);
-  let sparkAcc = 0, sparkFl = 0; const drill = new THREE.Mesh(drG[0], mat); drill.name = 'life_drill'; drill.scale.setScalar(1.15); /* concept: the drill rig is a big hero prop */ root.add(drill); const bit = new THREE.Mesh(drillHeadGeo(), mat); bit.position.copy(DRILL_HEAD); drill.add(bit); bit.visible = !low;
+  let sparkAcc = 0, sparkFl = 0; const drill = new THREE.Mesh(drG[0], mat); drill.name = 'life_drill'; drill.userData.hi = drG[1]; drill.scale.setScalar(1.15); /* concept: the drill rig is a big hero prop */ root.add(drill); const bit = new THREE.Mesh(augerGeo(!mobile), mat); bit.position.copy(DRILL_HEAD); drill.add(bit); bit.visible = !low;
   // rotating radar dish next to the base
   if (false) { const rg = merge([col(new THREE.CylinderGeometry(0.25, 0.4, 3.2, 8).translate(0, 1.6, 0), '#d8cdb5'), col(new THREE.BoxGeometry(0.8, 0.5, 0.8).translate(0, 3.3, 0), '#c8912a')]); const st_ = new THREE.Mesh(rg, mat); const rx = base.x + 22, rz = base.z - 12; st_.position.set(rx, groundAt(rx, rz), rz); root.add(st_);
     dish = new THREE.Mesh(merge([col(new THREE.SphereGeometry(2.2, 16, 6, 0, Math.PI * 2, 0, 0.9).rotateX(-Math.PI / 2 + 0.5).translate(0, 0.6, 0), '#efe6d2'), col(new THREE.CylinderGeometry(0.05, 0.05, 2.0, 4).rotateX(-0.6).translate(0, 1.3, 0.55), '#c8912a'), col(new THREE.SphereGeometry(0.15, 6, 4).translate(0, 2.1, 1.1), '#7fe0ff', 3.0)]), mat); dish.position.set(0, 3.5, 0); st_.add(dish); dish.name = 'life_radar'; }
@@ -130,6 +150,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   if (welder) { const gx = welder.x, gz = welder.z; welder.y = groundAt(gx, gz); }
   // steam vents near the base
   const vents = [0, 1, 2].map(i => { const a = 1.1 + i * 2.1, r = 14 + i * 3; const x = base.x + Math.cos(a) * r, z = base.z + Math.sin(a) * r; return { x, z, y: groundAt(x, z) + 1.2, gy: groundAt(x, z), tt: i * 0.7 }; }); { const x = base.x + (D.x - base.x) * 0.62 - (D.z - base.z) * 0.12, z = base.z + (D.z - base.z) * 0.62 + (D.x - base.x) * 0.12; const gy = Math.max(groundAt(x, z), sAt(x, z)); vents.push({ x, z, y: gy + 0.2, gy, tt: 0 }); } /* v92: stand on the plaza surface, not the terrain under it */ if (!low) { const cap = new THREE.InstancedMesh(col(new THREE.CylinderGeometry(0.45, 0.75, 0.55, 8).translate(0, 0.27, 0), '#8c919b'), mat, vents.length); cap.name = 'life_ventcaps'; const m4 = new THREE.Matrix4(); vents.forEach((v, i) => cap.setMatrixAt(i, m4.makeTranslation(v.x, v.gy, v.z))); root.add(cap); } /* v92: vent caps so plumes visibly start at the ground */ /* v91: open-ground vent between base and drill, in view like the concept */
+  { drill.updateMatrixWorld(true); const w = drill.localToWorld(new THREE.Vector3(0.4, 6.6, -2.35)); vents.push({ x: w.x, z: w.z, y: w.y, gy: w.y - 0.55, tt: 0.3 }); } /* v99 s2: mast exhaust = one more steam vent at the stack top (concept), no cap */
   // lore anchors
   const J = crater; const bunnyPath = { a0: Math.atan2(J.z - base.z, J.x - base.x) + 0.9 };
   const RADIO = ['radio1', 'radio2', 'radio3', 'radio4', 'radio5']; let radioT = 25, beepT = 3, stepT = 0, waveCD = 0, starT = 2; const stars = [];
