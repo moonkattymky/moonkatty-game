@@ -6,7 +6,7 @@
 // Cheap by design: few draw calls, low-poly merged meshes, one particle system, distance culling.
 import * as THREE from 'three';
 import { mergeGeometries } from '../../vendor/three/jsm/utils/BufferGeometryUtils.js';
-import { roverHi, roverLo, drillHi, drillLo, drillHeadGeo, DRILL_HEAD } from './machines.js';
+import { drillHi, drillLo, drillHeadGeo, DRILL_HEAD } from './machines.js';
 
 const col = (g, hex, e = 0) => { g = g.index ? g.toNonIndexed() : g; const c = new THREE.Color(hex), n = g.attributes.position.count, a = new Float32Array(n * 3), ae = new Float32Array(n); for (let i = 0; i < n; i++) { c.toArray(a, i * 3); ae[i] = e; } g.setAttribute('color', new THREE.BufferAttribute(a, 3)); g.setAttribute('aE', new THREE.BufferAttribute(ae, 1)); if (g.attributes.uv) g.deleteAttribute('uv'); return g; };
 const merge = (list) => mergeGeometries(list.map(g => g.index ? g.toNonIndexed() : g));
@@ -18,6 +18,19 @@ function roverGeo() { const L = [col(new THREE.BoxGeometry(1.6, 0.5, 2.6).transl
   for (const z of [-0.95, 0, 0.95]) for (const x of [-0.9, 0.9]) L.push(col(new THREE.CylinderGeometry(0.34, 0.34, 0.3, 10).rotateZ(Math.PI / 2).translate(x, 0.34, z), '#3a3530'));
   for (const x of [-0.5, 0.5]) L.push(col(new THREE.CylinderGeometry(0.1, 0.1, 0.06, 8).rotateX(Math.PI / 2).translate(x, 0.85, 1.32), '#fff2c8', 3.0));
   for (let k = 0; k < 7; k++) L.push(col(new THREE.OctahedronGeometry(1, 0).scale(0.16, 0.38 + (k % 3) * 0.08, 0.16).rotateZ((k - 3) * 0.12).translate(-0.45 + (k % 4) * 0.3, 1.6 + (k % 3) * 0.04, -0.75 + Math.floor(k / 4) * 0.5), '#5fc4ff', 2.2));
+  return merge(L); }
+// v98: own cargo hauler 1:1 with concept d04ca995 - low 6-wheel chassis, cream crystal tub w/ gold trim + hex insets, knobby tyres w/ gold hubs, 2 big round headlights
+function haulerGeo(hi) { const B = (w, h, d) => new THREE.BoxGeometry(w, h, d), Y = (r1, r2, h, n) => new THREE.CylinderGeometry(r1, r2, h, n), seg = hi ? 10 : 6, L = [];
+  L.push(col(B(1.7, 0.32, 3.3).translate(0, 0.62, 0), '#3b3a3a'), col(B(1.9, 0.22, 0.3).translate(0, 0.6, 1.72), '#2e2d2c'), col(B(1.9, 0.18, 0.25).translate(0, 0.6, -1.7), '#2e2d2c'));
+  L.push(col(B(2.0, 0.62, 3.2).translate(0, 1.08, -0.05), '#e8e0cc'), col(B(1.84, 0.08, 3.04).translate(0, 1.41, -0.05), '#cfc5ad'));
+  for (const s of [-1, 1]) { L.push(col(B(0.07, 0.07, 3.24).translate(s * 1.02, 1.42, -0.05), '#c8912a'), col(B(0.06, 0.05, 3.2).translate(s * 1.02, 0.8, -0.05), '#c8912a'));
+    for (const z of [-0.95, 0.15, 1.15]) if (hi) { L.push(col(new THREE.CylinderGeometry(0.34, 0.34, 0.03, 6).rotateZ(Math.PI / 2).rotateX(Math.PI / 6).translate(s * 1.01, 1.1, z), '#d6cbb2')); L.push(col(new THREE.TorusGeometry(0.34, 0.025, 3, 6).rotateY(Math.PI / 2).rotateX(Math.PI / 6).translate(s * 1.02, 1.1, z), '#c8912a')); } }
+  for (const z of [-1.62, 1.55]) L.push(col(B(2.02, 0.06, 0.07).translate(0, 1.42, z), '#c8912a'));
+  if (hi) for (const s of [-1, 1]) L.push(col(B(0.06, 0.6, 0.06).translate(s * 0.55, 1.08, 1.56), '#c8912a'));
+  for (const s of [-1, 1]) { L.push(col(Y(0.2, 0.2, 0.08, seg).rotateX(Math.PI / 2).translate(s * 0.62, 0.92, 1.58), '#ffc860', 6.0), col(new THREE.TorusGeometry(0.21, 0.04, 3, seg).translate(s * 0.62, 0.92, 1.6), '#2e2d2c')); }
+  const cry = hi ? 16 : 5; for (let k = 0; k < cry; k++) { const a = k * 2.399, r = 0.12 + (k % 6) * 0.12; const x = Math.cos(a) * r * 1.25, z = -0.05 + Math.sin(a) * r * 2.1, h = 0.26 + ((k * 37) % 7) * 0.035 + (0.7 - r) * 0.25; L.push(col(new THREE.OctahedronGeometry(1, 0).scale(0.2, h, 0.2).rotateZ(Math.cos(k) * 0.35).rotateX(Math.sin(k * 1.7) * 0.3).translate(x, 1.4 + h * 0.4 + (0.7 - r) * 0.25, z), '#2f9dff', 1.7)); }
+  for (const z of [-1.15, 0.05, 1.2]) for (const s of [-1, 1]) { L.push(col(Y(0.5, 0.5, 0.46, seg).rotateZ(Math.PI / 2).translate(s * 1.12, 0.5, z), '#262422'), col(Y(0.15, 0.15, 0.48, hi ? 8 : 4).rotateZ(Math.PI / 2).translate(s * 1.13, 0.5, z), '#c8912a'));
+    if (hi) { for (let t = 0; t < 7; t++) { const a = t / 7 * Math.PI * 2; L.push(col(B(0.5, 0.1, 0.18).rotateX(-a).translate(s * 1.12, 0.5 + Math.sin(a) * 0.5, z + Math.cos(a) * 0.5), '#1c1b1a')); } L.push(col(B(0.5, 0.08, 0.12).translate(s * 0.8, 0.55, z), '#4a4744')); } }
   return merge(L); }
 function drillGeo() { const L = [col(new THREE.BoxGeometry(2.2, 0.8, 3.2).translate(0, 0.9, 0), '#e6dcc6'), col(new THREE.BoxGeometry(2.3, 0.1, 3.3).translate(0, 1.32, 0), '#c8912a'), col(new THREE.BoxGeometry(1.2, 0.9, 1.0).translate(0, 1.8, -1.0), '#d8cdb5'), col(new THREE.BoxGeometry(0.9, 0.4, 0.1).translate(0, 1.9, -0.48), '#2b3d5c', 0.2), col(new THREE.BoxGeometry(0.3, 4.2, 0.3).translate(0, 3.2, 1.1), '#d6a136'), col(new THREE.BoxGeometry(0.9, 0.5, 0.6).translate(0, 5.1, 1.1), '#e6dcc6')];
   for (const z of [-1.1, 0, 1.1]) for (const x of [-1.2, 1.2]) L.push(col(new THREE.CylinderGeometry(0.42, 0.42, 0.34, 10).rotateZ(Math.PI / 2).translate(x, 0.42, z), '#3a3530'));
@@ -88,8 +101,8 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const sat = new THREE.Mesh(satGeo(), mat); sat.name = 'life_sat'; sat.scale.setScalar(3); root.add(sat); sat.visible = !LITE;
   const lift = new THREE.Mesh(shG, mat); lift.name = 'life_liftoff'; lift.scale.setScalar(2.6); root.add(lift); let liftT = 5;
   // ground vehicles
-  const HID = low ? 0 : mobile ? 10 : 13, HIDD = low ? 0 : mobile ? 10 : 11; /* v51 LOD: hand-built machines up close, cheap LO beyond (geometry swap = same single draw) */ const rvG = [roverLo(), low ? null : roverHi()], drG = [drillLo(), low ? null : drillHi()];
-  const rover = new THREE.Mesh(rvG[0], mat); rover.name = 'life_rover'; rover.scale.setScalar(1.0); rover.castShadow = true; root.add(rover);
+  const HID = low ? 0 : mobile ? 5 : 6, /* v98: hauler crosses stats views; hi only very close */ HIDD = low ? 0 : mobile ? 10 : 11; /* v51 LOD: hand-built machines up close, cheap LO beyond (geometry swap = same single draw) */ const rvG = [haulerGeo(false), low ? null : haulerGeo(true)], drG = [drillLo(), low ? null : drillHi()];
+  const rover = new THREE.Mesh(rvG[0], mat); rover.name = 'life_rover'; rover.userData.hi = rvG[1]; if (!low) { const bm = new THREE.MeshBasicMaterial({ color: 0xffc070, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false }); const bg = new THREE.ConeGeometry(1.1, 5.0, 10, 1, true).translate(0, -2.5, 0).rotateX(-Math.PI / 2 + 0.22); for (const sx of [-0.62, 0.62]) { const b = new THREE.Mesh(bg, bm); b.name = 'life_rover_beam'; b.position.set(sx, 0.92, 1.62); rover.add(b); } } /* v98: headlight beams on the dust */ rover.scale.setScalar(1.0); rover.castShadow = true; root.add(rover);
   let sparkAcc = 0, sparkFl = 0; const drill = new THREE.Mesh(drG[0], mat); drill.name = 'life_drill'; drill.scale.setScalar(1.15); /* concept: the drill rig is a big hero prop */ root.add(drill); const bit = new THREE.Mesh(drillHeadGeo(), mat); bit.position.copy(DRILL_HEAD); drill.add(bit); bit.visible = !low;
   // rotating radar dish next to the base
   if (false) { const rg = merge([col(new THREE.CylinderGeometry(0.25, 0.4, 3.2, 8).translate(0, 1.6, 0), '#d8cdb5'), col(new THREE.BoxGeometry(0.8, 0.5, 0.8).translate(0, 3.3, 0), '#c8912a')]); const st_ = new THREE.Mesh(rg, mat); const rx = base.x + 22, rz = base.z - 12; st_.position.set(rx, groundAt(rx, rz), rz); root.add(st_);
@@ -106,7 +119,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const dd = { x: D.x - depotP.x, z: D.z - depotP.z }, dl = Math.hypot(dd.x, dd.z) || 1, ux = dd.x / dl, uz = dd.z / dl, px = -uz, pz = ux;
   drill.position.set(D.x, groundAt(D.x, D.z), D.z); drill.rotation.y = Math.atan2(depotP.x - D.x, depotP.z - D.z) + 0.5;
   // rover: depot -> around the drill -> back (closed loop), all inside the open patch
-  const loopPts = [[depotP.x + ux * 4 + px * 2.5, depotP.z + uz * 4 + pz * 2.5], [D.x + px * 7 - ux * 3, D.z + pz * 7 - uz * 3], [D.x + ux * 8, D.z + uz * 8], [D.x - px * 7 - ux * 3, D.z - pz * 7 - uz * 3], [depotP.x + ux * 4 - px * 2.5, depotP.z + uz * 4 - pz * 2.5]].map(([x, z]) => new THREE.Vector3(x, 0, z));
+  /* v98: concept d04ca995 - the crystal hauler crosses the foreground centre-right of the main view (oval in front of the drill, clear of the cat spot) */ const lc = { x: D.x - ux * 4 + px * 4, z: D.z - uz * 4 + pz * 4 }; const loopPts = []; for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2, au = Math.cos(a) * 4.2, ap = Math.sin(a) * 2.3; loopPts.push(new THREE.Vector3(lc.x + ux * au + px * ap, 0, lc.z + uz * au + pz * ap)); }
   const loop = new THREE.CatmullRomCurve3(loopPts, true); const loopLen = loop.getLength();
   // porters: two crew robots shuttling crystals drill -> depot; they wave at the cat when it comes close
   const porters = makeCrew ? [['builder', 0, -7], ['geologist', 0.27, 0.8]].map(([ty, o, ln]) => { const r = makeCrew(scene, env, ty, 2); r.root.name = 'life_porter'; return { r, o, ln, wave: 0 }; }) /* v97: separate lanes + phase so they never stack behind the cat */ : [];
@@ -149,7 +162,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
     { const cyc = 75, k = T % cyc; if (k < 6) { const a = bunnyPath.a0 + k * 0.05; const r = 320; const x = base.x + Math.cos(a) * r, z = base.z + Math.sin(a) * r; bb.set(bi, x, groundAt(x, z) + 3 + Math.abs(Math.sin(k * 6)) * 2.5, z, 5, 1, 0); } else bb.set(bi, 0, -999, 0, 0, 1); bi++; }
     bb.flush(); if (low) bb.mesh.visible = false; /* v73 ?q=low: jellies + bunny are real creatures now; the billboard draw (ship glows / shooting stars) pays for the creature draw */
     // rover on its loop: follows the ground, dust trail, crystals while hauling back
-    { const u = ((T * 4.2) / loopLen) % 1; loop.getPointAt(u, v); const gy = groundAt(v.x, v.z); const tng = loop.getTangentAt(u); rover.position.set(v.x, gy, v.z); rover.rotation.y = Math.atan2(tng.x, tng.z);
+    { const u = ((T * 2.2) / loopLen) % 1; loop.getPointAt(u, v); const gy = groundAt(v.x, v.z); const tng = loop.getTangentAt(u); rover.position.set(v.x, gy, v.z); rover.rotation.y = Math.atan2(tng.x, tng.z);
       const e = 0.9; const fy = groundAt(v.x + tng.x * e, v.z + tng.z * e), by = groundAt(v.x - tng.x * e, v.z - tng.z * e); rover.rotation.x = -Math.atan2(fy - by, 2 * e) ; { const dR = Math.hypot(v.x - cam.x, v.z - cam.z); rover.visible = dR < (globalThis.__mkStorm ? 12 : VR); rover.geometry = dR < (globalThis.__mkStorm ? 0 : HID) ? rvG[1] : rvG[0]; }
       if (rover.visible && Math.random() < dt * 30) { const bx = v.x - tng.x * 1.6, bz = v.z - tng.z * 1.6; parts.emit(bx + (Math.random() - 0.5), gy + 0.3, bz + (Math.random() - 0.5), (Math.random() - 0.5) * 0.8, 0.5 + Math.random() * 0.5, (Math.random() - 0.5) * 0.8, 1.6, 0.9, 0.42, 0.4, 0.38, 0.3, 'smoke', 2.2); } }
     // drill: bit spins + bobs, sparks at the ground
