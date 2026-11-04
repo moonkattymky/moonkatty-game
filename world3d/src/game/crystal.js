@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { HOME_CAM } from '../terrain.js';
 // Energy crystals (user art ref): a cluster of 3-5 tall sharp hexagonal shards of different heights growing from one base, saturated
 // electric blue/cyan, translucent look with a bright inner glow, white-hot facet edges, a soft blue halo (fake bloom, additive billboard)
 // and a faint pulsing light pool on the ground. No real-time lights. Per field: 1 instanced shard draw + 1 instanced glow draw.
@@ -103,7 +104,7 @@ export function makeCrystalField(scene, spots, { scale: scale0 = 1, name = 'game
     const sgeo = geo.clone(); sgeo.setAttribute('aState', new THREE.InstancedBufferAttribute(new Float32Array(n), 1)); const ggeo = glowGeometry().clone(); ggeo.setAttribute('aState', new THREE.InstancedBufferAttribute(new Float32Array(n), 1));
     g.im = new THREE.InstancedMesh(sgeo, sm, n); g.im.name = name; g.gl = new THREE.InstancedMesh(ggeo, gm, n); g.gl.name = name + '_glow'; g.gl.renderOrder = 2; g.im.castShadow = false; g.im.renderOrder = 3; scene.add(g.im, g.gl); }
   const update = (t, dt = 0) => { sm.uniforms.uTime.value = t; gm.uniforms.uTime.value = t;
-    for (const g of groups) { const sa = g.im.geometry.attributes.aState, ga = g.gl.geometry.attributes.aState; g.ids.forEach((i, k) => { const c = spots[i]; shake[i] = Math.max(0, shake[i] - dt * 3); e.set(Math.sin(t * 45) * 0.07 * shake[i], i * 2.399, 0); q.setFromEuler(e); p.set(c.x, c.y, c.z); s.setScalar(alive[i] ? scale * (0.85 + 0.3 * ((i * 0.618) % 1)) : 0); M.compose(p, q, s); g.im.setMatrixAt(k, M); g.gl.setMatrixAt(k, M); sa.setX(k, cracked[i]); ga.setX(k, cracked[i]); });
+    for (const g of groups) { const sa = g.im.geometry.attributes.aState, ga = g.gl.geometry.attributes.aState; g.ids.forEach((i, k) => { const c = spots[i]; shake[i] = Math.max(0, shake[i] - dt * 3); e.set(Math.sin(t * 45) * 0.07 * shake[i], i * 2.399, 0); q.setFromEuler(e); p.set(c.x, c.y, c.z); s.setScalar(alive[i] ? scale * (0.85 + 0.3 * ((i * 0.618) % 1)) * (Math.hypot(c.x - HOME_CAM.x, c.z - HOME_CAM.z) < 8 ? 0.45 : 1) /* v100: the cluster beside the hero camera no longer fills the right edge (concept framing) */ : 0); M.compose(p, q, s); g.im.setMatrixAt(k, M); g.gl.setMatrixAt(k, M); sa.setX(k, cracked[i]); ga.setX(k, cracked[i]); });
       g.im.instanceMatrix.needsUpdate = true; g.gl.instanceMatrix.needsUpdate = true; sa.needsUpdate = true; ga.needsUpdate = true; const vis = g.ids.some(i => alive[i]); g.im.visible = vis && g.on !== false; g.gl.visible = g.im.visible; } };
   update(0); for (const g of groups) { for (const m of [g.im, g.gl]) { m.computeBoundingSphere(); m.boundingSphere.radius += 3 * scale; } }
   return { meshes: groups.map(g => g.im), groups, alive, cracked, spots, update, setAlive(i, v) { alive[i] = v; }, setVisible(v) { groups.forEach(g => g.on = v); }, shake(i) { shake[i] = 1; } };
