@@ -288,7 +288,7 @@ export function terrainMaterial(patch = false, canyon = false) {
   return m;
 }
 
-const cA = new THREE.Color('#8e8e92'), cB = new THREE.Color('#717277'), cDark = new THREE.Color('#4a4e58'), cTeal = new THREE.Color('#2f6f78'), cOrange = new THREE.Color('#c0602a'), cLight = new THREE.Color('#aaa8a3'), cTan = new THREE.Color('#99958e'), cSlate = new THREE.Color('#5c5d60');
+const cWarmPool = new THREE.Color('#bba586'), cA = new THREE.Color('#8e8e92'), cB = new THREE.Color('#717277'), cDark = new THREE.Color('#4a4e58'), cTeal = new THREE.Color('#2f6f78'), cOrange = new THREE.Color('#c0602a'), cLight = new THREE.Color('#aaa8a3'), cTan = new THREE.Color('#99958e'), cSlate = new THREE.Color('#5c5d60');
 function vertexColor(c, x, z, h, step) { const r = Math.hypot(x, z);
     const hx = heightAt(x + step, z), hx2 = heightAt(x - step, z), hz = heightAt(x, z + step), hz2 = heightAt(x, z - step);
     const slope = clamp(Math.hypot(hx - hx2, hz - hz2) / (2 * step), 0, 2);
@@ -299,7 +299,8 @@ function vertexColor(c, x, z, h, step) { const r = Math.hypot(x, z);
     c.multiplyScalar(ao);
     const dc = Math.abs(-(x - CANYON_A.x) * CAN_U.z + (z - CANYON_A.z) * CAN_U.x - canyonMeander(clamp(canyonS(x, z), 0, CAN_L))); if (h < -6) { const cw = 1 - smoothstep(55, 80, dc); const lay = 0.5 + 0.5 * Math.sin(h * 0.42 + fbm(x * 0.02, z * 0.02, 2) * 2.5); c.lerp(lay > 0.5 ? cTan : cSlate, clamp(slope * 0.9, 0, 0.7) * cw * (0.35 + 0.65 * smoothstep(0.1, 0.45, Math.abs(lay - 0.5)))); } /* pass 21: layered tan/grey canyon walls, teal only on the deep floor */
     { const R = REGIONS.reactor; const d = Math.hypot(x - R.x, z - R.z); c.lerp(cOrange, (1 - smoothstep(20, 80, d)) * 0.4); }
-    c.lerp(cLight, 0.32 * (1 - smoothstep(15, 55, r))); // v107: smooth light-grey regolith around home (concept), was darkened
+    c.lerp(cLight, 0.32 * (1 - smoothstep(15, 55, r)));
+    c.lerp(cWarmPool, 0.3 * (1 - smoothstep(4, 22, r))); // v110: warm lamp-lit regolith around the base (concept) // v107: smooth light-grey regolith around home (concept), was darkened
 }
 // pass 19: dense polar patch over the reactor crater (the far rings are ~60 m facets out there)
 function buildPatch(mat, PATCH, name, M = 112) {
