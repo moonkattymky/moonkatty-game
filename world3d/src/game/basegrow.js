@@ -9,7 +9,7 @@ import { mergeGeometries } from '../../vendor/three/jsm/utils/BufferGeometryUtil
 // Pieces sit on the ground under their own centre (per-piece y offset), front arc (door side, local +z) stays free for robots.
 // ============================================================================================
 const colorize = (g, hex) => { g = g.index ? g.toNonIndexed() : g; const c = new THREE.Color(hex), n = g.attributes.position.count, a = new Float32Array(n * 3); for (let i = 0; i < n; i++) c.toArray(a, i * 3); g.setAttribute('color', new THREE.BufferAttribute(a, 3)); for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'color'].includes(k)) g.deleteAttribute(k); return g; };
-const IV = '#e4dccb', IV2 = '#d8cfbd', GOLD = '#d6a136', DARK = '#3a3f47', STEEL = '#9a978f', WIN = '#6fe7ff', WARM = '#ffb030', CRATE = '#8a6a3a', SOLAR = '#1d3a6a';
+const IV = '#e4dccb', IV2 = '#d8cfbd', GOLD = '#d6a136', DARK = '#3a3f47', STEEL = '#9a978f', WIN = '#ffb83a' /* v109: warm golden windows (concept), was cyan #6fe7ff */, WARM = '#ffb030', CRATE = '#8a6a3a', SOLAR = '#1d3a6a';
 export const MUSEUM_SLOTS = ['ancient:tablet', 'ancient:idol', 'ancient:glyph', 'ancient:mask', 'station:badge', 'station:logbook', 'station:helmet', 'station:flag', 'meteor:shard', 'meteor:geode', 'meteor:iron', 'meteor:pearl'];
 
 export function makeBaseGrowth(scene, p, env, { groundAt, low = false, mobile = false } = {}) {
@@ -54,7 +54,7 @@ export function makeBaseGrowth(scene, p, env, { groundAt, low = false, mobile = 
       float sf = clamp(uB - vStg.x, 0.0, 1.0); float cut = mix(vStg.y - 0.001, vStg.z + 0.001, sf); bool built = vLY <= cut && uB > vStg.x;
       ${ghost ? 'if (built || vStg.x >= ceil(uB / 3.0 + 0.0001) * 3.0) discard;' : 'if (!built) discard; float seam = (sf < 1.0) ? 1.0 - smoothstep(0.0, 0.07, cut - vLY) : 0.0;'}`); };
   const mat = new THREE.MeshStandardMaterial({ vertexColors: true, metalness: 0.35, roughness: 0.5, envMap: env || null, side: THREE.DoubleSide });
-  mat.onBeforeCompile = (sh) => { inject(sh, false); sh.fragmentShader = sh.fragmentShader.replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n totalEmissiveRadiance = vColor.rgb * (step(0.9, vColor.b) * step(vColor.r, 0.5) * 1.6 + step(0.95, vColor.r) * step(vColor.b, 0.25) * 2.2) + vec3(1.6, 0.75, 0.25) * seam * 0.9;'); };
+  mat.onBeforeCompile = (sh) => { inject(sh, false); sh.fragmentShader = sh.fragmentShader.replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n totalEmissiveRadiance = vColor.rgb * (step(0.9, vColor.b) * step(vColor.r, 0.5) * 1.6 + step(0.95, vColor.r) * step(vColor.b, 0.25) * 2.2) + vec3(1.6, 0.75, 0.25) * seam * 0.9 + vec3(1.0, 0.6, 0.2) * vColor.rgb * step(0.85, vColor.r) * step(0.72, vColor.b) * 0.32 /* v109: warm golden glow on ivory dome shells */;'); };
   mat.customProgramCacheKey = () => 'basegrow_stg';
   const m = new THREE.Mesh(geo, mat); m.name = 'ch2_base'; m.position.set(p.x, p.y, p.z); m.rotation.y = yaw; m.receiveShadow = true; m.castShadow = false; m.visible = false; scene.add(m);
   const gm = new THREE.MeshBasicMaterial({ color: new THREE.Color(0.25, 1.1, 1.5), transparent: true, opacity: 0.16, depthWrite: false, blending: THREE.AdditiveBlending, wireframe: true, toneMapped: false });

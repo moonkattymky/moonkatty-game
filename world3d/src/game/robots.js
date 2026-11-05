@@ -14,19 +14,19 @@ function legs(body) { conceptLegs(body); } // v100: short cream legs + gold cuff
 function torso(body, y0 = 0) { // waist joint, hip block, boxy torso shell, chest plate + crescent, belt, collar, neck, shoulder pads
   const Y = (y) => y + y0;
   body.add(sq(0.46, 0.12, 0.3, 2.4, 10, 4), 'dark', { p: [0, Y(0.515), 0] });
-  body.add(sq(0.56, 0.2, 0.36, 3.2, 10, 5), 'ivoryS', { p: [-0.02, Y(0.44), 0.0] });
-  body.add(sq(0.66, 0.47, 0.42, 4.6, 16, 9, { taper: 0.12, taperZ: 0.05 }), 'ivory', { p: [0, Y(0.73), 0] });
+  body.add(sq(0.58, 0.2, 0.38, 2.6, 10, 5), 'ivoryS', { p: [-0.02, Y(0.44), 0.0] });
+  body.add(sq(0.68, 0.48, 0.44, 3.2, 16, 9, { taper: 0.1, taperZ: 0.04 }), 'ivory', { p: [0, Y(0.73), 0] });
   conceptChest(body, y0);
   body.add(sq(0.52, 0.05, 0.36, 3, 10, 3), 'gold', { p: [0, Y(0.535), 0] });
   body.add(tor(0.16, 0.02, 3, 14), 'gold', { p: [0, Y(0.94), 0.0], r: [PI / 2, 0, 0], s: [1.3, 1.1, 1] });
   body.add(cyl(0.12, 0.13, 0.07, 12), 'dark', { p: [0, Y(0.955), 0] });
-  for (const sx of [-1, 1]) { const so = 0.39; body.add(sq(0.28, 0.28, 0.32, 2.3, 10, 6), 'ivory', { p: [sx * so, Y(0.8), 0] });
+  for (const sx of [-1, 1]) { const so = 0.39; body.add(sq(0.3, 0.3, 0.34, 2.05, 10, 6), 'ivory', { p: [sx * so, Y(0.8), 0] });
     body.add(sq(0.3, 0.045, 0.34, 2.4, 10, 3), 'gold', { p: [sx * (so + 0.005), Y(0.69), 0], r: [0, 0, -sx * 0.12] });
     body.add(sq(0.05, 0.22, 0.05, 2.5, 4, 5), 'gold', { p: [sx * (so + 0.03), Y(0.81), 0.165], r: [0, 0, -sx * 0.2] }); }
 }
 function head(kit, y0, { round = false, hat = false, cap = false, lamp = false } = {}) {
   const HY = 1.15 + y0;
-  const hs = round ? 1.1 : 1; kit.add(round ? sq(0.74, 0.6, 0.62, 2.5, 18, 12) : sq(0.74, 0.46, 0.58, 3.2, 18, 11), 'ivory', { p: [0, HY, 0], s: [hs, hs, hs] });
+  const hs = round ? 1.1 : 1; kit.add(round ? sq(0.74, 0.6, 0.62, 2.2, 18, 12) : sq(0.74, 0.46, 0.58, 2.7, 18, 11), 'ivory', { p: [0, HY, 0], s: [hs, hs, hs] });
   for (const sx of [-1, 1]) { kit.add(cyl(0.125, 0.13, 0.06, 12), 'gold', { p: [sx * 0.37 * hs, HY - 0.01, -0.01], r: [0, 0, PI / 2] }); kit.add(cyl(0.088, 0.088, 0.065, 10), 'dark', { p: [sx * 0.38 * hs, HY - 0.01, -0.01], r: [0, 0, PI / 2] }); kit.add(cyl(0.045, 0.045, 0.07, 6), 'gold', { p: [sx * 0.385 * hs, HY - 0.01, -0.01], r: [0, 0, PI / 2] }); }
   kit.add(sq(0.55 * hs, 0.32 * hs, 0.07, 3.6, 14, 7), 'black', { p: [0, HY, round ? 0.32 : 0.275] });
   if (cap) { const ty = HY + (round ? 0.31 : 0.23); kit.add(cyl(0.11, 0.13, 0.05, 14), 'ivoryS', { p: [0, ty, 0] }); kit.add(cyl(0.085, 0.095, 0.075, 14), 'gold', { p: [0, ty + 0.06, 0] }); kit.add(cyl(0.1, 0.1, 0.018, 14), 'gold', { p: [0, ty + 0.1, 0] });
@@ -44,9 +44,9 @@ function geologist(level) { const body = new Kit(), arm = new Kit(); const y0 = 
   torso(body, y0); const HY = head(body, y0, { round: true, cap: true, lamp: true });
   for (const dx of [0, 0.17]) { body.add(cyl(0.085, 0.085, 0.42, 12), 'gold', { p: [-0.3 + dx, 0.88 + y0, -0.24] }); body.add(cyl(0.09, 0.09, 0.05, 12), 'dark', { p: [-0.3 + dx, 1.1 + y0, -0.24] }); body.add(cyl(0.09, 0.09, 0.03, 12), 'dark', { p: [-0.3 + dx, 0.8 + y0, -0.24] }); } // gold sample canisters on the back (show above the right shoulder)
   // left arm resting forward, fist
-  body.add(capsule([0.43, 0.76 + y0, 0], [0.5, 0.58 + y0, 0.08], 0.1, 8, 2), 'ivory'); body.add(sph(0.072, 6, 4), 'gold', { p: [0.5, 0.56 + y0, 0.1] }); body.add(capsule([0.5, 0.55 + y0, 0.12], [0.48, 0.5 + y0, 0.3], 0.105, 8, 2), 'ivory'); body.add(ring([0.5, 0.55 + y0, 0.12], [0.48, 0.5 + y0, 0.29], 0.105, 0.02), 'gold'); gloveTo(body, [0.47, 0.49 + y0, 0.38], 1, [1.2, 0, 0]);
+  body.add(capsule([0.43, 0.76 + y0, 0], [0.5, 0.58 + y0, 0.08], 0.115, 8, 2), 'ivory'); body.add(sph(0.08, 6, 4), 'gold', { p: [0.5, 0.56 + y0, 0.1] }); body.add(capsule([0.5, 0.55 + y0, 0.12], [0.48, 0.5 + y0, 0.3], 0.12, 8, 2), 'ivory'); body.add(ring([0.5, 0.55 + y0, 0.12], [0.48, 0.5 + y0, 0.29], 0.118, 0.022), 'gold'); gloveTo(body, [0.47, 0.49 + y0, 0.38], 1, [1.2, 0, 0]);
   // right arm = heavy drill (animated): upper arm, elbow, thick ivory drill housing with gold rings, steel bit
-  arm.add(capsule([0, -0.02, 0], [-0.08, -0.2, 0.04], 0.105, 8, 2), 'ivory'); arm.add(sph(0.075, 6, 4), 'gold', { p: [-0.09, -0.23, 0.06] });
+  arm.add(capsule([0, -0.02, 0], [-0.08, -0.2, 0.04], 0.12, 8, 2), 'ivory'); arm.add(sph(0.082, 6, 4), 'gold', { p: [-0.09, -0.23, 0.06] });
   const A = new THREE.Vector3(-0.09, -0.24, 0.08), B = new THREE.Vector3(0.04, -0.5, 0.6); const d = B.clone().sub(A), L = d.length(), q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize()); const at = (f) => A.clone().addScaledVector(d, f);
   const put = (g, f, col) => { g.applyQuaternion(q); const p = at(f); g.translate(p.x, p.y, p.z); arm.add(g, col); };
   put(cyl(0.13, 0.14, L * 0.62, 14), 0.31, 'ivory'); put(cyl(0.135, 0.135, 0.04, 14), 0.12, 'gold'); put(cyl(0.128, 0.128, 0.035, 14), 0.5, level >= 2 ? 'gold' : 'ivoryS'); put(cyl(0.1, 0.12, 0.06, 12), 0.66, 'dark');
@@ -62,10 +62,10 @@ function archaeologist(level) { const body = new Kit(), arm = new Kit(); const y
   body.add(tube([[-0.3, 0.9 + y0, 0.12], [-0.05, 0.75 + y0, 0.24], [0.2, 0.58 + y0, 0.22], [0.33, 0.47 + y0, 0.15]], 0.018, 6, 3), 'leather');
   body.add(sq(0.22, 0.2, 0.12, 3, 6, 4), 'leather', { p: [0.36, 0.4 + y0, 0.1], r: [0, -0.4, 0] });
   // left hand holds the golden glyph tablet up
-  body.add(capsule([0.43, 0.76 + y0, 0], [0.52, 0.62 + y0, 0.08], 0.1, 8, 2), 'ivory'); body.add(sph(0.07, 6, 4), 'gold', { p: [0.53, 0.6 + y0, 0.1] }); body.add(capsule([0.53, 0.6 + y0, 0.12], [0.5, 0.72 + y0, 0.28], 0.1, 8, 2), 'ivory'); gloveTo(body, [0.49, 0.76 + y0, 0.33], 1, [0.3, 0, 0]);
+  body.add(capsule([0.43, 0.76 + y0, 0], [0.52, 0.62 + y0, 0.08], 0.115, 8, 2), 'ivory'); body.add(sph(0.08, 6, 4), 'gold', { p: [0.53, 0.6 + y0, 0.1] }); body.add(capsule([0.53, 0.6 + y0, 0.12], [0.5, 0.72 + y0, 0.28], 0.115, 8, 2), 'ivory'); gloveTo(body, [0.49, 0.76 + y0, 0.33], 1, [0.3, 0, 0]);
   body.add(new THREE.BoxGeometry(0.25, 0.34, 0.025), 'gold', { p: [0.55, 0.9 + y0, 0.37], r: [-0.1, -0.15, 0] }); glyph(body, [0.548, 0.9 + y0, 0.387], [-0.1, -0.15, 0]);
   // right arm (animated): scanner with a glowing lens
-  arm.add(capsule([0, -0.02, 0], [-0.12, -0.17, 0.05], 0.1, 8, 2), 'ivory'); arm.add(sph(0.07, 6, 4), 'gold', { p: [-0.13, -0.19, 0.07] }); arm.add(capsule([-0.13, -0.2, 0.1], [-0.08, -0.1, 0.3], 0.1, 8, 2), 'ivory'); arm.add(ring([-0.13, -0.2, 0.1], [-0.085, -0.11, 0.29], 0.1, 0.02), 'gold');
+  arm.add(capsule([0, -0.02, 0], [-0.12, -0.17, 0.05], 0.115, 8, 2), 'ivory'); arm.add(sph(0.08, 6, 4), 'gold', { p: [-0.13, -0.19, 0.07] }); arm.add(capsule([-0.13, -0.2, 0.1], [-0.08, -0.1, 0.3], 0.115, 8, 2), 'ivory'); arm.add(ring([-0.13, -0.2, 0.1], [-0.085, -0.11, 0.29], 0.112, 0.022), 'gold');
   gloveTo(arm, [-0.07, -0.07, 0.37], -1, [0.6, 0.3, 0]);
   arm.add(sq(0.13, 0.11, 0.2, 3, 8, 5), 'dark', { p: [-0.06, -0.02, 0.43], r: [-0.3, 0, 0] }); arm.add(cyl(0.05, 0.05, 0.03, 12), level >= 2 ? 'gold' : 'steel', { p: [-0.06, 0.01, 0.53], r: [PI / 2 - 0.3, 0, 0] }); arm.add(cyl(0.038, 0.038, 0.02, 12), 'eye', { p: [-0.06, 0.012, 0.548], r: [PI / 2 - 0.3, 0, 0] });
   if (level >= 3) body.add(cyl(0.05, 0.05, 0.05, 10), 'lamp', { p: [0.41, 0.95 + y0, 0.08], r: [PI / 2, 0, 0] });
@@ -77,10 +77,10 @@ function engineer(level) { const body = new Kit(), arm = new Kit(); const y0 = 0
   body.add(sq(0.6, 0.07, 0.4, 3, 12, 3), 'leather', { p: [0, 0.5, 0] }); body.add(new THREE.BoxGeometry(0.08, 0.06, 0.02), 'gold', { p: [0, 0.5, 0.205] });
   for (const [x, z, w] of [[-0.24, 0.13, 0.11], [0.2, 0.15, 0.13], [0.3, 0.02, 0.09]]) body.add(sq(w, 0.13, 0.08, 3, 6, 4), 'leather', { p: [x, 0.44, z], r: [0, Math.atan2(x, 0.3), 0] });
   // left hand: wrench held up
-  body.add(capsule([0.43, 0.76, 0], [0.54, 0.62, 0.06], 0.1, 8, 2), 'ivory'); body.add(sph(0.07, 6, 4), 'gold', { p: [0.55, 0.6, 0.08] }); body.add(capsule([0.55, 0.6, 0.1], [0.56, 0.7, 0.28], 0.1, 8, 2), 'ivory'); gloveTo(body, [0.56, 0.73, 0.34], 1, [0.2, 0, 0]);
+  body.add(capsule([0.43, 0.76, 0], [0.54, 0.62, 0.06], 0.115, 8, 2), 'ivory'); body.add(sph(0.08, 6, 4), 'gold', { p: [0.55, 0.6, 0.08] }); body.add(capsule([0.55, 0.6, 0.1], [0.56, 0.7, 0.28], 0.115, 8, 2), 'ivory'); gloveTo(body, [0.56, 0.73, 0.34], 1, [0.2, 0, 0]);
   body.add(new THREE.BoxGeometry(0.035, 0.32, 0.02), 'steel', { p: [0.6, 0.86, 0.36], r: [0, 0, -0.35] }); body.add(tor(0.05, 0.018, 4, 10, PI * 1.5), level >= 2 ? 'gold' : 'steel', { p: [0.66, 1.02, 0.36], r: [0, 0, 0.6] });
   // right arm (animated): screwdriver
-  arm.add(capsule([0, -0.02, 0], [-0.12, -0.18, 0.04], 0.1, 8, 2), 'ivory'); arm.add(sph(0.07, 6, 4), 'gold', { p: [-0.13, -0.2, 0.06] }); arm.add(capsule([-0.13, -0.21, 0.09], [-0.06, -0.14, 0.29], 0.1, 8, 2), 'ivory'); arm.add(ring([-0.13, -0.21, 0.09], [-0.065, -0.145, 0.28], 0.1, 0.02), 'gold');
+  arm.add(capsule([0, -0.02, 0], [-0.12, -0.18, 0.04], 0.115, 8, 2), 'ivory'); arm.add(sph(0.08, 6, 4), 'gold', { p: [-0.13, -0.2, 0.06] }); arm.add(capsule([-0.13, -0.21, 0.09], [-0.06, -0.14, 0.29], 0.115, 8, 2), 'ivory'); arm.add(ring([-0.13, -0.21, 0.09], [-0.065, -0.145, 0.28], 0.112, 0.022), 'gold');
   gloveTo(arm, [-0.05, -0.12, 0.36], -1, [0.5, 0.2, 0]);
   arm.add(cyl(0.028, 0.03, 0.14, 8), 'hat', { p: [-0.04, -0.03, 0.39], r: [0.25, 0, 0] }); arm.add(cyl(0.008, 0.008, 0.16, 6), 'steel', { p: [-0.035, 0.11, 0.42], r: [0.25, 0, 0] });
   if (level >= 3) body.add(cyl(0.05, 0.05, 0.05, 10), 'lamp', { p: [0.41, 0.95, 0.08], r: [PI / 2, 0, 0] });
