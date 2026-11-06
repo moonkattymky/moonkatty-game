@@ -13,14 +13,17 @@ float fbm3(vec3 p){ float a=0.5,s=0.; for(int i=0;i<5;i++){ s+=a*n3(p); p=p*2.03
 
 export function buildSky(sunDir, earthDir, lite = false) {
   const group = new THREE.Group(); group.name = 'sky';
+  // Blue-grey horizon fades gently above the terrain silhouette, not a narrow cyan rim.
+  // Reuse the existing dome shader: no added geometry, passes, textures or draw calls.
+  // Keep the zenith dark so stars and the Earth retain their night-sky contrast.
   // gradient dome + faint milky way
   const skyMat = new THREE.ShaderMaterial({
     side: THREE.BackSide, depthWrite: false, fog: false,
-    uniforms: { top: { value: new THREE.Color('#03050b') }, mid: { value: new THREE.Color('#070c18') }, hor: { value: new THREE.Color('#16283a') }, band: { value: new THREE.Vector3(0.35, 0.55, -0.76).normalize() } },
+    uniforms: { top: { value: new THREE.Color('#03050b') }, mid: { value: new THREE.Color('#26303d') }, hor: { value: new THREE.Color('#697580') }, band: { value: new THREE.Vector3(0.35, 0.55, -0.76).normalize() } },
     vertexShader: `varying vec3 vD; void main(){ vD=normalize(position); vec4 p=projectionMatrix*modelViewMatrix*vec4(position,1.); gl_Position=p.xyww; }`,
     fragmentShader: `uniform vec3 top,mid,hor,band; uniform samplerCube stars; varying vec3 vD; ${NOISE_GLSL}
-      void main(){ float y=vD.y; vec3 c=mix(hor,mid,smoothstep(-0.05,0.18,y)); c=mix(c,top,smoothstep(0.18,0.8,y));
-        float b=exp(-pow(dot(vD,band)/0.16,2.)); float n=fbm3(vD*6.0); float n2=fbm3(vD*14.0+3.0); c+=vec3(0.07,0.085,0.13)*b*smoothstep(0.3,0.8,n)*2.1; c+=vec3(0.045,0.075,0.12)*exp(-pow((y-0.015)/0.07,2.)); c+=vec3(0.035,0.038,0.06)*b; c+=vec3(0.09,0.07,0.06)*b*b*smoothstep(0.5,0.85,n2)*0.8; c-=vec3(0.02)*b*smoothstep(0.55,0.75,fbm3(vD*9.0+7.0)); c+=textureCube(stars,vD).rgb*1.7*smoothstep(-0.12,0.0,y);
+      void main(){ float y=normalize(vD).y; vec3 c=mix(hor,mid,smoothstep(-0.08,0.34,y)); c=mix(c,top,smoothstep(0.26,0.85,y));
+        float b=exp(-pow(dot(vD,band)/0.16,2.)); float n=fbm3(vD*6.0); float n2=fbm3(vD*14.0+3.0); c+=vec3(0.07,0.085,0.13)*b*smoothstep(0.3,0.8,n)*2.1; c+=vec3(0.025,0.032,0.04)*exp(-pow((y-0.055)/0.18,2.)); c+=vec3(0.035,0.038,0.06)*b; c+=vec3(0.09,0.07,0.06)*b*b*smoothstep(0.5,0.85,n2)*0.8; c-=vec3(0.02)*b*smoothstep(0.55,0.75,fbm3(vD*9.0+7.0)); c+=textureCube(stars,vD).rgb*1.7*smoothstep(-0.12,0.0,y);
         gl_FragColor=vec4(c,1.); }`,
   });
   const dome = new THREE.Mesh(new THREE.SphereGeometry(6000, 24, 12), skyMat); dome.renderOrder = -10; dome.frustumCulled = false; group.add(dome);
