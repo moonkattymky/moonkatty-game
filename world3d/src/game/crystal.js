@@ -58,19 +58,19 @@ const shardMat = () => new THREE.ShaderMaterial({ uniforms: { uTime: { value: 0 
       vec3 cobalt = vec3(0.0, 0.02, 0.42), royal = vec3(0.0, 0.07, 0.85), cyan = vec3(0.0, 0.42, 1.5), ice = vec3(0.04, 0.95, 1.9), hot = vec3(0.28, 1.75, 2.7);
       vec3 c = mix(cobalt * 0.8, royal, smoothstep(0.2, 0.6, tone));
       c = mix(c, cyan, smoothstep(0.6, 0.95, tone) * 0.6); c *= 1.3; /* v79 more saturated blue */
-      c = mix(c, ice, smoothstep(0.97, 1.0, tone) * 0.35);
+      c = mix(c, ice, smoothstep(0.97, 1.0, tone) * 0.55); /* v118 more ice facets */
       c *= mix(0.42, 1.0, pow(nv, 0.8)); float thr = pow(nv, 1.6); float ax = length(vLP.xz); float coreC = exp(-ax * ax / 0.028) * (0.45 + 0.55 * (smoothstep(0.0, 0.12, vH) * (1.0 - smoothstep(0.62, 0.98, vH)))); float coreH = exp(-pow((vH - 0.38) / 0.42, 2.0));
       c += cyan * thr * thr * coreH * 0.3 * pulse + mix(cyan, hot, 0.45) * pow(nv, 4.0) * exp(-pow((vH - 0.26) / 0.26, 2.0)) * mix(0.1, 1.0, smoothstep(0.35, 0.9, cell)) * 0.5 * pulse /* v79 less white core */;                      // inner glow core
       c += cyan * streak * 0.5;                                   // refracted fracture planes
       c += royal * fr * 0.25 + royal * pow(1.0 - nv, 8.0) * 0.6 + mix(ice, hot, 0.5) * pow(1.0 - nv, 4.0) * 0.3 /* v79 less white wash */ * (0.5 + 0.5 * vH); // v58 bright white-ice fresnel rim                                                        // soft fresnel
-      c *= 0.55; /* v79 deeper saturated body under bloom */
-      c += mix(cyan, ice, 0.7) * pow(1.0 - vH, 4.0) * 2.0 * pulse /* v86 dimmer base (was 4.6) */ * (0.5 + 0.5 * exp(-ax * ax / 0.2));                  // glowing base
+      c *= 0.72; /* v118 (v79 0.55) brighter body toward concept */
+      c += mix(cyan, ice, 0.7) * pow(1.0 - vH, 4.0) * 3.2 * pulse /* v118 brighter base glow (v86 2.0) */ * (0.5 + 0.5 * exp(-ax * ax / 0.2));                  // glowing base
       // edge highlights: soft and only on SOME facet edges (per-facet random), brighter toward the tip - no uniform wireframe outline
       float e = min(min(vB.x, vB.y), vB.z); float w = fwidth(e);
       float sel = mix(0.7, 1.0, step(0.45, h3(floor(ln * 4.0 + 0.5) + floor(vSeed * 3.0) + 7.0))) * mix(0.55, 1.0, vE);
       float soft = 1.0 - smoothstep(0.0, 0.07, e), core = 1.0 - smoothstep(w * 0.6, w * 3.0, e); /* v78 crisper white edges */
-      c += mix(cyan, ice, 0.45) * soft * soft * 0.8 * sel * (0.45 + 0.55 * vH) + mix(cyan, hot, 0.55) * core * 0.75 * sel /* v86 was 1.2 */ * (0.5 + 0.5 * vH); // v58 brighter white facet edges
-      c += ice * smoothstep(0.9, 1.0, vH) * 0.25;                                  // bright tips
+      c += mix(cyan, ice, 0.45) * soft * soft * 1.05 * sel * (0.45 + 0.55 * vH) + mix(cyan, hot, 0.55) * core * 1.0 * sel /* v118 brighter edges */ * (0.5 + 0.5 * vH); // v58 brighter white facet edges
+      c += ice * smoothstep(0.9, 1.0, vH) * 0.45; /* v118 brighter tips */                                  // bright tips
       if (vS > 0.5) c = c * vec3(0.35, 0.33, 0.4) + vec3(0.5, 0.12, 0.05) * core; // mined / cracked
       { float lm = dot(c, vec3(0.3, 0.45, 0.25)); c = max(vec3(0.0), mix(vec3(lm), c, 1.35)); c.r *= 0.22; } /* v87 was 0.4 */ c.g *= 0.96; c.b = max(c.b * 1.1 + 0.18, 1.0); /* v88 toward concept 73,154,240 */ { float mx = max(c.r, max(c.g, c.b)); c *= min(1.0, 1.7 / max(mx, 1e-3)); c.r = min(c.r, 0.3 * c.b); } /* v87: cap hue-preserving below the bloom threshold (2.0) -> no white blow-out / big bloom halo */ /* v86 was 0.6 */ /* v85: concept-saturated cobalt body (less white wash) */
       gl_FragColor = vec4(c, 1.0); }` });
@@ -85,8 +85,8 @@ const glowMat = () => new THREE.ShaderMaterial({ uniforms: { uTime: { value: 0 }
       // premultiplied blend (One, OneMinusSrcAlpha): the halo both adds blue light and dims what is behind it, so it reads as a deep blue glow even on
       // bright regolith (pure additive blue on a light background turns lavender)
       if (vK < 0.5) { vec2 e = vec2(vP.x, vP.y - 0.08) * 1.15; float rr = dot(e, e); float h = exp(-rr * 20.0) /* v87 was 11: smaller halo */ * 1.2 * pulse; /* v78 tighter */ float wr = smoothstep(0.03, 0.14, rr); // halo ringing the silhouette (no tint over the crystal body)
-        add = vec3(0.0, 0.45, 1.6) * h * 0.55 * wr /* v86 deeper, weaker halo */ * (1.0 - smoothstep(0.06, 0.22, rr)) /* v87 was 0.1,0.36 */; occ = min(0.25, h * 0.14 * wr); /* v77: no dark ring around the body */ /* v75: tight glow hugging the cluster, no big dark ring */
-        vec2 b = vec2(vP.x / 0.62, (vP.y + 0.5) / 0.13); add += vec3(0.25, 0.9, 2.4) * exp(-dot(b, b)) * 1.1 * pulse; /* v86 was 2.6 */ /* v79 base glow */ add += vec3(0.45, 1.4, 2.0) * exp(-rr * 32.0) * 0.2 * pulse; /* v86 was 0.45 */ occ = max(occ, exp(-rr * 32.0) * 0.12); // v57 round white-hot core
+        add = vec3(0.05, 0.65, 1.9) * h * 0.85 * wr /* v118 stronger ice halo */ * (1.0 - smoothstep(0.06, 0.22, rr)) /* v87 was 0.1,0.36 */; occ = min(0.25, h * 0.14 * wr); /* v77: no dark ring around the body */ /* v75: tight glow hugging the cluster, no big dark ring */
+        vec2 b = vec2(vP.x / 0.62, (vP.y + 0.5) / 0.13); add += vec3(0.3, 1.1, 2.6) * exp(-dot(b, b)) * 1.5 * pulse; /* v118 stronger base halo */ /* v79 base glow */ add += vec3(0.45, 1.4, 2.0) * exp(-rr * 32.0) * 0.2 * pulse; /* v86 was 0.45 */ occ = max(occ, exp(-rr * 32.0) * 0.12); // v57 round white-hot core
         vec2 sp = vec2(vP.x - 0.18, vP.y + 0.42) * 6.0; float tw = pow(0.5 + 0.5 * sin(uTime * 3.7 + vSeed * 5.0), 3.0); add += vec3(0.3, 1.45, 2.4) * (exp(-abs(sp.x) * 9.0) * exp(-abs(sp.y) * 1.3) + exp(-abs(sp.y) * 9.0) * exp(-abs(sp.x) * 1.3)) * 0.45 * tw; } // twinkling sparkle at the base // white-cyan flare at the base
       else { float a = (pow(1.0 - r, 3.0) * 1.1 + smoothstep(0.08, 0.0, abs(r - fract(uTime * 0.45 + vSeed))) * 0.16 * (1.0 - r)) * pulse;
         vec3 col = mix(vec3(0.0, 0.3, 1.1), vec3(0.15, 0.7, 1.9), pow(1.0 - r, 6.0)); add = col * a * a * 3.4; occ = 0.0; } // pooled light on the ground
