@@ -252,12 +252,12 @@ export function terrainMaterial(patch = false, canyon = false) {
       { float w4 = ${canyon ? '0.35' : '(1.0 - 0.65 * kEc)'} * pFlat * (1.0 - smoothstep(60.0, 110.0, tDist)) * smoothstep(8.0, 16.0, tDist); if (w4 > 0.01) { vec3 c4 = craters(vWP.xz + 13.3, 1.7); cr.x *= mix(1.0, c4.x, w4); cr.x *= mix(1.0, c4.x * c4.x, w4); cr.yz += c4.yz * 1.7 * w4; } }
       float tMid = (1.0 - smoothstep(55.0, 140.0, tDist)) * smoothstep(6.0, 14.0, tDist)${patch ? ' * pFlat' : ''}; // mid-ground craters (2-3 m) between the ledge and the base
       { float speck = (smoothstep(0.78, 0.95, vn(vWP.xz * 13.0)) - 0.6 * smoothstep(0.8, 0.95, vn(vWP.xz * 9.0 + 3.1))) * pFlat; float grain = vn(vWP.xz * 31.0) * 0.4 + vn(vWP.xz * 67.0) * 0.3 + vn(vWP.xz * 140.0) * 0.15 + hh(floor(vWP.xz * 90.0)) * 0.15;
-        diffuseColor.rgb *= mix(1.0, (0.8 + 0.4 * tN) * (1.0 + 0.24 * speck), tFade) * mix(1.0, cr.x * (0.74 + 0.52 * grain) /* v107: softer near grain */, tNear) /* v70: stronger regolith mottling + grain contrast */ * (1.0 + 0.1 * (1.0 - smoothstep(3.0, 24.0, tDist))) /* v70: less near lift (was clipping flat) */;
+        diffuseColor.rgb *= mix(1.0, (0.8 + 0.4 * tN) * (1.0 + 0.24 * speck), tFade) * mix(1.0, cr.x * (0.82 + 0.4 * grain) /* v120 softer near grain */, tNear) /* v70: stronger regolith mottling + grain contrast */ * (1.0 + 0.1 * (1.0 - smoothstep(3.0, 24.0, tDist))) /* v70: less near lift (was clipping flat) */;
         if (tMid > 0.01) { vec2 pc = floor(vWP.xz * 2.2); float pr = hh(pc + 3.3); vec2 pf = fract(vWP.xz * 2.2) - 0.5 + (vec2(hh(pc), hh(pc + 7.1)) - 0.5) * 0.5; float pd = length(pf); float aa = clamp(1.0 - fwidth(vWP.x * 2.2) * 2.0, 0.0, 1.0);
           float peb = (1.0 - smoothstep(0.1, 0.17, pd)) * step(0.55, pr) * aa; float mot = vn(vWP.xz * 0.9 + 5.0) * 0.6 + vn(vWP.xz * 3.1) * 0.4;
           diffuseColor.rgb *= mix(1.0, (0.8 + 0.4 * mot) * (1.0 - 0.45 * peb * step(0.8, pr) + 0.22 * peb * (1.0 - step(0.8, pr))), tMid); }
         { float rh = length(vWP.xz); float apr = smoothstep(5.0, 11.0, rh) * (1.0 - smoothstep(40.0, 60.0, rh)); /* pass 19: darker, rubbly regolith apron around the base (concept mid-ground) */
-          if (apr > 0.01) { float pat = vn(vWP.xz * 0.16 + 2.0) * 0.6 + vn(vWP.xz * 0.5 + 7.0) * 0.4; diffuseColor.rgb *= mix(1.0, 0.7 + 0.3 * pat, apr);
+          if (apr > 0.01) { float pat = vn(vWP.xz * 0.16 + 2.0) * 0.6 + vn(vWP.xz * 0.5 + 7.0) * 0.4; diffuseColor.rgb *= mix(1.0, 0.88 + 0.14 * pat, apr); /* v120 softer apron (concept open plain) */
             float rw = apr * smoothstep(11.0, 20.0, tDist) * (1.0 - smoothstep(90.0, 130.0, tDist)); if (rw > 0.01) { vec2 sd2 = vec2(${SUNXZ}) * 0.12;
               vec2 q = vWP.xz * 1.1; vec2 qi = floor(q); float d1 = 9.0, d1s = 9.0, keep = 0.0, ks = 0.0;
               for (int j = -1; j <= 1; j++) for (int i = -1; i <= 1; i++) { vec2 c = qi + vec2(float(i), float(j)); float h = hh(c + 4.4); vec2 o = vec2(hh(c), hh(c + 7.7)) * 0.8 + 0.1 - (q - c); float dd = length(o); float rr = 0.18 + 0.2 * h; float on = step(0.45, hh(c + 2.2)) ; float v = dd / rr; if (v < d1 && on > 0.5) { d1 = v; } float vs = length(o + sd2 * 1.5) / rr; if (vs < d1s && on > 0.5) { d1s = vs; } }
@@ -265,7 +265,7 @@ export function terrainMaterial(patch = false, canyon = false) {
               float lit = st * (0.82 + 0.5 * (1.0 - d1)); float shad = (1.0 - st) * stS; diffuseColor.rgb *= mix(1.0, mix(1.0 - 0.45 * shad, lit, st), rw); } } }
         ${patch && !canyon ? 'float ccv, cwt, csh; float chh = clH(vWP, normalize(vWN), pFW, ccv, cwt, csh); diffuseColor.rgb *= mix(1.0, (1.0 - 0.4 * ccv) * csh * (0.94 + 0.12 * clamp(chh, 0.0, 1.0)), 1.0 - smoothstep(160.0, 260.0, tDist));' : ''}
         { vec2 dq1 = vWP.xz / 7.0; vec2 dq2 = mat2(0.8, -0.6, 0.6, 0.8) * vWP.xz / 2.3 + 0.37; float dA1 = texture2D(uDet, dq1).r * 1.6, dA2 = texture2D(uDet, dq2).r * 1.6; /* pass 40: crisp regolith detail, two scales */
-          float dw1 = (1.0 - smoothstep(35.0, 140.0, tDist)) * pFlat, dw2 = (1.0 - smoothstep(10.0, 40.0, tDist)) * pFlat; diffuseColor.rgb *= mix(1.0, 0.45 + 0.55 * dA1, dw1 * 0.8) * mix(1.0, 0.45 + 0.55 * dA2, dw2 * 0.75);
+          float dw1 = (1.0 - smoothstep(35.0, 140.0, tDist)) * pFlat, dw2 = (1.0 - smoothstep(10.0, 40.0, tDist)) * pFlat; diffuseColor.rgb *= mix(1.0, 0.62 + 0.42 * dA1, dw1 * 0.55) * mix(1.0, 0.62 + 0.42 * dA2, dw2 * 0.5); /* v120 softer near detail */
           ${patch ? `{ vec3 fnT = normalize(vWN); vec3 tw = pow(abs(fnT), vec3(4.0)); tw /= tw.x + tw.y + tw.z + 1e-4; float wS = (1.0 - pFlat) * (1.0 - smoothstep(30.0, 160.0, tDist));
             if (wS > 0.01) { float ta = texture2D(uDet, vWP.zy / 4.5).r * tw.x + texture2D(uDet, vWP.xz / 4.5).r * tw.y + texture2D(uDet, vWP.xy / 4.5).r * tw.z; float tb = texture2D(uDet, vWP.zy / 17.0 + 0.3).r * tw.x + texture2D(uDet, vWP.xz / 17.0 + 0.3).r * tw.y + texture2D(uDet, vWP.xy / 17.0 + 0.3).r * tw.z;
               diffuseColor.rgb *= mix(1.0, (0.4 + 1.0 * ta) * (0.55 + 0.75 * tb), wS * 0.35) * mix(0.9, 1.0, smoothstep(-0.4, 0.4, fnT.y)); } }` : ''} /* pass 41: triplanar rock grain + overhang occlusion on steep walls; v108 softened: lighter grey hills (concept) */
@@ -299,8 +299,8 @@ function vertexColor(c, x, z, h, step) { const r = Math.hypot(x, z);
     c.multiplyScalar(ao);
     const dc = Math.abs(-(x - CANYON_A.x) * CAN_U.z + (z - CANYON_A.z) * CAN_U.x - canyonMeander(clamp(canyonS(x, z), 0, CAN_L))); if (h < -6) { const cw = 1 - smoothstep(55, 80, dc); const lay = 0.5 + 0.5 * Math.sin(h * 0.42 + fbm(x * 0.02, z * 0.02, 2) * 2.5); c.lerp(lay > 0.5 ? cTan : cSlate, clamp(slope * 0.9, 0, 0.7) * cw * (0.35 + 0.65 * smoothstep(0.1, 0.45, Math.abs(lay - 0.5)))); } /* pass 21: layered tan/grey canyon walls, teal only on the deep floor */
     { const R = REGIONS.reactor; const d = Math.hypot(x - R.x, z - R.z); c.lerp(cOrange, (1 - smoothstep(20, 80, d)) * 0.4); }
-    c.lerp(cLight, 0.32 * (1 - smoothstep(15, 55, r)));
-    c.lerp(cWarmPool, 0.3 * (1 - smoothstep(4, 22, r))); // v110: warm lamp-lit regolith around the base (concept) // v107: smooth light-grey regolith around home (concept), was darkened
+    c.lerp(cLight, 0.42 * (1 - smoothstep(12, 55, r))); // v120 more light-grey home regolith
+    c.lerp(cWarmPool, 0.42 * (1 - smoothstep(4, 26, r))); // v120 (v110 0.3) warmer lamp-lit regolith // v107: smooth light-grey regolith around home (concept), was darkened
 }
 // pass 19: dense polar patch over the reactor crater (the far rings are ~60 m facets out there)
 function buildPatch(mat, PATCH, name, M = 112) {
