@@ -70,7 +70,7 @@ const shardMat = () => new THREE.ShaderMaterial({ uniforms: { uTime: { value: 0 
       float sel = mix(0.7, 1.0, step(0.45, h3(floor(ln * 4.0 + 0.5) + floor(vSeed * 3.0) + 7.0))) * mix(0.55, 1.0, vE);
       float soft = 1.0 - smoothstep(0.0, 0.07, e), core = 1.0 - smoothstep(w * 0.6, w * 3.0, e); /* v78 crisper white edges */
       c += mix(cyan, ice, 0.45) * soft * soft * 1.05 * sel * (0.45 + 0.55 * vH) + mix(cyan, hot, 0.55) * core * 1.0 * sel /* v118 brighter edges */ * (0.5 + 0.5 * vH); // v58 brighter white facet edges
-      c += ice * smoothstep(0.9, 1.0, vH) * 0.45; /* v118 brighter tips */                                  // bright tips
+      c += ice * smoothstep(0.88, 1.0, vH) * 0.7; /* v121 brighter ice tips */                                  // bright tips
       if (vS > 0.5) c = c * vec3(0.35, 0.33, 0.4) + vec3(0.5, 0.12, 0.05) * core; // mined / cracked
       { float lm = dot(c, vec3(0.3, 0.45, 0.25)); c = max(vec3(0.0), mix(vec3(lm), c, 1.35)); c.r *= 0.22; } /* v87 was 0.4 */ c.g *= 0.96; c.b = max(c.b * 1.1 + 0.18, 1.0); /* v88 toward concept 73,154,240 */ { float mx = max(c.r, max(c.g, c.b)); c *= min(1.0, 1.7 / max(mx, 1e-3)); c.r = min(c.r, 0.3 * c.b); } /* v87: cap hue-preserving below the bloom threshold (2.0) -> no white blow-out / big bloom halo */ /* v86 was 0.6 */ /* v85: concept-saturated cobalt body (less white wash) */
       gl_FragColor = vec4(c, 1.0); }` });
@@ -85,7 +85,7 @@ const glowMat = () => new THREE.ShaderMaterial({ uniforms: { uTime: { value: 0 }
       // premultiplied blend (One, OneMinusSrcAlpha): the halo both adds blue light and dims what is behind it, so it reads as a deep blue glow even on
       // bright regolith (pure additive blue on a light background turns lavender)
       if (vK < 0.5) { vec2 e = vec2(vP.x, vP.y - 0.08) * 1.15; float rr = dot(e, e); float h = exp(-rr * 20.0) /* v87 was 11: smaller halo */ * 1.2 * pulse; /* v78 tighter */ float wr = smoothstep(0.03, 0.14, rr); // halo ringing the silhouette (no tint over the crystal body)
-        add = vec3(0.05, 0.65, 1.9) * h * 0.85 * wr /* v118 stronger ice halo */ * (1.0 - smoothstep(0.06, 0.22, rr)) /* v87 was 0.1,0.36 */; occ = min(0.25, h * 0.14 * wr); /* v77: no dark ring around the body */ /* v75: tight glow hugging the cluster, no big dark ring */
+        add = vec3(0.08, 0.75, 2.1) * h * 1.15 * wr /* v121 stronger ice halo */ * (1.0 - smoothstep(0.06, 0.22, rr)) /* v87 was 0.1,0.36 */; occ = min(0.25, h * 0.14 * wr); /* v77: no dark ring around the body */ /* v75: tight glow hugging the cluster, no big dark ring */
         vec2 b = vec2(vP.x / 0.62, (vP.y + 0.5) / 0.13); add += vec3(0.3, 1.1, 2.6) * exp(-dot(b, b)) * 1.5 * pulse; /* v118 stronger base halo */ /* v79 base glow */ add += vec3(0.45, 1.4, 2.0) * exp(-rr * 32.0) * 0.2 * pulse; /* v86 was 0.45 */ occ = max(occ, exp(-rr * 32.0) * 0.12); // v57 round white-hot core
         vec2 sp = vec2(vP.x - 0.18, vP.y + 0.42) * 6.0; float tw = pow(0.5 + 0.5 * sin(uTime * 3.7 + vSeed * 5.0), 3.0); add += vec3(0.3, 1.45, 2.4) * (exp(-abs(sp.x) * 9.0) * exp(-abs(sp.y) * 1.3) + exp(-abs(sp.y) * 9.0) * exp(-abs(sp.x) * 1.3)) * 0.45 * tw; } // twinkling sparkle at the base // white-cyan flare at the base
       else { float a = (pow(1.0 - r, 3.0) * 1.1 + smoothstep(0.08, 0.0, abs(r - fract(uTime * 0.45 + vSeed))) * 0.16 * (1.0 - r)) * pulse;
