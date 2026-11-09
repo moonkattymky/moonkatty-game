@@ -125,6 +125,7 @@ export function createChapter2(ctx) {
   const CR = ctx.creatures, PB = () => store.data.pets.bunny; const FIND_MS = FAST ? 2000 : 2 * 3600e3, FIND_MAX = 3, FIND_PTS = 4, FIND_CRY = 2;
   const bun = { x: 0, y: 0, z: 0, yaw: 0, hop: 0, happy: 0, init: false, sniff: null, sniffT: 0, seen: new Set(), was: '' };
   const petHappy = () => { if (CR && PB().tamed) bun.happy = 1.6; };
+  // Bunny stays 3 m to the side of the exit. The exit itself moved from 2.2 m to 4.0 m, so the bunny moved with it and is still clear of the door and of the cat's spawn.
   const wildAt = () => { const o = home.outside, a = homeDoor.yaw + Math.PI / 2; return { x: o.x + Math.sin(a) * 3.0, z: o.z + Math.cos(a) * 3.0 }; };
   const wildOn = () => FEAT.home && S().done.includes('c2_home');
   async function petAway() { const P = PB(), now_ = now(); if (!CR || !P.tamed || P.along || !P.t) { P.t = now_; return; } const today = store.today(); if (P.day !== today) { P.day = today; P.n = 0; }

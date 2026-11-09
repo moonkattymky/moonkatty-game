@@ -52,8 +52,11 @@ const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.2, 90
 // light: sun from camera-left in the concept framing, cool sky fill, warm bounce
 const v3 = (x, y, z) => new THREE.Vector3(x, y, z);
 const sunDir = v3(-Rt.x * 0.75 - F.x * 0.45, 0.62, -Rt.z * 0.75 - F.z * 0.45).normalize();
-const earthYaw = 0.296, earthEl = 0.138; // radians relative to concept forward
-const ef = v3(F.x, 0, F.z).applyAxisAngle(v3(0, 1, 0), -earthYaw); const earthDir = ef.multiplyScalar(Math.cos(earthEl)).add(v3(0, Math.sin(earthEl), 0)).normalize();
+// Play-stand sky: Earth sits upper-right of the default boom (camYaw = atan2(-F.x,-F.z) - 0.30), not on the concept axis.
+const playYaw = Math.atan2(-F.x, -F.z) - 0.30;
+const view = v3(-Math.sin(playYaw), 0, -Math.cos(playYaw)), right = v3(Math.cos(playYaw), 0, -Math.sin(playYaw));
+const earthAz = 0.38, earthEl = 0.22;
+const earthDir = view.clone().multiplyScalar(Math.cos(earthEl) * Math.cos(earthAz)).add(right.clone().multiplyScalar(Math.cos(earthEl) * Math.sin(earthAz))).add(v3(0, Math.sin(earthEl), 0)).normalize();
 const hemi = new THREE.HemisphereLight('#b3b6bc', '#4a4a4d', 0.6); scene.add(hemi);
 const sun = new THREE.DirectionalLight('#fff1dc', 2.3); sun.castShadow = true;
 sun.shadow.mapSize.set(MOBILE ? 1024 : 2048, MOBILE ? 1024 : 2048); const sc = sun.shadow.camera; sc.left = -70; sc.right = 70; sc.top = 70; sc.bottom = -70; sc.near = 1; sc.far = 400; sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04;
@@ -131,7 +134,7 @@ const solids = (() => { const meshes = []; scene.traverse(o => { if (!o.isMesh |
   const toPortal = []; for (let i = 0; i <= 20; i++) { const t = i / 20; toPortal.push(sd(22 + t * 9, 18 + t * 13 + Math.sin(t * 3) * 2)); }
   const side = []; for (let i = 0; i <= 36; i++) { const t = i / 36; side.push(sd(8 - t * 4.5 + Math.sin(t * 2.6) * 1.6, -42 + t * 30)); } /* pass 26: second rover trail curving into the base (concept foreground) */
   buildTracks(scene, [pts, loop, spur, toPortal, side]); }
-const sky = buildSky(sunDir, earthDir, LOW); scene.add(sky.group); sky.starMat.uniforms.uPR.value = PR;
+const sky = buildSky(sunDir, earthDir, LOW || MOBILE); scene.add(sky.group); sky.starMat.uniforms.uPR.value = PR;
 const space = buildSpace(scene, mats.hull, MOBILE || LOW);
 
 // ---------- cat ----------

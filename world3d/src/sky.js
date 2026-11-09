@@ -28,7 +28,7 @@ export function buildSky(sunDir, earthDir, lite = false) {
   });
   const dome = new THREE.Mesh(new THREE.SphereGeometry(6000, 24, 12), skyMat); dome.renderOrder = -10; dome.frustumCulled = false; group.add(dome);
   // stars
-  const r = seeded(99); const N = 26000; const pos = new Float32Array(N * 3), size = new Float32Array(N), col = new Float32Array(N * 3);
+  const r = seeded(99); const N = lite ? 32000 : 48000; const pos = new Float32Array(N * 3), size = new Float32Array(N), col = new Float32Array(N * 3);
   const band = skyMat.uniforms.band.value;
   for (let i = 0; i < N; i++) {
     let v; do { v = new THREE.Vector3(r() * 2 - 1, r() * 2 - 1, r() * 2 - 1); } while (v.lengthSq() > 1 || v.lengthSq() < 0.01);
@@ -72,7 +72,8 @@ export function buildSky(sunDir, earthDir, lite = false) {
         float lum=dot(col,vec3(0.3,0.59,0.11)); col=mix(vec3(lum),col,0.9)*0.5; gl_FragColor=vec4(col,1.); }`,
   });
   const earth = new THREE.Mesh(new THREE.SphereGeometry(1, lite ? 28 : 40, lite ? 14 : 20), earthMat); earth.renderOrder = -8;
-  const ED = 4200, ER = 690; earth.position.copy(earthDir).multiplyScalar(ED); earth.scale.setScalar(ER); earth.rotation.set(0.4, 2.2, 0.2);
+  const ED = 4200, ER = lite ? 900 : 1280; // phone/low stays at 900: a larger disc fills a portrait frame
+  earth.position.copy(earthDir).multiplyScalar(ED); earth.scale.setScalar(ER); earth.rotation.set(0.4, 2.2, 0.2);
   group.add(earth);
   const haloMat = new THREE.ShaderMaterial({
     fog: false, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.BackSide, uniforms: { sun: { value: sunDir.clone() } },
