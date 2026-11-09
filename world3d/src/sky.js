@@ -28,7 +28,7 @@ export function buildSky(sunDir, earthDir, lite = false) {
   });
   const dome = new THREE.Mesh(new THREE.SphereGeometry(6000, 24, 12), skyMat); dome.renderOrder = -10; dome.frustumCulled = false; group.add(dome);
   // stars
-  const r = seeded(99); const N = 26000; const pos = new Float32Array(N * 3), size = new Float32Array(N), col = new Float32Array(N * 3);
+  const r = seeded(99); const N = lite ? 32000 : 48000; const pos = new Float32Array(N * 3), size = new Float32Array(N), col = new Float32Array(N * 3);
   const band = skyMat.uniforms.band.value;
   for (let i = 0; i < N; i++) {
     let v; do { v = new THREE.Vector3(r() * 2 - 1, r() * 2 - 1, r() * 2 - 1); } while (v.lengthSq() > 1 || v.lengthSq() < 0.01);
@@ -72,7 +72,8 @@ export function buildSky(sunDir, earthDir, lite = false) {
         float lum=dot(col,vec3(0.3,0.59,0.11)); col=mix(vec3(lum),col,0.9)*0.5; gl_FragColor=vec4(col,1.); }`,
   });
   const earth = new THREE.Mesh(new THREE.SphereGeometry(1, lite ? 28 : 40, lite ? 14 : 20), earthMat); earth.renderOrder = -8;
-  const ED = 4200, ER = 690; earth.position.copy(earthDir).multiplyScalar(ED); earth.scale.setScalar(ER); earth.rotation.set(0.4, 2.2, 0.2);
+  const ED = 4200, ER = lite ? 440 : 800; // resized per aspect in main.js; these are the first-frame sizes
+  earth.position.copy(earthDir).multiplyScalar(ED); earth.scale.setScalar(ER); earth.rotation.set(0.4, 2.2, 0.2);
   group.add(earth);
   const haloMat = new THREE.ShaderMaterial({
     fog: false, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.BackSide, uniforms: { sun: { value: sunDir.clone() } },
@@ -80,9 +81,11 @@ export function buildSky(sunDir, earthDir, lite = false) {
     fragmentShader: `uniform vec3 sun; varying vec3 vN; varying vec3 vV; void main(){ float d=dot(normalize(vN),vV); float a=pow(smoothstep(0.0,0.5,-d),3.0); float lit=0.3+0.7*smoothstep(-0.5,0.4,dot(normalize(vN),sun)); gl_FragColor=vec4(vec3(0.25,0.5,0.95)*a*lit*0.7,1.); }`,
   });
   const halo = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 10), haloMat); halo.position.copy(earth.position); halo.scale.setScalar(ER * 1.035); halo.renderOrder = -7; group.add(halo);
-  // cutscenes can park the Earth in a chosen direction (null = back to the default)
-  const setEarthDir = (d) => { const v = (d || earthDir).clone().normalize().multiplyScalar(ED); earth.position.copy(v); halo.position.copy(v); };
-  return { group, earth, starMat, earthMat, setEarthDir };
+  // homeDir is the aspect-framed disc. Cutscenes pass a direction; null returns to homeDir without changing size.
+  let homeDir = earthDir.clone();
+  const setEarthDir = (d) => { const v = (d || homeDir).clone().normalize().multiplyScalar(ED); earth.position.copy(v); halo.position.copy(v); };
+  const setEarthPose = (d, radius) => { homeDir.copy(d); earth.scale.setScalar(radius); halo.scale.setScalar(radius * 1.035); setEarthDir(d); };
+  return { group, earth, starMat, earthMat, setEarthDir, setEarthPose };
 }
 
 // Asteroid belt + Ark orbital station + MK-01 (sky set pieces; no fog)
@@ -136,6 +139,6 @@ export function buildSpace(scene, hullMat, lite = false) {
   const built = b.build(mats, st); for (const k in built) { built[k].castShadow = built[k].receiveShadow = false; built[k].frustumCulled = true; }
   scene.add(g);
   const fr = new THREE.Frustum(), pm4 = new THREE.Matrix4();
-  const updateBelt = (camera, hideAll) => { if (!lite) return; if (hideAll) { bg.visible = false; return; } pm4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); fr.setFromProjectionMatrix(pm4); bg.visible = bg.userData.samples.some(sp => fr.intersectsSphere(sp)); }; // phones: the belt is 2 big draws - skip it in the hub and whenever the band is off-screen
+  const updateBelt = (camera, hideAll) => { if (hideAll) { bg.visible = false; return; } if (!lite) { bg.visible = true; return; } pm4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); fr.setFromProjectionMatrix(pm4); bg.visible = bg.userData.samples.some(sp => fr.intersectsSphere(sp)); }; // off past 320 m (a speck from a zone) and, on phones, inside the hub or off-screen
   return { group: g, mats, beltU, updateBelt };
 }

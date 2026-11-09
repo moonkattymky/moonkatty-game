@@ -52,11 +52,14 @@ const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.2, 90
 // light: sun from camera-left in the concept framing, cool sky fill, warm bounce
 const v3 = (x, y, z) => new THREE.Vector3(x, y, z);
 const sunDir = v3(-Rt.x * 0.75 - F.x * 0.45, 0.62, -Rt.z * 0.75 - F.z * 0.45).normalize();
-const earthYaw = 0.296, earthEl = 0.138; // radians relative to concept forward
-const ef = v3(F.x, 0, F.z).applyAxisAngle(v3(0, 1, 0), -earthYaw); const earthDir = ef.multiplyScalar(Math.cos(earthEl)).add(v3(0, Math.sin(earthEl), 0)).normalize();
+// Play-stand sky: Earth sits upper-right of the default boom (camYaw = atan2(-F.x,-F.z) - 0.30), not on the concept axis.
+const playYaw = Math.atan2(-F.x, -F.z) - 0.30;
+const view = v3(-Math.sin(playYaw), 0, -Math.cos(playYaw)), right = v3(Math.cos(playYaw), 0, -Math.sin(playYaw));
+const earthAim = (az, el) => view.clone().multiplyScalar(Math.cos(el) * Math.cos(az)).add(right.clone().multiplyScalar(Math.cos(el) * Math.sin(az))).add(v3(0, Math.sin(el), 0)).normalize();
+const earthDir = earthAim(0.26, 0.10); // desktop first frame; resize() retargets per aspect
 const hemi = new THREE.HemisphereLight('#b3b6bc', '#4a4a4d', 0.6); scene.add(hemi);
-const sun = new THREE.DirectionalLight('#fff1dc', 2.3); sun.castShadow = true;
-sun.shadow.mapSize.set(MOBILE ? 1024 : 2048, MOBILE ? 1024 : 2048); const sc = sun.shadow.camera; sc.left = -70; sc.right = 70; sc.top = 70; sc.bottom = -70; sc.near = 1; sc.far = 400; sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04;
+const sun = new THREE.DirectionalLight('#fff1dc', 1.65); sun.castShadow = true;
+sun.shadow.mapSize.set(MOBILE ? 1024 : 2048, MOBILE ? 1024 : 2048); const sc = sun.shadow.camera; sc.left = -120; sc.right = 120; sc.top = 120; sc.bottom = -120; sc.near = 1; sc.far = 400; sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04; /* the ±70 box left a hard unshadowed cut across the reactor wall; the wider box keeps that slope inside the map so the shadow edge stays on the geometry */
 scene.add(sun, sun.target);
 const fill = new THREE.DirectionalLight('#8f9aab', 0.45); fill.position.copy(earthDir).multiplyScalar(100); scene.add(fill);
 const front = new THREE.DirectionalLight('#d6d3cc', 0.55); front.position.set(-F.x * 80 - Rt.x * 40, 60, -F.z * 80 - Rt.z * 40); scene.add(front);
@@ -112,7 +115,7 @@ mats.hull.color.setRGB(0.8, 0.78, 0.77); mats.lattice.color.setRGB(0.8, 0.78, 0.
 const built = b.build(mats, scene); for (const [n, B] of [...Object.entries(WB), ['beams', wb]]) { const bw = B.build(mats, scene, '_' + n); for (const k in bw) bw[k].castShadow = false; }
 // far chapter-region hulls sit behind the crater rim: skip them while the camera is low inside the hub basin (cheap occlusion cull)
 const farRegion = []; scene.traverse(o => { if (o.isMesh && /_(launch|echo|canyon|reactor)$/.test(o.name)) { o.geometry.computeBoundingSphere(); farRegion.push([o, o.geometry.boundingSphere.center.clone()]); } });
-const cullFarRegions = () => { const c = camera.position; for (const [o, R] of (cullFarRegions.cr ??= ['crystals_canyon', 'crystals_echo'].map(n => scene.getObjectByName(n)).filter(Boolean).map(o => { o.computeBoundingSphere(); return [o, o.boundingSphere]; }))) o.visible = Math.hypot(c.x - R.center.x, c.z - R.center.z) < R.radius + 260 && !(Math.hypot(c.x, c.z) < 125 && c.y < 45); /* hidden behind the crater rim from inside the hub basin. Chapter-1 budget: far crystal fields are invisible specks from the hub */ { const away = Math.hypot(c.x, c.z) > 280 && c.y < 70; for (const o of (cullFarRegions.hub ??= (() => { const l = []; scene.traverse(o => { if (o.isMesh && ((o.name === 'merged_hull' && o.parent === scene) || /^terrain_i\d/.test(o.name))) l.push(o); }); return l; })())) o.visible = !away; } /* pass 21: hub base + inner terrain hidden behind the crater rim when the camera is out in a chapter region */ { const pm3 = (cullFarRegions.pm3 ??= scene.getObjectByName('terrain_patch3')); if (pm3) { const on3 = Math.hypot(c.x - PATCH3.x, c.z - PATCH3.z) < 360 && c.y < 260; pm3.visible = on3; PATCH3.on.value = on3 ? 1 : 0; } } const inHub = Math.hypot(c.x, c.z) < 125 && c.y < 45; for (const [o, ctr] of farRegion) o.visible = !inHub || ctr.distanceTo(c) < 380; { const pm2 = (cullFarRegions.pm2 ??= scene.getObjectByName('terrain_patch2')); if (pm2) { const on2 = Math.hypot(c.x - PATCH2.x, c.z - PATCH2.z) < 340 && c.y < 260; pm2.visible = on2; PATCH2.on.value = on2 ? 1 : 0; } } { const pm = (cullFarRegions.pm ??= scene.getObjectByName('terrain_patch')); if (pm) { const on = Math.hypot(c.x - PATCH.x, c.z - PATCH.z) < 330 && c.y < 200; pm.visible = on; PATCH.on.value = on ? 1 : 0; for (const o of (cullFarRegions.rl ??= scene.children.filter(o => /_reactor(Near|Far)$/.test(o.name)))) o.visible = /Near$/.test(o.name) ? on : !on && !(Math.hypot(c.x, c.z) < 125 && c.y < 45); } for (const [o, R] of (cullFarRegions.nl ??= scene.children.filter(o => /_(launch|canyon|echo)Near$/.test(o.name)).map(o => [o, REGIONS[o.name.match(/_(launch|canyon|echo)Near$/)[1]]]))) o.visible = Math.hypot(c.x - R.x, c.z - R.z) < 340 && c.y < 260; /* region near-detail LOD */ } /* reactor high-res patch only up close; base terrain fills the hole otherwise */ { const farRidgeMesh = (cullFarRegions.fr ??= scene.getObjectByName('farRidge')); if (farRidgeMesh) farRidgeMesh.visible = !LOW && Math.hypot(c.x, c.z) < 140 && c.y < 60; } }; // far ridge is a backdrop layer for in-hub views only (no ring band from world/aerial)
+const cullFarRegions = () => { const c = camera.position; for (const [o, R] of (cullFarRegions.cr ??= ['crystals_canyon', 'crystals_echo'].map(n => scene.getObjectByName(n)).filter(Boolean).map(o => { o.computeBoundingSphere(); return [o, o.boundingSphere]; }))) o.visible = Math.hypot(c.x - R.center.x, c.z - R.center.z) < R.radius + 260 && !(Math.hypot(c.x, c.z) < 125 && c.y < 45); /* hidden behind the crater rim from inside the hub basin. Chapter-1 budget: far crystal fields are invisible specks from the hub */ { const away = Math.hypot(c.x, c.z) > 280 && c.y < 70; for (const o of (cullFarRegions.hub ??= (() => { const l = []; const hubName = /^(ch2_base|ch2_airlock|game_depot|tracks|crystals|merged_hull_misc)$/; scene.traverse(o => { if (o.isMesh && ((o.name === 'merged_hull' && o.parent === scene) || /^terrain_i\d/.test(o.name) || hubName.test(o.name))) l.push(o); }); return l; })())) o.visible = !away; } /* hub hull, inner terrain, and the hub-only props are specks from a zone: they were still full draws */ { const pm3 = (cullFarRegions.pm3 ??= scene.getObjectByName('terrain_patch3')); if (pm3) { const on3 = Math.hypot(c.x - PATCH3.x, c.z - PATCH3.z) < 360 && c.y < 260; pm3.visible = on3; PATCH3.on.value = on3 ? 1 : 0; } } const inHub = Math.hypot(c.x, c.z) < 125 && c.y < 45; for (const [o, ctr] of farRegion) o.visible = ctr.distanceTo(c) < (inHub ? 380 : 520); /* outside the basin, other zones are specks; drawing them from the pad broke the call cap */ { const pm2 = (cullFarRegions.pm2 ??= scene.getObjectByName('terrain_patch2')); if (pm2) { const on2 = Math.hypot(c.x - PATCH2.x, c.z - PATCH2.z) < 340 && c.y < 260; pm2.visible = on2; PATCH2.on.value = on2 ? 1 : 0; } } { const pm = (cullFarRegions.pm ??= scene.getObjectByName('terrain_patch')); if (pm) { const on = Math.hypot(c.x - PATCH.x, c.z - PATCH.z) < 330 && c.y < 200; pm.visible = on; PATCH.on.value = on ? 1 : 0; for (const o of (cullFarRegions.rl ??= scene.children.filter(o => /_reactor(Near|Far)$/.test(o.name)))) o.visible = /Near$/.test(o.name) ? on : !on && !(Math.hypot(c.x, c.z) < 125 && c.y < 45); } for (const [o, R] of (cullFarRegions.nl ??= scene.children.filter(o => /_(launch|canyon|echo)Near$/.test(o.name)).map(o => [o, REGIONS[o.name.match(/_(launch|canyon|echo)Near$/)[1]]]))) o.visible = Math.hypot(c.x - R.x, c.z - R.z) < 340 && c.y < 260; /* region near-detail LOD */ } /* reactor high-res patch only up close; base terrain fills the hole otherwise */ { const farRidgeMesh = (cullFarRegions.fr ??= scene.getObjectByName('farRidge')); if (farRidgeMesh) farRidgeMesh.visible = !LOW && Math.hypot(c.x, c.z) < 140 && c.y < 60; } }; // far ridge is a backdrop layer for in-hub views only (no ring band from world/aerial)
 const culler = new InstanceCuller();
 const rocks = buildRocks(scene, culler, LOW ? 0.6 : MOBILE ? 0.8 : 1);
 const crystals = buildCrystals(scene, env, LOW);
@@ -131,11 +134,11 @@ const solids = (() => { const meshes = []; scene.traverse(o => { if (!o.isMesh |
   const toPortal = []; for (let i = 0; i <= 20; i++) { const t = i / 20; toPortal.push(sd(22 + t * 9, 18 + t * 13 + Math.sin(t * 3) * 2)); }
   const side = []; for (let i = 0; i <= 36; i++) { const t = i / 36; side.push(sd(8 - t * 4.5 + Math.sin(t * 2.6) * 1.6, -42 + t * 30)); } /* pass 26: second rover trail curving into the base (concept foreground) */
   buildTracks(scene, [pts, loop, spur, toPortal, side]); }
-const sky = buildSky(sunDir, earthDir, LOW); scene.add(sky.group); sky.starMat.uniforms.uPR.value = PR;
+const sky = buildSky(sunDir, earthDir, LOW || MOBILE); scene.add(sky.group); sky.starMat.uniforms.uPR.value = PR;
 const space = buildSpace(scene, mats.hull, MOBILE || LOW);
 
 // ---------- cat ----------
-const ctrl = new Controller(camera, renderer.domElement, colliders); ctrl.solids = solids;
+const ctrl = new Controller(camera, renderer.domElement, colliders); ctrl.solids = solids; ctrl.scene = scene;
 const catRoot = new THREE.Group(); scene.add(catRoot);
 let mixer = null, actions = {}, current = null, headBone = null, headYaw = 0;
 const _hq = new THREE.Quaternion(), _hp = new THREE.Quaternion(), _hr = new THREE.Quaternion(), _up = new THREE.Vector3(0, 1, 0), _hw = new THREE.Vector3();
@@ -208,7 +211,7 @@ const VIEWS = {
   launch2: () => { lookTarget = null; const L = REGIONS.launch; const c = { x: L.x + Math.cos(4.2) * 84, z: L.z + Math.sin(4.2) * 84 }; ctrl.place(c.x, c.z, Math.atan2(L.x - c.x, L.z - c.z)); const ca = 275 * Math.PI / 180; const px = L.x + Math.cos(ca) * 98, pz = L.z + Math.sin(ca) * 98; camera.position.set(px, groundAt(px, pz) + 12, pz); camera.lookAt(L.x, groundAt(L.x, L.z) + 15, L.z); camera.fov = 55; ctrl.camFree = false; },
   echo2: () => { lookTarget = null; const E = REGIONS.echo; const a0 = 292 * Math.PI / 180; const px = E.x + Math.cos(a0) * 30, pz = E.z + Math.sin(a0) * 30; const la = 290 * Math.PI / 180; const lx = E.x + Math.cos(la) * 100, lz = E.z + Math.sin(la) * 100; ctrl.place(px + 3, pz + 2, Math.atan2(lx - px, lz - pz)); camera.position.set(px, groundAt(px, pz) + 7, pz); camera.lookAt(lx, groundAt(lx, lz) + 3, lz); camera.fov = 60; ctrl.camFree = false; },
   echo: () => { lookTarget = null; const E = REGIONS.echo; const ca = -52 * Math.PI / 180, cb = -44 * Math.PI / 180; const cx = E.x + Math.cos(cb) * 64, cz = E.z + Math.sin(cb) * 64; ctrl.place(cx, cz, Math.atan2(E.x - cx, E.z - cz)); const px = E.x + Math.cos(ca) * 88, pz = E.z + Math.sin(ca) * 88; camera.position.set(px, groundAt(px, pz) + 11, pz); camera.lookAt(E.x + 8, groundAt(E.x, E.z) + 9, E.z + 4); camera.fov = 50; ctrl.camFree = false; }, /* pass 22: composed relay-station shot */
-  play: () => { lookTarget = null; const c = PLAY_START; ctrl.place(c.x, c.z, Math.atan2(F.x, F.z) + 0.25); ctrl.camYaw = Math.atan2(-F.x, -F.z) - 0.30; ctrl.camPitch = 0.15; ctrl.camDist = 7; ctrl.camFree = true; camera.fov = 55; },
+  play: () => { lookTarget = null; const c = PLAY_START; ctrl.place(c.x, c.z, Math.atan2(F.x, F.z) + 0.25); ctrl.camYaw = Math.atan2(-F.x, -F.z) - 0.30; ctrl.camPitch = 0; ctrl.camDist = 5.2; ctrl.camLift = 1.6; ctrl.camFree = true; camera.fov = MOBILE ? 54 : 50; }, /* 5.2 m boom, look lifted 1.6 m so the dome leaves a sky band. Phone lens stays a little wider. */
   aerial: () => { lookTarget = null; const c = sd(-2, -57); ctrl.place(c.x, c.z, Math.atan2(F.x, F.z)); const p = sd(-70, -125); camera.position.set(p.x, 75, p.z); const t = sd(8, 25); camera.lookAt(t.x, -6, t.z); camera.fov = 50; ctrl.camFree = false; },
   world: () => { lookTarget = null; const c = sd(-2, -57); ctrl.place(c.x, c.z, Math.atan2(F.x, F.z)); camera.position.set(-260, 520, 820); camera.lookAt(40, 0, -60); camera.fov = 55; ctrl.camFree = false; },
   cave: () => { lookTarget = null; const c = sd(24, 20); ctrl.place(c.x, c.z, Math.atan2(F.x, F.z)); const p = sd(18, 14); camera.position.set(p.x, groundAt(p.x, p.z) + 7, p.z); const cv = hub.cave; camera.lookAt(cv.x, cv.y + 4, cv.z); camera.fov = 55; ctrl.camFree = false; },
@@ -219,7 +222,7 @@ const VIEWS = {
 // ---------- post ----------
 const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType }));
 composer.addPass(new RenderPass(scene, camera));
-let bloom = null; if (BLOOM) { bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.52, 0.36, 2.0); composer.addPass(bloom); { const hm = bloom.materialHighPassFilter; hm.fragmentShader = hm.fragmentShader.replace('vec4 texel = texture2D( tDiffuse, vUv );', 'vec4 texel = texture2D( tDiffuse, vUv ); if ( !all( lessThan( abs( texel ), vec4( 6.0e4 ) ) ) ) texel = vec4( 0.0 );'); hm.needsUpdate = true; } if (MOBILE) { bloom.nMips = 3; const T = bloom.compositeMaterial.uniforms.bloomTintColors.value; T[3].set(0, 0, 0); T[4].set(0, 0, 0); bloom.compositeMaterial.uniforms.bloomFactors.value = [1.0, 0.9, 0.85, 0, 0]; } } // phones: 3 bloom mips (4 fewer blur passes)
+let bloom = null; if (BLOOM) { bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.06, 0.04, 6.2); composer.addPass(bloom); { const hm = bloom.materialHighPassFilter; hm.fragmentShader = hm.fragmentShader.replace('vec4 texel = texture2D( tDiffuse, vUv );', 'vec4 texel = texture2D( tDiffuse, vUv ); if ( !all( lessThan( abs( texel ), vec4( 6.0e4 ) ) ) ) texel = vec4( 0.0 );'); hm.needsUpdate = true; } if (MOBILE) { bloom.nMips = 3; const T = bloom.compositeMaterial.uniforms.bloomTintColors.value; T[3].set(0, 0, 0); T[4].set(0, 0, 0); bloom.compositeMaterial.uniforms.bloomFactors.value = [1.0, 0.9, 0.85, 0, 0]; } } // phones: 3 bloom mips (4 fewer blur passes)
 composer.addPass(new OutputPass());
 const grade = new ShaderPass({ uniforms: { tDiffuse: { value: null }, uVig: { value: 0.3 } }, vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
   fragmentShader: `uniform sampler2D tDiffuse; uniform float uVig; varying vec2 vUv;
@@ -234,7 +237,13 @@ const grade = new ShaderPass({ uniforms: { tDiffuse: { value: null }, uVig: { va
       gl_FragColor = vec4(c, t.a); }` });
 composer.addPass(grade);
 const fxaa = new ShaderPass(FXAAShader); composer.addPass(fxaa);
-function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h); composer.setPixelRatio(PR); composer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); fxaa.material.uniforms.resolution.value.set(1 / (w * PR), 1 / (h * PR)); }
+function placeEarth() {
+  const portrait = camera.aspect < 1;
+  // Wide stand: full disc inside the frame with margin, upper-right of centre, bottom near the ridge, ~28% of width.
+  // Portrait: same camera, disc nearer centre-top, ~45% of the narrow width, top still inside.
+  sky.setEarthPose(earthAim(portrait ? 0.0 : 0.22, portrait ? 0.23 : 0.11), portrait ? 440 : 800);
+}
+function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h); composer.setPixelRatio(PR); composer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); fxaa.material.uniforms.resolution.value.set(1 / (w * PR), 1 / (h * PR)); placeEarth(); }
 addEventListener('resize', resize); resize();
 
 // ---------- HUD ----------
@@ -252,7 +261,7 @@ const POW = { level: 1, red: 0, flick: 1 };
 const setPower = (lv, red = 0) => { POW.level = lv; POW.red = red; };
 const applyPower = (t) => { const fl = POW.level < 1 ? (Math.random() < 0.06 ? 0.25 : 1) * (0.85 + 0.15 * Math.sin(t * 23)) : 1; const red = POW.level < 1 ? POW.red : 0; const k = POW.level >= 1 ? 1 : (red ? 0.05 + 0.2 * Math.pow(Math.abs(Math.sin(t * 2.2)), 6) : (0.03 + 0.82 * POW.level) * fl); /* power out: windows dark, slow red emergency pulse */
   for (const m of [mats.hull, mats.lattice]) { m.emissive.setRGB(1, 1 - 0.8 * red, 1 - 0.85 * red); m.emissiveIntensity = EMISSIVE_INTENSITY * k * (red ? 2.2 : 1); } LAMPK.value = red ? 0.02 : k; mats.beam.uniforms.uPow.value = k;
-  coreLight.color.setRGB(1, 0.6 - 0.45 * POW.red, 0.25 - 0.2 * POW.red); coreLight.intensity = (55 + Math.sin(t * 2.3) * 8) * (POW.level >= 1 ? 1 : (0.35 + 0.65 * POW.level) * (POW.red ? 0.6 + 0.4 * Math.abs(Math.sin(t * 5.5)) : 1)); };
+  coreLight.color.setRGB(1, 0.6 - 0.45 * POW.red, 0.25 - 0.2 * POW.red); coreLight.intensity = (36 + Math.sin(t * 2.3) * 4) * (POW.level >= 1 ? 1 : (0.35 + 0.65 * POW.level) * (POW.red ? 0.6 + 0.4 * Math.abs(Math.sin(t * 5.5)) : 1)); };
 // night (Chapter 2 finale): dims the sun-side lights toward a blue night; base emissives stay on so the base glows
 const NIGHT0 = { sun: sun.intensity, hemi: hemi.intensity, fill: fill.intensity, front: front.intensity, rim: rim.intensity, exp: renderer.toneMappingExposure, envI: null };
 const setNight = (k) => { k = Math.max(0, Math.min(1, k)); sun.intensity = NIGHT0.sun * (1 - 0.62 * k); hemi.intensity = NIGHT0.hemi * (1 - 0.5 * k); hemi.color.setRGB(0.70 - 0.25 * k, 0.71 - 0.18 * k, 0.74 + 0.0 * k); fill.intensity = NIGHT0.fill * (1 + 0.6 * k); front.intensity = NIGHT0.front * (1 - 0.9 * k); rim.intensity = NIGHT0.rim * (1 - 0.6 * k); renderer.toneMappingExposure = NIGHT0.exp * (1 - 0.08 * k); };
@@ -327,7 +336,7 @@ function frame(dt) {
   flame.visible = ctrl.thrusting; if (flame.visible) flame.scale.y = 0.8 + Math.random() * 0.5;
   crystals.update(t); mats.beam.uniforms.uTime.value = t; sky.starMat.uniforms.uTime.value = t; sky.earthMat.uniforms.uTime.value = t;
   sky.group.position.copy(camera.position);
-  cullFarRegions(); camera.updateMatrixWorld(); space.updateBelt(camera, Math.hypot(camera.position.x, camera.position.z) < 280 && camera.position.y < 70);
+  cullFarRegions(); camera.updateMatrixWorld(); space.updateBelt(camera, Math.hypot(camera.position.x, camera.position.z) > 320 || (Math.hypot(camera.position.x, camera.position.z) < 280 && camera.position.y < 70));
   space.group.rotation.y = t * 0.002; space.beltU.value = t;
   // shadow frustum follows the focus point
   const focus = window.__focus || (ctrl.camFree ? ctrl.pos : (VIEW === 'aerial' || VIEW === 'world' ? new THREE.Vector3(sd(0, 5).x, 0, sd(0, 5).z) : new THREE.Vector3(sd(0, -20).x, 0, sd(0, -20).z))); // __focus: QA hook (flicker test)
@@ -338,6 +347,7 @@ function frame(dt) {
   applyPower(t);
   fuelEl.style.width = (ctrl.fuel * 100).toFixed(0) + '%';
   culler.update(camera);
+  if (!frame._robLit && (frame._n = (frame._n || 0) + 1) > 6) { frame._robLit = 1; scene.traverse(o => { const ms = o.material ? [].concat(o.material) : []; for (const m of ms) { try { if (!m.customProgramCacheKey || m.userData._dim || m.customProgramCacheKey() !== 'mk_robot4') continue; const prev = m.onBeforeCompile; m.onBeforeCompile = (sh, ren) => { prev(sh, ren); sh.fragmentShader = sh.fragmentShader.replace('totalEmissiveRadiance += diffuseColor.rgb * vec3(1.12, 0.98, 0.78) * 0.26 * (1.0 - 0.65 * vMR.x);', 'float ivory = smoothstep(0.08, 0.28, dot(diffuseColor.rgb, vec3(0.3, 0.5, 0.2))); totalEmissiveRadiance += vec3(0.86, 0.76, 0.58) * 0.28 * ivory * (1.0 - 0.85 * vMR.x);'); }; m.envMapIntensity = 0.36; m.userData._dim = 1; m.needsUpdate = true; m.customProgramCacheKey = () => 'mk_robot4_dim'; } catch (e) { } } }); }
   composer.render(dt);
 }
 // paused (app hidden / Telegram deactivated): stop rendering entirely; resume resets the clock so dt does not jump

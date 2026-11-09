@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { G, quatFromDir } from './builder.js';
+import { G, GQ, quatFromDir } from './builder.js';
 import { groundAt, REGIONS, sd, canyonPoint, canyonS } from './terrain.js';
 import { C, rocket, dome } from './base.js';
 import { fbm } from './noise.js';
@@ -127,17 +127,17 @@ function reactorCrater(b, beams, bn, bf) { // pass 19: a real reactor complex on
   bn.add('glow', G.disc(11.9, 36), { pos: [x, y + 6.1, z], color: (px, py, pz) => { const t = Math.hypot(px - x, pz - z) / 12; return [1.9 - 0.6 * t, 0.62 - 0.3 * t, 0.06]; } }); /* amber, under the bloom threshold */
   for (const [ri, ro] of [[3.2, 3.9], [6.4, 7.0], [9.4, 10.0]]) { bn.add('dark', G.ring(ri, ro, 36), { pos: [x, y + 6.18, z], color: '#3a3430' }); bn.add('gold', G.torus(ro, 0.09, 3, 36), { pos: [x, y + 6.22, z], rot: [PI / 2, 0, 0], color: C.goldD }); }
   for (let i = 0; i < 8; i++) { const a = i / 8 * PI * 2; bn.add('dark', G.box(0.45, 0.22, 8.2), { pos: [x + Math.cos(a) * 6.3, y + 6.2, z + Math.sin(a) * 6.3], rot: [0, -a + PI / 2, 0], color: '#3a3430' }); }
-  bn.add('gold', G.cyl(1.4, 1.9, 2.6, 16), { pos: [x, y + 6.1, z], color: C.goldD }); bn.add('glow', G.sphere(1.0, 12, 8), { pos: [x, y + 9.0, z], color: '#ffb24a', intensity: 2.6 }); /* central fuel column + hot cap */
+  bn.add('gold', G.cyl(1.4, 1.9, 2.6, 16), { pos: [x, y + 6.1, z], color: C.goldD }); bn.add('glow', G.sphere(1.0, 12, 8), { pos: [x, y + 9.0, z], color: '#ffb24a', intensity: 1.5 }); /* central fuel column + hot cap */
   // buttress fins between the tiers + deck lights
   for (let i = 0; i < 12; i++) { const a = i / 12 * PI * 2; bn.add('ivory', G.box(1.2, 3.6, 4.2), { pos: [x + Math.cos(a) * 18.6, y + 2.3, z + Math.sin(a) * 18.6], rot: [0, -a, 0], color: C.ivory });
     bn.add('glow', G.box(0.5, 0.25, 0.5), { pos: [x + Math.cos(a + 0.26) * 17.2, y + 4.9, z + Math.sin(a + 0.26) * 17.2], color: i % 2 ? C.winHot : C.win, intensity: 4 }); }
-  beams.push({ x, y: y + 6, z, r: 11, h: 90, color: '#ff8a30', I: 0.32 });
-  beams.push({ x, y: y + 6, z, r: 4.5, h: 170, color: '#ffb050', I: 0.38 });
+  beams.push({ x, y: y + 6, z, r: 3.2, h: 8, color: '#ff8a30', I: 0.08 });
+  beams.push({ x, y: y + 6, z, r: 1.4, h: 12, color: '#ffb050', I: 0.1 });
   // cooling towers ringing the core (tapered ivory stacks, gold bands, glowing crowns)
   for (let i = 0; i < 6; i++) { const a = i / 6 * PI * 2 + 0.3; const px = x + Math.cos(a) * 33, pz = z + Math.sin(a) * 33; const yy = groundAt(px, pz) - 0.3;
     bn.add('ivory', G.cyl(3.0, 4.2, 8, 20), { pos: [px, yy, pz], color: C.ivory, ao: [yy, yy + 10] }); bn.add('ivory', G.cyl(3.5, 3.0, 6, 20, true), { pos: [px, yy + 8, pz], color: C.ivory2 }); bn.add('dark', G.cyl(3.3, 2.8, 5.9, 20, true), { pos: [px, yy + 8.05, pz], flip: true, color: '#2a2e36' });
     for (const hb of [3, 8, 13.6]) bn.add('gold', G.torus(hb < 8 ? 3.95 - hb * 0.12 : hb < 13 ? 3.05 : 3.52, 0.18, 3, 20), { pos: [px, yy + hb, pz], rot: [PI / 2, 0, 0], color: C.gold });
-    bn.add('glow', G.ring(2.9, 3.4, 20), { pos: [px, yy + 14.05, pz], color: C.winHot, intensity: 3 }); bn.add('dark', G.disc(3.3, 20), { pos: [px, yy + 13.9, pz], color: '#1c2028' }); /* hollow-looking crown */
+    bn.add('glow', G.ring(2.9, 3.4, 20), { pos: [px, yy + 14.05, pz], color: C.winHot, intensity: 1.4 }); bn.add('dark', G.disc(3.3, 20), { pos: [px, yy + 13.9, pz], color: '#1c2028' }); /* hollow-looking crown */
     bn.add('dark', G.box(1.4, 2.2, 0.2), { pos: [px + Math.cos(a + PI) * 4.05, yy + 1.1, pz + Math.sin(a + PI) * 4.05], rot: [0, -a + PI / 2, 0], color: '#2a3442' }); }
   // service road down the crater wall toward the hub (dark strip with gold edge lights) — leading line for the region shot
   { const ah = Math.atan2(-z, -x); const P = []; for (let k = 0; k <= 30; k++) { const t = k / 30; const rr = 120 - t * 96; const a = ah + Math.sin(t * PI * 1.5) * 0.28; P.push({ x: x + Math.cos(a) * rr, z: z + Math.sin(a) * rr }); }
@@ -187,14 +187,13 @@ function canyon(b, beams, bn) { // pass 21: winding canyon floor - beacons follo
 function echo(b, beams, bn) {
   const { x, z } = REGIONS.echo; const y = groundAt(x, z);
   b.add('dark', G.cyl(16, 17, 1, 32), { pos: [x, y - 0.4, z], color: '#2c3644' });
-  b.add('glow', G.ring(9, 10, 40), { pos: [x, y + 0.65, z], color: C.cyan, intensity: 3 });
-  beams.push({ x, y: y + 0.6, z, r: 4, h: 26, color: '#40e0e0', I: 0.35 });
+  b.add('glow', G.ring(9, 10, 40), { pos: [x, y + 0.65, z], color: C.win, intensity: 1.6 });
+  // no volumetric column: the pylon lamps are the lights, and a beam cylinder reads as a blade
   for (let i = 0; i < 9; i++) {
     const a = i / 9 * PI * 2; const rr = i % 2 ? 34 : 24; const px = x + Math.cos(a) * rr, pz = z + Math.sin(a) * rr; const yy = groundAt(px, pz); const h = 16 + (i % 3) * 7;
     b.add('ivory', G.cyl(0.6, 1.4, h, 8), { pos: [px, yy, pz], color: C.ivory });
     b.add('gold', G.torus(1.2, 0.18, 4, 10), { pos: [px, yy + h * 0.3, pz], rot: [PI / 2, 0, 0], color: C.gold });
-    b.add('glow', G.octa(1.1), { pos: [px, yy + h + 1.2, pz], scale: [1, 1.6, 1], color: C.cyan, intensity: 5 });
-    beams.push({ x: px, y: yy + h, z: pz, r: 0.6, h: 10 + (i % 3) * 4, color: '#50e0e8', I: 0.4 });
+    b.add('glow', G.octa(0.45), { pos: [px, yy + h + 0.8, pz], scale: [1, 1.2, 1], color: '#fff1d0', intensity: 1.6 });
     KEEP.push({ x: px, z: pz, r: 4 });
     // pass 20: cable runs between neighbouring pylons (sagging, 3 segments) + base plinth with lights
     { const a2 = (i + 1) / 9 * PI * 2, rr2 = (i + 1) % 2 ? 34 : 24, qx = x + Math.cos(a2) * rr2, qz = z + Math.sin(a2) * rr2, qy = groundAt(qx, qz) + 16 + ((i + 1) % 3) * 7; const p0 = new THREE.Vector3(px, yy + h * 0.85, pz), p1 = new THREE.Vector3(qx, qy * 0 + (qy - 16 - ((i + 1) % 3) * 7) + (16 + ((i + 1) % 3) * 7) * 0.85, qz);
@@ -202,7 +201,7 @@ function echo(b, beams, bn) {
     bn.add('dark', G.cyl(2.2, 2.6, 0.8, 8), { pos: [px, yy - 0.3, pz], color: '#2e3540' }); bn.add('glow', G.box(0.3, 0.3, 0.3), { pos: [px + 2.3, yy + 0.6, pz], color: C.cyan, intensity: 4 });
   }
   // relay hut + small dish array beside the field
-  { const hx = x + 46, hz = z + 10, hy = groundAt(hx, hz); KEEP.push({ x: hx, z: hz, r: 12 }); bn.add('tex', G.box(12, 4.5, 8), { region: 'panel', pos: [hx, hy + 2.0, hz], color: '#ffffff' }); bn.add('glow', G.box(10, 0.9, 8.1), { pos: [hx, hy + 3.0, hz], color: C.cyan, intensity: 2.2 }); bn.add('gold', G.box(12.4, 0.4, 8.4), { pos: [hx, hy + 4.45, hz], color: C.gold });
+  { const hx = x + 46, hz = z + 10, hy = groundAt(hx, hz); KEEP.push({ x: hx, z: hz, r: 12 }); bn.add('tex', G.box(12, 4.5, 8), { region: 'panel', pos: [hx, hy + 2.0, hz], color: '#ffffff' }); bn.add('glow', G.box(10, 0.9, 8.1), { pos: [hx, hy + 3.0, hz], color: C.win, intensity: 2.2 }); bn.add('gold', G.box(12.4, 0.4, 8.4), { pos: [hx, hy + 4.45, hz], color: C.gold });
     for (let k = 0; k < 3; k++) { const dx = hx - 10 + k * 7, dz = hz + 12, dy = groundAt(dx, dz); KEEP.push({ x: dx, z: dz, r: 4 }); bn.add('ivory', G.cyl(0.25, 0.35, 3.5, 8), { pos: [dx, dy, dz], color: C.ivory2 }); bn.add('ivory', G.cap(2.2, 14, 4, 0.9).rotateX(-0.8), { pos: [dx, dy + 3.8, dz], rot: [0, 0.6, 0], color: C.ivory }); bn.add('gold', G.cyl(0.05, 0.05, 1.6, 4).rotateX(-0.8), { pos: [dx, dy + 3.9, dz], rot: [0, 0.6, 0], color: C.gold }); } }
   // pass 24: cable trenches radiating to small antenna arrays, a parked rover by the relay hut
   for (const ad of [100, 200, 262, 325]) { const a = ad * PI / 180; const P = []; for (let k = 0; k <= 8; k++) { const rr = 38 + k * 8.5; P.push({ x: x + Math.cos(a) * rr, z: z + Math.sin(a) * rr }); } /* pass 25: dead-straight runs */
@@ -215,21 +214,44 @@ function echo(b, beams, bn) {
   { const rx = x + 22, rz = z - 47; KEEP.push({ x: rx, z: rz, r: 6 }); rover(bn, rx, rz, 2.4); }
 }
 
-function rover(b, x, z, yaw) { // 6-wheel retro rover: rounded ivory cab with glowing windscreen, gold trim, rear cargo deck, antenna dish
-  const y = groundAt(x, z) + 0.55;
+// Shared crystal-hauler parts (concept d04ca995). Parked copies bake into the zone hull; the moving world-life hauler merges the same parts, so there is one vehicle.
+// wheelN 20 is the close desktop tyre (the flats drop out at this size). 8 is the far/phone silhouette. Body stays an 8-gon tube.
+export function haulerPieces(wheelN, bodyN = 8) {
+  const rich = wheelN >= 12, hubN = rich ? 10 : 6, bodyS = rich ? 12 : 8;
+  const tube = (r, len, n, axis) => { const g = new THREE.CylinderGeometry(r, r, len, n); if (axis === 'z') g.rotateX(PI / 2); else if (axis === 'x') g.rotateZ(PI / 2); return g; };
+  const P = []; const add = (group, geo, pos, color, intensity = 1, emit = 0) => P.push({ group, geo, pos, color, intensity, emit });
+  // Rounded hull and bed. Wheel stations stay at x=±1.14 so the 0.95 collider still covers the body.
+  const hull = tube(0.5, 2.45, bodyS, 'z'); hull.scale(1.55, 0.7, 1); add('ivory', hull, [0, 0.86, -0.08], '#f3ead8');
+  const belly = tube(0.42, 2.2, bodyS, 'z'); belly.scale(1.35, 0.45, 1); add('dark', belly, [0, 0.62, -0.08], '#2a2724');
+  const bed = tube(0.46, 1.85, bodyS, 'z'); bed.scale(1.35, 0.42, 1); add('ivory', bed, [0, 1.18, -0.05], '#f7f1e6');
+  for (const z of [0.55, -0.15, -0.7]) { const band = tube(0.52, 0.045, bodyS, 'z'); band.scale(1.58, 0.74, 1); add('gold', band, [0, 0.95, z], '#e2b04a'); }
+  const nose = new THREE.SphereGeometry(0.42, rich ? 10 : 7, rich ? 8 : 5); nose.scale(1.35, 0.7, 0.85); add('ivory', nose, [0, 0.9, 1.15], '#f4ecdc');
+  const tail = new THREE.SphereGeometry(0.38, rich ? 8 : 6, rich ? 6 : 5); tail.scale(1.25, 0.65, 0.7); add('ivory', tail, [0, 0.88, -1.25], '#e7decc');
+  if (rich) { const panel = new THREE.BoxGeometry(0.04, 0.22, 0.7); add('gold', panel, [0.78, 1.02, -0.1], '#c9a24a'); add('gold', panel.clone(), [-0.78, 1.02, -0.1], '#c9a24a'); }
+  const cry = rich
+    ? [[-0.42, 0.15, 0.28, '#2ee0ff'], [0.4, -0.05, 0.3, '#1a78ff'], [0, 0.05, 0.34, '#47e6ff'], [-0.15, -0.35, 0.26, '#2ec8ff'], [0.22, 0.32, 0.24, '#1568ee'], [-0.38, -0.22, 0.22, '#3ad4ff'], [0.36, 0.28, 0.22, '#1a78ff'], [0.05, -0.15, 0.3, '#2ee0ff']]
+    : [[-0.35, 0.1, 0.26, '#2ee0ff'], [0.32, -0.08, 0.28, '#1a78ff'], [0, 0.05, 0.32, '#47e6ff'], [0.1, -0.3, 0.22, '#2ec8ff']];
+  for (const [cx, cz, s, hex] of cry) { const g = new THREE.OctahedronGeometry(s, 0); g.scale(0.95, 1.5, 0.9); g.rotateY(cx * 4 + cz); g.rotateZ(0.4); add('glow', g, [cx, 1.72, cz], hex, 1.25, 0.45); }
+  for (const dz of [-1.16, 0, 1.16]) for (const dx of [-1.14, 1.14]) {
+    add('dark', tube(0.46, 0.36, wheelN, 'x'), [dx, 0.46, dz], '#161412');
+    add('dark', tube(0.5, 0.06, wheelN, 'x'), [dx, 0.46, dz], '#0c0b0a');
+    if (rich) add('dark', tube(0.49, 0.05, wheelN, 'x'), [dx + (dx > 0 ? 0.08 : -0.08), 0.46, dz], '#0c0b0a');
+    add('gold', tube(0.2, 0.24, hubN, 'x'), [dx, 0.46, dz], '#e2b04a');
+    add('dark', tube(0.07, 0.26, 6, 'x'), [dx, 0.46, dz], '#1a1612');
+  }
+  for (const s of [-1, 1]) {
+    add('gold', tube(0.12, 0.08, 8, 'z'), [s * 0.38, 0.78, 1.35], '#c9a24a');
+    add('glow', tube(0.08, 0.06, 8, 'z'), [s * 0.38, 0.78, 1.4], '#ffe7a4', 2.2, 1.4);
+  }
+  return P;
+}
+
+function rover(b, x, z, yaw) { // parked copy of haulerPieces, merged into the zone hull — no extra draw
+  const y = groundAt(x, z);
   const off = (dx, dy, dz) => [x + Math.cos(yaw) * dx + Math.sin(yaw) * dz, y + dy, z - Math.sin(yaw) * dx + Math.cos(yaw) * dz];
   const R = [0, yaw, 0];
-  b.add('dark', G.box(2.3, 0.35, 4.4), { pos: off(0, 0.35, 0), rot: R, color: '#4a505a' }); // chassis
-  b.add('gold', G.box(2.42, 0.12, 4.5), { pos: off(0, 0.55, 0), rot: R, color: C.gold }); // trim line
-  b.add('ivory', G.box(2.2, 0.55, 2.0), { pos: off(0, 0.85, -1.15), rot: R, color: C.ivory2 }); // cargo deck
-  b.add('gold', G.box(2.24, 0.06, 2.04), { pos: off(0, 1.14, -1.15), rot: R, color: C.goldD });
-  b.add('dark', G.box(1.7, 0.06, 1.5), { pos: off(0, 1.2, -1.2), rot: [-0.08, yaw, 0], color: '#1b3c5a' }); // solar deck
-  b.add('ivory', new THREE.CylinderGeometry(1, 1, 2.3, 12, 1, false, -PI / 2, PI).rotateX(-PI / 2), { pos: off(0, 0.6, 1.05), rot: R, scale: [1.1, 0.85, 1], color: C.ivory }); // rounded cab (half cylinder, closed by end plates)
-  b.add('ivory', new THREE.CircleGeometry(1, 12, 0, PI), { pos: off(0, 0.6, -0.1), rot: [0, yaw + PI, 0], scale: [1.1, 0.85, 1], color: C.ivory2 });
-  b.add('dark', new THREE.CircleGeometry(1, 12, 0, PI), { pos: off(0, 0.6, 2.2), rot: R, scale: [1.1, 0.85, 1], color: '#2a3442' }); b.add('glow', new THREE.CircleGeometry(0.85, 12, 0.25, PI - 0.5), { pos: off(0, 0.62, 2.21), rot: R, scale: [1.1, 0.8, 1], color: C.win, intensity: 2.2 }); b.add('gold', G.torus(1.0, 0.06, 3, 12, PI), { pos: off(0, 0.6, 2.22), rot: R, scale: [1.1, 0.85, 1], color: C.gold }); // front: dark bezel, glowing windscreen, gold arch
-  for (const sx of [-1, 1]) { b.add('gold', G.box(0.08, 0.1, 2.3), { pos: off(sx * 1.12, 0.7, 1.05), rot: R, color: C.gold }); b.add('glow', G.box(0.22, 0.14, 0.06), { pos: off(sx * 0.75, 0.62, 2.58), rot: R, color: C.gold2, intensity: 4 }); }
-  for (const dz of [-1.5, 0, 1.5]) for (const dx of [-1.32, 1.32]) { b.add('dark', G.cyl(0.52, 0.52, 0.42, 12).rotateZ(PI / 2), { pos: off(dx, 0.0, dz), rot: R, color: '#3a3f48' }); b.add('gold', G.cyl(0.24, 0.24, 0.46, 8).rotateZ(PI / 2), { pos: off(dx, 0.0, dz), rot: R, color: C.gold }); }
-  b.add('gold', G.cyl(0.04, 0.04, 1.4, 4), { pos: off(0.75, 1.9, -1.9), color: C.gold }); b.add('ivory', G.cap(0.4, 8, 2).rotateX(-0.9), { pos: off(0.75, 2.6, -1.9), rot: R, color: C.ivory }); b.add('glow', G.octa(0.07), { pos: off(0.75, 2.65, -1.75), color: C.gold2, intensity: 4 });
+  const seg = (n, min) => GQ.s === 1 ? n : Math.max(min, Math.round(n * GQ.s));
+  for (const p of haulerPieces(seg(20, 8), 8)) b.add(p.group, p.geo, { pos: off(p.pos[0], p.pos[1], p.pos[2]), rot: R, color: p.color, intensity: p.intensity });
 }
 
 // Glowing gold-lit roads from the hub toward each chapter region (as on the world map)

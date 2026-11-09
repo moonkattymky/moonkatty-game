@@ -51,6 +51,7 @@ const CSS = `
 .c2-stub{opacity:.55;font-size:11px;padding:6px 9px;border:1px dashed rgba(247,242,231,.3);border-radius:11px;margin-top:5px}
 #mk-crewbtn{display:none;border:1px solid rgba(103,215,240,.7);background:rgba(16,32,58,.8);color:#a8f0ff;font-weight:800;font-size:12px;border-radius:18px;padding:8px 10px;margin-left:4px;white-space:nowrap}
 #mk-crewbtn.ask{border-color:#ff9a5a;color:#ffcf9a;box-shadow:0 0 10px rgba(255,140,80,.5)}
+@media (max-width:520px){#mk-crewbtn{height:26px;padding:0 6px;margin-left:2px;font-size:11px;letter-spacing:0}}
 `;
 
 export function createChapter2(ctx) {
@@ -118,13 +119,14 @@ export function createChapter2(ctx) {
     try { home.snapshot(ctx.renderer, scene, { base: shieldC }); } catch (e) { } home.enterPrep(); realSolids = ctrl.solids; ctrl.solids = home.solids(realSolids); home.group.visible = true; camera.layers.set(home.LAYER); ctx.renderer.shadowMap.autoUpdate = false; if (ctx.catRoot) ctx.catRoot.traverse(o => o.layers.enable(home.LAYER));
     outCam = { d: ctrl.camDist, p: ctrl.camPitch }; const asp = camera.aspect || 1.7, E = asp < 1 ? home.entry.portrait : home.entry, di = hw(E.cat); ctrl.place(di.x, di.z, E.yaw, false); ctrl.camYaw = E.camYaw; ctrl.camDist = E.camDist; ctrl.camPitch = E.camPitch; outCam.fov = camera.fov; camera.fov = E.fov; camera.updateProjectionMatrix(); ctrl.camShift = E.fixedShift ? E.shift : E.shift * Math.min(1, asp / 1.6); ctrl.camLift = E.lift || 0; entryAt = { x: di.x, z: di.z }; try { if (window.MK && MK.setCatStride) MK.setCatStride({ ph: E.stride ?? 0.25, t: 8 }); } catch (e) { } inside = true; home.setOpen(false); await wait(0.1); ctx.fade(false); homeBusy = false; track('home'); rerender(); }
   async function exitHome() { if (homeBusy || !inside) return; homeBusy = true; ctx.fade(true); await wait(FAST ? 0.1 : 0.35); camera.layers.set(0); ctx.renderer.shadowMap.autoUpdate = true; ctx.renderer.shadowMap.needsUpdate = true; ctrl.solids = realSolids; home.group.visible = false; inside = false; ctrl.camShift = 0; ctrl.camLift = 0; _hiS = _hiTS = 0; _hiZ = _hiTZ = 1; try { camera.zoom = 1; camera.clearViewOffset(); camera.updateProjectionMatrix(); } catch (e) { } try { if (window.MK && MK.setCatStride) MK.setCatStride(null); } catch (e) { } if (outCam && outCam.fov) { camera.fov = outCam.fov; camera.updateProjectionMatrix(); } home.setOpen(true);
-    const o = home.outside; ctrl.place(o.x, o.z, homeDoor.yaw, true); if (outCam) { ctrl.camDist = outCam.d; ctrl.camPitch = outCam.p; } await wait(0.1); ctx.fade(false); await wait(FAST ? 0.2 : 0.8); home.setOpen(false); homeBusy = false; rerender(); }
+    const o = home.outside; ctrl.place(o.x, o.z, homeDoor.yaw, true); if (outCam) { ctrl.camDist = outCam.d; ctrl.camPitch = outCam.p; } ctrl.camLift = 1.6; await wait(0.1); ctx.fade(false); await wait(FAST ? 0.2 : 0.8); home.setOpen(false); homeBusy = false; rerender(); }
   // ---------- v73 Moon Bunny: tame (after the home quest), take along (follows the cat, sniffs out hidden caches, cheers at finds)
   // or leave home (sleeps in the pet house, finds a little while the player is away: <=3 finds per day, Moon Points through the
   // regular rewards path 'bunny:<n>' -> server daily slots + daily cap) ----------
   const CR = ctx.creatures, PB = () => store.data.pets.bunny; const FIND_MS = FAST ? 2000 : 2 * 3600e3, FIND_MAX = 3, FIND_PTS = 4, FIND_CRY = 2;
   const bun = { x: 0, y: 0, z: 0, yaw: 0, hop: 0, happy: 0, init: false, sniff: null, sniffT: 0, seen: new Set(), was: '' };
   const petHappy = () => { if (CR && PB().tamed) bun.happy = 1.6; };
+  // Bunny stays 3 m to the side of the exit. The exit itself moved from 2.2 m to 4.0 m, so the bunny moved with it and is still clear of the door and of the cat's spawn.
   const wildAt = () => { const o = home.outside, a = homeDoor.yaw + Math.PI / 2; return { x: o.x + Math.sin(a) * 3.0, z: o.z + Math.cos(a) * 3.0 }; };
   const wildOn = () => FEAT.home && S().done.includes('c2_home');
   async function petAway() { const P = PB(), now_ = now(); if (!CR || !P.tamed || P.along || !P.t) { P.t = now_; return; } const today = store.today(); if (P.day !== today) { P.day = today; P.n = 0; }
