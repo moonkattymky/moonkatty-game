@@ -59,7 +59,7 @@ const earthAim = (az, el) => view.clone().multiplyScalar(Math.cos(el) * Math.cos
 const earthDir = earthAim(0.26, 0.10); // desktop first frame; resize() retargets per aspect
 const hemi = new THREE.HemisphereLight('#b3b6bc', '#4a4a4d', 0.6); scene.add(hemi);
 const sun = new THREE.DirectionalLight('#fff1dc', 2.3); sun.castShadow = true;
-sun.shadow.mapSize.set(MOBILE ? 1024 : 2048, MOBILE ? 1024 : 2048); const sc = sun.shadow.camera; sc.left = -70; sc.right = 70; sc.top = 70; sc.bottom = -70; sc.near = 1; sc.far = 400; sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04;
+sun.shadow.mapSize.set(MOBILE ? 1024 : 2048, MOBILE ? 1024 : 2048); const sc = sun.shadow.camera; sc.left = -120; sc.right = 120; sc.top = 120; sc.bottom = -120; sc.near = 1; sc.far = 400; sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04; /* the ±70 box left a hard unshadowed cut across the reactor wall; the wider box keeps that slope inside the map so the shadow edge stays on the geometry */
 scene.add(sun, sun.target);
 const fill = new THREE.DirectionalLight('#8f9aab', 0.45); fill.position.copy(earthDir).multiplyScalar(100); scene.add(fill);
 const front = new THREE.DirectionalLight('#d6d3cc', 0.55); front.position.set(-F.x * 80 - Rt.x * 40, 60, -F.z * 80 - Rt.z * 40); scene.add(front);

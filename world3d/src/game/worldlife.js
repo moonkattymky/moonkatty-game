@@ -114,7 +114,7 @@ function makeAudio() {
 
 export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, depotP, fields, base, launch, crater, t, hud, low, mobile, ctrl, dish, makeCrew }) {
   const mat = vcMat(env); const root = new THREE.Group(); root.name = 'world_life'; scene.add(root);
-  const parts = makeParticles(scene, low ? 140 : mobile ? 340 : 520); const bb = makeBillboards(scene, 12); if (low) { parts.pts.visible = false; parts.emit = () => { }; parts.emitR = () => { }; } /* ?q=low: no particle draw (call budget) */ const audio = makeAudio();
+  const parts = makeParticles(scene, low ? 140 : mobile ? 340 : 520); const bb = makeBillboards(scene, 16); if (low) { parts.pts.visible = false; parts.emit = () => { }; parts.emitR = () => { }; } /* ?q=low: no particle draw (call budget) */ const audio = makeAudio();
   // sky ships: 2 shuttles + 1 satellite, merged-geometry meshes moved along arcs high in the sky
   const shG = shuttleGeo(); const LITE = low || mobile; const VR = low ? 45 : mobile ? 75 : 120; // phone/low: fewer sky extras, shorter view range for ground vehicles
   const ships = (low ? [] : LITE ? [0] : [0, 1]).map(i => { const m = new THREE.Mesh(shG, mat); m.name = 'life_ship'; m.scale.setScalar(2.2); root.add(m); return { m, i, t: i === 0 ? 0.4 : 18 }; });
@@ -157,25 +157,29 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const IMP_D = low ? 6 : mobile ? 7 : 8; const NEAR = low ? 2.4 : mobile ? 2.6 : 2.2; /* v125: the lower boom sits closer to the plaza, so the hi band shrinks or the among-crew view exceeds 100k */ /* v51: life robots show hi only (no lo band) -> impostor beyond NEAR */ // same as the crew: far porters become impostors (one shared instanced draw)
   const pA = { x: D.x - ux * 3 + px * 2, z: D.z - uz * 3 + pz * 2 }, pB = { x: depotP.x + ux * 2.5 + px * 1.2, z: depotP.z + uz * 2.5 + pz * 1.2 };
   if (welder) { const gx = welder.x, gz = welder.z; welder.y = groundAt(gx, gz); }
-  // One impostor pair per zone, plus steam. Hi meshes stay off so a zone visit does not add draws. Same crew types as the hub.
+  // Fixed world worksites. Positions do not depend on the camera. Near: the real crew mesh (its own hi/lo). Far: the shared impostor.
   const zones = [];
   const s0c = canyonS(REGIONS.canyon.x, REGIONS.canyon.z);
-  const camp = canyonPoint(s0c - 40, 1.6);
+  const camp = canyonPoint(s0c - 36, 2.4), camp2 = canyonPoint(s0c - 30, -2.6);
   const Lc = REGIONS.launch, Rc = REGIONS.reactor, Ec = REGIONS.echo, ah = Math.atan2(-Rc.z, -Rc.x);
-  const step = (ax, az, bx, bz, dist, side) => { const dx = bx - ax, dz = bz - az, L = Math.hypot(dx, dz) || 1, ux = dx / L, uz = dz / L; return { x: ax + ux * dist - uz * side, z: az + uz * dist + ux * side }; };
-  const cCat = canyonPoint(s0c - 72, 0), cLook = canyonPoint(s0c - 18, 0);
-  const lCat = { x: Lc.x - 24, z: Lc.z + 16 }, rCat = { x: Rc.x + Math.cos(ah) * 48, z: Rc.z + Math.sin(ah) * 48 }, eCat = { x: Ec.x + 28, z: Ec.z - 18 };
-  const c1 = step(cCat.x, cCat.z, cLook.x, cLook.z, 9, 2.2), c2 = step(cCat.x, cCat.z, cLook.x, cLook.z, 13, -1.8);
-  const l1 = step(lCat.x, lCat.z, Lc.x, Lc.z, 8, 2.4), l2 = step(lCat.x, lCat.z, Lc.x, Lc.z, 12, -2);
-  const r1 = step(rCat.x, rCat.z, Rc.x, Rc.z, 9, 2.2), r2 = step(rCat.x, rCat.z, Rc.x, Rc.z, 13, -2);
-  const e1 = step(eCat.x, eCat.z, Ec.x, Ec.z, 9, 2.4), e2 = step(eCat.x, eCat.z, Ec.x, Ec.z, 13, -1.6);
+  const face = (x, z, tx, tz) => Math.atan2(tx - x, tz - z);
   const spots = [
-    ['geologist', c1.x, c1.z, 'canyon'], ['builder', c2.x, c2.z, 'canyon'],
-    ['builder', l1.x, l1.z, 'launch'], ['engineer', l2.x, l2.z, 'launch'],
-    ['builder', r1.x, r1.z, 'reactor'], ['engineer', r2.x, r2.z, 'reactor'],
-    ['engineer', e1.x, e1.z, 'echo'], ['builder', e2.x, e2.z, 'echo'],
+    ['geologist', camp.x, camp.z, face(camp.x, camp.z, camp2.x, camp2.z), 'canyon'],
+    ['builder', camp2.x, camp2.z, face(camp2.x, camp2.z, camp.x, camp.z), 'canyon'],
+    ['builder', Lc.x + 18, Lc.z + 12, face(Lc.x + 18, Lc.z + 12, Lc.x, Lc.z), 'launch'],
+    ['engineer', Lc.x + 14, Lc.z - 16, face(Lc.x + 14, Lc.z - 16, Lc.x, Lc.z), 'launch'],
+    ['builder', Rc.x + Math.cos(ah) * 22, Rc.z + Math.sin(ah) * 22, face(Rc.x + Math.cos(ah) * 22, Rc.z + Math.sin(ah) * 22, Rc.x, Rc.z), 'reactor'],
+    ['engineer', Rc.x + Math.cos(ah + 0.4) * 18, Rc.z + Math.sin(ah + 0.4) * 18, ah + Math.PI, 'reactor'],
+    ['engineer', Ec.x + 11, Ec.z - 5, face(Ec.x + 11, Ec.z - 5, Ec.x, Ec.z), 'echo'],
+    ['builder', Ec.x + 16, Ec.z + 3, face(Ec.x + 16, Ec.z + 3, Ec.x, Ec.z), 'echo'],
   ];
-  if (!low) for (const [ty, x, z, kind] of spots) zones.push({ type: ty, x, z, y: groundAt(x, z), yaw: Math.atan2(kind === 'launch' ? Lc.x - x : 1, kind === 'launch' ? Lc.z - z : 0.4), kind, far: false });
+  if (makeCrew) for (const [ty, x, z, yaw, kind] of spots) { const r = makeCrew(scene, env, ty, low ? 1 : 2); r.root.name = 'life_zone'; r.root.visible = false; zones.push({ r, type: ty, x, z, y: groundAt(x, z), yaw, kind, far: false }); }
+  const skyHomes = [
+    { x: camp.x + 6, z: camp.z - 18, y: groundAt(camp.x, camp.z) + 26, ph: 0.4 },
+    { x: Lc.x + 28, z: Lc.z - 36, y: groundAt(Lc.x, Lc.z) + 48, ph: 1.1 },
+    { x: Rc.x + 30, z: Rc.z - 22, y: groundAt(Rc.x, Rc.z) + 40, ph: 2.0 },
+    { x: Ec.x - 16, z: Ec.z + 20, y: groundAt(Ec.x, Ec.z) + 36, ph: 2.7 },
+  ];
   // steam vents: play-stand right plain (hauler crew), welder, and the plaza toward the drill
   const ventAt = (x, z, tt) => { const gy = Math.max(groundAt(x, z), sAt(x, z)); return { x, z, y: gy + 1.15, gy, tt }; };
   const vents = [ventAt(PLAY_START.x + fwd.x * 8 + right.x * 8, PLAY_START.z + fwd.z * 8 + right.z * 8, 0.05), ventAt(PLAY_START.x + fwd.x * 12 + right.x * 10.5, PLAY_START.z + fwd.z * 12 + right.z * 10.5, 0.4)];
@@ -206,8 +210,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
     // ships across the sky (relative to the base so they read from anywhere)
     for (const s of ships) { s.t += dt; const rt = shipRoutes[s.i] || shipRoutes[0]; const u = (s.t % rt.dur) / rt.dur, a = u * Math.PI * 2; const lx = Math.cos(a) * rt.rx, lz = Math.sin(a) * rt.rz; const c = Math.cos(rt.yaw), sn = Math.sin(rt.yaw); const x = rt.cx + lx * c - lz * sn, z = rt.cz + lx * sn + lz * c; const y = groundAt(base.x, base.z) + rt.y0 + (rt.y1 - rt.y0) * (0.5 + 0.5 * Math.sin(a)); const tx = -Math.sin(a) * rt.rx, tz = Math.cos(a) * rt.rz; const wx = tx * c - tz * sn, wz = tx * sn + tz * c; s.m.position.set(x, y, z); s.m.rotation.set(0.08, Math.atan2(wx, wz), 0.12); s.m.scale.setScalar(s.i === 0 ? 1.7 : 3.2); s.m.visible = Math.hypot(x - cam.x, z - cam.z) < SKY_R; }
     const nearBase = Math.hypot(base.x - cam.x, base.z - cam.z) < (mobile ? 190 : 240), nearLaunch = Math.hypot(launch.x - cam.x, launch.z - cam.z) < (mobile ? 170 : 210);
-    let zoneHere = null; for (const Z of zones) { const d = Math.hypot(Z.x - cam.x, Z.z - cam.z); if (d < 120 && (!zoneHere || d < zoneHere.d)) zoneHere = { Z, d }; }
-    const nearZone = !!zoneHere;
+    const nearZone = zones.some(Z => Math.hypot(Z.x - cam.x, Z.z - cam.z) < 160);
     if (!LITE) { const u = (T % 80) / 80; const a = u * Math.PI * 2; const gy = groundAt(base.x, base.z); const cx = PLAY_START.x + fwd.x * 52 + right.x * 30, cz = PLAY_START.z + fwd.z * 52 + right.z * 30; sat.position.set(cx + Math.cos(a) * 2.5, gy + 14 + Math.sin(a) * 0.6, cz + Math.sin(a) * 1.6); sat.rotation.y += dt * 0.15; sat.rotation.z = 0.35; sat.visible = nearBase && Math.hypot(sat.position.x - cam.x, sat.position.z - cam.z) < 430; }
     // distant shuttle lift-off at the launch site, then re-lands after a pause
     liftT += dt; { const cyc = 48, k = liftT % cyc; const gy = groundAt(launch.x, launch.z); const climb = k < 18 ? Math.pow(k / 18, 2) * 260 : 260 + (k - 18) * 40; const liftNear = Math.hypot(launch.x - cam.x, launch.z - cam.z) < 750; lift.visible = k < 30 && !LITE && liftNear; lift.position.set(launch.x + (k > 8 ? (k - 8) * (k - 8) * 0.25 : 0), gy + 6 + climb, launch.z); lift.rotation.set(0, 0, Math.PI / 2 - Math.min(0.5, Math.max(0, k - 8) * 0.03));
@@ -220,9 +223,9 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
       { x: base.x + 36, z: base.z - 24, y: groundAt(base.x, base.z) + 120, dir: Math.atan2(-0.806, 0.592) - 0.55, span: 190, per: 9.5, ph: 3.1 },
       { x: (base.x + launch.x) * 0.5, z: (base.z + launch.z) * 0.5, y: groundAt(launch.x, launch.z) + 150, dir: Math.atan2(launch.x - base.x, launch.z - base.z), span: 280, per: 12, ph: 1.6 },
     ];
-    if (zoneHere) { const g = groundAt(zoneHere.Z.x, zoneHere.Z.z); lanes[1].x = zoneHere.Z.x + 8; lanes[1].z = zoneHere.Z.z - 6; lanes[1].y = g + 20; lanes[1].span = 36; lanes[1].drop = 8; }
     for (let k = 0; k < 3; k++) { const s = lanes[k], u = ((T + s.ph) % s.per) / s.per, along = (u - 0.5) * s.span; const x = s.x + Math.sin(s.dir) * along, z = s.z + Math.cos(s.dir) * along, y = s.y - u * (s.drop || 36); if (Math.hypot(x - cam.x, z - cam.z) > SKY_R) bb.set(bi, 0, -999, 0, 0, 2); else bb.set(bi, x, y, z, k === 0 ? 16 : 14, 2, 0, s.dir); bi++; }
-    for (let k = 0; k < 4; k++) { if (k < 2) { const home = zoneHere ? zoneHere.Z : null; const hx = home ? home.x : J.x, hz = home ? home.z : J.z; const a = k * 1.7 + T * 0.03; const adx = hx - cam.x, adz = hz - cam.z, al = Math.hypot(adx, adz) || 1; const x = hx + (home ? adx / al * 16 + -adz / al * (k ? 10 : -10) : Math.cos(a) * (14 + k * 6)), z = hz + (home ? adz / al * 16 + adx / al * (k ? 10 : -10) : Math.sin(a) * (14 + k * 6)), y = groundAt(hx, hz) + (home ? 30 + k * 4 : 22 + k * 7) + Math.sin(T * 0.6 + k) * 1.2; jelly(bi++, k, x, y, z, home ? 3.6 : 8 + k * 2); } else { const a = k * 2.1 + T * 0.05; const along = k === 2 ? 36 : 42, side = k === 2 ? 20 : 26; const cx = PLAY_START.x + fwd.x * along + right.x * side, cz = PLAY_START.z + fwd.z * along + right.z * side; const x = cx + Math.cos(a) * 1.6, z = cz + Math.sin(a) * 1.6, y = groundAt(base.x, base.z) + (k === 2 ? 14 : 17) + Math.sin(T * 0.7 + k) * 0.6; jelly(bi++, k, x, y, z, k === 2 ? 3.6 : 3.1); } }
+    for (let k = 0; k < 4; k++) { if (k < 2) { const a = k * 1.7 + T * 0.03; const x = J.x + Math.cos(a) * (14 + k * 6), z = J.z + Math.sin(a) * (14 + k * 6), y = groundAt(J.x, J.z) + 22 + k * 7 + Math.sin(T * 0.6 + k) * 3; jelly(bi++, k, x, y, z, 8 + k * 2); } else { const a = k * 2.1 + T * 0.05; const along = k === 2 ? 36 : 42, side = k === 2 ? 20 : 26; const cx = PLAY_START.x + fwd.x * along + right.x * side, cz = PLAY_START.z + fwd.z * along + right.z * side; const x = cx + Math.cos(a) * 1.6, z = cz + Math.sin(a) * 1.6, y = groundAt(base.x, base.z) + (k === 2 ? 14 : 17) + Math.sin(T * 0.7 + k) * 0.6; jelly(bi++, k, x, y, z, k === 2 ? 3.6 : 3.1); } }
+    for (const H of skyHomes) { const d = Math.hypot(H.x - cam.x, H.z - cam.z); if (d > 260) bb.set(bi, 0, -999, 0, 0, 0); else bb.set(bi, H.x + Math.cos(T * 0.12 + H.ph) * 3.5, H.y + Math.sin(T * 0.35 + H.ph) * 1.4, H.z + Math.sin(T * 0.12 + H.ph) * 3.5, 4.4, 0, H.ph); bi++; }
     { const cyc = 75, k = T % cyc; if (k < 6) { const a = bunnyPath.a0 + k * 0.05; const r = 320; const x = base.x + Math.cos(a) * r, z = base.z + Math.sin(a) * r; bb.set(bi, x, groundAt(x, z) + 3 + Math.abs(Math.sin(k * 6)) * 2.5, z, 5, 1, 0); } else bb.set(bi, 0, -999, 0, 0, 1); bi++; }
     bb.flush(); bb.mesh.visible = !low && (nearBase || nearLaunch || nearZone); /* far zones skip the always-on billboard draw */
     // rover on its loop: follows the ground, dust trail, crystals while hauling back
@@ -236,7 +239,8 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
       const R = P.r.root; const gy = groundAt(x, z); R.position.set(x, gy, z); const dcam = Math.hypot(x - cam.x, gy + 0.6 - cam.y, z - cam.z); /* v76: 3D distance like the crew hi/lo switch -> no lo mesh inside the near band (impostor instead) */ P.far = dcam >= NEAR && dcam < 90; const vis = dcam < NEAR; R.visible = vis; P.yaw = Math.atan2(b.x - a.x, b.z - a.z); if (!vis) continue;
       const moving = u >= 0.1 && u <= 0.9; let yaw = Math.atan2(b.x - a.x, b.z - a.z); if (P.wave > 0 && cat) yaw = Math.atan2(cat.x - x, cat.z - z); R.rotation.y = yaw;
       const mode = P.wave > 0 ? (go ? 'wavecarry' : 'wave') : go ? (moving ? 'carry' : 'carryidle') : (moving ? 'walk' : 'idle'); P.r.update(dt, mode, P.wave > 0 && dcam < 6 ? null : cam); }
-    for (const Z of zones) { const dcam = Math.hypot(Z.x - cam.x, Z.z - cam.z); Z.far = dcam < 90; if (Z.far && Math.random() < dt * 90) parts.emit(Z.x + 0.4, Z.y + 0.9, Z.z + 0.3, (Math.random() - 0.5) * 2.2, 1.4 + Math.random() * 1.8, (Math.random() - 0.5) * 2.2, 0.7, 0.35, 4.2, 1.3, 0.22, 0, 'spark', 0, 8); }
+    const ZNEAR = low ? 8 : mobile ? 10 : 12;
+    for (const Z of zones) { const R = Z.r.root; R.position.set(Z.x, Z.y, Z.z); R.rotation.y = Z.yaw; const dcam = Math.hypot(Z.x - cam.x, Z.z - cam.z); const show = dcam < ZNEAR; Z.far = !show && dcam < 120; R.visible = show; if (show) Z.r.update(dt, 'work', cam); if (dcam < 70 && Math.random() < dt * 70) parts.emit(Z.x + 0.4, Z.y + 0.9, Z.z + 0.3, (Math.random() - 0.5) * 2.2, 1.4 + Math.random() * 1.8, (Math.random() - 0.5) * 2.2, 0.7, 0.35, 4.2, 1.3, 0.22, 0, 'spark', 0, 8); }
     if (welder) { const W = welder, R = W.r.root; R.position.set(W.x, W.y, W.z); R.rotation.y = W.yaw; const dcam = Math.hypot(W.x - cam.x, W.z - cam.z); W.far = dcam >= NEAR && dcam < 90; R.visible = dcam < NEAR; /* static prop: impostor sooner than the porters (budget) */ if (R.visible) { W.r.update(dt, 'work', null); W.r.pivot.rotation.x = 0.28 + Math.sin(T * 7) * 0.05; }
       const burst = (T % 3.2) < 2.2; if (burst && dcam < 70 && Math.random() < dt * 70) { const fx = Math.sin(W.yaw), fz = Math.cos(W.yaw), sx = W.x + fx * 0.8, sz = W.z + fz * 0.8; parts.emit(sx, W.y + 0.85, sz, (Math.random() - 0.5) * 3 - fx * 1.2, 1 + Math.random() * 2.5, (Math.random() - 0.5) * 3 - fz * 1.2, 0.7, 0.22, 3.0, 0.9, 0.12, 0, 'spark', 0, 9); } }
     if (crewSpark && Math.hypot(crewSpark.x - cam.x, crewSpark.z - cam.z) < 90 && Math.random() < dt * 45) { parts.emit(crewSpark.x + (Math.random() - 0.5) * 0.45, crewSpark.gy + 0.5, crewSpark.z + (Math.random() - 0.5) * 0.45, (Math.random() - 0.5) * 3.2, 1.2 + Math.random() * 2.2, (Math.random() - 0.5) * 3.2, 0.6, 0.3, 3.6, 1.2, 0.15, 0, 'spark', 0, 8); }
@@ -256,6 +260,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
     if (ctrl && ctrl.onGround && ctrl.speed > 0.8 && stepT <= 0) { stepT = 0.42 / Math.min(2, ctrl.speed / 2); audio.step(); }
     if (radioT <= 0) { radioT = 40 + Math.random() * 40; audio.radio(); sub(RADIO[Math.floor(Math.random() * RADIO.length)]); }
   }
-  const pushImp = (imp) => { if (!on) return; for (const P of porters) if (P.far) imp.push(P.r.root.position, P.r.type || 'builder', P.yaw); if (welder && welder.far) imp.push(welder.r.root.position, 'builder', welder.yaw); for (const Z of zones) if (Z.far) imp.push(Z, Z.type, Z.yaw); };
-  return { root, update, audio, pushImp, setVisible(v_) { on = v_; root.visible = v_; if (!v_) { porters.forEach(P => { P.r.root.visible = false; P.far = false; }); if (welder) { welder.r.root.visible = false; welder.far = false; } } parts.pts.visible = v_ && !low; bb.mesh.visible = v_; mb.style.display = v_ ? '' : 'none'; }, meshes: { rover, drill, ships, sat, lift, beacons, porters: porters.map(p => p.r.root), welder: welder && welder.r.root }, drillAt: D };
+  const pushImp = (imp) => { if (!on) return; for (const P of porters) if (P.far) imp.push(P.r.root.position, P.r.type || 'builder', P.yaw); if (welder && welder.far) imp.push(welder.r.root.position, 'builder', welder.yaw); for (const Z of zones) if (Z.far) imp.push(Z.r.root.position, Z.type, Z.yaw); };
+  const anchors = () => ({ crew: zones.map(Z => ({ kind: Z.kind, type: Z.type, x: Z.x, z: Z.z })), vents: zoneVents.map(v => ({ x: v.x, z: v.z })), sky: skyHomes.map(H => ({ x: H.x, z: H.z, y: H.y })) });
+  return { root, update, audio, pushImp, anchors, setVisible(v_) { on = v_; root.visible = v_; if (!v_) { porters.forEach(P => { P.r.root.visible = false; P.far = false; }); if (welder) { welder.r.root.visible = false; welder.far = false; } zones.forEach(Z => { Z.r.root.visible = false; Z.far = false; }); } parts.pts.visible = v_ && !low; bb.mesh.visible = v_; mb.style.display = v_ ? '' : 'none'; }, meshes: { rover, drill, ships, sat, lift, beacons, porters: porters.map(p => p.r.root), welder: welder && welder.r.root, zones: zones.map(Z => Z.r.root) }, drillAt: D };
 }
