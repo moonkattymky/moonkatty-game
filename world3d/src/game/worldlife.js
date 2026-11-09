@@ -7,7 +7,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from '../../vendor/three/jsm/utils/BufferGeometryUtils.js';
 import { DRILL_HEAD } from './machines.js';
-import { setRut, setCrater } from '../terrain.js';
+import { setRut, setCrater, PLAY_START, F } from '../terrain.js';
 import { haulerPieces } from '../world.js';
 
 const col = (g, hex, e = 0) => { g = g.index ? g.toNonIndexed() : g; const c = new THREE.Color(hex), n = g.attributes.position.count, a = new Float32Array(n * 3), ae = new Float32Array(n); for (let i = 0; i < n; i++) { c.toArray(a, i * 3); ae[i] = e; } g.setAttribute('color', new THREE.BufferAttribute(a, 3)); g.setAttribute('aE', new THREE.BufferAttribute(ae, 1)); if (g.attributes.uv) g.deleteAttribute('uv'); return g; };
@@ -140,8 +140,12 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const sAt = ctrl && ctrl.solids ? (x, z) => ctrl.solids.standAt(x, z) : groundAt; const cols = (ctrl && ctrl.colliders) || [];
   const flat = (x, z, r) => { let mn = 1e9, mx = -1e9; for (let dx = -r; dx <= r; dx += 2) for (let dz = -r; dz <= r; dz += 2) { const h = sAt(x + dx, z + dz); mn = Math.min(mn, h); mx = Math.max(mx, h); } return mx - mn; };
   const clear = (x, z) => cols.reduce((m, c) => Math.min(m, Math.hypot(c.x - x, c.z - z) - (c.r || 1)), 1e9);
-  let D = null, bs = 1e9; for (let i = 0; i < 24; i++) for (const r of [10, 13, 16, 20]) { const a = i / 24 * Math.PI * 2; const x = depotP.x + Math.cos(a) * r, z = depotP.z + Math.sin(a) * r;
-    const sc = flat(x, z, 6) * 3 + Math.max(0, 6 - clear(x, z)) * 4 + Math.max(0, 24 - Math.hypot(x - base.x, z - base.z)) + r * 0.08; if (sc < bs) { bs = sc; D = { x, z }; } }
+  const cy0 = Math.atan2(-F.x, -F.z) - 0.30, fwd = { x: -Math.sin(cy0), z: -Math.cos(cy0) }, right = { x: Math.cos(cy0), z: -Math.sin(cy0) };
+  let D = null, bs = 1e9, fallback = null, fb = 1e9; for (let i = 0; i < 24; i++) for (const r of [12, 18, 24, 30]) { const a = i / 24 * Math.PI * 2; const x = depotP.x + Math.cos(a) * r, z = depotP.z + Math.sin(a) * r;
+    const dx = x - PLAY_START.x, dz = z - PLAY_START.z, along = dx * fwd.x + dz * fwd.z, side = dx * right.x + dz * right.z;
+    const inLens = along > -7 && along < 18 && side > -4 && side < 6; // boom and the ground it looks across stay clear
+    const sc = flat(x, z, 6) * 3 + Math.max(0, 6 - clear(x, z)) * 4 + Math.max(0, 24 - Math.hypot(x - base.x, z - base.z)) + r * 0.05; if (sc < fb) { fb = sc; fallback = { x, z }; } if (!inLens && sc < bs) { bs = sc; D = { x, z }; } }
+  if (!D) D = fallback;
   const dd = { x: D.x - depotP.x, z: D.z - depotP.z }, dl = Math.hypot(dd.x, dd.z) || 1, ux = dd.x / dl, uz = dd.z / dl, px = -uz, pz = ux;
   drill.position.set(D.x, groundAt(D.x, D.z), D.z); drill.rotation.y = Math.atan2(depotP.x - D.x, depotP.z - D.z) + 0.5;
   // rover: depot -> around the drill -> back (closed loop), all inside the open patch

@@ -301,9 +301,9 @@ function pod(b, x, z, r = 1.6, yaw = 0) { const y = groundAt(x, z) - 0.1; collid
   b.add('gold', G.cyl(0.05, 0.05, 0.6, 4), { pos: [x, y + r * 1.25, z], color: C.gold2 }); }
 function solar(b, x, z, yaw) { const y = groundAt(x, z); b.add('dark', G.cyl(0.1, 0.12, 1.4, 5), { pos: [x, y, z], color: '#555c66' }); b.add('dark', G.box(3.2, 0.08, 1.8), { pos: [x, y + 1.5, z], rot: [-0.5, yaw, 0], color: '#1b3c5a' }); b.add('gold', G.box(3.35, 0.05, 0.08), { pos: [x, y + 1.5, z], rot: [-0.5, yaw, 0], color: C.gold }); }
 
-// rover tread marks from the lookout down to the base (as in the concept foreground)
+// tread pair across the play approach (PLAY_START is s=-3, d=-21), not the unused ridge line
 function tracks(b) {
-  const pts = []; for (let i = 0; i <= 40; i++) { const t = i / 40; pts.push(sd(3.5 + Math.sin(t * 2.6) * 4 - t * 2, -54 + t * 44)); }
+  const pts = []; for (let i = 0; i <= 28; i++) { const t = i / 28; pts.push(sd(-2.2 + Math.sin(t * Math.PI) * 1.6, -30 + t * 24)); }
   for (const off of [-0.85, 0.85]) for (let i = 0; i < pts.length - 1; i++) {
     const A = pts[i], B = pts[i + 1]; const dx = B.x - A.x, dz = B.z - A.z, l = Math.hypot(dx, dz); const nx = -dz / l, nz = dx / l; const yaw = Math.atan2(dx, dz);
     for (let k = 0; k < 3; k++) { const t = k / 3; const px = A.x + dx * t + nx * off, pz = A.z + dz * t + nz * off; b.add('dark', new THREE.PlaneGeometry(0.42, 0.22).rotateX(-PI / 2), { pos: [px, groundAt(px, pz) + 0.04, pz], rot: [0, yaw, 0], color: '#4b4c52' }); }
@@ -317,17 +317,16 @@ export function buildHub(b, beams) {
   const Bk = dome(b, -3.5, 25, 5.6, { spireH: 4.5 });
   const sm = dome(b, -9, 16.5, 2.8, { spire: false });
   const Rd = dome(b, 19.5, 9, 4.6);
-  const Fd = dome(b, 10.5, -6.5, 3.8);
-  const Bd = dome(b, 25, 24, 3.2);
+  const Bd = dome(b, 25, 24, 3.2); // Fd (10.5, -6.5) sat on the play approach. Not a quest anchor.
   dishModule(b, -14, 12);
-  launchPad(b, 12, 33);
+  // hub rocket tower sat in the play lens (sd 12, 33). The real pad is REGIONS.launch. Leaving this one out opens the approach; no quest id uses it.
   beaconPad(b, 10.5, -25.5, beams, 17);
   const cave = portalCave(b, beams);
   // corridors (auto-trimmed to module radii)
   const P = (s, d) => sd(s, d);
-  const M = { ring: [0, 0, 8.5], L: [-22, 3, 5], Bk: [-3.5, 25, 5.6], sm: [-9, 16.5, 2.8], Rd: [19.5, 9, 4.6], Fd: [10.5, -6.5, 3.8], Bd: [25, 24, 3.2], dish: [-14, 12, 4.3] };
+  const M = { ring: [0, 0, 8.5], L: [-22, 3, 5], Bk: [-3.5, 25, 5.6], sm: [-9, 16.5, 2.8], Rd: [19.5, 9, 4.6], Bd: [25, 24, 3.2], dish: [-14, 12, 4.3] };
   const link = (a, c, r = 1.3) => { const A = M[a], B = M[c]; const ds = B[0] - A[0], dd = B[1] - A[1]; const l = Math.hypot(ds, dd); const ux = ds / l, uy = dd / l; corridor(b, P(A[0] + ux * (A[2] - 0.3), A[1] + uy * (A[2] - 0.3)), P(B[0] - ux * (B[2] - 0.3), B[1] - uy * (B[2] - 0.3)), r); };
-  link('ring', 'L', 1.4); link('ring', 'Fd', 1.2); link('ring', 'Rd', 1.3); link('ring', 'dish', 1.3); link('dish', 'sm', 1.05); link('sm', 'Bk', 1.05); link('Rd', 'Bd', 1.1); link('dish', 'L', 1.15); link('ring', 'Bk', 1.2);
+  link('ring', 'L', 1.4); link('ring', 'Rd', 1.3); link('ring', 'dish', 1.3); link('dish', 'sm', 1.05); link('sm', 'Bk', 1.05); link('Rd', 'Bd', 1.1); link('dish', 'L', 1.15); link('ring', 'Bk', 1.2);
   // props
   const rnd = (() => { let a = 7; return () => (a = (a * 16807) % 2147483647) / 2147483647; })();
   for (let i = 0; i < 12; i++) { const a = i / 12 * PI * 2; const p = { x: Math.cos(a) * 38, z: Math.sin(a) * 38 }; lamp(b, p.x, p.z, i % 2 ? C.win : C.gold2); }
@@ -341,7 +340,7 @@ export function buildHub(b, beams) {
     b.add('ivory', G.ring(1.45 * S, 1.6 * S, 24), { pos: [lp.x, ly + 0.115, lp.z], color: C.ivory2 });
     for (const [w, d, ox] of [[0.16, 1.0, -0.36], [0.16, 1.0, 0.36], [0.56, 0.16, 0]]) b.add('ivory', G.box(w, 0.02, d), { pos: [lp.x + Math.cos(faceCam) * ox, ly + 0.115, lp.z - Math.sin(faceCam) * ox], rot: [0, faceCam, 0], color: C.ivory2 });
     for (let k = 0; k < 6; k++) { const a = k / 6 * PI * 2 + PI / 6; b.add('glow', G.box(0.1, 0.06, 0.1), { pos: [lp.x + Math.sin(a) * 2.45 * S, ly + 0.12, lp.z + Math.cos(a) * 2.45 * S], color: C.gold2, intensity: 3 }); } }
-  for (const [s, d, sc, yw] of [[4, -18, 0.9, 0.3], [5.3, -17.2, 0.7, 1.1], [4.6, -16.4, 0.6, 2], [-15, -9, 0.9, 0.4], [-14, -7.8, 0.7, 1.3]]) { const p = P(s, d); crate(b, p.x, p.z, sc, yw); }
+  for (const [s, d, sc, yw] of [[-15, -9, 0.9, 0.4], [-14, -7.8, 0.7, 1.3]]) { const p = P(s, d); crate(b, p.x, p.z, sc, yw); }
   for (const [s, d] of [[-1, -14], [3, -10.5], [-6.5, -11], [7, -13.5], [-5.5, -17.5], [2, -18], [-8, -33], [6, -36]]) { const p = P(s, d); lamp(b, p.x, p.z, C.gold2); }
   { const p = P(5.5, -14.5); const y = groundAt(p.x, p.z); b.add('dark', G.cyl(0.07, 0.09, 2.2, 6), { pos: [p.x, y, p.z], color: '#59616d' });
     b.add('tex', new THREE.BoxGeometry(1.4, 0.7, 0.06), { region: 'panel', pos: [p.x, y + 2.0, p.z], rot: [0, faceCam, 0], color: '#ffffff' }); b.add('gold', G.box(1.5, 0.08, 0.08), { pos: [p.x, y + 2.38, p.z], rot: [0, faceCam, 0], color: C.gold }); }
