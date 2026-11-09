@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from '../../vendor/three/jsm/utils/BufferGeometryUtils.js';
 import { makeCrewRobot } from './robots.js';
 import { makeStaticCrystals } from './crystal.js';
+import { groundAt as terrainAt } from '../terrain.js';
 // ============================================================================================
 // The cat's home (concept 2d260de8): an enterable living module. Outside: a round gold-framed airlock door on the
 // living dome. Inside (its own scene on render layer 1 - the outside world is not rendered while inside):
@@ -192,7 +193,11 @@ export function makeHome(scene, { env, groundAt, door, origin, low = false, eart
   const dg = []; const D = (g, col) => dg.push(colorize(g, col)); D(new THREE.CylinderGeometry(1.45, 1.45, 1.1, 24, 1, true).rotateX(Math.PI / 2).translate(0, 1.45, -0.3), IV2); D(new THREE.TorusGeometry(1.4, 0.16, 6, 28).translate(0, 1.45, 0.25), IV); D(new THREE.TorusGeometry(1.22, 0.08, 5, 28).translate(0, 1.45, 0.33), GOLD);
   D(new THREE.BoxGeometry(3.0, 0.2, 1.6).translate(0, 0.0, 0.2), '#9a8f7a'); D(new THREE.BoxGeometry(0.5, 0.06, 0.04).translate(0, 2.98, 0.3), LED);
   const dm = std({ vertexColors: true, metalness: 0.25, roughness: 0.4, envMapIntensity: 0.5 }); dm.onBeforeCompile = fm.onBeforeCompile; dm.customProgramCacheKey = () => 'home_furn2';
-  const doorM = new THREE.Mesh(mergeGeometries(dg), dm); doorM.name = 'ch2_airlock'; const dy = groundAt(door.x, door.z); doorM.position.set(door.x, dy - 0.15, door.z); doorM.rotation.y = door.yaw; doorM.visible = false; scene.add(doorM); // ring bottom (y + 0.15 in the mesh) sits on the ground
+  const doorM = new THREE.Mesh(mergeGeometries(dg), dm); doorM.name = 'ch2_airlock';
+  // The living-dome floor is the centre's ground, not the slope under the doorway. Sampling the doorway buried the ring in a rise and left it sitting on the roof.
+  const cx = door.x - Math.sin(door.yaw) * 4.95, cz = door.z - Math.cos(door.yaw) * 4.95;
+  const dy = terrainAt(cx, cz) + 0.15;
+  doorM.position.set(door.x, dy, door.z); doorM.rotation.y = door.yaw; doorM.visible = false; scene.add(doorM);
   const leafG = new THREE.CircleGeometry(1.2, 32, -Math.PI / 2, Math.PI); const leafM = std({ color: '#f0e2c8', metalness: 0.28, roughness: 0.35, emissive: '#ffc888', emissiveIntensity: 0.22 });
   const leaves = [-1, 1].map(s => { const m = new THREE.Mesh(leafG, leafM); m.rotation.y = s < 0 ? Math.PI : 0; const g = new THREE.Group(); g.add(m); g.position.set(0, 1.45, 0.3); doorM.add(g); return g; });
   const doorLamp = new THREE.Mesh(new THREE.CircleGeometry(0.12, 16), new THREE.MeshBasicMaterial({ color: new THREE.Color(3.2, 2.2, 0.85), toneMapped: false })); doorLamp.position.set(1.75, 1.45, 0.35); doorM.add(doorLamp);

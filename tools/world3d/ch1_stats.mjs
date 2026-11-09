@@ -1,10 +1,11 @@
 // Chapter-1 budgets (main pass tris / draw calls) per preset at the heaviest activity views. usage: node tools/ch1_stats.mjs desktop|phone|low
 import { chromium } from 'playwright-core';
+import { pageUrl } from './baseurl.mjs';
 const m = process.argv[2] || 'desktop'; const PH = m !== 'desktop';
 const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--no-sandbox'] });
 const p = await b.newPage(PH ? { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 } : { viewport: { width: 1024, height: 576 } });
 const logs = []; p.on('pageerror', e => logs.push('PAGEERROR ' + e.message)); p.on('console', x => { if (x.type() === 'error') logs.push(x.text()); });
-await p.goto('http://localhost:' + (process.env.MKPORT || 47321) + '/index.html?view=play&pr=1&reset=1&fast=1' + (m === 'low' ? '&q=low' : ''));
+await p.goto(pageUrl() + '?view=play&pr=1&reset=1&fast=1' + (m === 'low' ? '&q=low' : ''));
 await p.waitForFunction(() => window.MK && MK.ready && MK.game && MK.game.ready, null, { timeout: 150000 }); await p.waitForTimeout(1500);
 const E = (f, a) => p.evaluate(f, a); const out = {};
 const st = async (l) => { await p.waitForTimeout(1500); const s = await E((TOPN) => { window.TOPN = TOPN; return MK.stats(); }, +(process.env.TOPN || 10)); out[l] = s.mainPass; console.log(m, l.padEnd(26), JSON.stringify(s.mainPass), JSON.stringify(s.top.slice(0, +(process.env.TOPN || 8)))); };

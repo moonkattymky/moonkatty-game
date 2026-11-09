@@ -1,11 +1,12 @@
 // Budgets with the game layer ON (no ?shot): play start + hub quest marker (beacon + crystals in view).
 // usage: node tools/game_stats.mjs phone|phonelow|desktop
 import { chromium } from 'playwright-core';
+import { pageUrl } from './baseurl.mjs';
 const m = process.argv[2] || 'phone'; const PH = m !== 'desktop';
 const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--no-sandbox'] });
 const p = await b.newPage(PH ? { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 } : { viewport: { width: 1024, height: 576 } });
 const logs = []; p.on('pageerror', e => logs.push('PAGEERROR ' + e.message)); p.on('console', x => { if (x.type() === 'error') logs.push(x.text()); });
-const go = async (q) => { await p.goto((process.env.MK_BASE || 'http://localhost:47321/index.html') + '?view=play&pr=1' + q + (m === 'phonelow' ? '&q=low' : '')); await p.waitForFunction(() => window.MK && MK.ready && MK.game && MK.game.ready, null, { timeout: 150000 }); await p.waitForTimeout(1500); };
+const go = async (q) => { await p.goto(pageUrl() + '?view=play&pr=1' + q + (m === 'phonelow' ? '&q=low' : '')); await p.waitForFunction(() => window.MK && MK.ready && MK.game && MK.game.ready, null, { timeout: 150000 }); await p.waitForTimeout(1500); };
 const st = async (label) => { const s = await p.evaluate(() => MK.stats()); const r = await p.evaluate(() => { const objs = []; MK.scene.traverse(o => { if (/^game_/.test(o.name)) objs.push([o, o.visible]); }); objs.forEach(([o]) => o.visible = false); const s = MK.stats(); objs.forEach(([o, v]) => o.visible = v); return s.mainPass; }); console.log(m, label, 'main', JSON.stringify(s.mainPass), 'frame', JSON.stringify(s.wholeFrameInclPost), '| same camera, game objects hidden: main', JSON.stringify(r)); };
 await go('&reset=1'); await st('play-start(arrow)');
 // hub quest: jump the chain to the reactor console and frame beacon + hub crystals

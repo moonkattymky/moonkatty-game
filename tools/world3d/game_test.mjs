@@ -3,6 +3,7 @@
 // persistence, daily cap, ?lang=en, console errors. Screenshots of each activity (phone).
 // usage: node tools/game_test.mjs [phone|desktop]   (server on :47321)
 import { chromium } from 'playwright-core';
+import { pageUrl } from './baseurl.mjs';
 const mode = process.argv[2] || 'phone'; const PHONE = mode === 'phone'; const OUT = 'renders/game_';
 const browser = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--no-sandbox'] });
 const ctx = await browser.newContext(PHONE ? { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 } : { viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
@@ -11,7 +12,7 @@ page.on('pageerror', e => logs.push('PAGEERROR ' + e.message)); page.on('console
 const results = []; const ok = (name, cond, info = '') => { results.push({ name, pass: !!cond, info }); console.log((cond ? 'PASS ' : 'FAIL ') + name + (info ? '  ' + info : '')); };
 const E = (f, a) => page.evaluate(f, a);
 const until = (f, ms = 60000, a) => page.waitForFunction(f, a, { timeout: ms }).then(() => true, () => false);
-const boot = async (q) => { await page.goto((process.env.MK_BASE || 'http://localhost:' + (process.env.MKPORT || 47321) + '/index.html') + '?view=play' + q); await page.waitForFunction(() => window.MK && MK.ready && MK.game && MK.game.ready, null, { timeout: 150000 }); await page.waitForTimeout(800); };
+const boot = async (q) => { await page.goto(pageUrl() + '?view=play' + q); await page.waitForFunction(() => window.MK && MK.ready && MK.game && MK.game.ready, null, { timeout: 150000 }); await page.waitForTimeout(800); };
 const shot = async (name) => { if (PHONE) await page.screenshot({ path: OUT + name + '.png' }); };
 const closePop = () => E(() => document.querySelector('#mk-pop').classList.remove('on'));
 const S = () => E(() => MK.game.state()); const Qid = () => E(() => { const q = MK.game.quest(); return q && q.id; });

@@ -1,11 +1,12 @@
 // Chapter 2 in-browser tests: full ch1 -> ch2 quest line via ?fast=1 auto (real code paths), home enter/exit, storm finale,
 // offline jobs via the job clock, day roll/streak, recruit limits, save reload, zero console errors. usage: node tools/ch2_test.mjs [extra-query]
 import { chromium } from 'playwright-core';
+import { pageUrl } from './baseurl.mjs';
 const q = process.argv[2] || '';
 const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-sandbox'] });
 const p = await b.newPage({ viewport: { width: 390, height: 844 } }); const errs = []; p.on('pageerror', e => errs.push('ERR ' + e.message)); p.on('console', m => { if (m.type() === 'error') errs.push('C ' + m.text().slice(0, 300)); });
 let pass = 0, fail = 0; const T = (name, ok, extra = '') => { if (ok) pass++; else fail++; console.log((ok ? 'PASS ' : 'FAIL ') + name + (extra ? ' ' + extra : '')); };
-const url = (process.env.MK_BASE || 'http://localhost:' + (process.env.MKPORT || 47321) + '/index.html') + '?view=play&fast=1' + q;
+const url = pageUrl() + '?view=play&fast=1' + q;
 await p.goto(url + '&reset=1'); await p.waitForFunction(() => window.MK && MK.ready && MK.game && MK.game.ready, null, { timeout: 150000 });
 for (let i = 0; i < 14; i++) { const r = await p.evaluate(async () => { const q = MK.game.quest(); if (!q) return null; const ok = await MK.game.auto(); return [q.id, ok]; }); if (!r) break; }
 await p.waitForFunction(() => MK.game.ch2.on, null, { timeout: 60000 }).catch(() => { });

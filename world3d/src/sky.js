@@ -139,6 +139,6 @@ export function buildSpace(scene, hullMat, lite = false) {
   const built = b.build(mats, st); for (const k in built) { built[k].castShadow = built[k].receiveShadow = false; built[k].frustumCulled = true; }
   scene.add(g);
   const fr = new THREE.Frustum(), pm4 = new THREE.Matrix4();
-  const updateBelt = (camera, hideAll) => { if (!lite) return; if (hideAll) { bg.visible = false; return; } pm4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); fr.setFromProjectionMatrix(pm4); bg.visible = bg.userData.samples.some(sp => fr.intersectsSphere(sp)); }; // phones: the belt is 2 big draws - skip it in the hub and whenever the band is off-screen
+  const updateBelt = (camera, hideAll) => { if (hideAll) { bg.visible = false; return; } if (!lite) { bg.visible = true; return; } pm4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); fr.setFromProjectionMatrix(pm4); bg.visible = bg.userData.samples.some(sp => fr.intersectsSphere(sp)); }; // off past 320 m (a speck from a zone) and, on phones, inside the hub or off-screen
   return { group: g, mats, beltU, updateBelt };
 }
