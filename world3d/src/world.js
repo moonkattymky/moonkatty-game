@@ -215,33 +215,55 @@ function echo(b, beams, bn) {
 }
 
 // Shared crystal-hauler parts (concept d04ca995). Parked copies bake into the zone hull; the moving world-life hauler merges the same parts, so there is one vehicle.
-// wheelN 20 is the close desktop tyre (the flats drop out at this size). 8 is the far/phone silhouette. Body stays an 8-gon tube.
+// Rectilinear raised bed, not a capsule. wheelN 20 is the close tyre; 8 is the far/phone silhouette. Wheel stations stay at x=±1.14 so the 0.95 collider still covers the body. bodyN is unused (callers still pass 8).
 export function haulerPieces(wheelN, bodyN = 8) {
-  const rich = wheelN >= 12, hubN = rich ? 10 : 6, bodyS = rich ? 12 : 8;
+  void bodyN;
+  const rich = wheelN >= 12, hubN = rich ? 14 : 8;
   const tube = (r, len, n, axis) => { const g = new THREE.CylinderGeometry(r, r, len, n); if (axis === 'z') g.rotateX(PI / 2); else if (axis === 'x') g.rotateZ(PI / 2); return g; };
+  const box = (w, h, d) => new THREE.BoxGeometry(w, h, d);
   const P = []; const add = (group, geo, pos, color, intensity = 1, emit = 0) => P.push({ group, geo, pos, color, intensity, emit });
-  // Rounded hull and bed. Wheel stations stay at x=±1.14 so the 0.95 collider still covers the body.
-  const hull = tube(0.5, 2.45, bodyS, 'z'); hull.scale(1.55, 0.7, 1); add('ivory', hull, [0, 0.86, -0.08], '#f3ead8');
-  const belly = tube(0.42, 2.2, bodyS, 'z'); belly.scale(1.35, 0.45, 1); add('dark', belly, [0, 0.62, -0.08], '#2a2724');
-  const bed = tube(0.46, 1.85, bodyS, 'z'); bed.scale(1.35, 0.42, 1); add('ivory', bed, [0, 1.18, -0.05], '#f7f1e6');
-  for (const z of [0.55, -0.15, -0.7]) { const band = tube(0.52, 0.045, bodyS, 'z'); band.scale(1.58, 0.74, 1); add('gold', band, [0, 0.95, z], '#e2b04a'); }
-  const nose = new THREE.SphereGeometry(0.42, rich ? 10 : 7, rich ? 8 : 5); nose.scale(1.35, 0.7, 0.85); add('ivory', nose, [0, 0.9, 1.15], '#f4ecdc');
-  const tail = new THREE.SphereGeometry(0.38, rich ? 8 : 6, rich ? 6 : 5); tail.scale(1.25, 0.65, 0.7); add('ivory', tail, [0, 0.88, -1.25], '#e7decc');
-  if (rich) { const panel = new THREE.BoxGeometry(0.04, 0.22, 0.7); add('gold', panel, [0.78, 1.02, -0.1], '#c9a24a'); add('gold', panel.clone(), [-0.78, 1.02, -0.1], '#c9a24a'); }
+  const WY = 0.48;
+  // Dark chassis clears the ground; the 0.48 tyres sit on y=0. Bed walls rise above a floor the crystals are sunk into.
+  add('dark', box(1.72, 0.28, 3.28), [0, 0.44, -0.02], '#241f1c');
+  add('ivory', box(1.62, 0.12, 2.46), [0, 0.70, -0.18], '#f3ead8');
+  add('dark', box(1.40, 0.05, 2.16), [0, 0.78, -0.20], '#3a342c');
+  add('ivory', box(0.09, 0.50, 2.42), [0.78, 1.01, -0.18], '#f7f1e6');
+  add('ivory', box(0.09, 0.50, 2.42), [-0.78, 1.01, -0.18], '#f7f1e6');
+  add('ivory', box(1.65, 0.50, 0.09), [0, 1.01, -1.35], '#f4ecdc');
+  add('ivory', box(1.65, 0.42, 0.09), [0, 0.97, 0.99], '#efe6d4');
+  add('gold', box(0.13, 0.05, 2.50), [0.78, 1.285, -0.18], '#e2b04a');
+  add('gold', box(0.13, 0.05, 2.50), [-0.78, 1.285, -0.18], '#e2b04a');
+  add('gold', box(1.74, 0.05, 0.11), [0, 1.285, -1.35], '#e2b04a');
+  add('gold', box(1.74, 0.05, 0.11), [0, 1.20, 0.99], '#e2b04a');
+  add('gold', box(1.78, 0.04, 3.32), [0, 0.60, -0.02], '#c9a24a');
+  add('ivory', box(1.40, 0.34, 0.64), [0, 0.86, 1.30], '#f7f1e4');
+  add('gold', box(1.46, 0.04, 0.68), [0, 1.05, 1.30], '#e2b04a');
+  for (const s of [-1, 1]) for (const z of [-1.35, 0.99]) add('gold', box(0.09, 0.10, 0.09), [s * 0.78, 1.33, z], '#e2b04a');
+  if (rich) {
+    for (const s of [-1, 1]) for (const z of [-0.82, -0.22, 0.38]) add('gold', box(0.028, 0.40, 0.032), [s * 0.85, 1.02, z], '#c9a24a');
+    for (const s of [-1, 1]) {
+      const upper = box(0.04, 0.05, 0.36); upper.rotateX(-0.62); upper.translate(s * 0.90, 1.12, 0.62);
+      const lower = box(0.04, 0.05, 0.36); lower.rotateX(0.62); lower.translate(s * 0.90, 0.96, 0.62);
+      add('gold', upper, [0, 0, 0], '#e2b04a'); add('gold', lower, [0, 0, 0], '#e2b04a');
+    }
+  }
   const cry = rich
-    ? [[-0.42, 0.15, 0.28, '#2ee0ff'], [0.4, -0.05, 0.3, '#1a78ff'], [0, 0.05, 0.34, '#47e6ff'], [-0.15, -0.35, 0.26, '#2ec8ff'], [0.22, 0.32, 0.24, '#1568ee'], [-0.38, -0.22, 0.22, '#3ad4ff'], [0.36, 0.28, 0.22, '#1a78ff'], [0.05, -0.15, 0.3, '#2ee0ff']]
-    : [[-0.35, 0.1, 0.26, '#2ee0ff'], [0.32, -0.08, 0.28, '#1a78ff'], [0, 0.05, 0.32, '#47e6ff'], [0.1, -0.3, 0.22, '#2ec8ff']];
-  for (const [cx, cz, s, hex] of cry) { const g = new THREE.OctahedronGeometry(s, 0); g.scale(0.95, 1.5, 0.9); g.rotateY(cx * 4 + cz); g.rotateZ(0.4); add('glow', g, [cx, 1.72, cz], hex, 1.25, 0.45); }
-  for (const dz of [-1.16, 0, 1.16]) for (const dx of [-1.14, 1.14]) {
-    add('dark', tube(0.46, 0.36, wheelN, 'x'), [dx, 0.46, dz], '#161412');
-    add('dark', tube(0.5, 0.06, wheelN, 'x'), [dx, 0.46, dz], '#0c0b0a');
-    if (rich) add('dark', tube(0.49, 0.05, wheelN, 'x'), [dx + (dx > 0 ? 0.08 : -0.08), 0.46, dz], '#0c0b0a');
-    add('gold', tube(0.2, 0.24, hubN, 'x'), [dx, 0.46, dz], '#e2b04a');
-    add('dark', tube(0.07, 0.26, 6, 'x'), [dx, 0.46, dz], '#1a1612');
+    ? [[-0.32, -0.92, 0.30, '#2ee0ff'], [0.30, -0.74, 0.28, '#1a78ff'], [0, -0.58, 0.34, '#47e6ff'], [-0.34, -0.26, 0.26, '#2ec8ff'], [0.32, -0.16, 0.30, '#1568ee'], [-0.06, 0.04, 0.32, '#2ee0ff'], [0.28, 0.30, 0.24, '#3ad4ff'], [-0.30, 0.42, 0.22, '#1a78ff'], [0.06, 0.52, 0.26, '#47e6ff']]
+    : [[-0.26, -0.68, 0.30, '#2ee0ff'], [0.24, -0.32, 0.28, '#1a78ff'], [0, 0.02, 0.34, '#47e6ff'], [-0.20, 0.40, 0.24, '#2ec8ff'], [0.22, 0.46, 0.22, '#3ad4ff']];
+  for (const [cx, cz, s, hex] of cry) {
+    const g = new THREE.OctahedronGeometry(s, 0); g.scale(1.05, 1.38, 1.05); g.rotateY(cx * 3 + cz * 2); g.rotateZ(cx * 0.28);
+    add('glow', g, [cx, 1.14 + (0.34 - s) * 0.2, cz], hex, 2.2, 0.75);
+  }
+  for (const dz of [-1.12, 0.02, 1.16]) for (const dx of [-1.14, 1.14]) {
+    const s = dx > 0 ? 1 : -1;
+    add('dark', tube(WY, 0.40, wheelN, 'x'), [dx, WY, dz], '#161412');
+    add('gold', tube(0.20, 0.16, hubN, 'x'), [dx + s * 0.15, WY, dz], '#e2b04a');
+    add('dark', tube(0.065, 0.07, 6, 'x'), [dx + s * 0.23, WY, dz], '#1a1612');
+    add('dark', tube(0.065, 0.36, 5, 'x'), [s * 0.88, WY, dz], '#2c2824');
   }
   for (const s of [-1, 1]) {
-    add('gold', tube(0.12, 0.08, 8, 'z'), [s * 0.38, 0.78, 1.35], '#c9a24a');
-    add('glow', tube(0.08, 0.06, 8, 'z'), [s * 0.38, 0.78, 1.4], '#ffe7a4', 2.2, 1.4);
+    add('gold', tube(0.13, 0.07, 8, 'z'), [s * 0.46, 0.82, 1.58], '#c9a24a');
+    add('glow', tube(0.09, 0.05, 8, 'z'), [s * 0.46, 0.82, 1.62], '#ffe7a4', 2.6, 1.8);
   }
   return P;
 }

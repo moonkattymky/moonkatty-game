@@ -21,48 +21,75 @@ function roverGeo() { const L = [col(new THREE.BoxGeometry(1.6, 0.5, 2.6).transl
   for (const x of [-0.5, 0.5]) L.push(col(new THREE.CylinderGeometry(0.1, 0.1, 0.06, 8).rotateX(Math.PI / 2).translate(x, 0.85, 1.32), '#fff2c8', 3.0));
   for (let k = 0; k < 7; k++) L.push(col(new THREE.OctahedronGeometry(1, 0).scale(0.16, 0.38 + (k % 3) * 0.08, 0.16).rotateZ((k - 3) * 0.12).translate(-0.45 + (k % 4) * 0.3, 1.6 + (k % 3) * 0.04, -0.75 + Math.floor(k / 4) * 0.5), '#5fc4ff', 2.2));
   return merge(L); }
-// Wheeled drill (d04ca995): rounded ivory cab, four road wheels, articulated boom, stacked housings, and the spiral auger hanging in front. DRILL_HEAD stays (0, 1.05, -2.7).
+// Wheeled drill (d04ca995): ivory cab, dark-blue glass, gold joints and hubs, paneled boom, cylindrical motor stack, one tapered auger under the stack. DRILL_HEAD stays (0, 1.05, -2.7) — the auger socket.
 const IV = [0.06, 0.55], GD = [0.72, 0.34], DK = [0.04, 0.9], ST = [0.4, 0.4], GL = [0.06, 0.14];
+const AUGER_TIP = -1.42; // bit-local y of the cutting point. With the rig scale, this bites the ground in front of the truck.
 function rigGeo(hi, aug) {
-  const Y = (r1, r2, h, n, open = false) => new THREE.CylinderGeometry(r1, r2, h, n, 1, open), nC = hi ? 10 : 7, wN = hi ? 12 : 8, L = [];
+  const Y = (r1, r2, h, n, open = false) => new THREE.CylinderGeometry(r1, r2, h, n, 1, open), B = (w, h, d) => new THREE.BoxGeometry(w, h, d), nC = hi ? 8 : 6, wN = hi ? 10 : 6, L = [];
   const rod = (a, b, r, c, n, mr) => { const A = new THREE.Vector3(...a), Bv = new THREE.Vector3(...b), d = Bv.clone().sub(A), len = Math.max(0.05, d.length()), g = Y(r, r, len, n, true); g.translate(0, len / 2, 0); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize())); g.translate(A.x, A.y, A.z); return col(g, c, 0, mr); };
+  const beam = (a, b, w, h, c, mr) => { const A = new THREE.Vector3(...a), Bv = new THREE.Vector3(...b), d = Bv.clone().sub(A), len = Math.max(0.05, d.length()), g = B(w, len, h).translate(0, len / 2, 0); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize())); g.translate(A.x, A.y, A.z); return col(g, c, 0, mr); };
   const MZ = -2.7;
-  const hull = Y(0.46, 0.46, 2.7, nC).rotateX(Math.PI / 2); hull.scale(1.85, 0.72, 1); L.push(col(hull, '#f4ecdc', 0, IV));
-  const skirt = Y(0.5, 0.5, 2.35, nC).rotateX(Math.PI / 2); skirt.scale(1.9, 0.78, 1); L.push(col(skirt, '#e2b04a', 0, GD));
-  L.push(col(Y(0.22, 0.28, 0.7, nC).translate(0, 0.72, 1.35), '#d9d0bc', 0, IV));
-  const cab = new THREE.SphereGeometry(0.62, hi ? 12 : 8, hi ? 9 : 6); cab.scale(1.05, 0.82, 1.25); L.push(col(cab.translate(0, 1.95, 0.55), '#f7f1e4', 0, IV));
-  const glass = new THREE.SphereGeometry(0.4, hi ? 10 : 7, hi ? 7 : 5); glass.scale(1.35, 0.72, 0.35); L.push(col(glass.translate(0, 2.02, 1.15), '#16325c', 0.7, GL));
-  L.push(col(new THREE.TorusGeometry(0.62, 0.035, 4, hi ? 12 : 8).rotateX(Math.PI / 2).translate(0, 1.72, 0.55), '#e2b04a', 0, GD));
-  L.push(col(Y(0.1, 0.13, 0.7, nC).translate(0.35, 2.85, 0.85), '#9aa3ab', 0, ST), col(Y(0.16, 0.12, 0.16, nC).translate(0.35, 3.22, 0.85), '#2c2926', 0, DK));
-  for (const s of [-1, 1]) for (const z of [1.05, -1.15]) {
-    L.push(col(Y(0.48, 0.48, 0.34, wN).rotateZ(Math.PI / 2).translate(s * 1.02, 0.48, z), '#141210', 0, DK));
-    L.push(col(Y(0.52, 0.52, 0.07, wN).rotateZ(Math.PI / 2).translate(s * 1.02, 0.48, z - 0.1), '#0c0b0a', 0, DK));
-    L.push(col(Y(0.52, 0.52, 0.07, wN).rotateZ(Math.PI / 2).translate(s * 1.02, 0.48, z + 0.1), '#0c0b0a', 0, DK));
-    L.push(col(Y(0.18, 0.18, 0.2, hi ? 8 : 6).rotateZ(Math.PI / 2).translate(s * 1.02, 0.48, z), '#e2b04a', 0, GD));
+  // Chassis bottom is 0.42; tyres of radius 0.46 are centered at y=0.46 so they meet the ground and the body stays above it.
+  L.push(col(B(1.50, 0.16, 3.20).translate(0, 0.48, 0.02), '#241f1c', 0, DK));
+  L.push(col(B(1.86, 0.40, 3.08).translate(0, 0.78, 0.02), '#f6efe2', 0, IV));
+  L.push(col(B(0.06, 0.05, 3.12).translate(0.93, 0.99, 0.02), '#e2b04a', 0, GD), col(B(0.06, 0.05, 3.12).translate(-0.93, 0.99, 0.02), '#e2b04a', 0, GD));
+  L.push(col(B(1.28, 0.58, 1.16).translate(0, 1.14, 0.70), '#f7f1e4', 0, IV));
+  const cab = new THREE.SphereGeometry(0.56, hi ? 10 : 6, hi ? 7 : 4); cab.scale(1.12, 0.78, 1.16); L.push(col(cab.translate(0, 1.40, 0.60), '#f7f1e4', 0, IV));
+  L.push(col(B(1.00, 0.34, 0.06).translate(0, 1.26, 1.26), '#16325c', 0.7, GL));
+  L.push(col(B(0.06, 0.30, 0.52).translate(0.66, 1.24, 0.74), '#16325c', 0.45, GL), col(B(0.06, 0.30, 0.52).translate(-0.66, 1.24, 0.74), '#16325c', 0.45, GL));
+  L.push(col(B(1.08, 0.045, 0.07).translate(0, 1.46, 1.28), '#e2b04a', 0, GD));
+  L.push(col(Y(0.08, 0.10, 0.52, nC).translate(0.42, 2.08, 0.88), '#9aa3ab', 0, ST), col(Y(0.13, 0.10, 0.12, nC).translate(0.42, 2.38, 0.88), '#2c2926', 0, DK));
+  if (hi) { L.push(col(B(0.04, 0.16, 1.35).translate(1.02, 0.76, 0.05), '#e2b04a', 0, GD), col(B(0.04, 0.16, 1.35).translate(-1.02, 0.76, 0.05), '#e2b04a', 0, GD)); }
+  for (const s of [-1, 1]) for (const z of [1.18, 0.08, -1.02]) {
+    const x = s * 1.08;
+    L.push(col(Y(0.46, 0.46, 0.32, wN).rotateZ(Math.PI / 2).translate(x, 0.46, z), '#141210', 0, DK));
+    L.push(col(Y(0.17, 0.17, 0.10, hi ? 12 : 6).rotateZ(Math.PI / 2).translate(x + s * 0.14, 0.46, z), '#e2b04a', 0, GD));
+    L.push(col(Y(0.055, 0.055, 0.06, 5).rotateZ(Math.PI / 2).translate(x + s * 0.20, 0.46, z), '#1a1612', 0, DK));
+    L.push(col(Y(0.06, 0.06, 0.32, 5).rotateZ(Math.PI / 2).translate(s * 0.86, 0.46, z), '#2a2724', 0, DK));
   }
-  const P0 = [0, 2.55, 0.35], J = [0, 4.05, -1.15], H = [0, 4.55, MZ];
-  L.push(rod(P0, J, 0.11, '#e2b04a', nC, GD), rod([0.16, P0[1], P0[2]], [0.14, J[1], J[2]], 0.07, '#c5ccd4', hi ? 6 : 5, ST), rod([-0.16, P0[1], P0[2]], [-0.14, J[1], J[2]], 0.07, '#c5ccd4', hi ? 6 : 5, ST));
-  L.push(rod(J, H, 0.1, '#e2b04a', nC, GD), rod([0.14, J[1], J[2]], [0.12, H[1], H[2]], 0.06, '#c5ccd4', hi ? 6 : 5, ST));
-  L.push(col(new THREE.SphereGeometry(0.22, hi ? 8 : 6, hi ? 6 : 4).translate(J[0], J[1], J[2]), '#5c584f', 0, ST), col(new THREE.SphereGeometry(0.16, 6, 5).translate(P0[0], P0[1], P0[2]), '#5c584f', 0, ST));
-  L.push(rod([0, 1.35, -0.2], [0, 3.15, -0.85], 0.09, '#d5dbe2', nC, ST), rod([0, 3.15, -0.85], [0, 3.85, -1.35], 0.06, '#9aa3ab', hi ? 6 : 5, ST));
-  const hous = hi ? [[0.34, 3.15], [0.46, 3.7], [0.55, 4.3], [0.4, 4.85]] : [[0.4, 3.4], [0.52, 4.35]];
-  for (const [r, y] of hous) L.push(col(Y(r, r * 0.92, 0.42, nC).translate(0, y, MZ), '#d5dbe2', 0, ST), col(Y(r + 0.06, r + 0.06, 0.07, nC).translate(0, y + 0.2, MZ), '#e2b04a', 0, GD));
-  L.push(col(Y(0.28, 0.36, 0.28, nC).translate(0, 2.85, MZ), '#9aa3ab', 0, ST));
-  if (hi) { L.push(rod([0.55, 1.85, 0.2], [0.28, 3.3, -1.3], 0.045, '#241f1c', 6, DK), rod([0.28, 3.3, -1.3], [0.12, 4.2, MZ + 0.15], 0.04, '#241f1c', 6, DK), rod([-0.4, 1.7, 0.15], [-0.15, 3.6, MZ + 0.1], 0.04, '#241f1c', 5, DK)); }
-  if (aug) L.push(...augerList(false).map(g => g.translate(0, 1.2, MZ)));
+  const P0 = [0, 1.86, 0.42], J = [0, 3.72, -1.12], H = [0, 4.10, MZ];
+  L.push(beam(P0, J, 0.12, 0.18, '#e2b04a', GD), beam(J, H, 0.10, 0.14, '#e2b04a', GD));
+  L.push(beam([0.16, P0[1], P0[2]], [0.14, J[1], J[2]], 0.09, 0.13, '#f7f1e4', IV), beam([-0.16, P0[1], P0[2]], [-0.14, J[1], J[2]], 0.09, 0.13, '#f7f1e4', IV));
+  L.push(beam([0.13, J[1], J[2]], [0.10, H[1], H[2]], 0.07, 0.10, '#f7f1e4', IV), beam([-0.13, J[1], J[2]], [-0.10, H[1], H[2]], 0.07, 0.10, '#f7f1e4', IV));
+  L.push(col(new THREE.SphereGeometry(0.20, hi ? 8 : 6, hi ? 6 : 4).translate(J[0], J[1], J[2]), '#5c584f', 0, ST));
+  L.push(col(new THREE.SphereGeometry(0.15, 6, 4).translate(P0[0], P0[1], P0[2]), '#5c584f', 0, ST));
+  L.push(col(B(0.52, 0.26, 0.40).translate(H[0], H[1], H[2]), '#e2b04a', 0, GD));
+  L.push(rod([0.58, 0.95, 0.15], [0.16, 3.15, -0.72], 0.055, '#c5ccd4', hi ? 6 : 5, ST));
+  L.push(beam([-0.72, 0.78, -1.22], [-0.30, 2.22, MZ + 0.12], 0.10, 0.08, '#d5dbe2', ST), beam([0.72, 0.78, -1.22], [0.30, 2.22, MZ + 0.12], 0.10, 0.08, '#d5dbe2', ST));
+  // Motor stack hangs off the boom jaw. Outlet bottom is y=1.92 so the auger collar (bit at DRILL_HEAD) stays inside it.
+  const hous = hi ? [[0.34, 0.52, 2.18], [0.50, 0.70, 2.71], [0.42, 0.56, 3.26], [0.30, 0.62, 3.77]] : [[0.40, 0.78, 2.31], [0.50, 0.86, 3.05], [0.34, 0.72, 3.76]];
+  for (const [r, h, y] of hous) L.push(col(Y(r, r * 0.94, h, nC).translate(0, y, MZ), '#d5dbe2', 0, ST), col(Y(r + 0.05, r + 0.05, 0.06, nC, true).translate(0, y + h * 0.42, MZ), '#e2b04a', 0, GD));
+  if (aug) for (const g of augerList(false)) L.push(g.translate(0, DRILL_HEAD.y, MZ));
   return merge(L);
 }
-function augerList(hi) {
-  const Y = (r1, r2, h, n) => new THREE.CylinderGeometry(r1, r2, h, n), n = hi ? 8 : 6, ST = [0.35, 0.38], GD = [0.7, 0.32], L = [];
-  const T = hi ? 6 : 4;
-  for (let k = 0; k < T; k++) {
-    const t = k / (T - 1), r = 0.5 - t * 0.38, y = 1.35 - k * (2.15 / T), h = 2.15 / T * 0.82;
-    L.push(col(Y(r, Math.max(0.06, r - 0.06), h, n).translate(0, y, 0), k % 2 ? '#c5ccd4' : '#e4e8ec', 0, ST));
-    L.push(col(Y(r + 0.05, r + 0.05, 0.06, n, true).translate(0, y + h * 0.35, 0), '#e2b04a', 0, GD));
-    const turns = hi ? 3 : 2;
-    for (let s = 0; s < turns; s++) { const a = k * 0.85 + s * (Math.PI * 2 / turns); const fl = new THREE.BoxGeometry(r * 0.85, 0.05, 0.1); fl.rotateY(a); fl.translate(Math.cos(a) * r * 0.55, y, Math.sin(a) * r * 0.55); L.push(col(fl, '#f2f5f7', 0, ST)); }
+function augerFlight(hi) {
+  const y0 = 0.52, y1 = -0.98, yTop = 1.08, yBot = -1.15, turns = 3, seg = hi ? 48 : 22;
+  const rShaft = (y) => { const t = Math.min(1, Math.max(0, (yTop - y) / (yTop - yBot))); return 0.28 + (0.045 - 0.28) * t; };
+  const pos = [], idx = [], lift = 0.02;
+  const V = (y, a, extra, dy) => { const r = rShaft(y) + extra, i = pos.length / 3; pos.push(Math.cos(a) * r, y + dy, Math.sin(a) * r); return i; };
+  const top = [], bot = [];
+  for (let i = 0; i <= seg; i++) {
+    const t = i / seg, y = y0 + (y1 - y0) * t, a = t * turns * Math.PI * 2, w = 0.26 * (1 - t * 0.5);
+    top.push([V(y, a, 0.008, lift), V(y, a, w, lift)]);
+    bot.push([V(y, a, 0.008, -lift), V(y, a, w, -lift)]);
   }
-  L.push(col(Y(0.1, 0.02, 0.42, n).translate(0, -0.85, 0), '#ff9a3c', 1.6, [0.12, 0.3]));
+  for (let i = 0; i < seg; i++) {
+    const [a, b] = top[i], [c, d] = top[i + 1]; idx.push(a, b, d, a, d, c);
+    const [e, f] = bot[i], [g, h] = bot[i + 1]; idx.push(e, h, f, e, g, h);
+  }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setIndex(idx); geo.computeVertexNormals(); return geo;
+}
+function augerList(hi) {
+  const n = hi ? 8 : 6, ST = [0.35, 0.38], GD = [0.7, 0.32], L = [];
+  const h = 1.08 - (-1.15), cy = (1.08 + -1.15) / 2;
+  L.push(col(new THREE.CylinderGeometry(0.28, 0.045, h, n).translate(0, cy, 0), '#b7c0c8', 0, ST));
+  const tip = new THREE.ConeGeometry(0.045, 0.36, n); tip.rotateX(Math.PI); tip.translate(0, -1.33, 0); L.push(col(tip, '#e8eef2', 0, ST));
+  const hot = new THREE.ConeGeometry(0.035, 0.18, n); hot.rotateX(Math.PI); hot.translate(0, AUGER_TIP, 0); L.push(col(hot, '#ff9a3c', 1.5, [0.12, 0.3]));
+  L.push(col(new THREE.CylinderGeometry(0.38, 0.32, 0.24, n).translate(0, 1.02, 0), '#c5ccd4', 0, ST));
+  L.push(col(new THREE.CylinderGeometry(0.42, 0.42, 0.055, n, 1, true).translate(0, 1.12, 0), '#e2b04a', 0, GD));
+  const rAt = (y) => 0.28 + (0.045 - 0.28) * Math.min(1, Math.max(0, (1.08 - y) / h));
+  for (const y of (hi ? [0.55, 0.02, -0.42] : [0.28, -0.28])) L.push(col(new THREE.CylinderGeometry(rAt(y) + 0.025, rAt(y) + 0.025, 0.05, n, 1, true).translate(0, y, 0), '#e2b04a', 0, GD));
+  L.push(col(augerFlight(hi), '#f7f9fb', 0, [0.55, 0.32]));
   return L;
 }
 function augerGeo(hi) { return merge(augerList(hi)); }
@@ -141,7 +168,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const lift = new THREE.Mesh(shG, mat); lift.name = 'life_liftoff'; lift.scale.setScalar(2.6); root.add(lift); let liftT = 5;
   // ground vehicles
   const HID = low ? 0 : mobile ? 16 : 28, /* 20-gon tyres while the hauler is readable from the play stand; 8-gon only once it is a small shape */ HIDD = low ? 0 : mobile ? 40 : 48; /* the play stand and a walk around the rig stay on the full mast; low keeps the same silhouette with fewer wheels */ const rvG = [haulerGeo(false), low ? null : haulerGeo(true)], drG = [rigGeo(false, low), low ? null : rigGeo(true, false)] /* v99: own rig (concept), machines.js untouched */;
-  const rover = new THREE.Mesh(rvG[0], mat); rover.name = 'life_rover'; rover.userData.hi = rvG[1]; if (!low) { const bm = new THREE.MeshBasicMaterial({ color: 0xffc070, transparent: true, opacity: 0.26, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false }); const bg = new THREE.ConeGeometry(1.1, 5.0, 10, 1, true).translate(0, -2.5, 0).rotateX(-Math.PI / 2 + 0.22); const b = new THREE.Mesh(merge([-0.62, 0.62].map(sx => bg.clone().translate(sx, 0.92, 1.62))), bm); b.name = 'life_rover_beam'; rover.add(b); } /* v98: headlight beams on the dust */ rover.scale.setScalar(1.0); rover.castShadow = true; root.add(rover);
+  const rover = new THREE.Mesh(rvG[0], mat); rover.name = 'life_rover'; rover.userData.hi = rvG[1]; if (!low) { const bm = new THREE.MeshBasicMaterial({ color: 0xffc070, transparent: true, opacity: 0.26, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false }); const bg = new THREE.ConeGeometry(1.1, 5.0, 10, 1, true).translate(0, -2.5, 0).rotateX(-Math.PI / 2 + 0.22); const b = new THREE.Mesh(merge([-0.46, 0.46].map(sx => bg.clone().translate(sx, 0.82, 1.68))), bm); b.name = 'life_rover_beam'; rover.add(b); } /* v98: headlight beams on the dust */ rover.scale.setScalar(1.0); rover.castShadow = true; root.add(rover);
   const roverCol = { x: 0, z: 0, r: 0.95, h: 1.7 }; if (ctrl && ctrl.colliders) ctrl.colliders.push(roverCol);
   let sparkAcc = 0, sparkFl = 0; const drill = new THREE.Mesh(drG[0], mat); drill.name = 'life_drill'; drill.userData.hi = drG[1]; drill.scale.setScalar(1.15); /* concept: the drill rig is a big hero prop */ root.add(drill); const bit = new THREE.Mesh(augerGeo(!mobile), mat); bit.position.copy(DRILL_HEAD); drill.add(bit); bit.visible = !low;
   // rotating radar dish next to the base
@@ -203,7 +230,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const crewSpark = vents[0]; /* orange sparks beside the hauler crew, same particle system as the welder */
   const zoneVents = [ventAt(camp.x, camp.z + 3, 0.1), ventAt(Lc.x - 8, Lc.z + 6, 0.3), ventAt(Rc.x + Math.cos(ah + 1.2) * 33, Rc.z + Math.sin(ah + 1.2) * 33, 0.15), ventAt(Ec.x + 12, Ec.z + 2, 0.4)];
   if (!low) { const cap = new THREE.InstancedMesh(col(new THREE.CylinderGeometry(0.45, 0.75, 0.55, 8).translate(0, 0.27, 0), '#8c919b'), mat, vents.length); cap.name = 'life_ventcaps'; const m4 = new THREE.Matrix4(); vents.forEach((v, i) => cap.setMatrixAt(i, m4.makeTranslation(v.x, v.gy, v.z))); root.add(cap); } /* vent caps so plumes start at the ground */
-  { drill.updateMatrixWorld(true); const w = drill.localToWorld(new THREE.Vector3(0.35, 3.22, 0.85)); vents.push({ x: w.x, z: w.z, y: w.y, gy: w.y - 0.2, tt: 0.3 }); } /* stack on the cab, same sample the plume uses */
+  { drill.updateMatrixWorld(true); const w = drill.localToWorld(new THREE.Vector3(0.42, 2.44, 0.88)); vents.push({ x: w.x, z: w.z, y: w.y, gy: w.y - 0.2, tt: 0.3 }); } /* stack on the cab, same sample the plume uses */
   // lore anchors
   const J = crater; const bunnyPath = { a0: Math.atan2(J.z - base.z, J.x - base.x) + 0.9 };
   const RADIO = ['radio1', 'radio2', 'radio3', 'radio4', 'radio5']; let radioT = 25, beepT = 3, stepT = 0, waveCD = 0;
@@ -258,7 +285,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
     if (welder) { const W = welder, R = W.r.root; R.position.set(W.x, W.y, W.z); R.rotation.y = W.yaw; const dcam = Math.hypot(W.x - cam.x, W.z - cam.z); W.far = dcam >= NEAR && dcam < 90; R.visible = dcam < NEAR; /* static prop: impostor sooner than the porters (budget) */ if (R.visible) { W.r.update(dt, 'work', null); W.r.pivot.rotation.x = 0.28 + Math.sin(T * 7) * 0.05; }
       const burst = (T % 3.2) < 2.2; if (burst && dcam < 70 && Math.random() < dt * 70) { const fx = Math.sin(W.yaw), fz = Math.cos(W.yaw), sx = W.x + fx * 0.8, sz = W.z + fz * 0.8; parts.emit(sx, W.y + 0.85, sz, (Math.random() - 0.5) * 3 - fx * 1.2, 1 + Math.random() * 2.5, (Math.random() - 0.5) * 3 - fz * 1.2, 0.7, 0.22, 3.0, 0.9, 0.12, 0, 'spark', 0, 9); } }
     if (crewSpark && Math.hypot(crewSpark.x - cam.x, crewSpark.z - cam.z) < 90 && Math.random() < dt * 45) { parts.emit(crewSpark.x + (Math.random() - 0.5) * 0.45, crewSpark.gy + 0.5, crewSpark.z + (Math.random() - 0.5) * 0.45, (Math.random() - 0.5) * 3.2, 1.2 + Math.random() * 2.2, (Math.random() - 0.5) * 3.2, 0.6, 0.3, 3.6, 1.2, 0.15, 0, 'spark', 0, 8); }
-    { const dv = Math.hypot(D.x - cam.x, D.z - cam.z) < (globalThis.__mkStorm ? 0 : VR); drill.visible = dv; if (dv) { drill.geometry = Math.hypot(D.x - cam.x, D.z - cam.z) < (globalThis.__mkStorm ? 0 : HIDD) ? /* v75: storm view budget */ drG[1] : drG[0]; bit.rotation.y += dt * 14; bit.position.y = 1.2 + Math.sin(T * 1.3) * 0.2; sparkAcc += dt * 80; sparkFl -= dt; if (sparkFl <= 0) { sparkFl = 0.85; sparkAcc += 8; } if (sparkAcc >= 1) { bit.updateMatrixWorld(true); bit.localToWorld(v.set(0, -0.85, 0));
+    { const dv = Math.hypot(D.x - cam.x, D.z - cam.z) < (globalThis.__mkStorm ? 0 : VR); drill.visible = dv; if (dv) { drill.geometry = Math.hypot(D.x - cam.x, D.z - cam.z) < (globalThis.__mkStorm ? 0 : HIDD) ? /* v75: storm view budget */ drG[1] : drG[0]; bit.rotation.y += dt * 14; bit.position.y = DRILL_HEAD.y + Math.sin(T * 1.3) * 0.035; sparkAcc += dt * 80; sparkFl -= dt; if (sparkFl <= 0) { sparkFl = 0.85; sparkAcc += 8; } if (sparkAcc >= 1) { bit.updateMatrixWorld(true); bit.localToWorld(v.set(0, AUGER_TIP, 0));
           while (sparkAcc >= 1) { sparkAcc -= 1; const a = Math.random() * Math.PI * 2, sp = 0.25 + Math.random() * 0.7; parts.emit(v.x, v.y, v.z, Math.cos(a) * sp, -0.15 - Math.random() * 1.3, Math.sin(a) * sp, 0.4, 0.14, 1.05, 0.42, 0.06, 0, 'spark', 0, 10); } } } }
     // steam puffs
     for (const s of vents.concat(zoneVents)) { s.tt -= dt; if (s.tt <= 0) { s.tt = 0.16 + Math.random() * 0.06; if (Math.hypot(s.x - cam.x, s.z - cam.z) < 160) { const nP = s.play ? 2 : 1; for (let n = 0; n < nP; n++) parts.emitR(s.x + (Math.random() - 0.5) * 0.5, s.gy + 0.5 + n * 0.2, s.z + (Math.random() - 0.5) * 0.55, 0.25 + (Math.random() - 0.5) * 0.35, 2.0 + Math.random() * 0.45, 0.12 + (Math.random() - 0.5) * 0.3, 4.0, 1.05, 0.82, 0.84, 0.88, 0.42, 'steam', 2.6); } } } /* play-stand vents puff a pair of wisps; drill and welder stay on the same steam slots */
