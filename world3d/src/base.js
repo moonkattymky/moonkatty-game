@@ -92,13 +92,12 @@ function reactor(b, s, d) {
   for (let i = 0; i < 20; i++) { const a = i / 20 * PI * 2; b.add('dark', G.box(0.16, pitD + 0.8, 0.1), { pos: [x + Math.sin(a) * (Ri * 0.96 - 0.06), yt - pitD / 2 + 0.4, z + Math.cos(a) * (Ri * 0.96 - 0.06)], rot: [0, a, 0], color: '#5a3a20' }); }
   b.add('glow', G.disc(Ri * 0.97, 32), { pos: [x, yt + 0.2, z], color: (px, py, pz) => { const t = Math.hypot(px - x, pz - z) / Ri; const k = 0.95 - 0.4 * t; return [k, k * 0.2, k * 0.012]; } });
   b.add('glow', G.disc(Ri * 0.42, 24), { pos: [x, yt + 0.215, z], color: '#ffb347', intensity: 2.4 }); for (const f of [0.55, 0.78]) b.add('dark', G.ring(Ri * f, Ri * f + 0.34, 48), { pos: [x, yt + 0.218, z], color: '#1c0d06' }); // molten core: hot centre + crust rings
-  // tall ivory dome and gold spire over the ring. The pit, lip lights and power beam stay underneath; the dish module stays the left wing.
-  { const Rd = R - 0.4, sy = 1.26, y0 = yt - 0.06; b.add('ivory', G.cap(Rd, 36, 14), { pos: [x, y0, z], scale: [1, sy, 1], color: C.ivory });
-    const onShell = (f) => { const yy = y0 + Rd * sy * f; return { y: yy, r: Math.sqrt(Math.max(0.25, Rd * Rd - ((yy - y0) / sy) ** 2)) }; };
-    const band = onShell(0.46); b.add('gold', G.torus(band.r, 0.08, 3, 32), { pos: [x, band.y, z], rot: [PI / 2, 0, 0], color: C.gold });
-    const w1 = onShell(0.32); windowsRing(b, x, w1.y, z, w1.r + 0.08, 14, 1.2, 0.72, { frame: true, I: 3.2, a0: faceCam });
-    const w2 = onShell(0.62); windowsRing(b, x, w2.y, z, w2.r + 0.06, 10, 0.62, 0.42, { I: 2.8, a0: faceCam + 0.18 });
-    finial(b, x, y0 + Rd * sy - 0.2, z, 6.2); }
+  // low wide ivory cap over the ring: smooth shell, one gold band, a window tier, a short gold spire. The dish module is the left annex. The pit stays inside.
+  { const Rd = R - 0.35, sy = 0.46, y0 = yt + 0.02; b.add('ivory', G.cap(Rd, 48, 7), { pos: [x, y0, z], scale: [1, sy, 1], color: C.ivory });
+    const onShell = (f) => { const yy = y0 + Rd * sy * f; return { y: yy, r: Math.sqrt(Math.max(0.2, Rd * Rd - ((yy - y0) / sy) ** 2)) }; };
+    const band = onShell(0.18); b.add('gold', G.torus(band.r, 0.11, 4, 42), { pos: [x, band.y, z], rot: [PI / 2, 0, 0], color: C.gold });
+    const w1 = onShell(0.48); windowsRing(b, x, w1.y, z, w1.r + 0.04, 12, 1.05, 0.62, { frame: true, I: 3.1, a0: faceCam });
+    finial(b, x, y0 + Rd * sy - 0.08, z, 3.2); }
   return { x, y: yt, z, Ri };
 }
 
@@ -316,8 +315,8 @@ function tracks(b) {
 }
 export function buildHub(b, beams) {
   const R = reactor(b, 0, 0);
-  beams.push({ x: R.x, y: R.y + 0.2, z: R.z, r: R.Ri * 0.92, h: 5.0, color: "#ff7a1e", I: 0.55, taper: 1.2 }); // warm glow halo rising out of the molten pit (additive, merged into the beam draw)
-  beams.push({ x: R.x, y: R.y + 0.2, z: R.z, r: R.Ri * 0.5, h: 3.0, color: "#ffa04a", I: 0.5, taper: 1.3 });
+  beams.push({ x: R.x, y: R.y + 0.2, z: R.z, r: R.Ri * 0.92, h: 2.4, color: "#ff7a1e", I: 0.55, taper: 1.2 }); // warm glow stays under the low cap
+  beams.push({ x: R.x, y: R.y + 0.2, z: R.z, r: R.Ri * 0.5, h: 1.6, color: "#ffa04a", I: 0.5, taper: 1.3 });
   dome(b, -22, 3, 5.0); // home door stays on this dome
   dishModule(b, -14, 12); // sm, Rd, Bd, Bk were scenery. Quest markers do not use those sd spots.
   // hub rocket tower sat in the play lens (sd 12, 33). The real pad is REGIONS.launch. Leaving this one out opens the approach; no quest id uses it.
