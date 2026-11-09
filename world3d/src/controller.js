@@ -105,6 +105,8 @@ export class Controller {
         const blocks = (h) => h.object.visible && (h.object.name === 'life_rover' || h.object.name === 'life_drill' || h.point.distanceToSquared(this.pos) >= 1.7);
         for (let n = 0; n < 4; n++) { let close = false; ray.near = 0; ray.far = 0.5; for (const a of axes) { ray.set(p, a); const hs = ray.intersectObjects(this._camMeshes, false); if (hs.some(blocks)) { close = true; break; } } if (!close) break; const back = look.clone().sub(p); const d = back.length(); if (d < 1.15) break; p.addScaledVector(back, Math.min(0.4, d - 1.05) / d); }
       }
+      // Thin posts and crates are colliders, not terrain. If the lens lands inside one, shorten the boom. Large buildings are already in the solid grid.
+      for (const c of this.colliders) { const rad = (c.r || 0.6) + 0.5; if (rad > 4) continue; const dx = p.x - c.x, dz = p.z - c.z; if (dx * dx + dz * dz >= rad * rad) continue; const back = look.clone().sub(p); const d = back.length(); if (d < 1.2) break; p.addScaledVector(back, Math.min(0.7, d - 1.05) / d); }
     }
     this.cam.position.copy(p); this.cam.lookAt(look);
   }

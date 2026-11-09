@@ -127,17 +127,17 @@ function reactorCrater(b, beams, bn, bf) { // pass 19: a real reactor complex on
   bn.add('glow', G.disc(11.9, 36), { pos: [x, y + 6.1, z], color: (px, py, pz) => { const t = Math.hypot(px - x, pz - z) / 12; return [1.9 - 0.6 * t, 0.62 - 0.3 * t, 0.06]; } }); /* amber, under the bloom threshold */
   for (const [ri, ro] of [[3.2, 3.9], [6.4, 7.0], [9.4, 10.0]]) { bn.add('dark', G.ring(ri, ro, 36), { pos: [x, y + 6.18, z], color: '#3a3430' }); bn.add('gold', G.torus(ro, 0.09, 3, 36), { pos: [x, y + 6.22, z], rot: [PI / 2, 0, 0], color: C.goldD }); }
   for (let i = 0; i < 8; i++) { const a = i / 8 * PI * 2; bn.add('dark', G.box(0.45, 0.22, 8.2), { pos: [x + Math.cos(a) * 6.3, y + 6.2, z + Math.sin(a) * 6.3], rot: [0, -a + PI / 2, 0], color: '#3a3430' }); }
-  bn.add('gold', G.cyl(1.4, 1.9, 2.6, 16), { pos: [x, y + 6.1, z], color: C.goldD }); bn.add('glow', G.sphere(1.0, 12, 8), { pos: [x, y + 9.0, z], color: '#ffb24a', intensity: 2.6 }); /* central fuel column + hot cap */
+  bn.add('gold', G.cyl(1.4, 1.9, 2.6, 16), { pos: [x, y + 6.1, z], color: C.goldD }); bn.add('glow', G.sphere(1.0, 12, 8), { pos: [x, y + 9.0, z], color: '#ffb24a', intensity: 1.5 }); /* central fuel column + hot cap */
   // buttress fins between the tiers + deck lights
   for (let i = 0; i < 12; i++) { const a = i / 12 * PI * 2; bn.add('ivory', G.box(1.2, 3.6, 4.2), { pos: [x + Math.cos(a) * 18.6, y + 2.3, z + Math.sin(a) * 18.6], rot: [0, -a, 0], color: C.ivory });
     bn.add('glow', G.box(0.5, 0.25, 0.5), { pos: [x + Math.cos(a + 0.26) * 17.2, y + 4.9, z + Math.sin(a + 0.26) * 17.2], color: i % 2 ? C.winHot : C.win, intensity: 4 }); }
-  beams.push({ x, y: y + 6, z, r: 11, h: 90, color: '#ff8a30', I: 0.32 });
-  beams.push({ x, y: y + 6, z, r: 4.5, h: 170, color: '#ffb050', I: 0.38 });
+  beams.push({ x, y: y + 6, z, r: 3.2, h: 8, color: '#ff8a30', I: 0.08 });
+  beams.push({ x, y: y + 6, z, r: 1.4, h: 12, color: '#ffb050', I: 0.1 });
   // cooling towers ringing the core (tapered ivory stacks, gold bands, glowing crowns)
   for (let i = 0; i < 6; i++) { const a = i / 6 * PI * 2 + 0.3; const px = x + Math.cos(a) * 33, pz = z + Math.sin(a) * 33; const yy = groundAt(px, pz) - 0.3;
     bn.add('ivory', G.cyl(3.0, 4.2, 8, 20), { pos: [px, yy, pz], color: C.ivory, ao: [yy, yy + 10] }); bn.add('ivory', G.cyl(3.5, 3.0, 6, 20, true), { pos: [px, yy + 8, pz], color: C.ivory2 }); bn.add('dark', G.cyl(3.3, 2.8, 5.9, 20, true), { pos: [px, yy + 8.05, pz], flip: true, color: '#2a2e36' });
     for (const hb of [3, 8, 13.6]) bn.add('gold', G.torus(hb < 8 ? 3.95 - hb * 0.12 : hb < 13 ? 3.05 : 3.52, 0.18, 3, 20), { pos: [px, yy + hb, pz], rot: [PI / 2, 0, 0], color: C.gold });
-    bn.add('glow', G.ring(2.9, 3.4, 20), { pos: [px, yy + 14.05, pz], color: C.winHot, intensity: 3 }); bn.add('dark', G.disc(3.3, 20), { pos: [px, yy + 13.9, pz], color: '#1c2028' }); /* hollow-looking crown */
+    bn.add('glow', G.ring(2.9, 3.4, 20), { pos: [px, yy + 14.05, pz], color: C.winHot, intensity: 1.4 }); bn.add('dark', G.disc(3.3, 20), { pos: [px, yy + 13.9, pz], color: '#1c2028' }); /* hollow-looking crown */
     bn.add('dark', G.box(1.4, 2.2, 0.2), { pos: [px + Math.cos(a + PI) * 4.05, yy + 1.1, pz + Math.sin(a + PI) * 4.05], rot: [0, -a + PI / 2, 0], color: '#2a3442' }); }
   // service road down the crater wall toward the hub (dark strip with gold edge lights) — leading line for the region shot
   { const ah = Math.atan2(-z, -x); const P = []; for (let k = 0; k <= 30; k++) { const t = k / 30; const rr = 120 - t * 96; const a = ah + Math.sin(t * PI * 1.5) * 0.28; P.push({ x: x + Math.cos(a) * rr, z: z + Math.sin(a) * rr }); }
@@ -187,14 +187,14 @@ function canyon(b, beams, bn) { // pass 21: winding canyon floor - beacons follo
 function echo(b, beams, bn) {
   const { x, z } = REGIONS.echo; const y = groundAt(x, z);
   b.add('dark', G.cyl(16, 17, 1, 32), { pos: [x, y - 0.4, z], color: '#2c3644' });
-  b.add('glow', G.ring(9, 10, 40), { pos: [x, y + 0.65, z], color: C.cyan, intensity: 3 });
-  beams.push({ x, y: y + 0.6, z, r: 4, h: 26, color: '#40e0e0', I: 0.35 });
+  b.add('glow', G.ring(9, 10, 40), { pos: [x, y + 0.65, z], color: C.win, intensity: 1.6 });
+  beams.push({ x, y: y + 0.6, z, r: 1.4, h: 16, color: '#ffd7a8', I: 0.14 }); // warm key, not a teal wash over the field
   for (let i = 0; i < 9; i++) {
     const a = i / 9 * PI * 2; const rr = i % 2 ? 34 : 24; const px = x + Math.cos(a) * rr, pz = z + Math.sin(a) * rr; const yy = groundAt(px, pz); const h = 16 + (i % 3) * 7;
     b.add('ivory', G.cyl(0.6, 1.4, h, 8), { pos: [px, yy, pz], color: C.ivory });
     b.add('gold', G.torus(1.2, 0.18, 4, 10), { pos: [px, yy + h * 0.3, pz], rot: [PI / 2, 0, 0], color: C.gold });
-    b.add('glow', G.octa(1.1), { pos: [px, yy + h + 1.2, pz], scale: [1, 1.6, 1], color: C.cyan, intensity: 5 });
-    beams.push({ x: px, y: yy + h, z: pz, r: 0.6, h: 10 + (i % 3) * 4, color: '#50e0e8', I: 0.4 });
+    b.add('glow', G.octa(0.55), { pos: [px, yy + h + 1.0, pz], scale: [1, 1.3, 1], color: '#fff1d0', intensity: 2.2 });
+    beams.push({ x: px, y: yy + h, z: pz, r: 0.28, h: 6, color: '#d5e6ff', I: 0.12 });
     KEEP.push({ x: px, z: pz, r: 4 });
     // pass 20: cable runs between neighbouring pylons (sagging, 3 segments) + base plinth with lights
     { const a2 = (i + 1) / 9 * PI * 2, rr2 = (i + 1) % 2 ? 34 : 24, qx = x + Math.cos(a2) * rr2, qz = z + Math.sin(a2) * rr2, qy = groundAt(qx, qz) + 16 + ((i + 1) % 3) * 7; const p0 = new THREE.Vector3(px, yy + h * 0.85, pz), p1 = new THREE.Vector3(qx, qy * 0 + (qy - 16 - ((i + 1) % 3) * 7) + (16 + ((i + 1) % 3) * 7) * 0.85, qz);
@@ -202,7 +202,7 @@ function echo(b, beams, bn) {
     bn.add('dark', G.cyl(2.2, 2.6, 0.8, 8), { pos: [px, yy - 0.3, pz], color: '#2e3540' }); bn.add('glow', G.box(0.3, 0.3, 0.3), { pos: [px + 2.3, yy + 0.6, pz], color: C.cyan, intensity: 4 });
   }
   // relay hut + small dish array beside the field
-  { const hx = x + 46, hz = z + 10, hy = groundAt(hx, hz); KEEP.push({ x: hx, z: hz, r: 12 }); bn.add('tex', G.box(12, 4.5, 8), { region: 'panel', pos: [hx, hy + 2.0, hz], color: '#ffffff' }); bn.add('glow', G.box(10, 0.9, 8.1), { pos: [hx, hy + 3.0, hz], color: C.cyan, intensity: 2.2 }); bn.add('gold', G.box(12.4, 0.4, 8.4), { pos: [hx, hy + 4.45, hz], color: C.gold });
+  { const hx = x + 46, hz = z + 10, hy = groundAt(hx, hz); KEEP.push({ x: hx, z: hz, r: 12 }); bn.add('tex', G.box(12, 4.5, 8), { region: 'panel', pos: [hx, hy + 2.0, hz], color: '#ffffff' }); bn.add('glow', G.box(10, 0.9, 8.1), { pos: [hx, hy + 3.0, hz], color: C.win, intensity: 2.2 }); bn.add('gold', G.box(12.4, 0.4, 8.4), { pos: [hx, hy + 4.45, hz], color: C.gold });
     for (let k = 0; k < 3; k++) { const dx = hx - 10 + k * 7, dz = hz + 12, dy = groundAt(dx, dz); KEEP.push({ x: dx, z: dz, r: 4 }); bn.add('ivory', G.cyl(0.25, 0.35, 3.5, 8), { pos: [dx, dy, dz], color: C.ivory2 }); bn.add('ivory', G.cap(2.2, 14, 4, 0.9).rotateX(-0.8), { pos: [dx, dy + 3.8, dz], rot: [0, 0.6, 0], color: C.ivory }); bn.add('gold', G.cyl(0.05, 0.05, 1.6, 4).rotateX(-0.8), { pos: [dx, dy + 3.9, dz], rot: [0, 0.6, 0], color: C.gold }); } }
   // pass 24: cable trenches radiating to small antenna arrays, a parked rover by the relay hut
   for (const ad of [100, 200, 262, 325]) { const a = ad * PI / 180; const P = []; for (let k = 0; k <= 8; k++) { const rr = 38 + k * 8.5; P.push({ x: x + Math.cos(a) * rr, z: z + Math.sin(a) * rr }); } /* pass 25: dead-straight runs */

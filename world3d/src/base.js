@@ -38,7 +38,7 @@ function finial(b, x, y, z, h) {
   b.add('gold', G.sphere(0.3, 6, 4), { pos: [x, y + 0.6, z], color: C.gold });
   b.add('gold', G.cone(0.16, h, 8), { pos: [x, y + 0.75, z], color: C.gold });
   b.add('gold', G.octa(0.14), { pos: [x, y + 0.75 + h * 0.45, z], color: C.gold2 });
-  b.add('glow', G.octa(0.14), { pos: [x, y + 0.85 + h, z], color: C.win, intensity: 4 });
+  b.add('glow', G.octa(0.14), { pos: [x, y + 0.85 + h, z], color: C.win, intensity: 2.2 });
 }
 export function dome(b, s, d, r, o = {}) {
   const { x, z } = sd(s, d); const y = groundAt(x, z) - 0.15;
