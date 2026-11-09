@@ -7,7 +7,7 @@ export class Controller {
     this.cam = camera; this.dom = dom; this.colliders = colliders;
     this.pos = new THREE.Vector3(); this.vel = new THREE.Vector3(); this.yaw = 0; this.onGround = true;
     this.fuel = 1; this.thrusting = false; this.keys = new Set(); this.joy = new THREE.Vector2(); this.jumpHeld = false; this._jumpPrev = false;
-    this.speedMul = 1; /* game ?fast=1 test aid; 1 = normal controls */ this.camYaw = 0; this.camPitch = 0.05; this.camDist = 5.2; this.camTarget = new THREE.Vector3(); this.enabled = true; this.camFree = true; this.camShift = 0; this.camLift = 0; /* v125: low close boom. Eye ~1.56 m, 5.2 m back (was 7 m / pitch 0.15). Wheel still zooms 3–40 */ /* lateral framing offset (m, camera-right); 0 = cat centred */
+    this.speedMul = 1; /* game ?fast=1 test aid; 1 = normal controls */ this.camYaw = 0; this.camPitch = 0; this.camDist = 5.2; this.camTarget = new THREE.Vector3(); this.enabled = true; this.camFree = true; this.camShift = 0; this.camLift = 1.6; /* look point lifted 1.6 m so the stand keeps a sky band above the dome. Wheel still zooms 3–40 */ /* lateral framing offset (m, camera-right); 0 = cat centred */
     addEventListener('keydown', e => { this.keys.add(e.code); if (e.code === 'Space') e.preventDefault(); });
     addEventListener('keyup', e => this.keys.delete(e.code));
     addEventListener('blur', () => this.keys.clear());

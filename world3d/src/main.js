@@ -55,8 +55,8 @@ const sunDir = v3(-Rt.x * 0.75 - F.x * 0.45, 0.62, -Rt.z * 0.75 - F.z * 0.45).no
 // Play-stand sky: Earth sits upper-right of the default boom (camYaw = atan2(-F.x,-F.z) - 0.30), not on the concept axis.
 const playYaw = Math.atan2(-F.x, -F.z) - 0.30;
 const view = v3(-Math.sin(playYaw), 0, -Math.cos(playYaw)), right = v3(Math.cos(playYaw), 0, -Math.sin(playYaw));
-const earthAz = 0.38, earthEl = 0.22;
-const earthDir = view.clone().multiplyScalar(Math.cos(earthEl) * Math.cos(earthAz)).add(right.clone().multiplyScalar(Math.cos(earthEl) * Math.sin(earthAz))).add(v3(0, Math.sin(earthEl), 0)).normalize();
+const earthAim = (az, el) => view.clone().multiplyScalar(Math.cos(el) * Math.cos(az)).add(right.clone().multiplyScalar(Math.cos(el) * Math.sin(az))).add(v3(0, Math.sin(el), 0)).normalize();
+const earthDir = earthAim(0.26, 0.10); // desktop first frame; resize() retargets per aspect
 const hemi = new THREE.HemisphereLight('#b3b6bc', '#4a4a4d', 0.6); scene.add(hemi);
 const sun = new THREE.DirectionalLight('#fff1dc', 2.3); sun.castShadow = true;
 sun.shadow.mapSize.set(MOBILE ? 1024 : 2048, MOBILE ? 1024 : 2048); const sc = sun.shadow.camera; sc.left = -70; sc.right = 70; sc.top = 70; sc.bottom = -70; sc.near = 1; sc.far = 400; sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04;
@@ -211,7 +211,7 @@ const VIEWS = {
   launch2: () => { lookTarget = null; const L = REGIONS.launch; const c = { x: L.x + Math.cos(4.2) * 84, z: L.z + Math.sin(4.2) * 84 }; ctrl.place(c.x, c.z, Math.atan2(L.x - c.x, L.z - c.z)); const ca = 275 * Math.PI / 180; const px = L.x + Math.cos(ca) * 98, pz = L.z + Math.sin(ca) * 98; camera.position.set(px, groundAt(px, pz) + 12, pz); camera.lookAt(L.x, groundAt(L.x, L.z) + 15, L.z); camera.fov = 55; ctrl.camFree = false; },
   echo2: () => { lookTarget = null; const E = REGIONS.echo; const a0 = 292 * Math.PI / 180; const px = E.x + Math.cos(a0) * 30, pz = E.z + Math.sin(a0) * 30; const la = 290 * Math.PI / 180; const lx = E.x + Math.cos(la) * 100, lz = E.z + Math.sin(la) * 100; ctrl.place(px + 3, pz + 2, Math.atan2(lx - px, lz - pz)); camera.position.set(px, groundAt(px, pz) + 7, pz); camera.lookAt(lx, groundAt(lx, lz) + 3, lz); camera.fov = 60; ctrl.camFree = false; },
   echo: () => { lookTarget = null; const E = REGIONS.echo; const ca = -52 * Math.PI / 180, cb = -44 * Math.PI / 180; const cx = E.x + Math.cos(cb) * 64, cz = E.z + Math.sin(cb) * 64; ctrl.place(cx, cz, Math.atan2(E.x - cx, E.z - cz)); const px = E.x + Math.cos(ca) * 88, pz = E.z + Math.sin(ca) * 88; camera.position.set(px, groundAt(px, pz) + 11, pz); camera.lookAt(E.x + 8, groundAt(E.x, E.z) + 9, E.z + 4); camera.fov = 50; ctrl.camFree = false; }, /* pass 22: composed relay-station shot */
-  play: () => { lookTarget = null; const c = PLAY_START; ctrl.place(c.x, c.z, Math.atan2(F.x, F.z) + 0.25); ctrl.camYaw = Math.atan2(-F.x, -F.z) - 0.30; ctrl.camPitch = 0.05; ctrl.camDist = 5.2; ctrl.camFree = true; camera.fov = MOBILE ? 54 : 50; }, /* 5.2 m / 0.05 rad: lower and closer than 7 m / 0.15, still far enough that nearby crew stay impostors. Phone lens stays a little wider. */
+  play: () => { lookTarget = null; const c = PLAY_START; ctrl.place(c.x, c.z, Math.atan2(F.x, F.z) + 0.25); ctrl.camYaw = Math.atan2(-F.x, -F.z) - 0.30; ctrl.camPitch = 0; ctrl.camDist = 5.2; ctrl.camLift = 1.6; ctrl.camFree = true; camera.fov = MOBILE ? 54 : 50; }, /* 5.2 m boom, look lifted 1.6 m so the dome leaves a sky band. Phone lens stays a little wider. */
   aerial: () => { lookTarget = null; const c = sd(-2, -57); ctrl.place(c.x, c.z, Math.atan2(F.x, F.z)); const p = sd(-70, -125); camera.position.set(p.x, 75, p.z); const t = sd(8, 25); camera.lookAt(t.x, -6, t.z); camera.fov = 50; ctrl.camFree = false; },
   world: () => { lookTarget = null; const c = sd(-2, -57); ctrl.place(c.x, c.z, Math.atan2(F.x, F.z)); camera.position.set(-260, 520, 820); camera.lookAt(40, 0, -60); camera.fov = 55; ctrl.camFree = false; },
   cave: () => { lookTarget = null; const c = sd(24, 20); ctrl.place(c.x, c.z, Math.atan2(F.x, F.z)); const p = sd(18, 14); camera.position.set(p.x, groundAt(p.x, p.z) + 7, p.z); const cv = hub.cave; camera.lookAt(cv.x, cv.y + 4, cv.z); camera.fov = 55; ctrl.camFree = false; },
@@ -237,7 +237,13 @@ const grade = new ShaderPass({ uniforms: { tDiffuse: { value: null }, uVig: { va
       gl_FragColor = vec4(c, t.a); }` });
 composer.addPass(grade);
 const fxaa = new ShaderPass(FXAAShader); composer.addPass(fxaa);
-function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h); composer.setPixelRatio(PR); composer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); fxaa.material.uniforms.resolution.value.set(1 / (w * PR), 1 / (h * PR)); }
+function placeEarth() {
+  const portrait = camera.aspect < 1;
+  // Wide stand: full disc, upper-right of centre, bottom near the ridge, ~27% of frame width.
+  // Portrait: same camera, disc nearer centre-top and smaller, ~45% of the narrow width.
+  sky.setEarthPose(earthAim(portrait ? 0.0 : 0.26, portrait ? 0.36 : 0.18), portrait ? 400 : 760);
+}
+function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h); composer.setPixelRatio(PR); composer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); fxaa.material.uniforms.resolution.value.set(1 / (w * PR), 1 / (h * PR)); placeEarth(); }
 addEventListener('resize', resize); resize();
 
 // ---------- HUD ----------
