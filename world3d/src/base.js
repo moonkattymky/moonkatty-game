@@ -303,7 +303,7 @@ function solar(b, x, z, yaw) { const y = groundAt(x, z); b.add('dark', G.cyl(0.1
 
 // tread pair across the play approach (PLAY_START is s=-3, d=-21), not the unused ridge line
 function tracks(b) {
-  const pts = []; for (let i = 0; i <= 28; i++) { const t = i / 28; pts.push(sd(-2.2 + Math.sin(t * Math.PI) * 1.6, -30 + t * 24)); }
+  const pts = []; for (let i = 0; i <= 28; i++) { const t = i / 28; pts.push(sd(-3 + Math.sin(t * Math.PI) * 7, -32 + t * 26)); }
   for (const off of [-0.85, 0.85]) for (let i = 0; i < pts.length - 1; i++) {
     const A = pts[i], B = pts[i + 1]; const dx = B.x - A.x, dz = B.z - A.z, l = Math.hypot(dx, dz); const nx = -dz / l, nz = dx / l; const yaw = Math.atan2(dx, dz);
     for (let k = 0; k < 3; k++) { const t = k / 3; const px = A.x + dx * t + nx * off, pz = A.z + dz * t + nz * off; b.add('dark', new THREE.PlaneGeometry(0.42, 0.22).rotateX(-PI / 2), { pos: [px, groundAt(px, pz) + 0.04, pz], rot: [0, yaw, 0], color: '#4b4c52' }); }
@@ -313,25 +313,21 @@ export function buildHub(b, beams) {
   const R = reactor(b, 0, 0);
   beams.push({ x: R.x, y: R.y + 0.2, z: R.z, r: R.Ri * 0.92, h: 5.0, color: "#ff7a1e", I: 0.55, taper: 1.2 }); // warm glow halo rising out of the molten pit (additive, merged into the beam draw)
   beams.push({ x: R.x, y: R.y + 0.2, z: R.z, r: R.Ri * 0.5, h: 3.0, color: "#ffa04a", I: 0.5, taper: 1.3 });
-  const L = dome(b, -22, 3, 5.0);
-  const Bk = dome(b, -3.5, 25, 5.6, { spireH: 4.5 });
-  const sm = dome(b, -9, 16.5, 2.8, { spire: false });
-  const Rd = dome(b, 19.5, 9, 4.6);
-  const Bd = dome(b, 25, 24, 3.2); // Fd (10.5, -6.5) sat on the play approach. Not a quest anchor.
-  dishModule(b, -14, 12);
+  dome(b, -22, 3, 5.0); // home door stays on this dome
+  dishModule(b, -14, 12); // sm, Rd, Bd, Bk were scenery. Quest markers do not use those sd spots.
   // hub rocket tower sat in the play lens (sd 12, 33). The real pad is REGIONS.launch. Leaving this one out opens the approach; no quest id uses it.
   beaconPad(b, 10.5, -25.5, beams, 17);
   const cave = portalCave(b, beams);
   // corridors (auto-trimmed to module radii)
   const P = (s, d) => sd(s, d);
-  const M = { ring: [0, 0, 8.5], L: [-22, 3, 5], Bk: [-3.5, 25, 5.6], sm: [-9, 16.5, 2.8], Rd: [19.5, 9, 4.6], Bd: [25, 24, 3.2], dish: [-14, 12, 4.3] };
+  const M = { ring: [0, 0, 8.5], L: [-22, 3, 5], dish: [-14, 12, 4.3] };
   const link = (a, c, r = 1.3) => { const A = M[a], B = M[c]; const ds = B[0] - A[0], dd = B[1] - A[1]; const l = Math.hypot(ds, dd); const ux = ds / l, uy = dd / l; corridor(b, P(A[0] + ux * (A[2] - 0.3), A[1] + uy * (A[2] - 0.3)), P(B[0] - ux * (B[2] - 0.3), B[1] - uy * (B[2] - 0.3)), r); };
-  link('ring', 'L', 1.4); link('ring', 'Rd', 1.3); link('ring', 'dish', 1.3); link('dish', 'sm', 1.05); link('sm', 'Bk', 1.05); link('Rd', 'Bd', 1.1); link('dish', 'L', 1.15); link('ring', 'Bk', 1.2);
+  link('ring', 'L', 1.4); link('ring', 'dish', 1.3); link('dish', 'L', 1.15);
   // props
   const rnd = (() => { let a = 7; return () => (a = (a * 16807) % 2147483647) / 2147483647; })();
   for (let i = 0; i < 12; i++) { const a = i / 12 * PI * 2; const p = { x: Math.cos(a) * 38, z: Math.sin(a) * 38 }; lamp(b, p.x, p.z, i % 2 ? C.win : C.gold2); }
   for (let i = 0; i < 10; i++) { const p = P(-26 + rnd() * 10, 10 + rnd() * 8); crate(b, p.x, p.z, 0.8 + rnd() * 0.5, rnd() * 3); }
-  for (let i = 0; i < 6; i++) { const p = P(14 + rnd() * 6, -12 - rnd() * 8); crate(b, p.x, p.z, 0.7 + rnd() * 0.4, rnd() * 3); }
+  for (let i = 0; i < 6; i++) { const p = P(-34 + rnd() * 6, 16 + rnd() * 6); crate(b, p.x, p.z, 0.7 + rnd() * 0.4, rnd() * 3); }
   for (let i = 0; i < 8; i++) { const p = P(-30 + (i % 4) * 3.8, 22 + Math.floor(i / 4) * 3); solar(b, p.x, p.z, faceCam + PI); }
   // gameplay start area: landing pad, crates, lamps, a signpost so the behind-the-cat view is rich
   { const lp = P(-9.5, -16); const ly = groundAt(lp.x, lp.z); const S = 0.66; colliders.push({ x: lp.x, z: lp.z, r: 2.6 * S, walk: true }); // compact, flush landing pad (walk: the cat stands on it via the solid map; still keeps rocks off)
@@ -341,15 +337,15 @@ export function buildHub(b, beams) {
     for (const [w, d, ox] of [[0.16, 1.0, -0.36], [0.16, 1.0, 0.36], [0.56, 0.16, 0]]) b.add('ivory', G.box(w, 0.02, d), { pos: [lp.x + Math.cos(faceCam) * ox, ly + 0.115, lp.z - Math.sin(faceCam) * ox], rot: [0, faceCam, 0], color: C.ivory2 });
     for (let k = 0; k < 6; k++) { const a = k / 6 * PI * 2 + PI / 6; b.add('glow', G.box(0.1, 0.06, 0.1), { pos: [lp.x + Math.sin(a) * 2.45 * S, ly + 0.12, lp.z + Math.cos(a) * 2.45 * S], color: C.gold2, intensity: 3 }); } }
   for (const [s, d, sc, yw] of [[-15, -9, 0.9, 0.4], [-14, -7.8, 0.7, 1.3]]) { const p = P(s, d); crate(b, p.x, p.z, sc, yw); }
-  for (const [s, d] of [[-1, -14], [3, -10.5], [-6.5, -11], [7, -13.5], [-5.5, -17.5], [2, -18], [-8, -33], [6, -36]]) { const p = P(s, d); lamp(b, p.x, p.z, C.gold2); }
+  for (const [s, d] of [[-8, -14], [-6.5, -11], [-5.5, -17.5], [-8, -33]]) { const p = P(s, d); lamp(b, p.x, p.z, C.gold2); }
   { const p = P(5.5, -14.5); const y = groundAt(p.x, p.z); b.add('dark', G.cyl(0.07, 0.09, 2.2, 6), { pos: [p.x, y, p.z], color: '#59616d' });
     b.add('tex', new THREE.BoxGeometry(1.4, 0.7, 0.06), { region: 'panel', pos: [p.x, y + 2.0, p.z], rot: [0, faceCam, 0], color: '#ffffff' }); b.add('gold', G.box(1.5, 0.08, 0.08), { pos: [p.x, y + 2.38, p.z], rot: [0, faceCam, 0], color: C.gold }); }
   // extra small props: solar arrays, mast antennas, path lamps
-  for (const [s0, d0, n, yw] of [[30, -6, 4, 0.4], [-28, -8, 3, -0.3], [8, 44, 4, 0.1]]) for (let i = 0; i < n; i++) { const p = P(s0 + i * 3.6 * Math.cos(yw), d0 + i * 3.6 * Math.sin(yw)); solar(b, p.x, p.z, faceCam + PI + yw); }
-  for (const [s0, d0, h] of [[-17, -2, 4.5], [27, 14, 3.5], [3, 12, 5], [-12, 26, 4], [17, 30, 4.5], [33, 22, 3]]) { const p = P(s0, d0); const y = groundAt(p.x, p.z); b.add('dark', G.cyl(0.35, 0.45, 0.3, 8), { pos: [p.x, y, p.z], color: '#4a5260' }); antenna(b, p.x, y + 0.3, p.z, h); }
-  for (const [s0, d0] of [[-18, -18], [14, -24], [26, -16], [-24, 22], [30, 30], [-6, 38], [20, 40], [-30, -2]]) { const p = P(s0, d0); lamp(b, p.x, p.z, C.gold2); }
+  for (const [s0, d0, n, yw] of [[-28, -8, 3, -0.3], [8, 44, 4, 0.1]]) for (let i = 0; i < n; i++) { const p = P(s0 + i * 3.6 * Math.cos(yw), d0 + i * 3.6 * Math.sin(yw)); solar(b, p.x, p.z, faceCam + PI + yw); }
+  for (const [s0, d0, h] of [[-17, -2, 4.5], [3, 12, 5], [-12, 26, 4]]) { const p = P(s0, d0); const y = groundAt(p.x, p.z); b.add('dark', G.cyl(0.35, 0.45, 0.3, 8), { pos: [p.x, y, p.z], color: '#4a5260' }); antenna(b, p.x, y + 0.3, p.z, h); }
+  for (const [s0, d0] of [[-18, -18], [-24, 22], [-6, 38], [-30, -2]]) { const p = P(s0, d0); lamp(b, p.x, p.z, C.gold2); }
   // pass 15: a few small auxiliary pods + crate stacks around the periphery so the base reads more spread out (merged: 0 extra draw calls)
-  for (const [s0, d0, r, yw] of [[-31.5, 8, 1.7, -0.6], [-33, -3, 1.35, 0.2], [26.5, -1.5, 1.5, -0.3], [33, 16, 1.6, -1.2], [-21, 31, 1.4, 2.6]]) { const p = P(s0, d0); pod(b, p.x, p.z, r, faceCam + yw); }
+  for (const [s0, d0, r, yw] of [[-31.5, 8, 1.7, -0.6], [-33, -3, 1.35, 0.2], [-21, 31, 1.4, 2.6]]) { const p = P(s0, d0); pod(b, p.x, p.z, r, faceCam + yw); }
   for (const [s0, d0, sc, yw] of [[-29, 11.5, 0.75, 0.4], [-28.2, 12.6, 0.6, 1.2], [-35.5, -0.5, 0.7, 2.1], [29.5, 0.5, 0.7, 0.6], [30.2, 1.7, 0.55, 1.9], [35.5, 13, 0.8, 0.2]]) { const p = P(s0, d0); crate(b, p.x, p.z, sc, yw); }
   return { reactor: R, cave };
 }

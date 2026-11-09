@@ -7,7 +7,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from '../../vendor/three/jsm/utils/BufferGeometryUtils.js';
 import { DRILL_HEAD } from './machines.js';
-import { setRut, setCrater, PLAY_START, F } from '../terrain.js';
+import { setRut, setCrater, PLAY_START, F, sd } from '../terrain.js';
 import { haulerPieces } from '../world.js';
 
 const col = (g, hex, e = 0) => { g = g.index ? g.toNonIndexed() : g; const c = new THREE.Color(hex), n = g.attributes.position.count, a = new Float32Array(n * 3), ae = new Float32Array(n); for (let i = 0; i < n; i++) { c.toArray(a, i * 3); ae[i] = e; } g.setAttribute('color', new THREE.BufferAttribute(a, 3)); g.setAttribute('aE', new THREE.BufferAttribute(ae, 1)); if (g.attributes.uv) g.deleteAttribute('uv'); return g; };
@@ -120,7 +120,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const ships = (low ? [] : LITE ? [0] : [0, 1]).map(i => { const m = new THREE.Mesh(shG, mat); m.name = 'life_ship'; m.scale.setScalar(2.2); root.add(m); return { m, i, t: i * 11 }; });
   // v124: shuttles fly fixed world routes (hub oval + hub↔launch corridor), not whatever the camera happens to face.
   const shipRoutes = [
-    { cx: base.x, cz: base.z, rx: 168, rz: 108, yaw: Math.atan2(0.592, -0.806), y0: 58, y1: 86, dur: 32 },
+    { cx: base.x, cz: base.z, rx: 62, rz: 38, yaw: Math.atan2(0.592, -0.806), y0: 26, y1: 42, dur: 28 },
     { cx: (base.x + launch.x) * 0.5, cz: (base.z + launch.z) * 0.5, rx: 210, rz: 72, yaw: Math.atan2(launch.z - base.z, launch.x - base.x), y0: 96, y1: 132, dur: 44 },
   ];
   const SKY_R = low ? 0 : mobile ? 200 : 250; // hub and the launch pad still see their craft; a canyon/echo centre does not pick up the base traffic
@@ -149,7 +149,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const dd = { x: D.x - depotP.x, z: D.z - depotP.z }, dl = Math.hypot(dd.x, dd.z) || 1, ux = dd.x / dl, uz = dd.z / dl, px = -uz, pz = ux;
   drill.position.set(D.x, groundAt(D.x, D.z), D.z); drill.rotation.y = Math.atan2(depotP.x - D.x, depotP.z - D.z) + 0.5;
   // rover: depot -> around the drill -> back (closed loop), all inside the open patch
-  /* v98: concept d04ca995 - the crystal hauler crosses the foreground centre-right of the main view (oval in front of the drill, clear of the cat spot) */ const lc = { x: D.x - ux * 4 + px * 4, z: D.z - uz * 4 + pz * 4 }; const loopPts = []; for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2, au = Math.cos(a) * 4.2, ap = Math.sin(a) * 2.3; loopPts.push(new THREE.Vector3(lc.x + ux * au + px * ap, 0, lc.z + uz * au + pz * ap)); } setRut(lc.x, lc.z, 4.2, 2.3, ux, uz); setCrater(9, 19, 5); /* v100: big crater on the open plain right of the base */ /* v100: worn wheel ruts + faint gold guide line along the rover oval (terrain shader) */
+  const hc = sd(4, -18); const hux = F.x, huz = F.z, hpx = -huz, hpz = hux; const loopPts = []; for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2; loopPts.push(new THREE.Vector3(hc.x + hux * Math.cos(a) * 5.2 + hpx * Math.sin(a) * 1.8, 0, hc.z + huz * Math.cos(a) * 5.2 + hpz * Math.sin(a) * 1.8)); } setRut(hc.x, hc.z, 5.2, 1.8, hux, huz); const crx = PLAY_START.x + fwd.x * 6 + right.x * 16, crz = PLAY_START.z + fwd.z * 6 + right.z * 16; setCrater(crx, crz, 13);
   const loop = new THREE.CatmullRomCurve3(loopPts, true); const loopLen = loop.getLength();
   // porters: two crew robots shuttling crystals drill -> depot; they wave at the cat when it comes close
   const porters = makeCrew ? [['builder', 0, -7], ['geologist', 0.27, 0.8]].map(([ty, o, ln]) => { const r = makeCrew(scene, env, ty, 2); r.root.name = 'life_porter'; return { r, o, ln, wave: 0 }; }) /* v97: separate lanes + phase so they never stack behind the cat */ : [];
@@ -181,7 +181,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
     // ships across the sky (relative to the base so they read from anywhere)
     for (const s of ships) { s.t += dt; const rt = shipRoutes[s.i] || shipRoutes[0]; const u = (s.t % rt.dur) / rt.dur, a = u * Math.PI * 2; const lx = Math.cos(a) * rt.rx, lz = Math.sin(a) * rt.rz; const c = Math.cos(rt.yaw), sn = Math.sin(rt.yaw); const x = rt.cx + lx * c - lz * sn, z = rt.cz + lx * sn + lz * c; const y = groundAt(base.x, base.z) + rt.y0 + (rt.y1 - rt.y0) * (0.5 + 0.5 * Math.sin(a)); const tx = -Math.sin(a) * rt.rx, tz = Math.cos(a) * rt.rz; const wx = tx * c - tz * sn, wz = tx * sn + tz * c; s.m.position.set(x, y, z); s.m.rotation.set(0.08, Math.atan2(wx, wz), 0.12); s.m.scale.setScalar(3.2); s.m.visible = Math.hypot(x - cam.x, z - cam.z) < SKY_R; }
     const nearBase = Math.hypot(base.x - cam.x, base.z - cam.z) < (mobile ? 190 : 240), nearLaunch = Math.hypot(launch.x - cam.x, launch.z - cam.z) < (mobile ? 170 : 210);
-    if (!LITE) { const u = (T % 70) / 70; const a = 2.0 + u * 2.8; sat.position.set(base.x + Math.cos(a) * 340, groundAt(base.x, base.z) + 150 + Math.sin(u * 3.1) * 20, base.z + Math.sin(a) * 340); sat.rotation.y += dt * 0.25; sat.rotation.z = 0.4; sat.visible = nearBase && Math.hypot(sat.position.x - cam.x, sat.position.z - cam.z) < 430; }
+    if (!LITE) { const u = (T % 70) / 70; const a = 2.0 + u * 2.8; sat.position.set(base.x + Math.cos(a) * 95, groundAt(base.x, base.z) + 52 + Math.sin(u * 3.1) * 6, base.z + Math.sin(a) * 70); sat.rotation.y += dt * 0.25; sat.rotation.z = 0.4; sat.visible = nearBase && Math.hypot(sat.position.x - cam.x, sat.position.z - cam.z) < 430; }
     // distant shuttle lift-off at the launch site, then re-lands after a pause
     liftT += dt; { const cyc = 48, k = liftT % cyc; const gy = groundAt(launch.x, launch.z); const climb = k < 18 ? Math.pow(k / 18, 2) * 260 : 260 + (k - 18) * 40; const liftNear = Math.hypot(launch.x - cam.x, launch.z - cam.z) < 750; lift.visible = k < 30 && !LITE && liftNear; lift.position.set(launch.x + (k > 8 ? (k - 8) * (k - 8) * 0.25 : 0), gy + 6 + climb, launch.z); lift.rotation.set(0, 0, Math.PI / 2 - Math.min(0.5, Math.max(0, k - 8) * 0.03));
       if (lift.visible && k < 26) { for (let n = 0; n < 2; n++) parts.emit(lift.position.x - 1, lift.position.y - 5, lift.position.z, (Math.random() - 0.5) * 3, -8 - Math.random() * 6, (Math.random() - 0.5) * 3, 1.2, 4.5, 2.2, 1.0, 0.3, 0.0, 'fire', 6); if (k < 4) parts.emit(launch.x + (Math.random() - 0.5) * 8, gy + 1, launch.z + (Math.random() - 0.5) * 8, (Math.random() - 0.5) * 6, 1.5, (Math.random() - 0.5) * 6, 2.5, 4, 0.5, 0.5, 0.5, 0.35, 'smoke', 10); } }
@@ -189,12 +189,12 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
     let bi = 0; for (const s of ships) { if (s.m.visible) { s.m.localToWorld(v.set(-2.5, 0, 0)); bb.set(bi, v.x, v.y, v.z, 11, 3, 0); } else bb.set(bi, 0, -999, 0, 0, 3); bi++; }
     // v124: three fixed meteor lanes (hub sky, hub sky offset, hub↔launch). Same billboard slots. They do not respawn into the lens.
     const lanes = [
-      { x: base.x, z: base.z, y: groundAt(base.x, base.z) + 96, dir: Math.atan2(-0.806, 0.592) + 0.35, span: 240, per: 7.5, ph: 0.4 },
+      { x: base.x, z: base.z, y: groundAt(base.x, base.z) + 48, dir: Math.atan2(-0.806, 0.592) + 0.35, span: 160, per: 7.5, ph: 0.4 },
       { x: base.x + 36, z: base.z - 24, y: groundAt(base.x, base.z) + 128, dir: Math.atan2(-0.806, 0.592) - 0.55, span: 190, per: 9.5, ph: 3.1 },
       { x: (base.x + launch.x) * 0.5, z: (base.z + launch.z) * 0.5, y: groundAt(launch.x, launch.z) + 150, dir: Math.atan2(launch.x - base.x, launch.z - base.z), span: 280, per: 12, ph: 1.6 },
     ];
     for (let k = 0; k < 3; k++) { const s = lanes[k], u = ((T + s.ph) % s.per) / s.per, along = (u - 0.5) * s.span; const x = s.x + Math.sin(s.dir) * along, z = s.z + Math.cos(s.dir) * along, y = s.y - u * 36; if (Math.hypot(x - cam.x, z - cam.z) > SKY_R) bb.set(bi, 0, -999, 0, 0, 2); else bb.set(bi, x, y, z, 14, 2, 0, s.dir); bi++; }
-    for (let k = 0; k < 4; k++) { if (k < 2) { const a = k * 1.7 + T * 0.03; const x = J.x + Math.cos(a) * (14 + k * 6), z = J.z + Math.sin(a) * (14 + k * 6), y = groundAt(J.x, J.z) + 22 + k * 7 + Math.sin(T * 0.6 + k) * 3; jelly(bi++, k, x, y, z, 8 + k * 2); } else { /* two cyan jellies drifting over the open ground beyond the drill (concept: upper right) */ const a = k * 2.1 + T * 0.05; const cx = D.x + ux * 26, cz = D.z + uz * 26; const x = cx + Math.cos(a) * 9, z = cz + Math.sin(a) * 9, y = groundAt(cx, cz) + 12 + (k - 2) * 5 + Math.sin(T * 0.7 + k) * 1.5; jelly(bi++, k, x, y, z, 3.2 + (k - 2) * 0.8); } }
+    for (let k = 0; k < 4; k++) { if (k < 2) { const a = k * 1.7 + T * 0.03; const x = J.x + Math.cos(a) * (14 + k * 6), z = J.z + Math.sin(a) * (14 + k * 6), y = groundAt(J.x, J.z) + 22 + k * 7 + Math.sin(T * 0.6 + k) * 3; jelly(bi++, k, x, y, z, 8 + k * 2); } else { const a = k * 2.1 + T * 0.05; const cx = PLAY_START.x + fwd.x * 22 + right.x * 10, cz = PLAY_START.z + fwd.z * 22 + right.z * 10; const x = cx + Math.cos(a) * 6, z = cz + Math.sin(a) * 6, y = groundAt(cx, cz) + 26 + (k - 2) * 6 + Math.sin(T * 0.7 + k) * 1.2; jelly(bi++, k, x, y, z, 3.4 + (k - 2) * 0.6); } }
     { const cyc = 75, k = T % cyc; if (k < 6) { const a = bunnyPath.a0 + k * 0.05; const r = 320; const x = base.x + Math.cos(a) * r, z = base.z + Math.sin(a) * r; bb.set(bi, x, groundAt(x, z) + 3 + Math.abs(Math.sin(k * 6)) * 2.5, z, 5, 1, 0); } else bb.set(bi, 0, -999, 0, 0, 1); bi++; }
     bb.flush(); bb.mesh.visible = !low && (nearBase || nearLaunch); /* far zones skip the always-on billboard draw */
     // rover on its loop: follows the ground, dust trail, crystals while hauling back
