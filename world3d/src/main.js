@@ -58,7 +58,7 @@ const view = v3(-Math.sin(playYaw), 0, -Math.cos(playYaw)), right = v3(Math.cos(
 const earthAim = (az, el) => view.clone().multiplyScalar(Math.cos(el) * Math.cos(az)).add(right.clone().multiplyScalar(Math.cos(el) * Math.sin(az))).add(v3(0, Math.sin(el), 0)).normalize();
 const earthDir = earthAim(0.26, 0.10); // desktop first frame; resize() retargets per aspect
 const hemi = new THREE.HemisphereLight('#b3b6bc', '#4a4a4d', 0.6); scene.add(hemi);
-const sun = new THREE.DirectionalLight('#fff1dc', 2.3); sun.castShadow = true;
+const sun = new THREE.DirectionalLight('#fff1dc', 1.65); sun.castShadow = true;
 sun.shadow.mapSize.set(MOBILE ? 1024 : 2048, MOBILE ? 1024 : 2048); const sc = sun.shadow.camera; sc.left = -120; sc.right = 120; sc.top = 120; sc.bottom = -120; sc.near = 1; sc.far = 400; sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04; /* the ±70 box left a hard unshadowed cut across the reactor wall; the wider box keeps that slope inside the map so the shadow edge stays on the geometry */
 scene.add(sun, sun.target);
 const fill = new THREE.DirectionalLight('#8f9aab', 0.45); fill.position.copy(earthDir).multiplyScalar(100); scene.add(fill);
@@ -347,6 +347,7 @@ function frame(dt) {
   applyPower(t);
   fuelEl.style.width = (ctrl.fuel * 100).toFixed(0) + '%';
   culler.update(camera);
+  if (!frame._robLit && (frame._n = (frame._n || 0) + 1) > 6) { frame._robLit = 1; scene.traverse(o => { const ms = o.material ? [].concat(o.material) : []; for (const m of ms) { try { if (!m.customProgramCacheKey || m.userData._dim || m.customProgramCacheKey() !== 'mk_robot4') continue; const prev = m.onBeforeCompile; m.onBeforeCompile = (sh, ren) => { prev(sh, ren); sh.fragmentShader = sh.fragmentShader.replace('totalEmissiveRadiance += diffuseColor.rgb * vec3(1.12, 0.98, 0.78) * 0.26 * (1.0 - 0.65 * vMR.x);', 'totalEmissiveRadiance += diffuseColor.rgb * vec3(0.75, 0.82, 1.05) * 0.05 * (1.0 - 0.9 * vMR.x);'); }; m.envMapIntensity = 0.22; m.userData._dim = 1; m.needsUpdate = true; m.customProgramCacheKey = () => 'mk_robot4_dim'; } catch (e) { } } }); }
   composer.render(dt);
 }
 // paused (app hidden / Telegram deactivated): stop rendering entirely; resume resets the clock so dt does not jump

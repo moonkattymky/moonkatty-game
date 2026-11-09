@@ -203,6 +203,22 @@ body.game #jump .fl{position:absolute;left:50%;bottom:-16px;width:26px;height:30
 #mk-ring{width:54px;height:54px;margin:-9px 0 -9px -7px;z-index:1;background:radial-gradient(circle at 50% 32%,#1d3168,#0b1530 68%);box-shadow:0 0 0 2.5px #f0cf7a,0 0 0 4.5px #a8721e,0 0 0 5.5px rgba(255,236,180,.55),0 0 14px rgba(200,145,42,.65),0 3px 8px rgba(0,0,0,.55)}
 #mk-ring b{font-family:"MK Oswald",sans-serif;font-size:21px;font-weight:500;color:#fff;text-shadow:0 1px 2px #000}
 #mk-ring b small{font-family:"MK Oswald",sans-serif;font-size:9.5px;font-weight:500;letter-spacing:.1em;color:#f3d58a;margin-bottom:0}
+/* Narrow portrait: the chapter-2 crew button sits in the same left bar. Pin both edges inside the safe area and tighten the existing controls so the bar cannot run off the right edge. Desktop rules above stay as designed. */
+@media (max-width:520px){
+  #mk-top{left:max(6px,env(safe-area-inset-left));right:max(6px,env(safe-area-inset-right));width:auto;max-width:none;box-sizing:border-box;gap:4px;padding:3px 4px 3px 2px;justify-content:flex-start}
+  #mk-ring{width:40px;height:40px;margin:-2px 0 -2px 0}
+  #mk-ring b{font-size:16px}
+  #mk-ring b small{font-size:8px;letter-spacing:.04em}
+  #mk-pts{min-width:0;flex:0 1 auto}
+  #mk-pts .v{font-size:13px;gap:2px}
+  #mk-pts .v .st{font-size:14px}
+  #mk-cry{padding-left:4px}
+  #mk-cry svg{width:14px;height:18px}
+  #mk-lives{padding-left:4px;font-size:12px}
+  #mk-qbtn,#mk-crewbtn{height:26px;padding:0 6px;font-size:11px;letter-spacing:0;flex:0 1 auto;min-width:0}
+  #mk-comp,#mk-sprint{right:max(8px,env(safe-area-inset-right))}
+  #mk-track{left:max(8px,env(safe-area-inset-left));width:min(194px,calc(100vw - 28px))}
+}
 #mk-capline{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:700;color:#6b4a14;margin:-4px 0 8px}
 #mk-capline .b{flex:1;height:6px;border-radius:3px;background:rgba(107,74,20,.18);overflow:hidden}#mk-capline .b i{display:block;height:100%;background:linear-gradient(90deg,#e9b448,#ffd77a)}
 #mk-map{border-radius:16px;border:2.5px solid #e2b553;background:radial-gradient(ellipse at 50% 18%,rgba(255,255,255,.38),transparent 46%),radial-gradient(circle at 50% 60%,#8a5a2c,#5a3516 62%,#3a210c);box-shadow:0 0 0 1.5px #7a4f12,0 0 0 3px rgba(255,226,150,.35),inset 0 2px 1px rgba(255,240,200,.5),inset 0 -4px 6px rgba(0,0,0,.45),0 5px 10px rgba(0,0,0,.55),0 0 12px rgba(200,145,42,.5);color:#fff1cf;text-shadow:0 1px 1px #000}

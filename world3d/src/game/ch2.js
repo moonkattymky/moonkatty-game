@@ -51,6 +51,7 @@ const CSS = `
 .c2-stub{opacity:.55;font-size:11px;padding:6px 9px;border:1px dashed rgba(247,242,231,.3);border-radius:11px;margin-top:5px}
 #mk-crewbtn{display:none;border:1px solid rgba(103,215,240,.7);background:rgba(16,32,58,.8);color:#a8f0ff;font-weight:800;font-size:12px;border-radius:18px;padding:8px 10px;margin-left:4px;white-space:nowrap}
 #mk-crewbtn.ask{border-color:#ff9a5a;color:#ffcf9a;box-shadow:0 0 10px rgba(255,140,80,.5)}
+@media (max-width:520px){#mk-crewbtn{height:26px;padding:0 6px;margin-left:2px;font-size:11px;letter-spacing:0}}
 `;
 
 export function createChapter2(ctx) {
