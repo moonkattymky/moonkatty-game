@@ -188,13 +188,12 @@ function echo(b, beams, bn) {
   const { x, z } = REGIONS.echo; const y = groundAt(x, z);
   b.add('dark', G.cyl(16, 17, 1, 32), { pos: [x, y - 0.4, z], color: '#2c3644' });
   b.add('glow', G.ring(9, 10, 40), { pos: [x, y + 0.65, z], color: C.win, intensity: 1.6 });
-  beams.push({ x, y: y + 0.6, z, r: 1.4, h: 16, color: '#ffd7a8', I: 0.14 }); // warm key, not a teal wash over the field
+  // no volumetric column: the pylon lamps are the lights, and a beam cylinder reads as a blade
   for (let i = 0; i < 9; i++) {
     const a = i / 9 * PI * 2; const rr = i % 2 ? 34 : 24; const px = x + Math.cos(a) * rr, pz = z + Math.sin(a) * rr; const yy = groundAt(px, pz); const h = 16 + (i % 3) * 7;
     b.add('ivory', G.cyl(0.6, 1.4, h, 8), { pos: [px, yy, pz], color: C.ivory });
     b.add('gold', G.torus(1.2, 0.18, 4, 10), { pos: [px, yy + h * 0.3, pz], rot: [PI / 2, 0, 0], color: C.gold });
-    b.add('glow', G.octa(0.55), { pos: [px, yy + h + 1.0, pz], scale: [1, 1.3, 1], color: '#fff1d0', intensity: 2.2 });
-    beams.push({ x: px, y: yy + h, z: pz, r: 0.28, h: 6, color: '#d5e6ff', I: 0.12 });
+    b.add('glow', G.octa(0.45), { pos: [px, yy + h + 0.8, pz], scale: [1, 1.2, 1], color: '#fff1d0', intensity: 1.6 });
     KEEP.push({ x: px, z: pz, r: 4 });
     // pass 20: cable runs between neighbouring pylons (sagging, 3 segments) + base plinth with lights
     { const a2 = (i + 1) / 9 * PI * 2, rr2 = (i + 1) % 2 ? 34 : 24, qx = x + Math.cos(a2) * rr2, qz = z + Math.sin(a2) * rr2, qy = groundAt(qx, qz) + 16 + ((i + 1) % 3) * 7; const p0 = new THREE.Vector3(px, yy + h * 0.85, pz), p1 = new THREE.Vector3(qx, qy * 0 + (qy - 16 - ((i + 1) % 3) * 7) + (16 + ((i + 1) % 3) * 7) * 0.85, qz);

@@ -5,7 +5,7 @@ import { makeCrystalField } from './crystal.js';
 // The pickup burst (1 Points object) is only visible for ~0.8 s.
 
 export function makeBeacon(scene) {
-  const beam = new THREE.CylinderGeometry(0.55, 0.55, 60, 16, 1, true).translate(0, 30, 0); beam.setAttribute('aK', new THREE.Float32BufferAttribute(new Float32Array(beam.attributes.position.count).fill(0), 1));
+  const beam = new THREE.CylinderGeometry(0.28, 0.42, 6.5, 10, 1, true).translate(0, 3.3, 0); beam.setAttribute('aK', new THREE.Float32BufferAttribute(new Float32Array(beam.attributes.position.count).fill(0), 1));
   const ring = new THREE.RingGeometry(1.5, 2.1, 32).rotateX(-Math.PI / 2).translate(0, 0.08, 0); ring.setAttribute('aK', new THREE.Float32BufferAttribute(new Float32Array(ring.attributes.position.count).fill(1), 1));
   for (const g of [beam, ring]) g.deleteAttribute('normal');
   const geo = mergeGeometries([beam, ring]);
@@ -14,7 +14,7 @@ export function makeBeacon(scene) {
     vertexShader: 'attribute float aK; varying vec2 vUv; varying float vK; void main(){ vUv = uv; vK = aK; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
     fragmentShader: `uniform float uTime; uniform vec3 uColor; varying vec2 vUv; varying float vK;
       void main(){ float a;
-        if (vK < 0.5) { float y = vUv.y; a = pow(1.0 - y, 1.6) * 0.55 * (0.82 + 0.18 * sin(uTime * 3.0 - y * 18.0)); }
+        if (vK < 0.5) { float y = vUv.y; a = pow(1.0 - y, 1.8) * 0.22 * (0.82 + 0.18 * sin(uTime * 3.0 - y * 18.0)); }
         else { a = 0.85 * (0.65 + 0.35 * sin(uTime * 4.0)); }
         gl_FragColor = vec4(uColor * 1.6 * a, a); }`,
   });

@@ -419,6 +419,13 @@ export function buildRocks(scene, culler, quality = 1) { LOD_SCALE = quality < 0
     for (const k of Object.values(kinds)) culler.add(k);
   // contact shadows / crevices: every rock near the hub darkens the regolith around its base (painted into the terrain AO map in main.js)
   const contacts = []; for (const k of ['bA', 'bB', 'bC', 'cliff', 'peak', 'rubble', 'pebble', 'crumb']) for (const it of L[k]) { const sx = Array.isArray(it.s) ? Math.max(it.s[0], it.s[2]) : it.s; if (Math.abs(it.x) < 75 && Math.abs(it.z) < 75) contacts.push([it.x, it.z, sx, k === 'crumb' || k === 'pebble' ? 0.5 : 1]); } for (const it of scatter) contacts.push([it.x, it.z, Math.max(it.s[0], it.s[2]) * 1.15, 0.85]); /* pebble contact shadows in the terrain AO map */
+  // Midground stones at Echo and the reactor approach. One culled mesh each, the same pebble as the hub scatter.
+  { const geo = pebbleGeom(41); const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), sc = new THREE.Vector3(), v = new THREE.Vector3();
+    const pad = (cx, cz, n, name, seed) => { const im = new THREE.InstancedMesh(geo, matScatter, n); im.name = name; im.castShadow = false; im.frustumCulled = true; const r2 = seeded(seed);
+      for (let i = 0; i < n; i++) { const a = r2() * 6.283, rad = 3 + Math.sqrt(r2()) * 16; const x = cx + Math.cos(a) * rad, z = cz + Math.sin(a) * rad; const s = 0.45 + r2() * 1.15; const y = groundAt(x, z) - s * 0.12; q.setFromEuler(e.set((r2() - 0.5) * 0.4, r2() * 6.28, (r2() - 0.5) * 0.35)); m4.compose(v.set(x, y, z), q, sc.set(s * (0.8 + r2() * 0.4), s * 0.42, s * (0.75 + r2() * 0.4))); im.setMatrixAt(i, m4); }
+      scene.add(im); };
+    const ah = Math.atan2(-REGIONS.reactor.z, -REGIONS.reactor.x);
+    pad(REGIONS.echo.x + 10, REGIONS.echo.z - 6, 22, 'rocks_echo', 909); pad(REGIONS.reactor.x + Math.cos(ah) * 36, REGIONS.reactor.z + Math.sin(ah) * 36, 22, 'rocks_reactor', 910); }
   return { kinds, contacts, counts: Object.fromEntries(Object.entries(L).map(([k, v]) => [k, v.length])) };
 }
 
@@ -483,8 +490,7 @@ export function beamMaterial() {
     vertexShader: `attribute vec3 color; varying vec3 vC; varying vec2 vUv; varying float vF; varying float vY;
       void main(){ vC=color; vUv=uv; vec4 mv=modelViewMatrix*vec4(position,1.); vec3 n=normalize(normalMatrix*normal); vF=abs(dot(n,normalize(-mv.xyz))); vY=position.y; gl_Position=projectionMatrix*mv; }`,
     fragmentShader: `uniform float uTime; uniform float uPow; varying vec3 vC; varying vec2 vUv; varying float vF; varying float vY;
-      void main(){ float fade=pow(1.-vUv.y,2.6)*smoothstep(0.,0.03,vUv.y+0.02); float core=pow(vF,2.0); float fl=0.85+0.15*sin(uTime*3.+vY*0.4);
-        gl_FragColor=vec4(vC*fade*core*fl*uPow,1.); }`,
+      void main(){ float fl=0.85+0.15*sin(uTime*3.+vY*0.4); float a=pow(1.-vUv.y,1.5)*pow(vF,10.0)*fl*uPow; gl_FragColor=vec4(vC*a*0.35,a); }`,
   });
 }
 export function addBeams(b, beams) {
