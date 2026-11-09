@@ -215,31 +215,38 @@ function echo(b, beams, bn) {
   { const rx = x + 22, rz = z - 47; KEEP.push({ x: rx, z: rz, r: 6 }); rover(bn, rx, rz, 2.4); }
 }
 
-function rover(b, x, z, yaw) { // parked crystal hauler (concept d04ca995): low ivory tub, gold belt, 6 wheels, round lamps, crystal bed. Same merged draws as the old cab rover, fewer triangles.
+// Shared crystal-hauler parts (concept d04ca995). Parked copies bake into the zone hull; the moving world-life hauler merges the same parts, so there is one vehicle.
+// wheelN 14 reads round up close; 8 is the far/phone silhouette (not a hexagon). Body stays an 8-gon tube — the soft bevel is the scale, not the segment count.
+export function haulerPieces(wheelN, bodyN = 8) {
+  const hubN = wheelN >= 12 ? 10 : 6;
+  const tube = (r, len, n, axis) => { const g = new THREE.CylinderGeometry(r, r, len, n); if (axis === 'z') g.rotateX(PI / 2); else if (axis === 'x') g.rotateZ(PI / 2); return g; };
+  const P = []; const add = (group, geo, pos, color, intensity = 1, emit = 0) => P.push({ group, geo, pos, color, intensity, emit });
+  add('dark', new THREE.BoxGeometry(1.66, 0.24, 3.05), [0, 0.58, -0.05], '#2c2a28');
+  const belly = tube(0.44, 2.55, bodyN, 'z'); belly.scale(1.95, 1, 1); add('ivory', belly, [0, 1.06, -0.12], '#efe6d0');
+  const nose = tube(0.44, 1.55, bodyN, 'x'); nose.scale(1, 1, 0.7); add('ivory', nose, [0, 1.06, 1.08], '#e7decc');
+  const tail = tube(0.4, 1.4, bodyN, 'x'); tail.scale(1, 1, 0.68); add('ivory', tail, [0, 1.02, -1.32], '#e7decc');
+  for (const s of [-1, 1]) add('gold', new THREE.BoxGeometry(0.07, 0.06, 2.7), [s * 0.88, 1.32, -0.08], '#f0b020');
+  add('gold', new THREE.BoxGeometry(1.78, 0.06, 0.07), [0, 1.32, 1.12], '#f0b020');
+  add('gold', new THREE.BoxGeometry(1.62, 0.06, 0.07), [0, 1.28, -1.38], '#f0b020');
+  const cry = [[-0.34, -0.7, 0.32], [0.02, -0.82, 0.46], [0.36, -0.62, 0.3], [-0.16, -0.42, 0.4], [0.2, -0.38, 0.5], [-0.28, -1.0, 0.28], [0.08, -1.02, 0.36], [0.32, -0.94, 0.26]];
+  for (const [cx, cz, h] of cry) { const g = new THREE.OctahedronGeometry(0.2, 0).scale(0.8, h / 0.2, 0.8); g.rotateZ(cx * 0.2); g.rotateX(cz * 0.08); add('glow', g, [cx, 1.46 + h * 0.2, cz], '#3ec8ff', 2.4, 1.35); }
+  for (const dz of [-1.16, 0, 1.16]) for (const dx of [-1.14, 1.14]) {
+    add('dark', tube(0.46, 0.44, wheelN, 'x'), [dx, 0.46, dz], '#1a1816');
+    add('gold', tube(0.18, 0.48, hubN, 'x'), [dx, 0.46, dz], '#f0b020');
+  }
+  for (const s of [-1, 1]) {
+    add('gold', tube(0.16, 0.1, 8, 'z'), [s * 0.52, 0.84, 1.52], '#c9a24a');
+    add('glow', tube(0.1, 0.08, 8, 'z'), [s * 0.52, 0.84, 1.6], '#fff1c4', 2.8, 2.2);
+  }
+  return P;
+}
+
+function rover(b, x, z, yaw) { // parked copy of haulerPieces, merged into the zone hull — no extra draw
   const y = groundAt(x, z);
   const off = (dx, dy, dz) => [x + Math.cos(yaw) * dx + Math.sin(yaw) * dz, y + dy, z - Math.sin(yaw) * dx + Math.cos(yaw) * dz];
   const R = [0, yaw, 0];
   const seg = (n, min) => GQ.s === 1 ? n : Math.max(min, Math.round(n * GQ.s));
-  const axle = (r, h, n) => new THREE.CylinderGeometry(r, r, h, seg(n, 4)).rotateZ(PI / 2);
-  b.add('dark', G.box(2.15, 0.28, 3.5), { pos: off(0, 0.62, -0.05), rot: R, color: '#3a3834' });
-  b.add('ivory', G.box(1.9, 0.16, 2.7), { pos: off(0, 0.86, -0.25), rot: R, color: C.ivory });
-  b.add('ivory', G.box(0.12, 0.42, 2.55), { pos: off(-0.9, 1.12, -0.3), rot: R, color: C.ivory2 });
-  b.add('ivory', G.box(0.12, 0.42, 2.55), { pos: off(0.9, 1.12, -0.3), rot: R, color: C.ivory2 });
-  b.add('ivory', G.box(1.9, 0.42, 0.12), { pos: off(0, 1.12, -1.55), rot: R, color: C.ivory2 });
-  b.add('ivory', G.box(1.55, 0.55, 0.7), { pos: off(0, 1.05, 1.15), rot: R, color: C.ivory2 }); // low front cowl, not a tall cab
-  for (const s of [-1, 1]) b.add('gold', G.box(0.06, 0.06, 2.7), { pos: off(s * 0.96, 1.32, -0.28), rot: R, color: C.gold });
-  b.add('gold', G.box(1.95, 0.06, 0.06), { pos: off(0, 1.32, -1.55), rot: R, color: C.gold });
-  b.add('gold', G.box(1.95, 0.06, 0.06), { pos: off(0, 1.32, 0.95), rot: R, color: C.gold });
-  const cry = [[-0.45, -1.15, 0.55], [0.05, -1.2, 0.78], [0.5, -1.05, 0.5], [-0.5, -0.45, 0.62], [0.05, -0.4, 0.9], [0.48, -0.5, 0.58], [0, 0.15, 0.48]];
-  for (const [cx, cz, h] of cry) b.add('glow', G.octa(0.22).scale(0.9, h / 0.22, 0.9), { pos: off(cx, 1.15 + h, cz), rot: R, color: '#67d7f0', intensity: 3.6 });
-  for (const dz of [-1.15, 0.05, 1.2]) for (const dx of [-1.15, 1.15]) {
-    b.add('dark', axle(0.46, 0.34, 6), { pos: off(dx, 0.46, dz), rot: R, color: '#241f1c' });
-    b.add('gold', axle(0.16, 0.4, 4), { pos: off(dx, 0.46, dz), rot: R, color: C.gold });
-  }
-  for (const s of [-1, 1]) {
-    b.add('gold', new THREE.CylinderGeometry(0.16, 0.16, 0.08, seg(6, 4)).rotateX(PI / 2), { pos: off(s * 0.55, 0.78, 1.55), rot: R, color: C.goldD });
-    b.add('glow', new THREE.CylinderGeometry(0.1, 0.1, 0.06, seg(6, 4)).rotateX(PI / 2), { pos: off(s * 0.55, 0.78, 1.62), rot: R, color: '#fff2c0', intensity: 3.2 });
-  }
+  for (const p of haulerPieces(seg(14, 8), 8)) b.add(p.group, p.geo, { pos: off(p.pos[0], p.pos[1], p.pos[2]), rot: R, color: p.color, intensity: p.intensity });
 }
 
 // Glowing gold-lit roads from the hub toward each chapter region (as on the world map)

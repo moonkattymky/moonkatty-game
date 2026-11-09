@@ -135,7 +135,7 @@ const sky = buildSky(sunDir, earthDir, LOW); scene.add(sky.group); sky.starMat.u
 const space = buildSpace(scene, mats.hull, MOBILE || LOW);
 
 // ---------- cat ----------
-const ctrl = new Controller(camera, renderer.domElement, colliders); ctrl.solids = solids;
+const ctrl = new Controller(camera, renderer.domElement, colliders); ctrl.solids = solids; ctrl.scene = scene;
 const catRoot = new THREE.Group(); scene.add(catRoot);
 let mixer = null, actions = {}, current = null, headBone = null, headYaw = 0;
 const _hq = new THREE.Quaternion(), _hp = new THREE.Quaternion(), _hr = new THREE.Quaternion(), _up = new THREE.Vector3(0, 1, 0), _hw = new THREE.Vector3();

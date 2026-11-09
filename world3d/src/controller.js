@@ -80,8 +80,29 @@ export class Controller {
     const cp = Math.cos(this.camPitch); const off = new THREE.Vector3(Math.sin(this.camYaw) * cp, Math.sin(this.camPitch), Math.cos(this.camYaw) * cp).multiplyScalar(this.camDist);
     const look = this.camShift ? this.camTarget.clone().add(new THREE.Vector3(Math.cos(this.camYaw), 0, -Math.sin(this.camYaw)).multiplyScalar(this.camShift)) : this.camTarget;
     let p = look.clone().add(off); const S = this.solids;
-    if (S) { /* camera never ends up inside a boulder / wall: slide in along the boom to the farthest clear point */ const n = Math.ceil(this.camDist / 0.3); for (let i = n; i >= 1; i--) { const t = i / n; const x = look.x + off.x * t, y = look.y + off.y * t, z = look.z + off.z * t; if (S.top(x, z, 0.3) <= y - 0.35 || i === 1) { if (i < n) p = new THREE.Vector3(x, Math.max(y, S.top(x, z, 0.3) + 0.35), z); break; } } }
-    const gy = groundAt(p.x, p.z) + 0.6; if (p.y < gy) p.y = gy;
+    if (S) { // slide in along the boom. A steep face can miss the eye's own column, so a neighbour column that rises above the lens also counts. 0.55 m is the minimum gap to that face.
+      const clear = (x, y, z) => { if (S.top(x, z, 0.45) > y - 0.25) return false; if (S.slabHit(x, z, y - 0.15, y + 0.3, 0.35) < Infinity) return false; for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; if (S.top(x + Math.cos(a) * 0.55, z + Math.sin(a) * 0.55, 0.15) > y + 0.8) return false; } return true; };
+      const n = Math.ceil(this.camDist / 0.3); let hit = false;
+      for (let i = n; i >= 1; i--) { const t = i / n; const x = look.x + off.x * t, z = look.z + off.z * t; let y = look.y + off.y * t; const gy = groundAt(x, z) + 0.6; if (y < gy) y = gy; if (clear(x, y, z)) { p = new THREE.Vector3(x, y, z); hit = true; break; } }
+      if (!hit) { const y = Math.max(look.y, groundAt(look.x, look.z) + 0.8, S.top(look.x, look.z, 0.45) + 0.45); p = new THREE.Vector3(look.x, y, look.z); }
+    } else { const gy = groundAt(p.x, p.z) + 0.6; if (p.y < gy) p.y = gy; }
+    // One ray from the cat to the eye. Terrain walls and the home airlock are not in the column grid; stop 0.6 m short of the first surface so the lens cannot sit inside them.
+    const scene = this.scene || this.cam.parent;
+    if (scene) {
+      if (!this._camMeshes || this._camMiss > 0) { if (this._camMiss) this._camMiss--; if (!this._camMeshes || this._camMiss === 0) { this._camMeshes = []; scene.traverse(o => { if (!o.isMesh) return; if (/^terrain_/.test(o.name) || o.name === 'ch2_airlock') this._camMeshes.push(o); else for (let a = o.parent; a; a = a.parent) if (a.name === 'ch2_airlock') { this._camMeshes.push(o); break; } }); this._camMiss = this._camMeshes.some(m => m.name === 'ch2_airlock') ? 0 : 90; } }
+      const ray = this._camRay || (this._camRay = new THREE.Raycaster()); const axes = this._camAxes || (this._camAxes = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]].map(v => new THREE.Vector3(v[0], v[1], v[2]))); const dir = p.clone().sub(look); const dist = dir.length();
+      if (dist > 0.9 && this._camMeshes.length) {
+        dir.multiplyScalar(1 / dist); ray.set(look, dir); ray.near = 0.35; ray.far = dist;
+        const hits = ray.intersectObjects(this._camMeshes, false);
+        for (const h of hits) {
+          if (!h.object.visible) continue;
+          if (h.point.distanceToSquared(this.pos) < 1.7) continue;
+          const stop = Math.max(0.9, h.distance - 0.6); if (stop < dist) p = look.clone().addScaledVector(dir, stop);
+          break;
+        }
+        for (let n = 0; n < 4; n++) { let close = false; ray.near = 0; ray.far = 0.5; for (const a of axes) { ray.set(p, a); const hs = ray.intersectObjects(this._camMeshes, false); if (hs.some(h => h.object.visible && h.point.distanceToSquared(this.pos) >= 1.7)) { close = true; break; } } if (!close) break; const back = look.clone().sub(p); const d = back.length(); if (d < 1.15) break; p.addScaledVector(back, Math.min(0.4, d - 1.05) / d); }
+      }
+    }
     this.cam.position.copy(p); this.cam.lookAt(look);
   }
 }

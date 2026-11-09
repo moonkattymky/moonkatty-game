@@ -8,6 +8,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from '../../vendor/three/jsm/utils/BufferGeometryUtils.js';
 import { DRILL_HEAD } from './machines.js';
 import { setRut, setCrater } from '../terrain.js';
+import { haulerPieces } from '../world.js';
 
 const col = (g, hex, e = 0) => { g = g.index ? g.toNonIndexed() : g; const c = new THREE.Color(hex), n = g.attributes.position.count, a = new Float32Array(n * 3), ae = new Float32Array(n); for (let i = 0; i < n; i++) { c.toArray(a, i * 3); ae[i] = e; } g.setAttribute('color', new THREE.BufferAttribute(a, 3)); g.setAttribute('aE', new THREE.BufferAttribute(ae, 1)); if (g.attributes.uv) g.deleteAttribute('uv'); return g; };
 const merge = (list) => mergeGeometries(list.map(g => g.index ? g.toNonIndexed() : g));
@@ -52,19 +53,8 @@ function augerList(hi) { const Y = (r1, r2, h, n) => new THREE.CylinderGeometry(
   const T = hi ? 6 : 5; for (let k = 0; k < T; k++) { const t = k / (T - 1), r = 0.74 - t * 0.38, y = 2.25 - k * (2.6 / T); L.push(col(Y(r * 0.62, r, 2.6 / T * 0.92, n).translate(0, y, 0), '#b9bec6')); if (hi || k % 2 === 0) L.push(col(new THREE.CylinderGeometry(r + 0.08, r + 0.08, 0.1, n, 1, true).translate(0, y + 2.6 / T * 0.42, 0), '#e8b038' /* v123 warmer gold */)); }
   L.push(col(Y(0.2, 0.02, 0.55, n).translate(0, -0.55, 0), '#ff9a3c', 3.5)); return L; }
 function augerGeo(hi) { return merge(augerList(hi)); }
-// v98: own cargo hauler 1:1 with concept d04ca995 - low 6-wheel chassis, cream crystal tub w/ gold trim + hex insets, knobby tyres w/ gold hubs, 2 big round headlights
-function haulerGeo(hi) { const B = (w, h, d) => new THREE.BoxGeometry(w, h, d), Y = (r1, r2, h, n) => new THREE.CylinderGeometry(r1, r2, h, n), seg = hi ? 10 : 6, L = [];
-  L.push(col(B(1.7, 0.32, 3.3).translate(0, 0.62, 0), '#3b3a3a'), col(B(1.9, 0.22, 0.3).translate(0, 0.6, 1.72), '#2e2d2c'), col(B(1.9, 0.18, 0.25).translate(0, 0.6, -1.7), '#2e2d2c'));
-  L.push(col(B(1.76, 0.62, 3.0).translate(0, 1.08, -0.05), '#efe6d0'), col(Y(0.31, 0.31, 3.0, seg).rotateX(Math.PI / 2).scale(0.42, 1, 1).translate(-0.88, 1.08, -0.05), '#efe6d0'), col(Y(0.31, 0.31, 3.0, seg).rotateX(Math.PI / 2).scale(0.42, 1, 1).translate(0.88, 1.08, -0.05), '#efe6d0'), col(Y(0.31, 0.31, 1.76, seg).rotateZ(Math.PI / 2).scale(1, 1, 0.42).translate(0, 1.08, 1.45), '#efe6d0'), col(Y(0.31, 0.31, 1.76, seg).rotateZ(Math.PI / 2).scale(1, 1, 0.42).translate(0, 1.08, -1.55), '#efe6d0'), col(B(1.84, 0.08, 3.04).translate(0, 1.41, -0.05), '#cfc5ad'));
-  for (const s of [-1, 1]) { L.push(col(B(0.07, 0.07, 3.24).translate(s * 1.02, 1.42, -0.05), '#f0b020' /* v123 warmer gold */), col(B(0.06, 0.05, 3.2).translate(s * 1.02, 0.8, -0.05), '#f0b020' /* v123 warmer gold */));
-    for (const z of [-0.95, 0.15, 1.15]) if (hi) { L.push(col(new THREE.CylinderGeometry(0.34, 0.34, 0.03, 6).rotateZ(Math.PI / 2).rotateX(Math.PI / 6).translate(s * 1.01, 1.1, z), '#d6cbb2')); L.push(col(new THREE.TorusGeometry(0.34, 0.025, 3, 6).rotateY(Math.PI / 2).rotateX(Math.PI / 6).translate(s * 1.02, 1.1, z), '#f0b020' /* v123 warmer gold */)); } }
-  for (const z of [-1.62, 1.55]) L.push(col(B(2.02, 0.06, 0.07).translate(0, 1.42, z), '#f0b020' /* v123 warmer gold */));
-  if (hi) for (const s of [-1, 1]) L.push(col(B(0.06, 0.6, 0.06).translate(s * 0.55, 1.08, 1.56), '#f0b020' /* v123 warmer gold */));
-  for (const s of [-1, 1]) { L.push(col(Y(0.24, 0.24, 0.08, seg).rotateX(Math.PI / 2).translate(s * 0.62, 0.92, 1.6), '#ffd27a', 9.0), col(new THREE.TorusGeometry(0.21, 0.04, 3, seg).translate(s * 0.62, 0.92, 1.6), '#2e2d2c')); }
-  const cry = hi ? 18 : 10; for (let k = 0; k < cry; k++) { const a = k * 2.399, r = 0.12 + (k % 6) * 0.12; const x = Math.cos(a) * r * 1.25, z = -0.05 + Math.sin(a) * r * 2.1, h = 0.26 + ((k * 37) % 7) * 0.035 + (0.7 - r) * 0.25; L.push(col(new THREE.OctahedronGeometry(1, 0).scale(0.26, h * 1.25, 0.26).rotateZ(Math.cos(k) * 0.35).rotateX(Math.sin(k * 1.7) * 0.3).translate(x, 1.4 + h * 0.4 + (0.7 - r) * 0.25, z), '#3aa8ff' /* v123 warmer cyan crystal */, 1.4)); }
-  for (const z of [-1.15, 0.05, 1.2]) for (const s of [-1, 1]) { L.push(col(Y(0.5, 0.5, 0.46, seg).rotateZ(Math.PI / 2).translate(s * 1.12, 0.5, z), '#262422'), col(Y(0.15, 0.15, 0.48, hi ? 8 : 4).rotateZ(Math.PI / 2).translate(s * 1.13, 0.5, z), '#f0b020' /* v123 warmer gold */));
-    if (hi) { for (let t = 0; t < 7; t++) { const a = t / 7 * Math.PI * 2; L.push(col(B(0.5, 0.1, 0.18).rotateX(-a).translate(s * 1.12, 0.5 + Math.sin(a) * 0.5, z + Math.cos(a) * 0.5), '#1c1b1a')); } L.push(col(B(0.5, 0.08, 0.12).translate(s * 0.8, 0.55, z), '#4a4744')); } }
-  return merge(L); }
+// Same parts as the parked hauler (world.js haulerPieces). hi: 14-gon tyres up close. lo: 8-gon, still a round silhouette, and the hex insets / tread boxes are gone so the two vehicles match.
+function haulerGeo(hi) { const L = []; for (const p of haulerPieces(hi ? 14 : 8, 8)) { const g = p.geo.clone(); g.translate(p.pos[0], p.pos[1], p.pos[2]); L.push(col(g, p.color, p.group === 'glow' ? p.emit : 0)); } return merge(L); }
 function drillGeo() { const L = [col(new THREE.BoxGeometry(2.2, 0.8, 3.2).translate(0, 0.9, 0), '#e6dcc6'), col(new THREE.BoxGeometry(2.3, 0.1, 3.3).translate(0, 1.32, 0), '#f0b020' /* v123 warmer gold */), col(new THREE.BoxGeometry(1.2, 0.9, 1.0).translate(0, 1.8, -1.0), '#d8cdb5'), col(new THREE.BoxGeometry(0.9, 0.4, 0.1).translate(0, 1.9, -0.48), '#2b3d5c', 0.2), col(new THREE.BoxGeometry(0.3, 4.2, 0.3).translate(0, 3.2, 1.1), '#e8b038' /* v123 warmer gold */), col(new THREE.BoxGeometry(0.9, 0.5, 0.6).translate(0, 5.1, 1.1), '#e6dcc6')];
   for (const z of [-1.1, 0, 1.1]) for (const x of [-1.2, 1.2]) L.push(col(new THREE.CylinderGeometry(0.42, 0.42, 0.34, 10).rotateZ(Math.PI / 2).translate(x, 0.42, z), '#3a3530'));
   L.push(col(new THREE.SphereGeometry(0.12, 6, 4).translate(0, 5.45, 1.1), '#ff4030', 4.0)); return merge(L); }
@@ -133,7 +123,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
     { cx: base.x, cz: base.z, rx: 168, rz: 108, yaw: Math.atan2(0.592, -0.806), y0: 58, y1: 86, dur: 32 },
     { cx: (base.x + launch.x) * 0.5, cz: (base.z + launch.z) * 0.5, rx: 210, rz: 72, yaw: Math.atan2(launch.z - base.z, launch.x - base.x), y0: 96, y1: 132, dur: 44 },
   ];
-  const SKY_R = low ? 0 : mobile ? 280 : 420; // hub and the launch corridor stay in range; a region centre does not grow a fake sky
+  const SKY_R = low ? 0 : mobile ? 200 : 250; // hub and the launch pad still see their craft; a canyon/echo centre does not pick up the base traffic
   const sat = new THREE.Mesh(satGeo(), mat); sat.name = 'life_sat'; sat.scale.setScalar(3); root.add(sat); sat.visible = !LITE;
   const lift = new THREE.Mesh(shG, mat); lift.name = 'life_liftoff'; lift.scale.setScalar(2.6); root.add(lift); let liftT = 5;
   // ground vehicles
@@ -186,7 +176,8 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
     const cam = camera.position;
     // ships across the sky (relative to the base so they read from anywhere)
     for (const s of ships) { s.t += dt; const rt = shipRoutes[s.i] || shipRoutes[0]; const u = (s.t % rt.dur) / rt.dur, a = u * Math.PI * 2; const lx = Math.cos(a) * rt.rx, lz = Math.sin(a) * rt.rz; const c = Math.cos(rt.yaw), sn = Math.sin(rt.yaw); const x = rt.cx + lx * c - lz * sn, z = rt.cz + lx * sn + lz * c; const y = groundAt(base.x, base.z) + rt.y0 + (rt.y1 - rt.y0) * (0.5 + 0.5 * Math.sin(a)); const tx = -Math.sin(a) * rt.rx, tz = Math.cos(a) * rt.rz; const wx = tx * c - tz * sn, wz = tx * sn + tz * c; s.m.position.set(x, y, z); s.m.rotation.set(0.08, Math.atan2(wx, wz), 0.12); s.m.scale.setScalar(3.2); s.m.visible = Math.hypot(x - cam.x, z - cam.z) < SKY_R; }
-    if (!LITE) { const u = (T % 70) / 70; const a = 2.0 + u * 2.8; sat.position.set(base.x + Math.cos(a) * 340, groundAt(base.x, base.z) + 150 + Math.sin(u * 3.1) * 20, base.z + Math.sin(a) * 340); sat.rotation.y += dt * 0.25; sat.rotation.z = 0.4; sat.visible = Math.hypot(sat.position.x - cam.x, sat.position.z - cam.z) < SKY_R; }
+    const nearBase = Math.hypot(base.x - cam.x, base.z - cam.z) < (mobile ? 190 : 240), nearLaunch = Math.hypot(launch.x - cam.x, launch.z - cam.z) < (mobile ? 170 : 210);
+    if (!LITE) { const u = (T % 70) / 70; const a = 2.0 + u * 2.8; sat.position.set(base.x + Math.cos(a) * 340, groundAt(base.x, base.z) + 150 + Math.sin(u * 3.1) * 20, base.z + Math.sin(a) * 340); sat.rotation.y += dt * 0.25; sat.rotation.z = 0.4; sat.visible = nearBase && Math.hypot(sat.position.x - cam.x, sat.position.z - cam.z) < 430; }
     // distant shuttle lift-off at the launch site, then re-lands after a pause
     liftT += dt; { const cyc = 48, k = liftT % cyc; const gy = groundAt(launch.x, launch.z); const climb = k < 18 ? Math.pow(k / 18, 2) * 260 : 260 + (k - 18) * 40; const liftNear = Math.hypot(launch.x - cam.x, launch.z - cam.z) < 750; lift.visible = k < 30 && !LITE && liftNear; lift.position.set(launch.x + (k > 8 ? (k - 8) * (k - 8) * 0.25 : 0), gy + 6 + climb, launch.z); lift.rotation.set(0, 0, Math.PI / 2 - Math.min(0.5, Math.max(0, k - 8) * 0.03));
       if (lift.visible && k < 26) { for (let n = 0; n < 2; n++) parts.emit(lift.position.x - 1, lift.position.y - 5, lift.position.z, (Math.random() - 0.5) * 3, -8 - Math.random() * 6, (Math.random() - 0.5) * 3, 1.2, 4.5, 2.2, 1.0, 0.3, 0.0, 'fire', 6); if (k < 4) parts.emit(launch.x + (Math.random() - 0.5) * 8, gy + 1, launch.z + (Math.random() - 0.5) * 8, (Math.random() - 0.5) * 6, 1.5, (Math.random() - 0.5) * 6, 2.5, 4, 0.5, 0.5, 0.5, 0.35, 'smoke', 10); } }
@@ -201,7 +192,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
     for (let k = 0; k < 3; k++) { const s = lanes[k], u = ((T + s.ph) % s.per) / s.per, along = (u - 0.5) * s.span; const x = s.x + Math.sin(s.dir) * along, z = s.z + Math.cos(s.dir) * along, y = s.y - u * 36; if (Math.hypot(x - cam.x, z - cam.z) > SKY_R) bb.set(bi, 0, -999, 0, 0, 2); else bb.set(bi, x, y, z, 14, 2, 0, s.dir); bi++; }
     for (let k = 0; k < 4; k++) { if (k < 2) { const a = k * 1.7 + T * 0.03; const x = J.x + Math.cos(a) * (14 + k * 6), z = J.z + Math.sin(a) * (14 + k * 6), y = groundAt(J.x, J.z) + 22 + k * 7 + Math.sin(T * 0.6 + k) * 3; jelly(bi++, k, x, y, z, 8 + k * 2); } else { /* two cyan jellies drifting over the open ground beyond the drill (concept: upper right) */ const a = k * 2.1 + T * 0.05; const cx = D.x + ux * 26, cz = D.z + uz * 26; const x = cx + Math.cos(a) * 9, z = cz + Math.sin(a) * 9, y = groundAt(cx, cz) + 12 + (k - 2) * 5 + Math.sin(T * 0.7 + k) * 1.5; jelly(bi++, k, x, y, z, 3.2 + (k - 2) * 0.8); } }
     { const cyc = 75, k = T % cyc; if (k < 6) { const a = bunnyPath.a0 + k * 0.05; const r = 320; const x = base.x + Math.cos(a) * r, z = base.z + Math.sin(a) * r; bb.set(bi, x, groundAt(x, z) + 3 + Math.abs(Math.sin(k * 6)) * 2.5, z, 5, 1, 0); } else bb.set(bi, 0, -999, 0, 0, 1); bi++; }
-    bb.flush(); if (low) bb.mesh.visible = false; /* v73 ?q=low: jellies + bunny are real creatures now; the billboard draw (ship glows / shooting stars) pays for the creature draw */
+    bb.flush(); bb.mesh.visible = !low && (nearBase || nearLaunch); /* far zones skip the always-on billboard draw */
     // rover on its loop: follows the ground, dust trail, crystals while hauling back
     { const u = ((T * 2.2) / loopLen) % 1; loop.getPointAt(u, v); const gy = groundAt(v.x, v.z); const tng = loop.getTangentAt(u); rover.position.set(v.x, gy, v.z); rover.rotation.y = Math.atan2(tng.x, tng.z);
       const e = 0.9; const fy = groundAt(v.x + tng.x * e, v.z + tng.z * e), by = groundAt(v.x - tng.x * e, v.z - tng.z * e); rover.rotation.x = -Math.atan2(fy - by, 2 * e) ; { const dR = Math.hypot(v.x - cam.x, v.z - cam.z); rover.visible = dR < (globalThis.__mkStorm ? 12 : VR); rover.geometry = dR < (globalThis.__mkStorm ? 0 : HID) ? rvG[1] : rvG[0]; }
@@ -222,7 +213,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
     // beacons blink, dish turns
     { const nearB = Math.hypot(base.x - cam.x, base.z - cam.z) < (mobile ? 100 : 160); beacons.visible = !low && nearB; const caps = root.getObjectByName('life_ventcaps'); if (caps) caps.visible = nearB; const M = new THREE.Matrix4(); bPos.forEach((b, i) => { const on_ = Math.sin(T * 3.0 + b.ph) > 0.2; M.makeTranslation(b.x, b.y, b.z); beacons.setMatrixAt(i, M); beacons.setColorAt(i, on_ ? b.c : new THREE.Color(0.06, 0.06, 0.08)); }); beacons.instanceMatrix.needsUpdate = true; if (beacons.instanceColor) beacons.instanceColor.needsUpdate = true; }
     if (dish) dish.rotation.y += dt * 0.15;
-    parts.update(dt);
+    parts.update(dt); parts.pts.visible = parts.pts.visible && !low && (nearBase || nearLaunch);
     // audio: robot beeps nearby, footsteps, radio chatter with subtitles; robots greet the cat
     beepT -= dt; stepT -= dt; radioT -= dt; waveCD -= dt;
     if (robots && robots.length) { let nd = 1e9, nr = null; for (const r of robots) { const d = Math.hypot(r.x - cat.x, r.z - cat.z); if (d < nd) { nd = d; nr = r; } }
