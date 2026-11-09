@@ -92,8 +92,13 @@ function reactor(b, s, d) {
   for (let i = 0; i < 20; i++) { const a = i / 20 * PI * 2; b.add('dark', G.box(0.16, pitD + 0.8, 0.1), { pos: [x + Math.sin(a) * (Ri * 0.96 - 0.06), yt - pitD / 2 + 0.4, z + Math.cos(a) * (Ri * 0.96 - 0.06)], rot: [0, a, 0], color: '#5a3a20' }); }
   b.add('glow', G.disc(Ri * 0.97, 32), { pos: [x, yt + 0.2, z], color: (px, py, pz) => { const t = Math.hypot(px - x, pz - z) / Ri; const k = 0.95 - 0.4 * t; return [k, k * 0.2, k * 0.012]; } });
   b.add('glow', G.disc(Ri * 0.42, 24), { pos: [x, yt + 0.215, z], color: '#ffb347', intensity: 2.4 }); for (const f of [0.55, 0.78]) b.add('dark', G.ring(Ri * f, Ri * f + 0.34, 48), { pos: [x, yt + 0.218, z], color: '#1c0d06' }); // molten core: hot centre + crust rings
-  // small rooftop units
-  for (let i = 0; i < 6; i++) { const a = i / 6 * PI * 2 + 0.5; const rr = (R + Ri + 0.75) / 2; b.add('ivory', G.cyl(0.35, 0.45, 0.6, 10), { pos: [x + Math.sin(a) * rr, yt, z + Math.cos(a) * rr], color: C.ivory }); b.add('glow', G.octa(0.14), { pos: [x + Math.sin(a) * rr, yt + 0.7, z + Math.cos(a) * rr], color: C.win, intensity: 4 }); }
+  // tall ivory dome and gold spire over the ring. The pit, lip lights and power beam stay underneath; the dish module stays the left wing.
+  { const Rd = R - 0.4, sy = 1.26, y0 = yt - 0.06; b.add('ivory', G.cap(Rd, 36, 14), { pos: [x, y0, z], scale: [1, sy, 1], color: C.ivory });
+    const onShell = (f) => { const yy = y0 + Rd * sy * f; return { y: yy, r: Math.sqrt(Math.max(0.25, Rd * Rd - ((yy - y0) / sy) ** 2)) }; };
+    const band = onShell(0.46); b.add('gold', G.torus(band.r, 0.08, 3, 32), { pos: [x, band.y, z], rot: [PI / 2, 0, 0], color: C.gold });
+    const w1 = onShell(0.32); windowsRing(b, x, w1.y, z, w1.r + 0.08, 14, 1.2, 0.72, { frame: true, I: 3.2, a0: faceCam });
+    const w2 = onShell(0.62); windowsRing(b, x, w2.y, z, w2.r + 0.06, 10, 0.62, 0.42, { I: 2.8, a0: faceCam + 0.18 });
+    finial(b, x, y0 + Rd * sy - 0.2, z, 6.2); }
   return { x, y: yt, z, Ri };
 }
 

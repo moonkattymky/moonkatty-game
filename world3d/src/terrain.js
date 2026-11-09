@@ -20,6 +20,10 @@ const _lc = sd(-3.0, -51.85); export const LEDGE = { x: _lc.x, z: _lc.z, h: 1.0,
 export function ledgeAt(x, z) { const d = Math.hypot(x - LEDGE.x, z - LEDGE.z); if (d >= LEDGE.r1) return 0; const t = Math.min(1, Math.max(0, (d - LEDGE.r0) / (LEDGE.r1 - LEDGE.r0))); return LEDGE.h * (1 - t * t * (3 - 2 * t)); }
 const LIP = sd(-2, -56);
 export const PLAY_START = sd(-3, -21);
+// shallow bowl on the open right of the play stand (clear of the hauler ellipse). Geometry in heightAt, lighting in the terrain shader.
+const _playYaw = Math.atan2(-F.x, -F.z) - 0.30;
+const _playFwd = { x: -Math.sin(_playYaw), z: -Math.cos(_playYaw) }, _playRight = { x: Math.cos(_playYaw), z: -Math.sin(_playYaw) };
+export const PLAY_CRATER = { x: PLAY_START.x + _playFwd.x * 11 + _playRight.x * 13, z: PLAY_START.z + _playFwd.z * 11 + _playRight.z * 13, r: 7.2, depth: 2.2, rim: 0.95 };
 export const PORTAL = sd(34, 36);
 const PORTAL_WALL = sd(50, 57), LEFT_HILL = sd(-40, -19);
 export const CAVE = { ...sd(43.5, 47), yawOff: 0.35 };
@@ -110,6 +114,8 @@ export function heightAt(x, z) {
   { const E = REGIONS.echo; const d = Math.hypot(x - E.x, z - E.z); h = lerp(h, 22 + small, 1 - smoothstep(60, 110, d)); }
   // world boundary mountains
   h += smoothstep(900, 1300, r) * (25 + mass * 55 + rid * 25 + jag * 30);
+  // play-stand crater: shallow parabolic bowl and a narrow raised rim (the hauler loop stays outside it)
+  { const C = PLAY_CRATER; const d = Math.hypot(x - C.x, z - C.z); if (d < C.r * 1.28) { const t = d / C.r; const bowl = t < 1 ? -C.depth * (1 - t * t) : 0; const u = (t - 1) / 0.10; h += bowl + C.rim * Math.exp(-(u * u)); } }
   return h;
 }
 
@@ -270,7 +276,7 @@ export function terrainMaterial(patch = false, canyon = false) {
             if (wS > 0.01) { float ta = texture2D(uDet, vWP.zy / 4.5).r * tw.x + texture2D(uDet, vWP.xz / 4.5).r * tw.y + texture2D(uDet, vWP.xy / 4.5).r * tw.z; float tb = texture2D(uDet, vWP.zy / 17.0 + 0.3).r * tw.x + texture2D(uDet, vWP.xz / 17.0 + 0.3).r * tw.y + texture2D(uDet, vWP.xy / 17.0 + 0.3).r * tw.z;
               diffuseColor.rgb *= mix(1.0, (0.4 + 1.0 * ta) * (0.55 + 0.75 * tb), wS * 0.35) * mix(0.9, 1.0, smoothstep(-0.4, 0.4, fnT.y)); } }` : ''} /* pass 41: triplanar rock grain + overhang occlusion on steep walls; v108 softened: lighter grey hills (concept) */
           float lum = dot(diffuseColor.rgb, vec3(0.3, 0.59, 0.11)); diffuseColor.rgb = mix(vec3(lum), diffuseColor.rgb, 0.4) * mix(vec3(1.3, 1.2, 1.1), vec3(0.95, 0.98, 1.06), smoothstep(40.0, 160.0, tDist)) /* v100: lighter grey regolith near base (concept open plain) */ /* v94: warm brown-grey regolith near base (concept d04ca995 rgb 110,95,81), cool far rim kept */ * mix(vec3(1.0), vec3(0.8, 0.85, 0.96), smoothstep(70.0, 260.0, tDist)); } /* pass 41: far relief cools/darkens (concept rim) */ /* v100 ruts + crater */ if (uRut.z > 0.0) { vec2 dq = vWP.xz - uRut.xy; vec2 pu = vec2(-uRutU.y, uRutU.x); float r = length(vec2(dot(dq, uRutU) / uRut.z, dot(dq, pu) / uRut.w)); float dn = (r - 1.0) * 0.5 * (uRut.z + uRut.w); float rt = 1.0 - smoothstep(0.1, 0.26, abs(abs(dn) - 0.62)); float gl = 1.0 - smoothstep(0.04, 0.12, abs(dn)); diffuseColor.rgb *= mix(vec3(1.0), vec3(0.55, 0.53, 0.52), rt * 0.85) * mix(vec3(1.0), vec3(1.35, 1.12, 0.7), gl * 0.6); }
-          if (uCrat.w > 0.0) { vec2 dc = vWP.xz - uCrat.xy; float d = length(dc) / uCrat.z; if (d < 1.4) { float sd = dot(normalize(dc + 1e-4), vec2(0.6, 0.8)); float flo = 1.0 - smoothstep(0.7, 0.95, d); float rim = exp(-pow((d - 1.0) / 0.12, 2.0)); diffuseColor.rgb *= mix(1.0, 0.62 + 0.3 * sd, flo) * (1.0 + 0.35 * rim * (0.6 + 0.4 * -sd)) * (1.0 - 0.25 * exp(-pow((d - 0.88) / 0.07, 2.0)) * (0.5 + 0.5 * sd)); } } /* lunar grey (concept): mostly neutral regolith, warmth comes from the lights */
+          if (uCrat.w > 0.0) { vec2 dc = vWP.xz - uCrat.xy; float d = length(dc) / uCrat.z; if (d < 1.35) { vec2 dir = normalize(dc + 1e-4); float sun = dot(dir, normalize(vec2(${SUNXZ}))); float bowl = smoothstep(1.0, 0.2, d); float rim = exp(-pow((d - 1.0) / 0.075, 2.0)); float lip = exp(-pow((d - 0.84) / 0.055, 2.0)); diffuseColor.rgb *= mix(1.0, 0.9, bowl * 0.45); diffuseColor.rgb += vec3(0.34, 0.28, 0.16) * rim * (0.4 + 0.85 * max(sun, 0.0)); diffuseColor.rgb *= 1.0 - lip * 0.28 * (0.3 + 0.7 * max(-sun, 0.0)); } } /* play crater: lit rim, mild bowl shade (the mesh is the bowl) */
         vec2 au = vec2(vWP.x / 150.0 + 0.5, 0.5 - vWP.z / 150.0); if (au.x > 0.0 && au.x < 1.0 && au.y > 0.0 && au.y < 1.0) diffuseColor.rgb *= texture2D(uAOMap, au).r; }`)
       .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
       if (tFade > 0.01) { float e = 0.15; float n0 = rg(vWP.xz * 1.6), nx = rg(vWP.xz * 1.6 + vec2(e, 0.)), nz = rg(vWP.xz * 1.6 + vec2(0., e));
@@ -279,6 +285,7 @@ export function terrainMaterial(patch = false, canyon = false) {
         if (tMid > 0.01) { float me = 0.06; vec2 q = vWP.xz * 2.6; float m0 = vn(q), mx = vn(q + vec2(me * 2.6, 0.)), mz = vn(q + vec2(0., me * 2.6)); gW += vec3(-(mx - m0), 0.0, -(mz - m0)) / me * 0.09 * tMid; }
         { vec2 dq1 = vWP.xz / 7.0; vec2 dq2 = mat2(0.8, -0.6, 0.6, 0.8) * vWP.xz / 2.3 + 0.37; vec2 n1 = texture2D(uDet, dq1).gb - 0.5, n2 = (texture2D(uDet, dq2).gb - 0.5) * mat2(0.8, -0.6, 0.6, 0.8);
           float dw1 = (1.0 - smoothstep(35.0, 140.0, tDist)) * pFlat, dw2 = (1.0 - smoothstep(10.0, 40.0, tDist)) * pFlat; gW += vec3(n1.x, 0.0, n1.y) * 1.3 * dw1 + vec3(n2.x, 0.0, n2.y) * 1.5 * dw2; } /* pass 40: detail normal */
+        if (uCrat.w > 0.0) { vec2 dc = vWP.xz - uCrat.xy; float dist = length(dc); float R = max(uCrat.z, 0.001); float t = dist / R; if (t < 1.22) { vec2 dir = dc / max(dist, 1e-3); float u = (t - 1.0) / 0.10; float slope = (t < 1.0 ? ${(PLAY_CRATER.depth * 2).toFixed(2)} * t / R : 0.0) + (${PLAY_CRATER.rim.toFixed(2)} * exp(-u * u) * (-2.0 * u) / 0.10) / R; gW += vec3(-dir.x, 0.0, -dir.y) * slope * 0.55; } }
         normal = normalize(normal + (viewMatrix * vec4(gW, 0.0)).xyz); }
       ${patch ? `{ vec3 fnT = normalize(vWN); vec3 tw = pow(abs(fnT), vec3(4.0)); tw /= tw.x + tw.y + tw.z + 1e-4; float dT = length(vWP - cameraPosition); float wS = (1.0 - smoothstep(0.55, 0.85, fnT.y)) * (1.0 - smoothstep(20.0, 110.0, dT));
         if (wS > 0.01) { vec2 nx = texture2D(uDet, vWP.zy / 4.5).gb - 0.5, ny = texture2D(uDet, vWP.xz / 4.5).gb - 0.5, nz = texture2D(uDet, vWP.xy / 4.5).gb - 0.5;
