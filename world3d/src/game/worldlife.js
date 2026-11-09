@@ -21,47 +21,49 @@ function roverGeo() { const L = [col(new THREE.BoxGeometry(1.6, 0.5, 2.6).transl
   for (const x of [-0.5, 0.5]) L.push(col(new THREE.CylinderGeometry(0.1, 0.1, 0.06, 8).rotateX(Math.PI / 2).translate(x, 0.85, 1.32), '#fff2c8', 3.0));
   for (let k = 0; k < 7; k++) L.push(col(new THREE.OctahedronGeometry(1, 0).scale(0.16, 0.38 + (k % 3) * 0.08, 0.16).rotateZ((k - 3) * 0.12).translate(-0.45 + (k % 4) * 0.3, 1.6 + (k % 3) * 0.04, -0.75 + Math.floor(k / 4) * 0.5), '#5fc4ff', 2.2));
   return merge(L); }
-// Live drill only. Same footprint and the same DRILL_HEAD (0, 1.05, -2.7) so the spinning auger, the steam sample and the camera block stay put.
-// hi: road wheels, mast braces, hydraulic, hoses, head collar. lo: the same chassis, cab, tracks, four posts and boom, fewer segments.
-const IV = [0.06, 0.55], GD = [0.72, 0.34], DK = [0.04, 0.88], ST = [0.45, 0.42], GL = [0.08, 0.16];
+// Wheeled drill (d04ca995): rounded ivory cab, four road wheels, articulated boom, stacked housings, and the spiral auger hanging in front. DRILL_HEAD stays (0, 1.05, -2.7).
+const IV = [0.06, 0.55], GD = [0.72, 0.34], DK = [0.04, 0.9], ST = [0.4, 0.4], GL = [0.06, 0.14];
 function rigGeo(hi, aug) {
-  const B = (w, h, d) => new THREE.BoxGeometry(w, h, d), Y = (r1, r2, h, n, open = false) => new THREE.CylinderGeometry(r1, r2, h, n, 1, open), nC = hi ? 8 : 6, L = [];
-  const rod = (a, b, r, c, n, mr) => { const A = new THREE.Vector3(...a), Bv = new THREE.Vector3(...b), d = Bv.clone().sub(A), g = Y(r, r, Math.max(0.05, d.length()), n, true); g.translate(0, d.length() / 2, 0); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize())); g.translate(A.x, A.y, A.z); return col(g, c, 0, mr); };
-  const beam = (a, b, w, c, mr) => { const A = new THREE.Vector3(...a), Bv = new THREE.Vector3(...b), d = Bv.clone().sub(A), g = B(w, Math.max(0.05, d.length()), w * 0.72).translate(0, d.length() / 2, 0); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize())); g.translate(A.x, A.y, A.z); return col(g, c, 0, mr); };
+  const Y = (r1, r2, h, n, open = false) => new THREE.CylinderGeometry(r1, r2, h, n, 1, open), nC = hi ? 10 : 7, wN = hi ? 12 : 8, L = [];
+  const rod = (a, b, r, c, n, mr) => { const A = new THREE.Vector3(...a), Bv = new THREE.Vector3(...b), d = Bv.clone().sub(A), len = Math.max(0.05, d.length()), g = Y(r, r, len, n, true); g.translate(0, len / 2, 0); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize())); g.translate(A.x, A.y, A.z); return col(g, c, 0, mr); };
   const MZ = -2.7;
-  L.push(col(B(2.05, 0.32, 4.35).translate(0, 0.7, -0.4), '#3a3632', 0, DK));
-  L.push(col(B(1.72, 0.46, 2.55).translate(0, 1.12, 0.15), '#f4ecdc', 0, IV), col(B(1.78, 0.07, 2.62).translate(0, 1.38, 0.15), '#e2b04a', 0, GD));
-  L.push(col(B(1.55, 0.28, 1.15).translate(0, 1.02, -1.85), '#9aa1a8', 0, ST), col(B(1.62, 0.06, 1.22).translate(0, 1.18, -1.85), '#e2b04a', 0, GD));
-  L.push(col(B(1.05, 0.48, 0.72).translate(0, 1.52, 1.55), '#e7decc', 0, IV));
-  L.push(col(B(1.42, 1.05, 1.2).translate(0.02, 1.98, 0.82), '#f7f1e4', 0, IV), col(B(1.48, 0.08, 1.26).translate(0.02, 2.52, 0.82), '#e2b04a', 0, GD));
-  L.push(col(B(0.06, 0.52, 0.7).translate(0.74, 2.05, 0.82), '#2f78e0', 1.35, GL), col(B(0.06, 0.52, 0.7).translate(-0.7, 2.05, 0.82), '#2f78e0', 1.35, GL), col(B(1.1, 0.4, 0.06).translate(0.02, 2.08, 1.44), '#24406e', 0.45, GL));
-  L.push(col(B(1.16, 0.05, 0.05).translate(0.02, 2.3, 1.46), '#e2b04a', 0, GD), col(B(1.16, 0.05, 0.05).translate(0.02, 1.86, 1.46), '#e2b04a', 0, GD));
-  for (const s of [-1, 1]) {
-    L.push(col(B(0.46, 0.2, 3.5).translate(s * 1.16, 0.22, -0.42), '#161412', 0, DK), col(B(0.4, 0.16, 3.05).translate(s * 1.16, 0.72, -0.42), '#221f1c', 0, DK));
-    for (const z of (hi ? [1.2, 0.35, -0.5, -1.35, -2.15] : [1.2, -0.5, -2.15])) L.push(col(Y(0.3, 0.3, 0.34, nC).rotateZ(Math.PI / 2).translate(s * 1.16, 0.4, z), '#2a2623', 0, DK));
-    L.push(col(Y(0.18, 0.18, 0.38, hi ? 8 : 5).rotateZ(Math.PI / 2).translate(s * 1.16, 0.4, 1.2), '#e2b04a', 0, GD), col(Y(0.18, 0.18, 0.38, hi ? 8 : 5).rotateZ(Math.PI / 2).translate(s * 1.16, 0.4, -2.15), '#e2b04a', 0, GD));
-    L.push(col(B(0.07, 0.1, 3.15).translate(s * 1.4, 0.4, -0.42), '#c9a24a', 0, GD));
+  const hull = Y(0.46, 0.46, 2.7, nC).rotateX(Math.PI / 2); hull.scale(1.85, 0.72, 1); L.push(col(hull, '#f4ecdc', 0, IV));
+  const skirt = Y(0.5, 0.5, 2.35, nC).rotateX(Math.PI / 2); skirt.scale(1.9, 0.78, 1); L.push(col(skirt, '#e2b04a', 0, GD));
+  L.push(col(Y(0.22, 0.28, 0.7, nC).translate(0, 0.72, 1.35), '#d9d0bc', 0, IV));
+  const cab = new THREE.SphereGeometry(0.62, hi ? 12 : 8, hi ? 9 : 6); cab.scale(1.05, 0.82, 1.25); L.push(col(cab.translate(0, 1.95, 0.55), '#f7f1e4', 0, IV));
+  const glass = new THREE.SphereGeometry(0.4, hi ? 10 : 7, hi ? 7 : 5); glass.scale(1.35, 0.72, 0.35); L.push(col(glass.translate(0, 2.02, 1.15), '#16325c', 0.7, GL));
+  L.push(col(new THREE.TorusGeometry(0.62, 0.035, 4, hi ? 12 : 8).rotateX(Math.PI / 2).translate(0, 1.72, 0.55), '#e2b04a', 0, GD));
+  L.push(col(Y(0.1, 0.13, 0.7, nC).translate(0.35, 2.85, 0.85), '#9aa3ab', 0, ST), col(Y(0.16, 0.12, 0.16, nC).translate(0.35, 3.22, 0.85), '#2c2926', 0, DK));
+  for (const s of [-1, 1]) for (const z of [1.05, -1.15]) {
+    L.push(col(Y(0.48, 0.48, 0.34, wN).rotateZ(Math.PI / 2).translate(s * 1.02, 0.48, z), '#141210', 0, DK));
+    L.push(col(Y(0.52, 0.52, 0.07, wN).rotateZ(Math.PI / 2).translate(s * 1.02, 0.48, z - 0.1), '#0c0b0a', 0, DK));
+    L.push(col(Y(0.52, 0.52, 0.07, wN).rotateZ(Math.PI / 2).translate(s * 1.02, 0.48, z + 0.1), '#0c0b0a', 0, DK));
+    L.push(col(Y(0.18, 0.18, 0.2, hi ? 8 : 6).rotateZ(Math.PI / 2).translate(s * 1.02, 0.48, z), '#e2b04a', 0, GD));
   }
-  const arm = (s, w) => { const P0 = [0.48 * s, 2.35, 0.35], J = [0.42 * s, 4.15, -1.05], P1 = [0.22 * s, 5.15, -2.15]; L.push(beam(P0, J, 0.28 * w, '#e2b04a', GD), beam(J, P1, 0.22 * w, '#e2b04a', GD), col(new THREE.SphereGeometry(0.2 * w, hi ? 8 : 5, hi ? 6 : 4).translate(J[0], J[1], J[2]), '#5c584f', 0, ST), col(B(0.42 * w, 0.32, 0.42).translate(P0[0], P0[1], P0[2]), '#5c584f', 0, ST)); if (hi) L.push(rod([P0[0], 2.15, 0.15], [J[0] * 0.8, 3.55, -0.55], 0.07 * w, '#c5ccd4', 6, ST)); };
-  arm(1, 1); if (!hi) arm(-1, 0.72);
-  // Solid drill column just behind the spinning auger (the auger stays at z=-2.7). Not an open cage.
-  L.push(col(B(1.55, 0.22, 1.2).translate(0, 0.98, MZ + 0.05), '#8d939b', 0, ST), col(B(1.6, 0.06, 1.26).translate(0, 1.1, MZ + 0.05), '#e2b04a', 0, GD));
-  L.push(col(Y(0.4, 0.46, 3.15, hi ? 10 : 7).translate(0, 2.75, MZ + 0.35), '#c5ccd2', 0, ST));
-  for (const y of (hi ? [1.55, 2.35, 3.2, 4.05] : [1.7, 3.15])) L.push(col(Y(0.5, 0.5, 0.1, nC).translate(0, y, MZ + 0.35), '#e2b04a', 0, GD));
-  L.push(col(Y(0.62, 0.55, 0.7, hi ? 10 : 7).translate(0, 4.55, MZ + 0.28), '#d5dbe2', 0, ST), col(Y(0.68, 0.68, 0.1, nC).translate(0, 4.95, MZ + 0.28), '#e2b04a', 0, GD));
-  for (const s of [-1, 1]) L.push(col(B(0.1, 2.6, 0.12).translate(s * 0.62, 2.5, MZ), '#9aa3ab', 0, ST), beam([s * 0.85, 1.2, -0.4], [s * 0.55, 3.4, MZ + 0.2], 0.14, '#efe6d4', IV));
-  L.push(col(Y(0.13, 0.16, 1.15, nC).translate(0.35, 6.75, -2.2), '#9aa3ab', 0, ST), col(Y(0.22, 0.2, 0.14, nC).translate(0.4, 7.35, -2.32), '#2c2926', 0, DK));
-  const BT = [0.05, 4.7, MZ + 1.7];
-  L.push(beam([-0.22, 4.7, MZ + 0.2], [-0.05, BT[1], BT[2]], 0.2, '#e2b04a', GD), beam([0.22, 4.7, MZ + 0.2], [0.08, BT[1], BT[2]], 0.2, '#e2b04a', GD), col(B(0.5, 0.36, 0.42).translate(BT[0], BT[1], BT[2]), '#c9922e', 0, GD));
-  if (hi) { L.push(rod([0.62, 1.7, 0.45], [0.4, 2.7, -1.15], 0.055, '#241f1c', 6, DK), rod([0.4, 2.7, -1.15], [0.22, 3.5, MZ + 0.25], 0.05, '#241f1c', 6, DK), rod([0.12, 2.15, 0.1], [0.05, 4.7, -1.55], 0.075, '#d5dbe2', 6, ST)); L.push(col(B(0.7, 0.07, 0.12).translate(0.02, 2.58, 0.95), '#fff1c2', 2.2, GL), rod([0.55, 2.55, 0.55], [0.55, 3.25, 0.55], 0.02, '#9aa3ab', 4, ST), col(new THREE.SphereGeometry(0.06, 6, 4).translate(0.55, 3.28, 0.55), '#ff5040', 3.2)); for (const s of [-1, 1]) L.push(col(new THREE.SphereGeometry(0.09, 6, 4).translate(s * 0.4, 5.05, MZ + 0.05), s > 0 ? '#ff5040' : '#ffc860', 3.2)); }
+  const P0 = [0, 2.55, 0.35], J = [0, 4.05, -1.15], H = [0, 4.55, MZ];
+  L.push(rod(P0, J, 0.11, '#e2b04a', nC, GD), rod([0.16, P0[1], P0[2]], [0.14, J[1], J[2]], 0.07, '#c5ccd4', hi ? 6 : 5, ST), rod([-0.16, P0[1], P0[2]], [-0.14, J[1], J[2]], 0.07, '#c5ccd4', hi ? 6 : 5, ST));
+  L.push(rod(J, H, 0.1, '#e2b04a', nC, GD), rod([0.14, J[1], J[2]], [0.12, H[1], H[2]], 0.06, '#c5ccd4', hi ? 6 : 5, ST));
+  L.push(col(new THREE.SphereGeometry(0.22, hi ? 8 : 6, hi ? 6 : 4).translate(J[0], J[1], J[2]), '#5c584f', 0, ST), col(new THREE.SphereGeometry(0.16, 6, 5).translate(P0[0], P0[1], P0[2]), '#5c584f', 0, ST));
+  L.push(rod([0, 1.35, -0.2], [0, 3.15, -0.85], 0.09, '#d5dbe2', nC, ST), rod([0, 3.15, -0.85], [0, 3.85, -1.35], 0.06, '#9aa3ab', hi ? 6 : 5, ST));
+  const hous = hi ? [[0.34, 3.15], [0.46, 3.7], [0.55, 4.3], [0.4, 4.85]] : [[0.4, 3.4], [0.52, 4.35]];
+  for (const [r, y] of hous) L.push(col(Y(r, r * 0.92, 0.42, nC).translate(0, y, MZ), '#d5dbe2', 0, ST), col(Y(r + 0.06, r + 0.06, 0.07, nC).translate(0, y + 0.2, MZ), '#e2b04a', 0, GD));
+  L.push(col(Y(0.28, 0.36, 0.28, nC).translate(0, 2.85, MZ), '#9aa3ab', 0, ST));
+  if (hi) { L.push(rod([0.55, 1.85, 0.2], [0.28, 3.3, -1.3], 0.045, '#241f1c', 6, DK), rod([0.28, 3.3, -1.3], [0.12, 4.2, MZ + 0.15], 0.04, '#241f1c', 6, DK), rod([-0.4, 1.7, 0.15], [-0.15, 3.6, MZ + 0.1], 0.04, '#241f1c', 5, DK)); }
   if (aug) L.push(...augerList(false).map(g => g.translate(0, 1.2, MZ)));
   return merge(L);
 }
 function augerList(hi) {
-  const Y = (r1, r2, h, n) => new THREE.CylinderGeometry(r1, r2, h, n), n = hi ? 8 : 6, ST = [0.5, 0.4], GD = [0.7, 0.32], L = [col(Y(0.48, 0.48, 0.5, n).translate(0, 2.72, 0), '#e4e7ea', 0, ST)];
-  const T = hi ? 7 : 5;
-  for (let k = 0; k < T; k++) { const t = k / (T - 1), r = 0.62 - t * 0.34, y = 2.2 - k * (2.55 / T); L.push(col(Y(r * 0.55, r, 2.55 / T * 0.9, n).translate(0, y, 0), '#b7bec6', 0, ST)); const fl = new THREE.BoxGeometry(r * 1.35, 0.08, 0.2); fl.rotateY(k * 0.9); fl.translate(Math.cos(k * 0.9) * r * 0.35, y + 0.06, Math.sin(k * 0.9) * r * 0.35); L.push(col(fl, '#e7ebef', 0, ST)); if (hi || k % 2 === 0) L.push(col(new THREE.CylinderGeometry(r + 0.07, r + 0.07, 0.08, n, 1, true).translate(0, y + 0.12, 0), '#e2b04a', 0, GD)); }
-  L.push(col(Y(0.16, 0.02, 0.5, n).translate(0, -0.55, 0), '#ff9a3c', 2.4, [0.15, 0.35])); return L;
+  const Y = (r1, r2, h, n) => new THREE.CylinderGeometry(r1, r2, h, n), n = hi ? 8 : 6, ST = [0.35, 0.38], GD = [0.7, 0.32], L = [];
+  const T = hi ? 6 : 4;
+  for (let k = 0; k < T; k++) {
+    const t = k / (T - 1), r = 0.5 - t * 0.38, y = 1.35 - k * (2.15 / T), h = 2.15 / T * 0.82;
+    L.push(col(Y(r, Math.max(0.06, r - 0.06), h, n).translate(0, y, 0), k % 2 ? '#c5ccd4' : '#e4e8ec', 0, ST));
+    L.push(col(Y(r + 0.05, r + 0.05, 0.06, n, true).translate(0, y + h * 0.35, 0), '#e2b04a', 0, GD));
+    const turns = hi ? 3 : 2;
+    for (let s = 0; s < turns; s++) { const a = k * 0.85 + s * (Math.PI * 2 / turns); const fl = new THREE.BoxGeometry(r * 0.85, 0.05, 0.1); fl.rotateY(a); fl.translate(Math.cos(a) * r * 0.55, y, Math.sin(a) * r * 0.55); L.push(col(fl, '#f2f5f7', 0, ST)); }
+  }
+  L.push(col(Y(0.1, 0.02, 0.42, n).translate(0, -0.85, 0), '#ff9a3c', 1.6, [0.12, 0.3]));
+  return L;
 }
 function augerGeo(hi) { return merge(augerList(hi)); }
 // Same parts as the parked hauler (world.js haulerPieces). hi: 20-gon tyres up close. lo: 8-gon.
@@ -75,7 +77,7 @@ function bitGeo() { return merge([col(new THREE.CylinderGeometry(0.32, 0.32, 1.4
 function makeParticles(scene, N) {
   const g = new THREE.BufferGeometry(); const P = new Float32Array(N * 3), C = new Float32Array(N * 4), S = new Float32Array(N); g.setAttribute('position', new THREE.BufferAttribute(P, 3).setUsage(THREE.DynamicDrawUsage)); g.setAttribute('color', new THREE.BufferAttribute(C, 4).setUsage(THREE.DynamicDrawUsage)); g.setAttribute('size', new THREE.BufferAttribute(S, 1).setUsage(THREE.DynamicDrawUsage)); const V = new Float32Array(N * 4); g.setAttribute('vel', new THREE.BufferAttribute(V, 4).setUsage(THREE.DynamicDrawUsage)); /* v57: xyz velocity, w = 1 for streak sparks */
   const m = new THREE.ShaderMaterial({ uniforms: { uScale: { value: innerHeight * 0.6 } }, transparent: true, depthWrite: false, toneMapped: false, blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
-    vertexShader: `attribute float size; attribute vec4 color; attribute vec4 vel; varying vec4 vC; varying vec3 vD; uniform float uScale; void main(){ vC = color; vec4 mv = modelViewMatrix * vec4(position, 1.0); vec4 c0 = projectionMatrix * mv; vec4 c1 = projectionMatrix * (modelViewMatrix * vec4(position + vel.xyz * 0.06, 1.0)); vec2 d = c1.xy / c1.w - c0.xy / c0.w; float L = length(d); vD = vec3(L > 1e-5 ? d / L : vec2(1.0, 0.0), vel.w); gl_PointSize = min(size * uScale / max(0.5, -mv.z) * (1.0 + vel.w * 2.2), 200.0); gl_Position = c0; }`,
+    vertexShader: `attribute float size; attribute vec4 color; attribute vec4 vel; varying vec4 vC; varying vec3 vD; uniform float uScale; void main(){ vC = color; vec4 mv = modelViewMatrix * vec4(position, 1.0); vec4 c0 = projectionMatrix * mv; vec4 c1 = projectionMatrix * (modelViewMatrix * vec4(position + vel.xyz * 0.02, 1.0)); vec2 d = c1.xy / c1.w - c0.xy / c0.w; float L = length(d); vD = vec3(L > 1e-5 ? d / L : vec2(1.0, 0.0), vel.w); gl_PointSize = min(size * uScale / max(0.5, -mv.z) * (1.0 + vel.w * 0.35), 64.0); gl_Position = c0; }`,
     fragmentShader: `varying vec4 vC; varying vec3 vD; void main(){ vec2 d = gl_PointCoord - 0.5; if (vD.z > 0.5) { vec2 dir = vec2(vD.x, -vD.y); float al = dot(d, dir), ac = dot(d, vec2(-dir.y, dir.x)); float a = exp(-al * al * 14.0 - ac * ac * 900.0); if (a < 0.03) discard; float core = exp(-al * al * 40.0 - ac * ac * 3000.0); vec3 c = vC.rgb * a + vec3(1.6, 1.4, 1.1) * core * max(vC.r, 0.0) * 0.6; gl_FragColor = vec4(c, vC.a * a); return; } float a = exp(-dot(d, d) * 12.0); if (a < 0.03) discard; gl_FragColor = vec4(vC.rgb * a, vC.a * a); }` });
   const pts = new THREE.Points(g, m); pts.frustumCulled = false; pts.renderOrder = 4; pts.name = 'life_particles'; scene.add(pts);
   const L = Array.from({ length: N }, () => ({ life: 0 })); const R = Math.min(64, N >> 3), NM = N - R; let pi = 0, ri = 0; /* v92: last R slots reserved for steam so dust can't evict plumes */
@@ -201,7 +203,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const crewSpark = vents[0]; /* orange sparks beside the hauler crew, same particle system as the welder */
   const zoneVents = [ventAt(camp.x, camp.z + 3, 0.1), ventAt(Lc.x - 8, Lc.z + 6, 0.3), ventAt(Rc.x + Math.cos(ah + 1.2) * 33, Rc.z + Math.sin(ah + 1.2) * 33, 0.15), ventAt(Ec.x + 12, Ec.z + 2, 0.4)];
   if (!low) { const cap = new THREE.InstancedMesh(col(new THREE.CylinderGeometry(0.45, 0.75, 0.55, 8).translate(0, 0.27, 0), '#8c919b'), mat, vents.length); cap.name = 'life_ventcaps'; const m4 = new THREE.Matrix4(); vents.forEach((v, i) => cap.setMatrixAt(i, m4.makeTranslation(v.x, v.gy, v.z))); root.add(cap); } /* vent caps so plumes start at the ground */
-  { drill.updateMatrixWorld(true); const w = drill.localToWorld(new THREE.Vector3(0.4, 7.4, -2.35)); vents.push({ x: w.x, z: w.z, y: w.y, gy: w.y - 0.55, tt: 0.3 }); } /* v99 s2: mast exhaust = one more steam vent at the stack top (concept), no cap */
+  { drill.updateMatrixWorld(true); const w = drill.localToWorld(new THREE.Vector3(0.35, 3.22, 0.85)); vents.push({ x: w.x, z: w.z, y: w.y, gy: w.y - 0.2, tt: 0.3 }); } /* stack on the cab, same sample the plume uses */
   // lore anchors
   const J = crater; const bunnyPath = { a0: Math.atan2(J.z - base.z, J.x - base.x) + 0.9 };
   const RADIO = ['radio1', 'radio2', 'radio3', 'radio4', 'radio5']; let radioT = 25, beepT = 3, stepT = 0, waveCD = 0;
@@ -256,8 +258,8 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
     if (welder) { const W = welder, R = W.r.root; R.position.set(W.x, W.y, W.z); R.rotation.y = W.yaw; const dcam = Math.hypot(W.x - cam.x, W.z - cam.z); W.far = dcam >= NEAR && dcam < 90; R.visible = dcam < NEAR; /* static prop: impostor sooner than the porters (budget) */ if (R.visible) { W.r.update(dt, 'work', null); W.r.pivot.rotation.x = 0.28 + Math.sin(T * 7) * 0.05; }
       const burst = (T % 3.2) < 2.2; if (burst && dcam < 70 && Math.random() < dt * 70) { const fx = Math.sin(W.yaw), fz = Math.cos(W.yaw), sx = W.x + fx * 0.8, sz = W.z + fz * 0.8; parts.emit(sx, W.y + 0.85, sz, (Math.random() - 0.5) * 3 - fx * 1.2, 1 + Math.random() * 2.5, (Math.random() - 0.5) * 3 - fz * 1.2, 0.7, 0.22, 3.0, 0.9, 0.12, 0, 'spark', 0, 9); } }
     if (crewSpark && Math.hypot(crewSpark.x - cam.x, crewSpark.z - cam.z) < 90 && Math.random() < dt * 45) { parts.emit(crewSpark.x + (Math.random() - 0.5) * 0.45, crewSpark.gy + 0.5, crewSpark.z + (Math.random() - 0.5) * 0.45, (Math.random() - 0.5) * 3.2, 1.2 + Math.random() * 2.2, (Math.random() - 0.5) * 3.2, 0.6, 0.3, 3.6, 1.2, 0.15, 0, 'spark', 0, 8); }
-    { const dv = Math.hypot(D.x - cam.x, D.z - cam.z) < (globalThis.__mkStorm ? 0 : VR); drill.visible = dv; if (dv) { drill.geometry = Math.hypot(D.x - cam.x, D.z - cam.z) < (globalThis.__mkStorm ? 0 : HIDD) ? /* v75: storm view budget */ drG[1] : drG[0]; bit.rotation.y += dt * 14; bit.position.y = 1.2 + Math.sin(T * 1.3) * 0.2; { /* v58: wider, denser fan - steady 230/s spray in a full ring + a hot flare of 40 fast sparks every ~0.65 s */ sparkAcc += dt * 280; /* v117 denser sparks */ sparkFl -= dt; let flare = 0; if (sparkFl <= 0) { sparkFl = 0.55 + Math.random() * 0.2; flare = 70; sparkAcc += flare; } const flareHit = flare > 0; if (sparkAcc >= 1) drill.localToWorld(v.set(DRILL_HEAD.x, 0.45, DRILL_HEAD.z));
-          while (sparkAcc >= 1) { sparkAcc -= 1; const fast = flare-- > 0, a = Math.random() * Math.PI * 2, sp = fast ? 5.0 + Math.random() * 5.5 : 1.5 + Math.random() * 4.5; parts.emit(v.x, v.y, v.z, Math.cos(a) * sp, (fast ? 3.0 : 1.6) + Math.random() * 3.2, Math.sin(a) * sp, 0.7 + Math.random() * 0.55, fast ? 0.7 : 0.5, 4.6, 1.9, 0.25, 0, 'spark', 0, 6); /* v117 hotter/larger concept orange sparks */ } if (flareHit) { for (let k = 0; k < 3; k++) parts.emit(v.x, v.y + 0.3, v.z, 0, 0.6, 0, 0.4, 3.2 + k * 1.4, 3.2, 1.5, 0.2, 0, 'smoke', 6); /* v117 brighter flare */ } /* v93: big orange flash bloom at the bit on each flare (concept d04ca995) */ } } }
+    { const dv = Math.hypot(D.x - cam.x, D.z - cam.z) < (globalThis.__mkStorm ? 0 : VR); drill.visible = dv; if (dv) { drill.geometry = Math.hypot(D.x - cam.x, D.z - cam.z) < (globalThis.__mkStorm ? 0 : HIDD) ? /* v75: storm view budget */ drG[1] : drG[0]; bit.rotation.y += dt * 14; bit.position.y = 1.2 + Math.sin(T * 1.3) * 0.2; sparkAcc += dt * 80; sparkFl -= dt; if (sparkFl <= 0) { sparkFl = 0.85; sparkAcc += 8; } if (sparkAcc >= 1) { bit.updateMatrixWorld(true); bit.localToWorld(v.set(0, -0.85, 0));
+          while (sparkAcc >= 1) { sparkAcc -= 1; const a = Math.random() * Math.PI * 2, sp = 0.25 + Math.random() * 0.7; parts.emit(v.x, v.y, v.z, Math.cos(a) * sp, -0.15 - Math.random() * 1.3, Math.sin(a) * sp, 0.4, 0.14, 1.05, 0.42, 0.06, 0, 'spark', 0, 10); } } } }
     // steam puffs
     for (const s of vents.concat(zoneVents)) { s.tt -= dt; if (s.tt <= 0) { s.tt = 0.16 + Math.random() * 0.06; if (Math.hypot(s.x - cam.x, s.z - cam.z) < 160) { const nP = s.play ? 2 : 1; for (let n = 0; n < nP; n++) parts.emitR(s.x + (Math.random() - 0.5) * 0.5, s.gy + 0.5 + n * 0.2, s.z + (Math.random() - 0.5) * 0.55, 0.25 + (Math.random() - 0.5) * 0.35, 2.0 + Math.random() * 0.45, 0.12 + (Math.random() - 0.5) * 0.3, 4.0, 1.05, 0.82, 0.84, 0.88, 0.42, 'steam', 2.6); } } } /* play-stand vents puff a pair of wisps; drill and welder stay on the same steam slots */
     // beacons blink, dish turns

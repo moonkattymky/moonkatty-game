@@ -217,43 +217,31 @@ function echo(b, beams, bn) {
 // Shared crystal-hauler parts (concept d04ca995). Parked copies bake into the zone hull; the moving world-life hauler merges the same parts, so there is one vehicle.
 // wheelN 20 is the close desktop tyre (the flats drop out at this size). 8 is the far/phone silhouette. Body stays an 8-gon tube.
 export function haulerPieces(wheelN, bodyN = 8) {
-  const rich = wheelN >= 12, hubN = rich ? 10 : 6;
+  const rich = wheelN >= 12, hubN = rich ? 10 : 6, bodyS = rich ? 12 : 8;
   const tube = (r, len, n, axis) => { const g = new THREE.CylinderGeometry(r, r, len, n); if (axis === 'z') g.rotateX(PI / 2); else if (axis === 'x') g.rotateZ(PI / 2); return g; };
   const P = []; const add = (group, geo, pos, color, intensity = 1, emit = 0) => P.push({ group, geo, pos, color, intensity, emit });
-  // Bed with walls, not a bare tube. Wheel stations stay at x=±1.14 so the ground contact and the 0.95 collider still match the body.
-  add('dark', new THREE.BoxGeometry(1.55, 0.22, 3.15), [0, 0.52, -0.08], '#2a2724');
-  add('ivory', new THREE.BoxGeometry(1.42, 0.34, 2.35), [0, 0.78, -0.15], '#f4ecdc');
-  add('ivory', new THREE.BoxGeometry(1.28, 0.16, 2.15), [0, 0.96, -0.15], '#efe6d2');
-  for (const s of [-1, 1]) {
-    add('ivory', new THREE.BoxGeometry(0.08, 0.42, 2.25), [s * 0.7, 1.22, -0.12], '#f7f1e4');
-    add('gold', new THREE.BoxGeometry(0.1, 0.06, 2.32), [s * 0.7, 1.44, -0.12], '#e2b04a');
-    add('gold', new THREE.BoxGeometry(0.06, 0.28, 0.06), [s * 0.7, 1.08, 0.95], '#c9a24a');
-    add('gold', new THREE.BoxGeometry(0.06, 0.28, 0.06), [s * 0.7, 1.08, -1.15], '#c9a24a');
-  }
-  add('ivory', new THREE.BoxGeometry(1.35, 0.38, 0.16), [0, 1.05, 1.05], '#f4ecdc');
-  add('gold', new THREE.BoxGeometry(1.48, 0.07, 0.08), [0, 1.28, 1.08], '#e2b04a');
-  add('ivory', new THREE.BoxGeometry(1.32, 0.46, 0.18), [0, 0.95, -1.32], '#e7decc');
-  add('gold', new THREE.BoxGeometry(1.4, 0.07, 0.08), [0, 1.22, -1.36], '#e2b04a');
-  add('dark', new THREE.BoxGeometry(0.9, 0.22, 0.08), [0, 0.78, 1.28], '#3a3834');
-  if (rich) {
-    add('gold', new THREE.BoxGeometry(0.7, 0.04, 0.04), [0, 0.95, 1.22], '#c9a24a');
-    add('gold', new THREE.BoxGeometry(0.04, 0.16, 0.04), [-0.22, 0.86, 1.22], '#c9a24a');
-    add('gold', new THREE.BoxGeometry(0.04, 0.16, 0.04), [0.22, 0.86, 1.22], '#c9a24a');
-  }
+  // Rounded hull and bed. Wheel stations stay at x=±1.14 so the 0.95 collider still covers the body.
+  const hull = tube(0.5, 2.45, bodyS, 'z'); hull.scale(1.55, 0.7, 1); add('ivory', hull, [0, 0.86, -0.08], '#f3ead8');
+  const belly = tube(0.42, 2.2, bodyS, 'z'); belly.scale(1.35, 0.45, 1); add('dark', belly, [0, 0.62, -0.08], '#2a2724');
+  const bed = tube(0.46, 1.85, bodyS, 'z'); bed.scale(1.35, 0.42, 1); add('ivory', bed, [0, 1.18, -0.05], '#f7f1e6');
+  for (const z of [0.55, -0.15, -0.7]) { const band = tube(0.52, 0.045, bodyS, 'z'); band.scale(1.58, 0.74, 1); add('gold', band, [0, 0.95, z], '#e2b04a'); }
+  const nose = new THREE.SphereGeometry(0.42, rich ? 10 : 7, rich ? 8 : 5); nose.scale(1.35, 0.7, 0.85); add('ivory', nose, [0, 0.9, 1.15], '#f4ecdc');
+  const tail = new THREE.SphereGeometry(0.38, rich ? 8 : 6, rich ? 6 : 5); tail.scale(1.25, 0.65, 0.7); add('ivory', tail, [0, 0.88, -1.25], '#e7decc');
+  if (rich) { const panel = new THREE.BoxGeometry(0.04, 0.22, 0.7); add('gold', panel, [0.78, 1.02, -0.1], '#c9a24a'); add('gold', panel.clone(), [-0.78, 1.02, -0.1], '#c9a24a'); }
   const cry = rich
-    ? [[0, -0.1, 0.55], [-0.26, -0.28, 0.48], [0.28, -0.22, 0.5], [-0.06, 0.12, 0.42], [0.18, 0.02, 0.46], [-0.34, 0.08, 0.4], [0.36, -0.02, 0.38], [0, -0.42, 0.44], [-0.16, -0.55, 0.36], [0.2, -0.5, 0.34], [0.08, 0.28, 0.36], [-0.22, 0.32, 0.32], [0.05, -0.02, 0.62], [-0.4, -0.12, 0.3], [0.4, 0.16, 0.3]]
-    : [[0, -0.08, 0.5], [-0.26, -0.3, 0.42], [0.28, 0.02, 0.44], [0, -0.45, 0.36], [-0.14, 0.28, 0.34], [0.2, -0.16, 0.48]];
-  for (const [cx, cz, h] of cry) { const g = new THREE.OctahedronGeometry(0.2, 0).scale(0.75 + Math.abs(cx) * 0.4, h / 0.2 * 0.85, 0.72); g.rotateY(cx * 5 + cz * 2); g.rotateZ(cx * 0.5); add('glow', g, [cx, 1.22 + h * 0.42, cz], '#1568ee', 2.8, 1.25); }
-  if (rich) for (const s of [-1, 1]) { const g = new THREE.BoxGeometry(0.46, 0.05, 0.08); g.rotateY(s * 0.7); add('gold', g, [s * 0.7, 1.28, -0.15], '#e2b04a'); }
+    ? [[-0.42, 0.15, 0.28, '#2ee0ff'], [0.4, -0.05, 0.3, '#1a78ff'], [0, 0.05, 0.34, '#47e6ff'], [-0.15, -0.35, 0.26, '#2ec8ff'], [0.22, 0.32, 0.24, '#1568ee'], [-0.38, -0.22, 0.22, '#3ad4ff'], [0.36, 0.28, 0.22, '#1a78ff'], [0.05, -0.15, 0.3, '#2ee0ff']]
+    : [[-0.35, 0.1, 0.26, '#2ee0ff'], [0.32, -0.08, 0.28, '#1a78ff'], [0, 0.05, 0.32, '#47e6ff'], [0.1, -0.3, 0.22, '#2ec8ff']];
+  for (const [cx, cz, s, hex] of cry) { const g = new THREE.OctahedronGeometry(s, 0); g.scale(0.95, 1.5, 0.9); g.rotateY(cx * 4 + cz); g.rotateZ(0.4); add('glow', g, [cx, 1.72, cz], hex, 1.25, 0.45); }
   for (const dz of [-1.16, 0, 1.16]) for (const dx of [-1.14, 1.14]) {
-    add('dark', tube(0.46, 0.4, wheelN, 'x'), [dx, 0.46, dz], '#141210');
-    if (rich) for (let k = 0; k < 8; k++) { const g = new THREE.BoxGeometry(0.26, 0.16, 0.18); g.translate(0, 0.52, 0); g.rotateX(k / 8 * Math.PI * 2); add('dark', g, [dx, 0.46, dz], '#0c0b0a'); }
-    add('gold', tube(0.3, 0.52, hubN, 'x'), [dx, 0.46, dz], '#e2b04a');
-    add('dark', tube(0.11, 0.56, 6, 'x'), [dx, 0.46, dz], '#1a1612');
+    add('dark', tube(0.46, 0.36, wheelN, 'x'), [dx, 0.46, dz], '#161412');
+    add('dark', tube(0.5, 0.06, wheelN, 'x'), [dx, 0.46, dz], '#0c0b0a');
+    if (rich) add('dark', tube(0.49, 0.05, wheelN, 'x'), [dx + (dx > 0 ? 0.08 : -0.08), 0.46, dz], '#0c0b0a');
+    add('gold', tube(0.2, 0.24, hubN, 'x'), [dx, 0.46, dz], '#e2b04a');
+    add('dark', tube(0.07, 0.26, 6, 'x'), [dx, 0.46, dz], '#1a1612');
   }
   for (const s of [-1, 1]) {
-    add('gold', tube(0.14, 0.1, 8, 'z'), [s * 0.42, 0.86, 1.42], '#c9a24a');
-    add('glow', tube(0.09, 0.07, 8, 'z'), [s * 0.42, 0.86, 1.48], '#ffe7a4', 2.4, 1.8);
+    add('gold', tube(0.12, 0.08, 8, 'z'), [s * 0.38, 0.78, 1.35], '#c9a24a');
+    add('glow', tube(0.08, 0.06, 8, 'z'), [s * 0.38, 0.78, 1.4], '#ffe7a4', 2.2, 1.4);
   }
   return P;
 }
