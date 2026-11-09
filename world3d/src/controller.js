@@ -7,7 +7,7 @@ export class Controller {
     this.cam = camera; this.dom = dom; this.colliders = colliders;
     this.pos = new THREE.Vector3(); this.vel = new THREE.Vector3(); this.yaw = 0; this.onGround = true;
     this.fuel = 1; this.thrusting = false; this.keys = new Set(); this.joy = new THREE.Vector2(); this.jumpHeld = false; this._jumpPrev = false;
-    this.speedMul = 1; /* game ?fast=1 test aid; 1 = normal controls */ this.camYaw = 0; this.camPitch = 0.28; this.camDist = 7.5; this.camTarget = new THREE.Vector3(); this.enabled = true; this.camFree = true; this.camShift = 0; this.camLift = 0; /* v65: extra look-target height (low camera looking slightly up) */ /* lateral framing offset (m, camera-right); 0 = cat centred */
+    this.speedMul = 1; /* game ?fast=1 test aid; 1 = normal controls */ this.camYaw = 0; this.camPitch = 0.05; this.camDist = 5.2; this.camTarget = new THREE.Vector3(); this.enabled = true; this.camFree = true; this.camShift = 0; this.camLift = 0; /* v125: low close boom. Eye ~1.56 m, 5.2 m back (was 7 m / pitch 0.15). Wheel still zooms 3–40 */ /* lateral framing offset (m, camera-right); 0 = cat centred */
     addEventListener('keydown', e => { this.keys.add(e.code); if (e.code === 'Space') e.preventDefault(); });
     addEventListener('keyup', e => this.keys.delete(e.code));
     addEventListener('blur', () => this.keys.clear());
@@ -89,18 +89,21 @@ export class Controller {
     // One ray from the cat to the eye. Terrain walls and the home airlock are not in the column grid; stop 0.6 m short of the first surface so the lens cannot sit inside them.
     const scene = this.scene || this.cam.parent;
     if (scene) {
-      if (!this._camMeshes || this._camMiss > 0) { if (this._camMiss) this._camMiss--; if (!this._camMeshes || this._camMiss === 0) { this._camMeshes = []; scene.traverse(o => { if (!o.isMesh) return; if (/^terrain_/.test(o.name) || o.name === 'ch2_airlock') this._camMeshes.push(o); else for (let a = o.parent; a; a = a.parent) if (a.name === 'ch2_airlock') { this._camMeshes.push(o); break; } }); this._camMiss = this._camMeshes.some(m => m.name === 'ch2_airlock') ? 0 : 90; } }
+      if (!this._camMeshes || this._camMiss > 0) { if (this._camMiss) this._camMiss--; if (!this._camMeshes || this._camMiss === 0) { this._camMeshes = []; scene.traverse(o => { if (!o.isMesh) return; if (/^terrain_/.test(o.name) || o.name === 'ch2_airlock' || o.name === 'life_rover' || o.name === 'life_drill') this._camMeshes.push(o); else for (let a = o.parent; a; a = a.parent) if (a.name === 'ch2_airlock') { this._camMeshes.push(o); break; } }); this._camMiss = this._camMeshes.some(m => m.name === 'ch2_airlock') && this._camMeshes.some(m => m.name === 'life_rover') ? 0 : 90; } }
+      if (this._camMeshes && !this._camMeshes.some(m => m.name === 'life_rover')) { const r = scene.getObjectByName('life_rover'), d = scene.getObjectByName('life_drill'); if (r) this._camMeshes.push(r); if (d) this._camMeshes.push(d); }
       const ray = this._camRay || (this._camRay = new THREE.Raycaster()); const axes = this._camAxes || (this._camAxes = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]].map(v => new THREE.Vector3(v[0], v[1], v[2]))); const dir = p.clone().sub(look); const dist = dir.length();
       if (dist > 0.9 && this._camMeshes.length) {
         dir.multiplyScalar(1 / dist); ray.set(look, dir); ray.near = 0.35; ray.far = dist;
         const hits = ray.intersectObjects(this._camMeshes, false);
         for (const h of hits) {
           if (!h.object.visible) continue;
-          if (h.point.distanceToSquared(this.pos) < 1.7) continue;
+          const veh = h.object.name === 'life_rover' || h.object.name === 'life_drill';
+          if (!veh && h.point.distanceToSquared(this.pos) < 1.7) continue;
           const stop = Math.max(0.9, h.distance - 0.6); if (stop < dist) p = look.clone().addScaledVector(dir, stop);
           break;
         }
-        for (let n = 0; n < 4; n++) { let close = false; ray.near = 0; ray.far = 0.5; for (const a of axes) { ray.set(p, a); const hs = ray.intersectObjects(this._camMeshes, false); if (hs.some(h => h.object.visible && h.point.distanceToSquared(this.pos) >= 1.7)) { close = true; break; } } if (!close) break; const back = look.clone().sub(p); const d = back.length(); if (d < 1.15) break; p.addScaledVector(back, Math.min(0.4, d - 1.05) / d); }
+        const blocks = (h) => h.object.visible && (h.object.name === 'life_rover' || h.object.name === 'life_drill' || h.point.distanceToSquared(this.pos) >= 1.7);
+        for (let n = 0; n < 4; n++) { let close = false; ray.near = 0; ray.far = 0.5; for (const a of axes) { ray.set(p, a); const hs = ray.intersectObjects(this._camMeshes, false); if (hs.some(blocks)) { close = true; break; } } if (!close) break; const back = look.clone().sub(p); const d = back.length(); if (d < 1.15) break; p.addScaledVector(back, Math.min(0.4, d - 1.05) / d); }
       }
     }
     this.cam.position.copy(p); this.cam.lookAt(look);

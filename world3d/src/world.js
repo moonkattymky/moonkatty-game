@@ -216,7 +216,7 @@ function echo(b, beams, bn) {
 }
 
 // Shared crystal-hauler parts (concept d04ca995). Parked copies bake into the zone hull; the moving world-life hauler merges the same parts, so there is one vehicle.
-// wheelN 14 reads round up close; 8 is the far/phone silhouette (not a hexagon). Body stays an 8-gon tube — the soft bevel is the scale, not the segment count.
+// wheelN 20 is the close desktop tyre (the flats drop out at this size). 8 is the far/phone silhouette. Body stays an 8-gon tube.
 export function haulerPieces(wheelN, bodyN = 8) {
   const hubN = wheelN >= 12 ? 10 : 6;
   const tube = (r, len, n, axis) => { const g = new THREE.CylinderGeometry(r, r, len, n); if (axis === 'z') g.rotateX(PI / 2); else if (axis === 'x') g.rotateZ(PI / 2); return g; };
@@ -228,8 +228,9 @@ export function haulerPieces(wheelN, bodyN = 8) {
   for (const s of [-1, 1]) add('gold', new THREE.BoxGeometry(0.07, 0.06, 2.7), [s * 0.88, 1.32, -0.08], '#f0b020');
   add('gold', new THREE.BoxGeometry(1.78, 0.06, 0.07), [0, 1.32, 1.12], '#f0b020');
   add('gold', new THREE.BoxGeometry(1.62, 0.06, 0.07), [0, 1.28, -1.38], '#f0b020');
-  const cry = [[-0.34, -0.7, 0.32], [0.02, -0.82, 0.46], [0.36, -0.62, 0.3], [-0.16, -0.42, 0.4], [0.2, -0.38, 0.5], [-0.28, -1.0, 0.28], [0.08, -1.02, 0.36], [0.32, -0.94, 0.26]];
-  for (const [cx, cz, h] of cry) { const g = new THREE.OctahedronGeometry(0.2, 0).scale(0.8, h / 0.2, 0.8); g.rotateZ(cx * 0.2); g.rotateX(cz * 0.08); add('glow', g, [cx, 1.46 + h * 0.2, cz], '#3ec8ff', 2.4, 1.35); }
+  // Dense saturated pile heaped above the bed rim (concept d04ca995). Same blue as the ground crystals, kept under the bloom so the facets stay blue instead of washing out.
+  const cry = [[0.02, -0.62, 0.92], [-0.28, -0.5, 0.7], [0.3, -0.48, 0.74], [-0.08, -0.84, 0.84], [0.22, -0.78, 0.66], [-0.42, -0.72, 0.58], [0.44, -0.7, 0.54], [-0.18, -1.02, 0.62], [0.16, -1.05, 0.7], [0.0, -0.4, 0.5], [-0.34, -0.34, 0.46], [0.36, -0.32, 0.48], [0.08, -0.95, 0.56], [-0.24, -0.88, 0.5], [0.28, -0.96, 0.52], [-0.46, -0.52, 0.42], [0.48, -0.5, 0.44], [0.0, -0.72, 0.6]];
+  for (const [cx, cz, h] of cry) { const g = new THREE.OctahedronGeometry(0.2, 0).scale(0.85, h / 0.2, 0.85); g.rotateY(cx * 6 + cz * 3); g.rotateZ((cx + cz) * 0.4); add('glow', g, [cx, 1.42 + h * 0.62, cz], '#1a7dff', 1.25, 2.15); }
   for (const dz of [-1.16, 0, 1.16]) for (const dx of [-1.14, 1.14]) {
     add('dark', tube(0.46, 0.44, wheelN, 'x'), [dx, 0.46, dz], '#1a1816');
     add('gold', tube(0.18, 0.48, hubN, 'x'), [dx, 0.46, dz], '#f0b020');
@@ -246,7 +247,7 @@ function rover(b, x, z, yaw) { // parked copy of haulerPieces, merged into the z
   const off = (dx, dy, dz) => [x + Math.cos(yaw) * dx + Math.sin(yaw) * dz, y + dy, z - Math.sin(yaw) * dx + Math.cos(yaw) * dz];
   const R = [0, yaw, 0];
   const seg = (n, min) => GQ.s === 1 ? n : Math.max(min, Math.round(n * GQ.s));
-  for (const p of haulerPieces(seg(14, 8), 8)) b.add(p.group, p.geo, { pos: off(p.pos[0], p.pos[1], p.pos[2]), rot: R, color: p.color, intensity: p.intensity });
+  for (const p of haulerPieces(seg(20, 8), 8)) b.add(p.group, p.geo, { pos: off(p.pos[0], p.pos[1], p.pos[2]), rot: R, color: p.color, intensity: p.intensity });
 }
 
 // Glowing gold-lit roads from the hub toward each chapter region (as on the world map)
