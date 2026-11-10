@@ -230,7 +230,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const sat = new THREE.Mesh(satGeo(), mat); sat.name = 'life_sat'; sat.scale.setScalar(0.85); root.add(sat); sat.visible = !LITE;
   const lift = new THREE.Mesh(shG, mat); lift.name = 'life_liftoff'; lift.scale.setScalar(2.6); root.add(lift); let liftT = 5;
   // ground vehicles
-  const HID = low ? 0 : mobile ? 16 : 28, /* 20-gon tyres while the hauler is readable from the play stand; 8-gon only once it is a small shape */ HIDD = low ? 0 : mobile ? 40 : 48; /* the play stand and a walk around the rig stay on the full mast; low keeps the same silhouette with fewer wheels */ const rvG = [haulerGeo(false), low ? null : haulerGeo(true)], drG = [rigGeo(false, low), low ? null : rigGeo(true, false)] /* v99: own rig (concept), machines.js untouched */;
+  const HID = low ? 0 : mobile ? 16 : 28, /* 20-gon tyres while the hauler is readable from the play stand; 8-gon only once it is a small shape */ HIDD = low ? 0 : mobile ? 16 : 48; /* phone yard view uses the lighter rig; a close desktop look keeps the full mast */ const rvG = [haulerGeo(false), low ? null : haulerGeo(true)], drG = [rigGeo(false, low), low ? null : rigGeo(true, false)] /* v99: own rig (concept), machines.js untouched */;
   const rover = new THREE.Mesh(rvG[0], mat); rover.name = 'life_rover'; rover.userData.hi = rvG[1]; /* lamps are the round discs in the hauler mesh; no cone wedges */ rover.scale.setScalar(1.0); rover.castShadow = true; root.add(rover);
   const roverCols = [{ lz: -0.55, r: 1.02 }, { lz: 0.12, r: 1.10 }, { lz: 0.80, r: 1.02 }].map(c => ({ x: 0, z: 0, r: c.r, h: 2.0, lz: c.lz })); if (ctrl && ctrl.colliders) roverCols.forEach(c => ctrl.colliders.push(c));
   let sparkAcc = 0, sparkFl = 0; const drill = new THREE.Mesh(drG[0], mat); drill.name = 'life_drill'; drill.userData.hi = drG[1]; drill.scale.setScalar(1.15); /* concept: the drill rig is a big hero prop */ root.add(drill); const bit = new THREE.Mesh(augerGeo(!mobile), mat); bit.position.copy(DRILL_HEAD); drill.add(bit); bit.visible = !low;
@@ -246,13 +246,13 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const clear = (x, z) => cols.reduce((m, c) => Math.min(m, Math.hypot(c.x - x, c.z - z) - (c.r || 1)), 1e9);
   const cy0 = Math.atan2(-F.x, -F.z) - 0.30, fwd = { x: -Math.sin(cy0), z: -Math.cos(cy0) }, right = { x: Math.cos(cy0), z: -Math.sin(cy0) };
   shipRoutes[0].cx -= right.x * 8; shipRoutes[0].cz -= right.z * 8; // stand sky: the near shuttle sits upper-left of the dome, not on the look axis
-  // mid-right of the play stand, clear of the cat's corridor and of the crater bowl
-  let D = { x: PLAY_START.x + fwd.x * 26 + right.x * 14, z: PLAY_START.z + fwd.z * 26 + right.z * 14 };
-  if (flat(D.x, D.z, 4) > 2.5 || clear(D.x, D.z) < 3) { let bs = 1e9, fallback = D; for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2; const x = D.x + Math.cos(a) * 4, z = D.z + Math.sin(a) * 4; const sc = flat(x, z, 4) * 3 + Math.max(0, 4 - clear(x, z)) * 4; if (sc < bs) { bs = sc; fallback = { x, z }; } } D = fallback; }
+  // Yard in front of the depot: hauler loops on the camera-left, drill parks on the camera-right, both in the yard frame.
+  const dyaw = depotP.yaw || 0, dfx = Math.sin(dyaw), dfz = Math.cos(dyaw), dlx = dfz, dlz = -dfx, drx = -dfz, drz = dfx;
+  let D = { x: depotP.x + dfx * 3.5 + drx * 8, z: depotP.z + dfz * 3.5 + drz * 8 };
+  if (flat(D.x, D.z, 4) > 3.2 || clear(D.x, D.z) < 2.4) { let bs = 1e9, fallback = D; for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; const x = D.x + Math.cos(a) * 5, z = D.z + Math.sin(a) * 5; const sc = flat(x, z, 3) * 3 + Math.max(0, 3 - clear(x, z)) * 4; if (sc < bs) { bs = sc; fallback = { x, z }; } } D = fallback; }
   const dd = { x: D.x - depotP.x, z: D.z - depotP.z }, dl = Math.hypot(dd.x, dd.z) || 1, ux = dd.x / dl, uz = dd.z / dl, px = -uz, pz = ux;
-  drill.position.set(D.x, groundAt(D.x, D.z), D.z); drill.rotation.y = Math.atan2(PLAY_START.x - D.x, PLAY_START.z - D.z) + 0.6;
-  // rover: depot -> around the drill -> back (closed loop), all inside the open patch
-  const hc = sd(4, -18); const hux = F.x, huz = F.z, hpx = -huz, hpz = hux; const loopPts = []; for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2; loopPts.push(new THREE.Vector3(hc.x + hux * Math.cos(a) * 5.2 + hpx * Math.sin(a) * 1.8, 0, hc.z + huz * Math.cos(a) * 5.2 + hpz * Math.sin(a) * 1.8)); } setRut(hc.x, hc.z, 5.2, 1.8, hux, huz); setCrater(PLAY_CRATER.x, PLAY_CRATER.z, PLAY_CRATER.r); setRut2(REGIONS.echo.x + 6, REGIONS.echo.z - 2, 8.5, 2.4, 0.71, -0.70); { const _ah = Math.atan2(-REGIONS.reactor.z, -REGIONS.reactor.x); setRut3(REGIONS.reactor.x + Math.cos(_ah) * 34, REGIONS.reactor.z + Math.sin(_ah) * 34, 10, 2.6, Math.cos(_ah), Math.sin(_ah)); }
+  drill.position.set(D.x, groundAt(D.x, D.z), D.z); drill.rotation.y = Math.atan2(depotP.x - D.x, depotP.z - D.z) + 0.35;
+  const hc = { x: depotP.x + dfx * 2.5 + dlx * 8, z: depotP.z + dfz * 2.5 + dlz * 8 }; const hux = dlx, huz = dlz, hpx = dfx, hpz = dfz; const loopPts = []; for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2; loopPts.push(new THREE.Vector3(hc.x + hux * Math.cos(a) * 2.2 + hpx * Math.sin(a) * 1.1, 0, hc.z + huz * Math.cos(a) * 2.2 + hpz * Math.sin(a) * 1.1)); } setRut(hc.x, hc.z, 2.2, 1.1, hux, huz); setCrater(PLAY_CRATER.x, PLAY_CRATER.z, PLAY_CRATER.r); setRut2(REGIONS.echo.x + 6, REGIONS.echo.z - 2, 8.5, 2.4, 0.71, -0.70); { const _ah = Math.atan2(-REGIONS.reactor.z, -REGIONS.reactor.x); setRut3(REGIONS.reactor.x + Math.cos(_ah) * 34, REGIONS.reactor.z + Math.sin(_ah) * 34, 10, 2.6, Math.cos(_ah), Math.sin(_ah)); }
   const loop = new THREE.CatmullRomCurve3(loopPts, true); const loopLen = loop.getLength();
   // porters: two crew robots shuttling crystals drill -> depot; they wave at the cat when it comes close
   const porters = makeCrew ? [['builder', 0, -7], ['geologist', 0.27, 0.8]].map(([ty, o, ln]) => { const r = makeCrew(scene, env, ty, 2); r.root.name = 'life_porter'; return { r, o, ln, wave: 0 }; }) /* v97: separate lanes + phase so they never stack behind the cat */ : [];
@@ -286,11 +286,17 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   ];
   // steam vents: play-stand right plain (hauler crew), welder, and the plaza toward the drill
   const ventAt = (x, z, tt) => { const gy = Math.max(groundAt(x, z), sAt(x, z)); return { x, z, y: gy + 1.15, gy, tt }; };
-  const vents = [ventAt(PLAY_START.x + fwd.x * 8 + right.x * 8, PLAY_START.z + fwd.z * 8 + right.z * 8, 0.05), ventAt(PLAY_START.x + fwd.x * 12 + right.x * 10.5, PLAY_START.z + fwd.z * 12 + right.z * 10.5, 0.4)];
+  const vents = [ventAt(hc.x + dlx * 1.2, hc.z + dlz * 1.2, 0.05), ventAt(D.x + drx * 1.4, D.z + drz * 1.4, 0.25), ventAt(PLAY_START.x + fwd.x * 12 + right.x * 10.5, PLAY_START.z + fwd.z * 12 + right.z * 10.5, 0.4)];
   vents[0].play = vents[1].play = true;
   if (welder) vents.push(ventAt(welder.x + Math.sin(welder.yaw) * 1.5, welder.z + Math.cos(welder.yaw) * 1.5, 0.35));
   { const x = base.x + (D.x - base.x) * 0.62 - (D.z - base.z) * 0.12, z = base.z + (D.z - base.z) * 0.62 + (D.x - base.x) * 0.12; vents.push(ventAt(x, z, 0)); }
   const crewSpark = vents[0]; /* orange sparks beside the hauler crew, same particle system as the welder */
+  { const crates = []; const put = (g, hex, x, y, z, yw) => { g.rotateY(yw); g.translate(x, y, z); crates.push(col(g, hex, 0, hex === '#e2b04a' ? [0.7, 0.34] : [0.08, 0.55])); };
+    put(new THREE.BoxGeometry(0.7, 0.55, 0.55), '#c4a56a', hc.x + dlx * 2.2, groundAt(hc.x, hc.z) + 0.28, hc.z + dlz * 2.2, dyaw);
+    put(new THREE.BoxGeometry(0.55, 0.45, 0.5), '#e7d4b4', hc.x + dlx * 2.6, groundAt(hc.x, hc.z) + 0.78, hc.z + dlz * 2.4, dyaw + 0.4);
+    put(new THREE.BoxGeometry(1.3, 0.12, 0.8), '#8a7040', hc.x + dfx * 1.5, groundAt(hc.x, hc.z) + 0.08, hc.z + dfz * 1.5, dyaw);
+    for (const [ox, oz] of [[-0.3, -0.15], [0.25, -0.1], [0, 0.2], [0.05, 0]]) put(new THREE.OctahedronGeometry(0.16, 0), '#3aa8ff', hc.x + dfx * 1.5 + ox, groundAt(hc.x, hc.z) + 0.28, hc.z + dfz * 1.5 + oz, 0.3);
+    const cm = new THREE.Mesh(merge(crates), mat); cm.name = 'life_crates'; root.add(cm); }
   const zoneVents = [ventAt(camp.x, camp.z + 3, 0.1), ventAt(Lc.x - 8, Lc.z + 6, 0.3), ventAt(Rc.x + Math.cos(ah + 1.2) * 33, Rc.z + Math.sin(ah + 1.2) * 33, 0.15), ventAt(Ec.x + 12, Ec.z + 2, 0.4)];
   if (!low) { const cap = new THREE.InstancedMesh(col(new THREE.CylinderGeometry(0.45, 0.75, 0.55, 8).translate(0, 0.27, 0), '#8c919b'), mat, vents.length); cap.name = 'life_ventcaps'; const m4 = new THREE.Matrix4(); vents.forEach((v, i) => cap.setMatrixAt(i, m4.makeTranslation(v.x, v.gy, v.z))); root.add(cap); } /* vent caps so plumes start at the ground */
   { drill.updateMatrixWorld(true); const w = drill.localToWorld(new THREE.Vector3(-0.55, 2.40, 2.95)); vents.push({ x: w.x, z: w.z, y: w.y, gy: w.y - 0.2, tt: 0.3 }); } /* plume starts at the cab exhaust stack */

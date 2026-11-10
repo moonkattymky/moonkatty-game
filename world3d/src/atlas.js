@@ -47,8 +47,8 @@ export function makeAtlas() {
   { const [x, y, w, h] = R.domeCap; P(x, y, w, h, IV, null, 0.5, 0.02);
     const g = a.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, 'rgba(255,250,240,0.18)'); g.addColorStop(1, 'rgba(90,82,70,0.12)'); a.fillStyle = g; a.fillRect(x, y, w, h);
     const seam = (sx, sy, sw, sh) => { a.fillStyle = '#857a66'; a.fillRect(sx, sy, sw, sh); a.fillStyle = 'rgba(255,250,238,0.55)'; if (sw > sh) a.fillRect(sx, sy + sh, sw, 1); else a.fillRect(sx + sw, sy, 1, sh); }; // dark groove + lit bevel edge (reads at distance after mipmapping)
-    for (let b = 0; b < 7; b++) { const y0 = y + 26 + b * 30; seam(x, y0, w, 3); for (let xx = (b % 2) * 42; xx < w; xx += 85) seam(x + xx, y0, 3, 30); }
-    for (let k = 0; k < 12; k++) seam(x + k * 85 + 20, y + 16, 4, h - 16); // main segment seams
+    for (let b = 0; b < 7; b++) { const y0 = y + 26 + b * 30; seam(x, y0, w, 2); }
+    for (let k = 0; k < 8; k++) { a.fillStyle = 'rgba(150,132,108,0.22)'; a.fillRect(x + k * 128 + 30, y + 16, 2, h - 16); } // faint vertical seams, not dark ribs
     gold(x, y, w, 12, GOLDD); gold(x, y + h - 30, w, 8, GOLD); gold(x, y + h - 10, w, 10, GOLDD);
     for (let k = 0; k < 18; k++) port(x + k * 56 + 28, y + h - 42, 11, 12); /* round lit portholes low on the cap */
     gold(x, y + h - 58, w, 3, GOLD2); }
@@ -59,7 +59,7 @@ export function makeAtlas() {
   // reactor wall
   { const [x, y, w, h] = R.reactorWall; P(x, y, w, h, IV, null, 0.45, 0.02); a.fillStyle = IVL; a.fillRect(x, y + 24, w, 2); a.fillRect(x, y + 98, w, 2);
     gold(x, y, w, 8); gold(x, y + h - 10, w, 10, GOLDD);
-    for (let k = 0; k < 24; k++) { const xx = x + k * (w / 24); gold(xx, y, 6, h, GOLDD); for (const cx of [xx + 14, xx + 34]) { const cy = y + 62; const el = (ctx, c, rx, ry) => { ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, 7); ctx.fill(); }; el(a, GOLD, 7, 17); el(a, '#e8b468', 4.8, 11.5); el(e, '#7a4f24', 4.8, 11.5); m.fillStyle = orm(0.2, 0); m.beginPath(); m.ellipse(cx, cy, 4.8, 11.5, 0, 0, 7); m.fill(); } } }
+    for (let k = 0; k < 16; k++) { const xx = x + k * (w / 16); a.fillStyle = 'rgba(140,122,96,0.16)'; a.fillRect(xx, y + 18, 2, h - 32); for (const cx of [xx + 22, xx + 46]) { const cy = y + 62; const el = (ctx, c, rx, ry) => { ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, 7); ctx.fill(); }; el(a, GOLD, 7, 17); el(a, '#e8b468', 4.8, 11.5); el(e, '#7a4f24', 4.8, 11.5); m.fillStyle = orm(0.2, 0); m.beginPath(); m.ellipse(cx, cy, 4.8, 11.5, 0, 0, 7); m.fill(); } } }
   // corridor segment (u around, v along)
   { const [x, y, w, h] = R.corridor; P(x, y, w, h, IV, null, 0.45, 0.02);
     for (let k = 0; k < 6; k++) { const yy = y + 8 + k * 13.3; const g = a.createLinearGradient(0, yy, 0, yy + 13); g.addColorStop(0, '#f1e6cf'); g.addColorStop(0.45, IV); g.addColorStop(1, '#a8977a'); a.fillStyle = g; a.fillRect(x, yy, w, 13); }

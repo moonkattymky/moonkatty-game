@@ -91,14 +91,11 @@ function reactor(b, s, d) {
   b.add('gold', G.torus(Ri + 0.08, 0.13, 4, 36), { pos: [x, yt + 0.32, z], rot: [PI / 2, 0, 0], color: C.gold });
   b.add('gold', G.torus(Ri + 0.72, 0.08, 3, 36), { pos: [x, yt + 0.05, z], rot: [PI / 2, 0, 0], color: C.goldD });
   // ring of warm lights on the inner lip around the core + walkway railing posts / deck plates
-  for (let i = 0; i < 28; i++) { const a = i / 28 * PI * 2; b.add('glow', new THREE.CircleGeometry(0.11, 8).rotateX(-PI / 2), { pos: [x + Math.sin(a) * (Ri + 0.42), yt + 0.38, z + Math.cos(a) * (Ri + 0.42)], color: '#ffd7a1', intensity: 3.2 }); }
-  for (let i = 0; i < 18; i++) { const a = i / 18 * PI * 2 + 0.09; const rr = Ri + 1.25; b.add('gold', G.cyl(0.05, 0.05, 0.55, 4), { pos: [x + Math.sin(a) * rr, yt + 0.02, z + Math.cos(a) * rr], color: C.gold2 }); b.add('dark', G.box(0.08, 0.02, 1.0), { pos: [x + Math.sin(a + 0.17) * (Ri + 1.1), yt + 0.012, z + Math.cos(a + 0.17) * (Ri + 1.1)], rot: [0, a + 0.17, 0], color: '#8a8070' }); }
-  b.add('gold', G.torus(Ri + 1.25, 0.035, 3, 36), { pos: [x, yt + 0.57, z], rot: [PI / 2, 0, 0], color: C.gold2 });
+  b.add('gold', G.torus(Ri + 1.25, 0.035, 3, 24), { pos: [x, yt + 0.57, z], rot: [PI / 2, 0, 0], color: C.gold2 });
   // deep glowing pit: walls glow hotter toward the molten floor, with dark vertical ribs
   const pitD = 0.85;
   b.add('glow', G.cyl(Ri, Ri * 0.92, pitD + 0.55, 36, true), { pos: [x, yt - pitD, z], flip: true, color: (px, py, pz) => { const hh = pitD + 0.55; const ly = py > yt - pitD - 1 ? py - (yt - pitD) : py; const t = THREE.MathUtils.clamp(ly / hh, 0, 1); const k = 1.55 - 0.6 * t; return [k, k * 0.17, k * 0.012]; } });
-  for (let i = 0; i < 20; i++) { const a = i / 20 * PI * 2; b.add('dark', G.box(0.16, pitD + 0.8, 0.1), { pos: [x + Math.sin(a) * (Ri * 0.96 - 0.06), yt - pitD / 2 + 0.4, z + Math.cos(a) * (Ri * 0.96 - 0.06)], rot: [0, a, 0], color: '#5a3a20' }); }
-  b.add('glow', G.disc(Ri * 0.97, 32), { pos: [x, yt + 0.2, z], color: (px, py, pz) => { const t = Math.hypot(px - x, pz - z) / Ri; const k = 0.95 - 0.4 * t; return [k, k * 0.2, k * 0.012]; } });
+  b.add('glow', G.disc(Ri * 0.97, 24), { pos: [x, yt + 0.2, z], color: (px, py, pz) => { const t = Math.hypot(px - x, pz - z) / Ri; const k = 0.95 - 0.4 * t; return [k, k * 0.2, k * 0.012]; } });
   b.add('glow', G.disc(Ri * 0.42, 24), { pos: [x, yt + 0.215, z], color: '#ffb347', intensity: 2.4 }); for (const f of [0.55, 0.78]) b.add('dark', G.ring(Ri * f, Ri * f + 0.34, 48), { pos: [x, yt + 0.218, z], color: '#1c0d06' }); // molten core: hot centre + crust rings
   // low wide ivory cap over the ring: smooth shell, one gold band, a window tier, a short gold spire. The dish module is the left annex. The pit stays inside.
   { const Rd = R - 0.35, sy = 0.46, y0 = yt + 0.02; b.add('ivory', G.cap(Rd, 48, 7), { pos: [x, y0, z], scale: [1, sy, 1], color: '#f4ead8' });
@@ -126,6 +123,25 @@ function corridor(b, A, B, r = 1.05, h = r + 0.3) {
   for (let i = 0; i < 6; i++) colliders.push({ x: A.x + (B.x - A.x) * (i + 0.5) / 6, z: A.z + (B.z - A.z) * (i + 0.5) / 6, r: r + 0.4 });
 }
 
+// Rectangular cream annex on the camera-left of the hall: a bright doorway and gold pipes. Merged into the hall mesh.
+function frontAnnex(b) {
+  const p = sd(-4.8, -10.2); const y = groundAt(p.x, p.z); const yaw = faceCam;
+  const s = Math.sin(yaw), c = Math.cos(yaw);
+  const W = (lx, ly, lz) => [p.x + c * lx + s * lz, y + ly, p.z - s * lx + c * lz];
+  colliders.push({ x: p.x, z: p.z, r: 3.1 });
+  b.add('ivory', G.box(5.4, 3.15, 2.8), { pos: W(0, 1.65, 0), rot: [0, yaw, 0], color: '#e7d4b4' });
+  b.add('gold', G.box(5.55, 0.14, 2.95), { pos: W(0, 3.28, 0), rot: [0, yaw, 0], color: C.gold });
+  b.add('ivory', G.box(2.4, 1.7, 2.2), { pos: W(-3.7, 0.95, 0.1), rot: [0, yaw, 0], color: '#efe2cc' });
+  b.add('gold', G.box(2.52, 0.1, 2.32), { pos: W(-3.7, 1.84, 0.1), rot: [0, yaw, 0], color: C.gold });
+  b.add('glow', new THREE.PlaneGeometry(2.5, 2.45), { pos: W(0.45, 1.45, 1.48), rot: [0, yaw, 0], color: '#ffe08a', intensity: 8 });
+  b.add('gold', G.box(2.75, 0.12, 0.1), { pos: W(0.45, 2.74, 1.48), rot: [0, yaw, 0], color: C.gold });
+  b.add('gold', G.box(0.12, 2.55, 0.1), { pos: W(-0.85, 1.45, 1.48), rot: [0, yaw, 0], color: C.gold });
+  b.add('gold', G.box(0.12, 2.55, 0.1), { pos: W(1.75, 1.45, 1.48), rot: [0, yaw, 0], color: C.gold });
+  const pipe = (lx, ly, lz, len, axis) => { const g = G.cyl(0.07, 0.07, len, 5); if (axis === 'x') g.rotateZ(PI / 2); else if (axis === 'z') g.rotateX(PI / 2); b.add('gold', g, { pos: W(lx, ly, lz), rot: [0, yaw, 0], color: C.gold }); };
+  pipe(-1.15, 1.7, 1.55, 1.5, 'y'); pipe(-1.15, 2.45, 1.15, 1.5, 'x'); pipe(1.9, 2.2, 1.55, 1.2, 'y');
+  b.add('gold', G.sphere(0.16, 6, 5), { pos: W(-1.15, 2.45, 1.55), color: C.gold2 });
+  b.add('gold', G.torus(0.18, 0.04, 3, 8), { pos: W(1.9, 2.85, 1.55), rot: [PI / 2, 0, 0], color: C.gold });
+}
 function dishModule(b, s, d) {
   const { x, z } = sd(s, d); const y = groundAt(x, z) - 0.1;
   colliders.push({ x, z, r: 5 });
@@ -139,9 +155,7 @@ function dishModule(b, s, d) {
   b.add('gold', G.cyl(0.9, 1.3, 1.0, 12), { pos: [x, y + 4.9, z], color: C.gold }); b.add('gold', G.cyl(0.55, 0.7, 1.4, 10), { pos: [x, y + 5.9, z], color: C.goldD });
   // ornate turret: stacked gold collars, buttress fins, light ring
   for (const [yy, rr] of [[5.35, 1.05], [5.75, 0.85], [6.2, 0.75]]) b.add('gold', G.torus(rr, 0.08, 3, 16), { pos: [x, y + yy, z], rot: [PI / 2, 0, 0], color: C.gold2 });
-  for (let k = 0; k < 8; k++) { const a = k / 8 * PI * 2; const sh = new THREE.Shape(); sh.moveTo(0, 0); sh.lineTo(0.9, 0); sh.lineTo(0, 1.6); sh.lineTo(0, 0); const g = new THREE.ExtrudeGeometry(sh, { depth: 0.1, bevelEnabled: false }).translate(0, 0, -0.05); b.add('gold', g, { pos: [x + Math.sin(a) * 1.1, y + 4.9, z + Math.cos(a) * 1.1], rot: [0, a - PI / 2, 0], color: C.goldD }); }
-  for (let k = 0; k < 14; k++) { const a = k / 14 * PI * 2; b.add('glow', G.box(0.18, 0.1, 0.18), { pos: [x + Math.sin(a) * 2.25, y + 4.92, z + Math.cos(a) * 2.25], color: C.win, intensity: 3.5 }); }
-  for (let k = 0; k < 16; k++) { const a = k / 16 * PI * 2; b.add('glow', G.box(0.22, 0.1, 0.22), { pos: [x + Math.sin(a) * 3.65, y + 4.12, z + Math.cos(a) * 3.65], color: C.gold2, intensity: 3 }); }
+  for (let k = 0; k < 6; k++) { const a = k / 6 * PI * 2; b.add('gold', G.box(0.12, 1.15, 0.28), { pos: [x + Math.sin(a) * 1.15, y + 5.5, z + Math.cos(a) * 1.15], rot: [0, a, 0], color: C.goldD }); }
   { const DY = faceCam + PI + 0.9; // yoke: two ornate gold arms + pivot hubs + elevation drum
     for (const sx of [-1, 1]) { const ox = Math.cos(DY) * sx * 1.25, oz = -Math.sin(DY) * sx * 1.25; b.add('gold', G.box(0.32, 1.6, 0.95), { pos: [x + ox, y + 7.8, z + oz], rot: [0, DY, 0], color: C.gold }); b.add('gold', G.cyl(0.42, 0.42, 0.3, 14).rotateZ(PI / 2), { pos: [x + ox * 1.12, y + 8.35, z + oz * 1.12], rot: [0, DY, 0], color: C.gold2 }); b.add('glow', G.box(0.12, 0.7, 0.12), { pos: [x + ox * 1.15, y + 7.6, z + oz * 1.15], rot: [0, DY, 0], color: C.win, intensity: 3 }); }
     b.add('ivory', G.cyl(0.95, 1.1, 0.7, 18), { pos: [x, y + 7.35, z], color: C.ivory }); b.add('gold', G.torus(1.0, 0.07, 3, 18), { pos: [x, y + 7.7, z], rot: [PI / 2, 0, 0], color: C.gold });
@@ -149,8 +163,7 @@ function dishModule(b, s, d) {
     b.add('ivory', G.cyl(0.62, 0.8, 0.9, 16), { pos: [x, y + 6.45, z], color: C.ivory, ao: [y + 6.2, y + 7.4] }); for (const [yy, rr] of [[6.45, 0.82], [6.9, 0.7], [7.32, 0.66]]) b.add('gold', G.torus(rr, 0.07, 3, 16), { pos: [x, y + yy, z], rot: [PI / 2, 0, 0], color: C.gold2 });
     b.add('glow', G.cyl(0.71, 0.71, 0.12, 16, true), { pos: [x, y + 7.0, z], color: C.win, intensity: 2.5 });
     // balustrade on the upper deck: gold posts + rail
-    for (let k = 0; k < 18; k++) { const a = k / 18 * PI * 2; b.add('gold', G.box(0.07, 0.45, 0.07), { pos: [x + Math.sin(a) * 3.0, y + 4.32, z + Math.cos(a) * 3.0], color: C.gold }); }
-    b.add('gold', G.torus(3.0, 0.05, 3, 28), { pos: [x, y + 4.55, z], rot: [PI / 2, 0, 0], color: C.gold2 }); }
+    b.add('gold', G.torus(3.0, 0.05, 3, 20), { pos: [x, y + 4.55, z], rot: [PI / 2, 0, 0], color: C.gold2 }); }
   // dish
   const DY = faceCam + PI + 0.9; const tilt = new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.55, DY, 0, 'YXZ'));
   const center = new THREE.Vector3(x, y + 9.8, z);
@@ -323,6 +336,7 @@ function tracks(b) {
 }
 export function buildHub(b, beams) {
   const R = reactor(b, 0, 0);
+  frontAnnex(b);
   beams.push({ x: R.x, y: R.y + 0.2, z: R.z, r: R.Ri * 0.92, h: 2.4, color: "#ff7a1e", I: 0.55, taper: 1.2 }); // warm glow stays under the low cap
   beams.push({ x: R.x, y: R.y + 0.2, z: R.z, r: R.Ri * 0.5, h: 1.6, color: "#ffa04a", I: 0.5, taper: 1.3 });
   dome(b, -22, 3, 5.0); // home door stays on this dome
