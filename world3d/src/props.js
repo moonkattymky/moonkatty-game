@@ -217,7 +217,7 @@ export class InstanceCuller {
   }
   stats() { const o = {}; for (const k of this.kinds) o[k.name] = k.lods.map(l => l.mesh.count + '×' + (l.mesh.geometry.attributes.position.count / 3)); return o; }
 }
-/* v51: pebble LOD0 distance per preset (budget margin for world-life machines) */ const SCAT_D = (() => { const q = new URLSearchParams(location.search).get('q'); return q === 'mobile' || q === 'low' || (!q && (matchMedia('(pointer:coarse)').matches || Math.min(innerWidth, innerHeight) < 480)) ? 21 : 20; })();
+/* v51: pebble LOD0 distance per preset (budget margin for world-life machines) */ const SCAT_D = (() => { const q = new URLSearchParams(location.search).get('q'); return q === 'mobile' || q === 'low' || (!q && (matchMedia('(pointer:coarse)').matches || Math.min(innerWidth, innerHeight) < 480)) ? 21 : 15; })();
 let LOD_SCALE = 1; // low preset shortens all rock LOD distances
 function makeKind(scene, name, lods, items, mat, castShadow) {
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler();
@@ -410,7 +410,7 @@ export function buildRocks(scene, culler, quality = 1) { LOD_SCALE = quality < 0
   // v68: concept foreground boulders are tall jagged blocks, not low slabs -> stretch the near peak rocks up (the ledge rock under the cat keeps its height)
   for (const it of L.peak) { const d = Math.hypot(it.x - K.cam.x, it.z - K.cam.z); if (d < 26 && Math.hypot(it.x - LEDGE.x, it.z - LEDGE.z) > 1.0) { const k = 0.82; /* v77: rounder, smaller, gaps between (scattered) */ it.y -= it.s[1] * 0.53 * 0.18; it.s[1] *= k; it.s[0] *= 0.86; it.s[2] *= 0.86; } }
   const kinds = {
-    rockA: makeKind(scene, 'rockA', [[creaseRock(protoGeom(1, 2, [1.25, 0.75, 1.05], 0.12), 180, 1), 8], [creaseRock(protoGeom(1, 2, [1.25, 0.75, 1.05], 0.12), 180, 1), 24], /* v78: smooth-shaded rounded boulders, no strata terraces/per-face tones */ [creaseRock(protoGeom(0, 2, [1.25, 0.75, 1.05], 0.3), 62), 116]], A, mat, 2),
+    rockA: makeKind(scene, 'rockA', [[creaseRock(protoGeom(1, 2, [1.25, 0.75, 1.05], 0.12), 180, 1), 8], [creaseRock(protoGeom(0, 2, [1.25, 0.75, 1.05], 0.22), 180, 1), 24], /* mid range uses the 20-tri boulder; the nearest 8 m stay on the finer mesh */ [creaseRock(protoGeom(0, 2, [1.25, 0.75, 1.05], 0.3), 62), 116]], A, mat, 2),
     debris: makeKind(scene, 'debris', [[roundStone(0, 14), 7.5]] /* v78 smooth pale pebbles, same 20 tris */, debris, matDebris, 0),
     scatter: makeKind(scene, 'scatter', [[pebbleGeom(23), SCAT_D]], scatter, matScatter, 0),
     strata: makeKind(scene, 'strata', [[roundStone(2, 9), 6.5], [roundStone(1, 9), 14], /* v78: smooth rounded pale stones near camera (same tri count as the chisel LODs) */ [roundStone(0, 9), 95]], L.peak, matFar, 0),

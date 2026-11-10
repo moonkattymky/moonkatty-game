@@ -327,7 +327,7 @@ export function haulerPieces(wheelN, bodyN = 8) {
     : [[0.02, 0.00, 0.26, 1.42, 14], [-0.16, -0.28, 0.20, 1.24, 24], [0.18, 0.22, 0.18, 1.30, 20], [-0.10, 0.55, 0.22, 1.20, 28], [0.14, -0.62, 0.18, 1.18, 16], [-0.20, 0.82, 0.16, 1.16, 32], [0.08, -0.95, 0.17, 1.14, 22], [0.22, 0.40, 0.14, 1.22, 30]];
   const seat = 0.58, bunch = raw.map(([x, z, rad, tipY, deg]) => { const tilt = deg * Math.PI / 180, along = (tipY - seat) / Math.cos(tilt); return [x, z, rad, along * 0.66, along * 0.34, tilt]; });
   const cpos = [], ccol = [], cemit = [];
-  const CORE = [0.012, 0.035, 0.36], EDGE = [0.018, 0.05, 0.56], TIP = [0.025, 0.07, 0.64];
+  const CORE = [0.07, 0.20, 0.32], EDGE = [0.16, 0.46, 0.70], TIP = [0.50, 0.62, 0.70];
   const put = (a, b, c, ca, cb, cc, ea, eb, ec) => { cpos.push(a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2]); ccol.push(...ca, ...cb, ...cc); cemit.push(ea, eb, ec); };
   const mid = (pts) => { const m = [0, 0, 0]; for (const p of pts) { m[0] += p[0]; m[1] += p[1]; m[2] += p[2]; } return m.map(v => v / pts.length); };
   for (const [x, z, rad, bodyH, tipH, tilt] of bunch) {
@@ -345,7 +345,7 @@ export function haulerPieces(wheelN, bodyN = 8) {
       B.push(place(Math.cos(a) * rad, 0, Math.sin(a) * rad));
       T.push(place(Math.cos(a) * rad * 0.94, bodyH, Math.sin(a) * rad * 0.94));
     }
-    const tip = place(0, bodyH + tipH, 0), coreE = 3.2, rimE = 1.15, tipE = 1.65;
+    const tip = place(0, bodyH + tipH, 0), coreE = 2.5, rimE = 1.05, tipE = 1.35;
     for (let i = 0; i < 6; i++) {
       const j = (i + 1) % 6, A = B[i], C = T[i], D = T[j], E = B[j], M = mid([A, C, D, E]);
       put(A, C, M, EDGE, EDGE, CORE, rimE, rimE, coreE); put(C, D, M, EDGE, EDGE, CORE, rimE, rimE, coreE);
@@ -361,7 +361,7 @@ export function haulerPieces(wheelN, bodyN = 8) {
   cluster.computeVertexNormals();
   add('ivory', cluster, [0, 0, 0], '#1236c8', 1, 0, GEM, (x, y) => {
     const h = Math.min(1, Math.max(0, (y - seat) / 1.15));
-    return [0.015 + h * 0.02, 0.04 + h * 0.05, 0.42 + h * 0.22, 0];
+    const k = 0.52 + h * 0.42; return [0.227 * k, 0.659 * k, k, 0];
   });
   const tyre = (side) => {
     const pts = [[0.20, -0.12], [0.32, -0.11], [0.40, -0.06], [0.44, -0.02], [0.445, 0.025], [0.42, 0.055], [0.36, 0.09], [0.28, 0.105], [0.22, 0.09]].map(([r, y]) => new THREE.Vector2(r * (0.42 / 0.445), y));
@@ -384,8 +384,8 @@ export function haulerPieces(wheelN, bodyN = 8) {
       const g = box(0.05, 0.04, 0.03); g.rotateX(a); g.translate(dx, WY + Math.cos(a) * 0.40, dz + Math.sin(a) * 0.40);
       add('dark', g, [0, 0, 0], '#0c0b0a', 1, 0, RUB);
     }
-    if (rich) for (let i = 0; i < 16; i++) {
-      const a = i / 16 * PI * 2 + (s > 0 ? 0.08 : 0.28);
+    if (rich) for (let i = 0; i < 12; i++) {
+      const a = i / 12 * PI * 2 + (s > 0 ? 0.08 : 0.28);
       const g = box(0.06, 0.045, 0.07); g.rotateX(a); g.translate(dx, WY + Math.cos(a) * 0.408, dz + Math.sin(a) * 0.408);
       add('dark', g, [0, 0, 0], '#0e0c0a', 1, 0, RUB);
     }
