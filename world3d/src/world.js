@@ -222,10 +222,10 @@ export function haulerPieces(wheelN, bodyN = 8) {
   const tube = (r, len, n, axis) => { const g = new THREE.CylinderGeometry(r, r, len, n); if (axis === 'z') g.rotateX(PI / 2); else if (axis === 'x') g.rotateZ(PI / 2); return g; };
   const box = (w, h, d) => new THREE.BoxGeometry(w, h, d);
   const P = []; const add = (group, geo, pos, color, intensity = 1, emit = 0, mr = null, shade = null, region = null) => P.push({ group, geo, pos, color, intensity, emit, mr, shade, region });
-  const RIM = 0.356, WY = RIM, WX = 1.14, AX = [-0.78, 0.16, 1.10], RUB = [0.02, 0.92], HUB = [0.82, 0.32], GEM = [0.04, 0.34];
+  const RIM = 0.42, WY = RIM, WX = 1.14, AX = [-0.78, 0.16, 1.10], RUB = [0.02, 0.92], HUB = [0.82, 0.32], GEM = [0.04, 0.34];
   const mesh = (pos, idx) => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals(); return g; };
   // Chamfered box section: proud top and bottom edges, a flat side set back between them, an open bed with wall thickness.
-  const loop = [[0.18, 0.42], [0.70, 0.42], [1.02, 0.50], [1.08, 0.56], [0.98, 0.64], [0.98, 1.16], [1.08, 1.24], [0.78, 1.30], [0.56, 1.16], [0.50, 0.76], [0, 0.64], [-0.50, 0.76], [-0.56, 1.16], [-0.78, 1.30], [-1.08, 1.24], [-0.98, 1.16], [-0.98, 0.64], [-1.08, 0.56], [-1.02, 0.50], [-0.70, 0.42], [-0.18, 0.42]];
+  const loop = [[0.18, 0.38], [0.68, 0.38], [1.00, 0.50], [1.06, 0.62], [0.96, 0.70], [0.96, 0.98], [1.04, 1.04], [0.72, 1.08], [0.50, 0.98], [0.44, 0.70], [0, 0.56], [-0.44, 0.70], [-0.50, 0.98], [-0.72, 1.08], [-1.04, 1.04], [-0.96, 0.98], [-0.96, 0.70], [-1.06, 0.62], [-1.00, 0.50], [-0.68, 0.38], [-0.18, 0.38]];
   const zs = [-1.38, -0.92, -0.35, 0.22, 0.78, 1.22, 1.42], sxZ = [0.86, 0.98, 1, 1, 0.98, 0.92, 0.80];
   const shellPos = [], shellIdx = [];
   for (let s = 0; s < zs.length; s++) for (const [x, y] of loop) shellPos.push(x * sxZ[s], y, zs[s]);
@@ -247,10 +247,13 @@ export function haulerPieces(wheelN, bodyN = 8) {
     shellIdx.push(frontBase, frontBase + i, frontBase + i + 1);
   }
   const shell = mesh(shellPos, shellIdx);
-  add('ivory', shell, [0, 0, 0], '#f3ead8', 1, 0, null, (x, y) => { const u = Math.min(1, Math.max(0, (y - 0.46) / 0.84)); return [0.76 + u * 0.08, 0.70 + u * 0.08, 0.60 + u * 0.08, 0]; });
-  for (const s of [-1, 1]) for (const [z, len] of [[-0.74, 0.48], [-0.07, 0.52], [0.62, 0.48]]) {
-    add('ivory', box(0.028, 0.42, len), [s * 1.002, 0.90, z], s > 0 ? '#f4ecdc' : '#e7dcc8');
-    add('dark', box(0.012, 0.016, len * 0.86), [s * 1.02, 0.90, z], '#5c564e');
+  add('ivory', shell, [0, 0, 0], '#e4d8c6', 1, 0, null, (x, y) => { const u = Math.min(1, Math.max(0, (y - 0.40) / 0.68)); return [0.55 + u * 0.18, 0.51 + u * 0.17, 0.45 + u * 0.16, 0]; });
+  for (const s of [-1, 1]) {
+    add('dark', box(0.04, 0.10, 2.20), [s * 1.04, 0.60, 0.02], '#3a342e');
+    for (const [z, len] of [[-0.74, 0.48], [-0.07, 0.52], [0.62, 0.48]]) {
+      add('ivory', box(0.026, 0.22, len), [s * 0.985, 0.84, z], s > 0 ? '#ddd2c2' : '#d2c6b4');
+      add('dark', box(0.012, 0.014, len * 0.82), [s * 1.002, 0.84, z], '#5c564e');
+    }
   }
   // Dark running gear tucked under the pod, plus the front bumper that holds the lamps.
   for (const s of [-1, 1]) add('dark', box(0.16, 0.14, 2.55), [s * 0.48, 0.32, 0.02], '#14110e');
@@ -261,12 +264,12 @@ export function haulerPieces(wheelN, bodyN = 8) {
   add('dark', box(0.90, 0.10, 0.12), [0, 0.32, -1.42], '#161311');
   // Gold frame: top rail, lower rail, vertical straps, hexagonal end rings.
   for (const s of [-1, 1]) {
-    add('gold', box(0.05, 0.045, 2.35), [s * 0.90, 1.28, 0.02], '#d4a24a');
-    add('gold', box(0.04, 0.035, 2.15), [s * 1.05, 0.55, 0.02], '#b8893a');
-    for (const z of [-1.05, -0.42, 0.28, 0.95]) add('gold', box(0.04, 0.70, 0.048), [s * 1.035, 0.92, z], '#e2b04a');
+    add('gold', box(0.05, 0.04, 2.35), [s * 0.82, 1.06, 0.02], '#d4a24a');
+    add('gold', box(0.04, 0.032, 2.15), [s * 1.03, 0.61, 0.02], '#b8893a');
+    for (const z of [-1.05, -0.42, 0.28, 0.95]) add('gold', box(0.036, 0.44, 0.046), [s * 1.00, 0.84, z], '#e2b04a');
   }
   const cap = (z, sign, kind) => {
-    const N = 6, y0 = 0.90, rx = 0.78, ry = 0.42, a = (i) => i * PI * 2 / N;
+    const N = 6, y0 = 0.80, rx = 0.68, ry = 0.24, a = (i) => i * PI * 2 / N;
     const xy = (i, k) => [Math.cos(a(i)) * rx * k, y0 + Math.sin(a(i)) * ry * k];
     const pos = [], idx = [], push = (x, y, zz) => { pos.push(x, y, zz); return pos.length / 3 - 1; };
     if (kind === 'face') {
@@ -318,11 +321,17 @@ export function haulerPieces(wheelN, bodyN = 8) {
       return [0.22 + (1 - u) * 0.55, 0.08 + (1 - u) * 0.32, 0.02 + (1 - u) * 0.06, 0.35 + e * 1.35];
     });
   }
-  // One merged cluster. Each face has a bright emissive core and a lighter rim, so the heap reads as glowing glass without a second draw.
-  const bunch = rich
-    ? [[0, 0, 0.30, 0.86, 0.32, 0.04], [0.14, -0.16, 0.20, 0.70, 0.24, 0.14], [-0.12, -0.08, 0.20, 0.72, 0.24, 0.12], [0.10, 0.18, 0.19, 0.66, 0.22, 0.14], [-0.12, 0.20, 0.19, 0.64, 0.22, 0.16], [0, -0.30, 0.18, 0.58, 0.20, 0.16], [0, 0.34, 0.18, 0.56, 0.20, 0.18], [0.20, 0.02, 0.16, 0.62, 0.20, 0.16], [-0.18, 0.04, 0.16, 0.60, 0.20, 0.14], [0.14, -0.32, 0.15, 0.48, 0.16, 0.18], [-0.12, -0.28, 0.15, 0.50, 0.16, 0.16], [0.14, 0.34, 0.15, 0.46, 0.16, 0.18], [-0.12, 0.36, 0.15, 0.44, 0.16, 0.18], [0.02, 0.48, 0.14, 0.40, 0.14, 0.18], [-0.02, -0.46, 0.14, 0.40, 0.14, 0.16], [0.06, 0.02, 0.16, 0.52, 0.18, 0.06], [-0.06, -0.02, 0.16, 0.50, 0.18, 0.06], [0.18, 0.16, 0.14, 0.22, 0.10, 0.08], [-0.16, 0.14, 0.14, 0.20, 0.10, 0.08], [0.16, -0.14, 0.14, 0.22, 0.10, 0.10], [-0.14, -0.12, 0.14, 0.20, 0.10, 0.08]]
-    : [[0, 0.02, 0.28, 0.80, 0.30, 0.05], [0.14, -0.14, 0.19, 0.64, 0.22, 0.14], [-0.12, -0.04, 0.19, 0.66, 0.22, 0.12], [0.10, 0.20, 0.18, 0.58, 0.18, 0.16], [-0.12, 0.22, 0.18, 0.56, 0.18, 0.16], [0, -0.30, 0.16, 0.50, 0.16, 0.16], [0, 0.36, 0.16, 0.48, 0.16, 0.18], [0.18, 0.04, 0.15, 0.54, 0.16, 0.16], [-0.16, 0.06, 0.15, 0.52, 0.16, 0.14], [0.12, 0.14, 0.14, 0.22, 0.10, 0.08], [-0.10, -0.12, 0.14, 0.22, 0.10, 0.08]];
-  const seat = 0.66, cpos = [], ccol = [], cemit = [];
+  // One merged cluster spread the full length and width of the bed. Ends still crest the rail; the middle is tallest.
+  const bunch = [];
+  const zRow = rich ? [-1.02, -0.64, -0.26, 0.12, 0.50, 0.88] : [-0.90, -0.30, 0.30, 0.88];
+  const xCol = rich ? [-0.18, 0, 0.18] : [-0.14, 0.14];
+  for (const z of zRow) for (const x of xCol) {
+    const along = Math.min(1, Math.abs(z) / 1.05);
+    const rad = (rich ? 0.22 : 0.28) * (1 - along * 0.22);
+    const crest = 0.62 + (1 - along) * 0.30;
+    bunch.push([x, z, rad, crest * 0.72, crest * 0.28, 0.05 + along * 0.06]);
+  }
+  const seat = 0.58, cpos = [], ccol = [], cemit = [];
   const CORE = [0.012, 0.04, 0.22], EDGE = [0.03, 0.08, 0.34], TIP = [0.045, 0.13, 0.42];
   const put = (a, b, c, ca, cb, cc, ea, eb, ec) => { cpos.push(a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2]); ccol.push(...ca, ...cb, ...cc); cemit.push(ea, eb, ec); };
   const mid = (pts) => { const m = [0, 0, 0]; for (const p of pts) { m[0] += p[0]; m[1] += p[1]; m[2] += p[2]; } return m.map(v => v / pts.length); };
@@ -332,7 +341,8 @@ export function haulerPieces(wheelN, bodyN = 8) {
       const cs = Math.cos(spin), sn = Math.sin(spin), lx = px * cs - pz * sn, lz = px * sn + pz * cs;
       const radial = lx * ox + lz * oz, side = -lx * oz + lz * ox, ct = Math.cos(tilt), st = Math.sin(tilt);
       const nr = radial * ct + py * st, ny = py * ct - radial * st;
-      return [x + nr * ox - side * oz, seat + ny, z + nr * oz + side * ox];
+      const px2 = x + nr * ox - side * oz, pz2 = z + nr * oz + side * ox;
+      return [Math.max(-0.42, Math.min(0.42, px2)), seat + ny, Math.max(-1.16, Math.min(1.12, pz2))];
     };
     const B = [], T = [];
     for (let i = 0; i < 6; i++) {
@@ -359,19 +369,19 @@ export function haulerPieces(wheelN, bodyN = 8) {
     return [0.02 + h * 0.06, 0.06 + h * 0.16, 0.32 + h * 0.28, 0];
   });
   const tyre = (side) => {
-    const pts = [[0.20, -0.12], [0.32, -0.11], [0.40, -0.06], [0.44, -0.02], [0.445, 0.025], [0.42, 0.055], [0.36, 0.09], [0.28, 0.105], [0.22, 0.09]].map(([r, y]) => new THREE.Vector2(r * 0.80, y));
+    const pts = [[0.20, -0.12], [0.32, -0.11], [0.40, -0.06], [0.44, -0.02], [0.445, 0.025], [0.42, 0.055], [0.36, 0.09], [0.28, 0.105], [0.22, 0.09]].map(([r, y]) => new THREE.Vector2(r * (0.42 / 0.445), y));
     const g = new THREE.LatheGeometry(pts, tyreN); g.rotateZ(PI / 2); if (side > 0) g.rotateY(PI); g.computeVertexNormals(); return g;
   };
   for (const dz of AX) for (const dx of [-WX, WX]) {
     const s = dx > 0 ? 1 : -1;
     add('dark', tyre(s), [dx, WY, dz], '#161412', 1, 0, RUB);
-    add('gold', tube(0.145, 0.018, hubN, 'x'), [dx + s * 0.038, WY, dz], '#8d6a2e', 1, 0, HUB);
-    add('gold', tube(0.10, 0.016, hubN, 'x'), [dx + s * 0.048, WY, dz], '#f0c14e', 1, 0, HUB);
-    add('dark', tube(0.048, 0.012, 8, 'x'), [dx + s * 0.056, WY, dz], '#100e0c', 1, 0, [0.35, 0.5]);
+    add('gold', tube(0.175, 0.02, hubN, 'x'), [dx + s * 0.042, WY, dz], '#8d6a2e', 1, 0, HUB);
+    add('gold', tube(0.125, 0.018, hubN, 'x'), [dx + s * 0.054, WY, dz], '#f0c14e', 1, 0, HUB);
+    add('dark', tube(0.06, 0.014, 8, 'x'), [dx + s * 0.064, WY, dz], '#100e0c', 1, 0, [0.35, 0.5]);
     add('dark', tube(0.06, 0.28, 5, 'x'), [s * 0.82, WY, dz], '#2a2622');
     for (let i = 0; i < lugN; i++) {
       const a = i / lugN * PI * 2 + 0.2;
-      const g = box(0.042, 0.032, 0.026); g.rotateX(a); g.translate(dx, WY + Math.cos(a) * 0.342, dz + Math.sin(a) * 0.342);
+      const g = box(0.05, 0.04, 0.03); g.rotateX(a); g.translate(dx, WY + Math.cos(a) * 0.40, dz + Math.sin(a) * 0.40);
       add('dark', g, [0, 0, 0], '#0c0b0a', 1, 0, RUB);
     }
   }
