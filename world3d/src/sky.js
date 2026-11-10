@@ -61,17 +61,22 @@ export function buildSky(sunDir, earthDir, lite = false) {
     vertexShader: `varying vec3 vN; varying vec3 vP; varying vec3 vV; void main(){ vN=normalize(mat3(modelMatrix)*normal); vP=position; vec4 w=modelMatrix*vec4(position,1.); vV=normalize(cameraPosition-w.xyz); gl_Position=projectionMatrix*viewMatrix*w; }`,
     fragmentShader: `uniform vec3 sun; uniform float uTime; varying vec3 vN; varying vec3 vP; varying vec3 vV; ${NOISE_GLSL}
       void main(){ vec3 p=normalize(vP);
-        // continents: warped fbm with crisp coastlines; ocean deep blue with shallow shelves
-        vec3 wq=p*2.0+vec3(3.,1.,7.); wq+=vec3(fbm3(p*3.1+2.),fbm3(p*3.1+8.),fbm3(p*3.1+5.))*0.55; float land=fbm3(wq); float l=smoothstep(0.55,0.565,land); float shelf=smoothstep(0.49,0.55,land)*(1.-l);
-        vec3 ocean=mix(vec3(0.004,0.03,0.16),vec3(0.01,0.09,0.34),fbm3(p*5.)); ocean=mix(ocean,vec3(0.03,0.22,0.45),shelf*0.6);
-        float gn=fbm3(p*9.); vec3 ground=mix(vec3(0.09,0.17,0.06),vec3(0.46,0.34,0.18),smoothstep(0.35,0.65,gn)); ground=mix(ground,vec3(0.62,0.52,0.36),smoothstep(0.62,0.75,fbm3(p*16.+4.))*0.5);
-        vec3 c=mix(ocean,ground,l);
-        // clouds: domain-warped swirls, crisp edges + fine streaks
-        vec3 q=p*3.2+vec3(fbm3(p*4.+uTime*0.01),fbm3(p*4.+5.),fbm3(p*4.+9.))*1.6; float cf=fbm3(q*1.9); float cl=smoothstep(0.56,0.64,cf); float cl2=smoothstep(0.6,0.66,fbm3(q*4.3+2.))*0.45; float cov=clamp(cl*0.92+cl2*(1.-cl),0.,1.);
-        c=mix(c,vec3(0.92,0.94,0.97),cov);
-        float ndl=dot(normalize(vN),sun); float lit=smoothstep(-0.2,0.45,ndl); vec3 col=c*(0.05+1.2*lit);
-        float fr=pow(1.-max(dot(normalize(vN),vV),0.),4.); col+=vec3(0.2,0.45,1.0)*fr*(0.08+0.55*lit); float rim=pow(1.-max(dot(normalize(vN),vV),0.),2.2); col+=vec3(0.3,0.6,1.0)*smoothstep(0.55,1.0,rim)*(0.12+0.5*lit);
-        float lum=dot(col,vec3(0.3,0.59,0.11)); col=mix(vec3(lum),col,0.9)*0.5; gl_FragColor=vec4(col,1.); }`,
+        vec3 wq=p*2.6+vec3(2.2,0.4,6.5); wq+=vec3(fbm3(p*3.6+2.),fbm3(p*3.6+8.),fbm3(p*3.6+5.))*0.28;
+        float land=fbm3(wq); float lnd=smoothstep(0.43,0.47,land); float shelf=smoothstep(0.46,0.51,land)*(1.0-lnd);
+        vec3 ocean=mix(vec3(0.008,0.07,0.34),vec3(0.015,0.16,0.55),fbm3(p*7.0)); ocean=mix(ocean,vec3(0.05,0.32,0.58),shelf);
+        float gn=fbm3(p*8.0); vec3 ground=mix(vec3(0.06,0.30,0.07),vec3(0.46,0.26,0.10),smoothstep(0.28,0.70,gn));
+        ground=mix(ground,vec3(0.52,0.44,0.30),smoothstep(0.55,0.8,fbm3(p*14.0+4.0))*0.65);
+        ground=mix(ground,vec3(0.78,0.84,0.90),smoothstep(0.82,0.96,abs(p.y)));
+        vec3 c=mix(ocean,ground,lnd);
+        float cw=fbm3(p*14.0+vec3(fbm3(p*7.0),fbm3(p*7.0+3.0),fbm3(p*7.0+7.0))*0.4);
+        float streak=fbm3(p*30.0+vec3(4.0,uTime*0.004,1.0));
+        float cov=smoothstep(0.74,0.90,cw)*0.22+smoothstep(0.82,0.95,streak)*0.08;
+        c=mix(c,vec3(0.95,0.97,1.0),clamp(cov,0.0,0.26));
+        float ndl=dot(normalize(vN),normalize(sun)); float lit=smoothstep(-0.05,0.55,ndl);
+        vec3 col=c*(0.18+0.85*lit);
+        float ndv=max(dot(normalize(vN),normalize(vV)),0.0); float limb=pow(1.0-ndv,1.45);
+        col+=vec3(0.45,0.72,1.0)*limb*0.95; col+=vec3(0.9,0.96,1.0)*pow(1.0-ndv,5.0)*0.45;
+        gl_FragColor=vec4(col,1.0); }`,
   });
   const earth = new THREE.Mesh(new THREE.SphereGeometry(1, lite ? 28 : 40, lite ? 14 : 20), earthMat); earth.renderOrder = -8;
   const ED = 4200, ER = lite ? 440 : 800; // resized per aspect in main.js; these are the first-frame sizes
