@@ -218,7 +218,7 @@ function echo(b, beams, bn) {
 // Long low pod with a chamfered, flat-sided section. Wheel track stays at x=±1.14. The moving collider is several circles in worldlife.js. bodyN is unused.
 export function haulerPieces(wheelN, bodyN = 8) {
   void bodyN;
-  const rich = wheelN >= 12, hubN = rich ? 10 : 8, lugN = rich ? 12 : 8, tyreN = rich ? 14 : 10;
+  const rich = wheelN >= 12, hubN = 8, lugN = rich ? 6 : 8, tyreN = 10;
   const tube = (r, len, n, axis) => { const g = new THREE.CylinderGeometry(r, r, len, n); if (axis === 'z') g.rotateX(PI / 2); else if (axis === 'x') g.rotateZ(PI / 2); return g; };
   const box = (w, h, d) => new THREE.BoxGeometry(w, h, d);
   const P = []; const add = (group, geo, pos, color, intensity = 1, emit = 0, mr = null, shade = null, region = null) => P.push({ group, geo, pos, color, intensity, emit, mr, shade, region });
@@ -250,9 +250,11 @@ export function haulerPieces(wheelN, bodyN = 8) {
   add('ivory', shell, [0, 0, 0], '#e4d8c6', 1, 0, null, (x, y) => { const u = Math.min(1, Math.max(0, (y - 0.40) / 0.68)); return [0.55 + u * 0.18, 0.51 + u * 0.17, 0.45 + u * 0.16, 0]; });
   for (const s of [-1, 1]) {
     add('dark', box(0.04, 0.10, 2.20), [s * 1.04, 0.60, 0.02], '#3a342e');
+    add('ivory', box(0.028, 0.03, 2.22), [s * 1.015, 1.02, 0.02], '#f4ecdc');
     for (const [z, len] of [[-0.74, 0.48], [-0.07, 0.52], [0.62, 0.48]]) {
       add('ivory', box(0.026, 0.22, len), [s * 0.985, 0.84, z], s > 0 ? '#ddd2c2' : '#d2c6b4');
-      add('dark', box(0.012, 0.014, len * 0.82), [s * 1.002, 0.84, z], '#5c564e');
+      add('dark', box(0.012, 0.012, len * 0.78), [s * 1.002, 0.90, z], '#5c564e');
+      add('dark', box(0.012, 0.012, len * 0.62), [s * 1.002, 0.76, z], '#4a433c');
     }
   }
   // Dark running gear tucked under the pod, plus the front bumper that holds the lamps.
@@ -305,7 +307,7 @@ export function haulerPieces(wheelN, bodyN = 8) {
     for (const s of [-1, 1]) {
       const cx = s * 0.36, cy = 0.38, cz = 1.725;
       const ring = (r, z) => Array.from({ length: n }, (_, i) => { const a = i / n * PI * 2; return [cx + Math.cos(a) * r, cy + Math.sin(a) * r, z]; });
-      const inner = ring(0.05, cz), outer = ring(0.19, cz - 0.016), c = [cx, cy, cz + 0.008];
+      const inner = ring(0.10, cz), outer = ring(0.30, cz - 0.02), c = [cx, cy, cz + 0.01];
       const tri = (a, b, c3) => pos.push(a[0], a[1], a[2], b[0], b[1], b[2], c3[0], c3[1], c3[2]);
       for (let i = 0; i < n; i++) {
         const j = (i + 1) % n;
@@ -316,22 +318,17 @@ export function haulerPieces(wheelN, bodyN = 8) {
     lamp.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
     lamp.computeVertexNormals();
     add('glow', lamp, [0, 0, 0], '#ffcc88', 1, 0, [0.05, 0.28], (x, y) => {
-      const d = Math.min(Math.hypot(x - 0.36, y - 0.38), Math.hypot(x + 0.36, y - 0.38)) / 0.19;
+      const d = Math.min(Math.hypot(x - 0.36, y - 0.38), Math.hypot(x + 0.36, y - 0.38)) / 0.30;
       const u = Math.min(1, Math.max(0, d)), e = (1 - u) * (1 - u);
-      return [0.22 + (1 - u) * 0.55, 0.08 + (1 - u) * 0.32, 0.02 + (1 - u) * 0.06, 0.35 + e * 1.35];
+      return [0.32 + (1 - u) * 0.68, 0.10 + (1 - u) * 0.64, 0.02 + (1 - u) * 0.16, 0.12 + e * 2.2];
     });
   }
-  // One merged cluster spread the full length and width of the bed. Ends still crest the rail; the middle is tallest.
-  const bunch = [];
-  const zRow = rich ? [-1.02, -0.64, -0.26, 0.12, 0.50, 0.88] : [-0.90, -0.30, 0.30, 0.88];
-  const xCol = rich ? [-0.18, 0, 0.18] : [-0.14, 0.14];
-  for (const z of zRow) for (const x of xCol) {
-    const along = Math.min(1, Math.abs(z) / 1.05);
-    const rad = (rich ? 0.22 : 0.28) * (1 - along * 0.22);
-    const crest = 0.62 + (1 - along) * 0.30;
-    bunch.push([x, z, rad, crest * 0.72, crest * 0.28, 0.05 + along * 0.06]);
-  }
-  const seat = 0.58, cpos = [], ccol = [], cemit = [];
+  // One merged cluster. Jittered, overlapping, tilted outward: a jagged mound, tallest in the middle. tipY is the vertical crest.
+  const raw = rich
+    ? [[0.02, 0.04, 0.20, 1.48, 12], [-0.12, -0.10, 0.16, 1.34, 22], [0.16, 0.14, 0.14, 1.40, 18], [-0.20, 0.16, 0.18, 1.28, 30], [0.22, -0.12, 0.12, 1.22, 16], [-0.04, 0.30, 0.22, 1.36, 26], [0.10, -0.34, 0.13, 1.30, 14], [-0.24, -0.28, 0.14, 1.18, 34], [0.26, 0.32, 0.16, 1.24, 28], [-0.14, 0.48, 0.18, 1.32, 20], [0.18, 0.58, 0.16, 1.16, 32], [-0.06, -0.62, 0.18, 1.26, 15], [0.20, -0.55, 0.16, 1.20, 24], [-0.18, 0.74, 0.16, 1.22, 18], [0.08, 0.90, 0.16, 1.14, 33], [-0.22, -0.82, 0.16, 1.16, 27], [0.14, -0.92, 0.17, 1.20, 12], [0.00, 0.42, 0.20, 1.26, 10], [0.02, 0.78, 0.20, 1.12, 8], [-0.02, -0.78, 0.20, 1.12, 11], [0.20, 0.96, 0.14, 1.12, 22], [-0.16, -1.00, 0.14, 1.12, 18]]
+    : [[0.02, 0.00, 0.26, 1.42, 14], [-0.16, -0.28, 0.20, 1.24, 24], [0.18, 0.22, 0.18, 1.30, 20], [-0.10, 0.55, 0.22, 1.20, 28], [0.14, -0.62, 0.18, 1.18, 16], [-0.20, 0.82, 0.16, 1.16, 32], [0.08, -0.95, 0.17, 1.14, 22], [0.22, 0.40, 0.14, 1.22, 30]];
+  const seat = 0.58, bunch = raw.map(([x, z, rad, tipY, deg]) => { const tilt = deg * Math.PI / 180, along = (tipY - seat) / Math.cos(tilt); return [x, z, rad, along * 0.66, along * 0.34, tilt]; });
+  const cpos = [], ccol = [], cemit = [];
   const CORE = [0.012, 0.04, 0.22], EDGE = [0.03, 0.08, 0.34], TIP = [0.045, 0.13, 0.42];
   const put = (a, b, c, ca, cb, cc, ea, eb, ec) => { cpos.push(a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2]); ccol.push(...ca, ...cb, ...cc); cemit.push(ea, eb, ec); };
   const mid = (pts) => { const m = [0, 0, 0]; for (const p of pts) { m[0] += p[0]; m[1] += p[1]; m[2] += p[2]; } return m.map(v => v / pts.length); };
@@ -383,6 +380,11 @@ export function haulerPieces(wheelN, bodyN = 8) {
       const a = i / lugN * PI * 2 + 0.2;
       const g = box(0.05, 0.04, 0.03); g.rotateX(a); g.translate(dx, WY + Math.cos(a) * 0.40, dz + Math.sin(a) * 0.40);
       add('dark', g, [0, 0, 0], '#0c0b0a', 1, 0, RUB);
+    }
+    if (rich) for (let i = 0; i < 6; i++) {
+      const a = i / 6 * PI * 2 + (s > 0 ? 0.15 : 0.4);
+      const g = box(0.11, 0.10, 0.16); g.rotateX(a); g.translate(dx + s * 0.015, WY + Math.cos(a) * 0.39, dz + Math.sin(a) * 0.39);
+      add('dark', g, [0, 0, 0], '#100e0c', 1, 0, RUB);
     }
   }
   return P;
