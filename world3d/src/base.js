@@ -55,7 +55,7 @@ export function dome(b, s, d, r, o = {}) {
   b.add('ivory', G.cyl(r * 1.4, r * 1.48, 0.3, seg), { pos: [x, y + 0.05, z], color: '#e7dcc8' });
   b.add('gold', G.torus(r * 1.46, 0.09, 3, 14), { pos: [x, y + 0.33, z], rot: [PI / 2, 0, 0], color: C.gold });
   b.add('gold', G.torus(r * 1.12, 0.12, 3, 14), { pos: [x, y + 0.36, z], rot: [PI / 2, 0, 0], color: C.gold });
-  for (let k = 0; k < 8; k++) { const a = k / 8 * PI * 2 + 0.2; b.add('glow', G.box(0.18, 0.08, 0.18), { pos: [x + Math.sin(a) * r * 1.3, y + 0.38, z + Math.cos(a) * r * 1.3], color: C.win, intensity: 3 }); }
+  for (let k = 0; k < 8; k++) { const a = k / 8 * PI * 2 + 0.2; b.add('glow', new THREE.CircleGeometry(0.1, 8).rotateX(-PI / 2), { pos: [x + Math.sin(a) * r * 1.3, y + 0.4, z + Math.cos(a) * r * 1.3], color: '#ffd7a1', intensity: 2.4 }); }
   const wallH = r * 0.45, yw = y + 0.3;
   b.add('tex', G.cyl(r, r * 1.05, wallH, seg, true), { region: 'domeWall', pos: [x, yw, z], rot: [0, o.rotA || 0.2, 0], color: '#f4ead8', ao: [yw - 0.4, yw + wallH * 1.4] });
   windowsRing(b, x, yw + wallH * 0.55, z, r * 1.02, 10, 0.72, 0.72, { round: true, I: 4.0, a0: faceCam, color: '#ffd7a1' });
@@ -91,7 +91,7 @@ function reactor(b, s, d) {
   b.add('gold', G.torus(Ri + 0.08, 0.13, 4, 36), { pos: [x, yt + 0.32, z], rot: [PI / 2, 0, 0], color: C.gold });
   b.add('gold', G.torus(Ri + 0.72, 0.08, 3, 36), { pos: [x, yt + 0.05, z], rot: [PI / 2, 0, 0], color: C.goldD });
   // ring of warm lights on the inner lip around the core + walkway railing posts / deck plates
-  for (let i = 0; i < 28; i++) { const a = i / 28 * PI * 2; b.add('glow', G.box(0.32, 0.12, 0.22), { pos: [x + Math.sin(a) * (Ri + 0.42), yt + 0.36, z + Math.cos(a) * (Ri + 0.42)], rot: [0, a, 0], color: i % 2 ? C.winHot : C.win, intensity: 4 }); }
+  for (let i = 0; i < 28; i++) { const a = i / 28 * PI * 2; b.add('glow', new THREE.CircleGeometry(0.11, 8).rotateX(-PI / 2), { pos: [x + Math.sin(a) * (Ri + 0.42), yt + 0.38, z + Math.cos(a) * (Ri + 0.42)], color: '#ffd7a1', intensity: 3.2 }); }
   for (let i = 0; i < 18; i++) { const a = i / 18 * PI * 2 + 0.09; const rr = Ri + 1.25; b.add('gold', G.cyl(0.05, 0.05, 0.55, 4), { pos: [x + Math.sin(a) * rr, yt + 0.02, z + Math.cos(a) * rr], color: C.gold2 }); b.add('dark', G.box(0.08, 0.02, 1.0), { pos: [x + Math.sin(a + 0.17) * (Ri + 1.1), yt + 0.012, z + Math.cos(a + 0.17) * (Ri + 1.1)], rot: [0, a + 0.17, 0], color: '#8a8070' }); }
   b.add('gold', G.torus(Ri + 1.25, 0.035, 3, 36), { pos: [x, yt + 0.57, z], rot: [PI / 2, 0, 0], color: C.gold2 });
   // deep glowing pit: walls glow hotter toward the molten floor, with dark vertical ribs
