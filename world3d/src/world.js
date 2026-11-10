@@ -77,13 +77,13 @@ function launchComplex(b, beams, bn) {
     for (const yy of [12, 28, 44, 60]) for (const sg of [-1, 1]) bn.add('glow', G.box(0.35, 0.35, 0.35), { pos: [gx + sg * 3.3, y + yy, gz + 3.3], color: C.win, intensity: 4 }); }
   // spherical fuel tanks on legs + pipes to the pad
   for (const ad of [64, 88, 112]) { const c = at(ad * D, 58); /* pass 22: moved behind the pad so launch2 sees the rocket base */ const gy = groundAt(c.x, c.z); KEEP.push({ x: c.x, z: c.z, r: 9 });
-    bn.add('ivory', G.sphere(5.6, 20, 14), { pos: [c.x, gy + 7.2, c.z], color: C.ivory }); bn.add('gold', G.torus(5.62, 0.22, 3, 24), { pos: [c.x, gy + 7.2, c.z], rot: [PI / 2, 0, 0], color: C.gold });
+    bn.add('ivory', G.sphere(5.6, 32, 22), { pos: [c.x, gy + 7.2, c.z], color: C.ivory }); bn.add('gold', G.torus(5.62, 0.22, 3, 24), { pos: [c.x, gy + 7.2, c.z], rot: [PI / 2, 0, 0], color: C.gold });
     for (let k = 0; k < 6; k++) { const la = k / 6 * PI * 2; bn.add('dark', G.box(0.5, 7.2, 0.5), { pos: [c.x + Math.cos(la) * 4.4, gy + 3.4, c.z + Math.sin(la) * 4.4], color: '#3a4250' }); }
     bn.add('dark', G.cyl(5.8, 6.2, 0.5, 16), { pos: [c.x, gy - 0.2, c.z], color: '#2e3540' }); bn.add('gold', G.cyl(0.25, 0.25, 4, 6), { pos: [c.x, gy + 12.6, c.z], color: C.goldD }); bn.add('glow', G.octa(0.3), { pos: [c.x, gy + 16.8, c.z], color: '#ff5030', intensity: 5 });
     const path = []; for (let k = 0; k <= 12; k++) { const t = k / 12; const r = 52 - t * 27; path.push(at(ad * D, r)); } pipeRun(bn, path, { r: 0.6, every: 6, startY: gy + 2.2, endY: y + 2.0, lights: false }); }
   // horizontal tanks: gold bands, end caps, saddles, header pipe to the pad
   for (let i = 0; i < 3; i++) { const p = { x: x - 40 + i * 14, z: z + 40 }; const yy = groundAt(p.x, p.z); KEEP.push({ x: p.x, z: p.z, r: 9 });
-    const ty = yy + 5.7; b.add('ivory', G.cyl(5, 5, 14, 16).translate(0, -7, 0).rotateX(PI / 2), { pos: [p.x, ty, p.z], color: C.ivory }); /* axis along z: three tanks side by side */
+    const ty = yy + 5.7; b.add('ivory', G.cyl(5, 5, 14, 48).translate(0, -7, 0).rotateX(PI / 2), { pos: [p.x, ty, p.z], color: C.ivory }); /* axis along z: three tanks side by side */
     for (const dz of [-4.5, 0, 4.5]) bn.add('gold', G.cyl(5.12, 5.12, 0.5, 16, true).translate(0, -0.25, 0).rotateX(PI / 2), { pos: [p.x, ty, p.z + dz], color: C.gold });
     for (const sg of [-1, 1]) { b.add('ivory', G.cap(5, 16, 5).rotateX(sg * PI / 2), { pos: [p.x, ty, p.z + sg * 7], scale: [1, 1, 0.55], color: C.ivory }); /* pass 21: closed domed end caps (the open cylinder ends read as dark holes) */ bn.add('gold', G.torus(5.02, 0.22, 3, 16), { pos: [p.x, ty, p.z + sg * 6.95], color: C.gold }); bn.add('gold', G.cyl(0.9, 0.9, 0.5, 8).rotateX(sg * PI / 2), { pos: [p.x, ty, p.z + sg * 9.6], color: C.goldD }); bn.add('dark', G.box(8, 2.0, 1.4), { pos: [p.x, yy + 0.5, p.z + sg * 4.5], color: '#3a4250' }); } }
   { const path = []; for (let k = 0; k <= 16; k++) { const t = k / 16; path.push({ x: x - 26 + t * 8, z: z + 33 - t * 14 }); } pipeRun(bn, path, { r: 0.7, every: 8, lights: false }); }
@@ -91,7 +91,7 @@ function launchComplex(b, beams, bn) {
   { const c = at(167 * D, 54); const gy = groundAt(c.x, c.z); const a = Math.atan2(z - c.z, x - c.x); KEEP.push({ x: c.x, z: c.z, r: 16 });
     bn.add('tex', G.box(18, 4.6, 10), { region: 'panel', pos: [c.x, gy + 2.0, c.z], rot: [0, -a + PI / 2, 0], color: '#ffffff' });
     bn.add('glow', G.box(15, 1.0, 10.15), { pos: [c.x, gy + 3.0, c.z], rot: [0, -a + PI / 2, 0], color: C.win, intensity: 2.6 }); bn.add('gold', G.box(18.4, 0.4, 10.4), { pos: [c.x, gy + 4.5, c.z], rot: [0, -a + PI / 2, 0], color: C.gold });
-    const bx = c.x - Math.cos(a) * 8, bz = c.z - Math.sin(a) * 8; const sh = new THREE.Shape(); sh.moveTo(-6, 0); sh.lineTo(6, 0); sh.lineTo(0, 5.2); sh.lineTo(-6, 0); bn.add('ivory', G.sphere(1, 14, 7), { pos: [bx, gy - 1.4, bz], rot: [0, -a + PI / 2, 0], scale: [12, 3.4, 7.5], color: '#86837c' }); /* regolith berm (was a dark wedge) */
+    const bx = c.x - Math.cos(a) * 8, bz = c.z - Math.sin(a) * 8; bn.add('ivory', G.sphere(1, 80, 48), { pos: [bx, gy - 1.4, bz], rot: [0, -a + PI / 2, 0], scale: [12, 3.4, 7.5], color: '#c8c0b4' }); /* the old 14x7 berm read as a grid from the pad */
     bn.add('gold', G.cyl(0.3, 0.4, 8, 6), { pos: [c.x + 5, gy + 4.6, c.z], color: C.goldD }); bn.add('glow', G.octa(0.25), { pos: [c.x + 5, gy + 13.4, c.z], color: '#ff5030', intensity: 5 }); }
   // landing strip toward the hub: dark runway, gold edge lights on posts, white centre dashes, threshold bars
   { const a = 135 * D, va = 45 * D; const c = at(a, 74); const P = []; for (let k = 0; k <= 16; k++) { const t = k / 16 - 0.5; P.push({ x: c.x + Math.cos(va) * t * 150, z: c.z + Math.sin(va) * t * 150 }); }

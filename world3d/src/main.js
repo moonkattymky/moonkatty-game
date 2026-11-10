@@ -57,13 +57,13 @@ const playYaw = Math.atan2(-F.x, -F.z) - 0.30;
 const view = v3(-Math.sin(playYaw), 0, -Math.cos(playYaw)), right = v3(Math.cos(playYaw), 0, -Math.sin(playYaw));
 const earthAim = (az, el) => view.clone().multiplyScalar(Math.cos(el) * Math.cos(az)).add(right.clone().multiplyScalar(Math.cos(el) * Math.sin(az))).add(v3(0, Math.sin(el), 0)).normalize();
 const earthDir = earthAim(0.26, 0.10); // desktop first frame; resize() retargets per aspect
-const hemi = new THREE.HemisphereLight('#b3b6bc', '#4a4a4d', 0.6); scene.add(hemi);
-const sun = new THREE.DirectionalLight('#fff1dc', 1.65); sun.castShadow = true;
+const hemi = new THREE.HemisphereLight('#c9c0b2', '#6d5e50', 0.48); scene.add(hemi);
+const sun = new THREE.DirectionalLight('#fff3e2', 1.95); sun.castShadow = true;
 sun.shadow.mapSize.set(MOBILE ? 1024 : 2048, MOBILE ? 1024 : 2048); const sc = sun.shadow.camera; sc.left = -120; sc.right = 120; sc.top = 120; sc.bottom = -120; sc.near = 1; sc.far = 400; sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04; /* the ±70 box left a hard unshadowed cut across the reactor wall; the wider box keeps that slope inside the map so the shadow edge stays on the geometry */
 scene.add(sun, sun.target);
-const fill = new THREE.DirectionalLight('#8f9aab', 0.45); fill.position.copy(earthDir).multiplyScalar(100); scene.add(fill);
-const front = new THREE.DirectionalLight('#d6d3cc', 0.55); front.position.set(-F.x * 80 - Rt.x * 40, 60, -F.z * 80 - Rt.z * 40); scene.add(front);
-const rim = new THREE.DirectionalLight('#ffc978', 0.75); rim.position.set(F.x * 80 + Rt.x * 20, 34, F.z * 80 + Rt.z * 20); scene.add(rim); // gentle warm gold rim from behind the base (toward the play/concept cameras) // soft key from behind the concept camera (lights the left hillside)
+const fill = new THREE.DirectionalLight('#c2b3a2', 0.28); fill.position.copy(earthDir).multiplyScalar(100); scene.add(fill);
+const front = new THREE.DirectionalLight('#eadcc8', 0.38); front.position.set(-F.x * 80 - Rt.x * 40, 60, -F.z * 80 - Rt.z * 40); scene.add(front);
+const rim = new THREE.DirectionalLight('#ffc56a', 0.95); rim.position.set(F.x * 80 + Rt.x * 20, 34, F.z * 80 + Rt.z * 20); scene.add(rim); // warmer key, less cool fill, so the yard has contrast
 const coreLight = new THREE.PointLight('#ff9a40', 60, 32, 1.6); scene.add(coreLight);
 
 // environment for gold/ivory reflections: dark sky, light ground, warm sun panel
@@ -106,11 +106,11 @@ mats.hull.color.setRGB(0.8, 0.78, 0.77); mats.lattice.color.setRGB(0.8, 0.78, 0.
       .replace('#include <color_fragment>', `#include <color_fragment>
       { float dH = length(vWPh - cameraPosition); float kH = 1.0 - smoothstep(30.0, 90.0, dH); vec3 fn = normalize(cross(dFdx(vWPh), dFdy(vWPh)));
         float lum = dot(diffuseColor.rgb, vec3(0.3, 0.59, 0.11)); float sat = max(max(diffuseColor.r, diffuseColor.g), diffuseColor.b) - min(min(diffuseColor.r, diffuseColor.g), diffuseColor.b);
-        float iv = smoothstep(0.3, 0.45, lum) * smoothstep(0.42, 0.58, diffuseColor.b / max(diffuseColor.r, 1e-3)); /* ivory (linear): bright, not gold */ float flat_ = 1.0 - smoothstep(0.02, 0.08, length(fwidth(fn)));
-        float ny_ = abs(fn.y); float k = kH * iv * flat_ * max(max(1.0 - smoothstep(0.2, 0.4, ny_), smoothstep(0.9, 0.97, ny_)), 0.3); /* pass 41: only walls + flat tops (no diagonal stripes on slanted roofs) */ if (k > 0.01) { vec3 aw = abs(fn); vec2 uv = (aw.x > aw.y && aw.x > aw.z) ? vWPh.zy : ((aw.y > aw.z) ? vWPh.xz : vWPh.xy);
+        float iv = smoothstep(0.3, 0.45, lum) * smoothstep(0.42, 0.58, diffuseColor.b / max(diffuseColor.r, 1e-3)); /* ivory (linear): bright, not gold */
+        float ny_ = abs(fn.y); float flat_ = 1.0 - smoothstep(0.003, 0.01, length(fwidth(fn))); float axisN = max(abs(fn.x), max(abs(fn.y), abs(fn.z))); float wallN = smoothstep(0.92, 0.99, axisN); /* cylinder and sphere faces are locally flat, so the seam grid was tiling the launch tank; real walls point near a world axis */ float k = kH * iv * flat_ * wallN * max(max(1.0 - smoothstep(0.2, 0.4, ny_), smoothstep(0.9, 0.97, ny_)), 0.3); /* pass 41: only walls + flat tops (no diagonal stripes on slanted roofs) */ if (k > 0.01) { vec3 aw = abs(fn); vec2 uv = (aw.x > aw.y && aw.x > aw.z) ? vWPh.zy : ((aw.y > aw.z) ? vWPh.xz : vWPh.xy);
           vec2 g = uv / vec2(0.8, 0.55); vec2 fw = fwidth(g); vec2 dd = min(fract(g), 1.0 - fract(g)); vec2 sl = (1.0 - smoothstep(fw * 0.9, fw * 2.2, dd)) * (1.0 - smoothstep(0.18, 0.4, fw)); vec2 hl = (1.0 - smoothstep(fw * 2.2, fw * 3.6, abs(fract(g) - fw * 3.0))) * (1.0 - smoothstep(0.18, 0.4, fw));
           float seam = max(sl.x, sl.y); float pt = hhP(floor(g) + floor(vWPh.y * 0.1)); diffuseColor.rgb *= mix(1.0, (1.0 - 0.42 * seam + 0.12 * max(hl.x, hl.y) * (1.0 - seam)) * (0.93 + 0.14 * pt), k); } } /* dark seam + lit bevel on one side */`);
-  }; hm.customProgramCacheKey = () => 'hull_p41';
+  }; hm.customProgramCacheKey = () => 'hull_p43';
 }
 const built = b.build(mats, scene); for (const [n, B] of [...Object.entries(WB), ['beams', wb]]) { const bw = B.build(mats, scene, '_' + n); for (const k in bw) bw[k].castShadow = false; }
 // far chapter-region hulls sit behind the crater rim: skip them while the camera is low inside the hub basin (cheap occlusion cull)
