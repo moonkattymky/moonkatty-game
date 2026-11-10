@@ -94,7 +94,21 @@ function augerList(hi) {
 }
 function augerGeo(hi) { return merge(augerList(hi)); }
 // Same parts as the parked hauler (world.js haulerPieces). hi: 20-gon tyres up close. lo: 8-gon.
-function haulerGeo(hi) { const MR = { dark: [0.04, 0.9], ivory: [0.08, 0.48], gold: [0.78, 0.32], glow: [0.12, 0.2] }; const L = []; for (const p of haulerPieces(hi ? 20 : 8, 8)) { const g = p.geo.clone(); g.translate(p.pos[0], p.pos[1], p.pos[2]); L.push(col(g, p.color, p.group === 'glow' ? p.emit : 0, p.mr || MR[p.group])); } return merge(L); }
+function haulerGeo(hi) {
+  const MR = { dark: [0.04, 0.9], ivory: [0.08, 0.48], gold: [0.78, 0.32], glow: [0.12, 0.2], tex: [0.2, 0.22] };
+  const L = [];
+  for (const p of haulerPieces(hi ? 20 : 8, 8)) {
+    let g = p.geo.clone(); g.translate(p.pos[0], p.pos[1], p.pos[2]);
+    const mr = p.mr || MR[p.group] || MR.ivory;
+    if (!p.shade) { L.push(col(g, p.color, p.emit || 0, mr)); continue; }
+    g = g.index ? g.toNonIndexed() : g;
+    const P = g.attributes.position, n = P.count, a = new Float32Array(n * 3), ae = new Float32Array(n), am = new Float32Array(n * 2);
+    for (let i = 0; i < n; i++) { const c = p.shade(P.getX(i), P.getY(i), P.getZ(i)); a[i * 3] = c[0]; a[i * 3 + 1] = c[1]; a[i * 3 + 2] = c[2]; ae[i] = c[3] || 0; am[i * 2] = mr[0]; am[i * 2 + 1] = mr[1]; }
+    g.setAttribute('color', new THREE.BufferAttribute(a, 3)); g.setAttribute('aE', new THREE.BufferAttribute(ae, 1)); g.setAttribute('aMR', new THREE.BufferAttribute(am, 2)); if (g.attributes.uv) g.deleteAttribute('uv');
+    L.push(g);
+  }
+  return merge(L);
+}
 function drillGeo() { const L = [col(new THREE.BoxGeometry(2.2, 0.8, 3.2).translate(0, 0.9, 0), '#e6dcc6'), col(new THREE.BoxGeometry(2.3, 0.1, 3.3).translate(0, 1.32, 0), '#f0b020' /* v123 warmer gold */), col(new THREE.BoxGeometry(1.2, 0.9, 1.0).translate(0, 1.8, -1.0), '#d8cdb5'), col(new THREE.BoxGeometry(0.9, 0.4, 0.1).translate(0, 1.9, -0.48), '#2b3d5c', 0.2), col(new THREE.BoxGeometry(0.3, 4.2, 0.3).translate(0, 3.2, 1.1), '#e8b038' /* v123 warmer gold */), col(new THREE.BoxGeometry(0.9, 0.5, 0.6).translate(0, 5.1, 1.1), '#e6dcc6')];
   for (const z of [-1.1, 0, 1.1]) for (const x of [-1.2, 1.2]) L.push(col(new THREE.CylinderGeometry(0.42, 0.42, 0.34, 10).rotateZ(Math.PI / 2).translate(x, 0.42, z), '#3a3530'));
   L.push(col(new THREE.SphereGeometry(0.12, 6, 4).translate(0, 5.45, 1.1), '#ff4030', 4.0)); return merge(L); }
@@ -168,7 +182,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const lift = new THREE.Mesh(shG, mat); lift.name = 'life_liftoff'; lift.scale.setScalar(2.6); root.add(lift); let liftT = 5;
   // ground vehicles
   const HID = low ? 0 : mobile ? 16 : 28, /* 20-gon tyres while the hauler is readable from the play stand; 8-gon only once it is a small shape */ HIDD = low ? 0 : mobile ? 40 : 48; /* the play stand and a walk around the rig stay on the full mast; low keeps the same silhouette with fewer wheels */ const rvG = [haulerGeo(false), low ? null : haulerGeo(true)], drG = [rigGeo(false, low), low ? null : rigGeo(true, false)] /* v99: own rig (concept), machines.js untouched */;
-  const rover = new THREE.Mesh(rvG[0], mat); rover.name = 'life_rover'; rover.userData.hi = rvG[1]; if (!low) { const bm = new THREE.MeshBasicMaterial({ color: 0xffc070, transparent: true, opacity: 0.26, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false }); const bg = new THREE.ConeGeometry(1.1, 5.0, 10, 1, true).translate(0, -2.5, 0).rotateX(-Math.PI / 2 + 0.22); const b = new THREE.Mesh(merge([-0.46, 0.46].map(sx => bg.clone().translate(sx, 0.82, 1.68))), bm); b.name = 'life_rover_beam'; rover.add(b); } /* v98: headlight beams on the dust */ rover.scale.setScalar(1.0); rover.castShadow = true; root.add(rover);
+  const rover = new THREE.Mesh(rvG[0], mat); rover.name = 'life_rover'; rover.userData.hi = rvG[1]; /* lamps are the round discs in the hauler mesh; no cone wedges */ rover.scale.setScalar(1.0); rover.castShadow = true; root.add(rover);
   const roverCol = { x: 0, z: 0, r: 0.95, h: 1.7 }; if (ctrl && ctrl.colliders) ctrl.colliders.push(roverCol);
   let sparkAcc = 0, sparkFl = 0; const drill = new THREE.Mesh(drG[0], mat); drill.name = 'life_drill'; drill.userData.hi = drG[1]; drill.scale.setScalar(1.15); /* concept: the drill rig is a big hero prop */ root.add(drill); const bit = new THREE.Mesh(augerGeo(!mobile), mat); bit.position.copy(DRILL_HEAD); drill.add(bit); bit.visible = !low;
   // rotating radar dish next to the base
