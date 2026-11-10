@@ -215,17 +215,17 @@ function echo(b, beams, bn) {
 }
 
 // Shared crystal hauler (concept d04ca995). Parked copies and the moving rig use these parts.
-// Long low pod. Wheel track stays at x=±1.14 and the moving collider stays r=0.95. Axles are packed under the pod. bodyN is unused.
+// Long low pod with a chamfered, flat-sided section. Wheel track stays at x=±1.14. The moving collider is several circles in worldlife.js. bodyN is unused.
 export function haulerPieces(wheelN, bodyN = 8) {
   void bodyN;
-  const rich = wheelN >= 12, hubN = rich ? 10 : 8, lugN = rich ? 10 : 6, tyreN = rich ? 14 : 10;
+  const rich = wheelN >= 12, hubN = rich ? 10 : 8, lugN = rich ? 12 : 8, tyreN = rich ? 14 : 10;
   const tube = (r, len, n, axis) => { const g = new THREE.CylinderGeometry(r, r, len, n); if (axis === 'z') g.rotateX(PI / 2); else if (axis === 'x') g.rotateZ(PI / 2); return g; };
   const box = (w, h, d) => new THREE.BoxGeometry(w, h, d);
   const P = []; const add = (group, geo, pos, color, intensity = 1, emit = 0, mr = null, shade = null, region = null) => P.push({ group, geo, pos, color, intensity, emit, mr, shade, region });
   const RIM = 0.445, WY = RIM, WX = 1.14, AX = [-0.78, 0.16, 1.10], RUB = [0.02, 0.92], HUB = [0.82, 0.32], GEM = [0.02, 0.55];
   const mesh = (pos, idx) => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals(); return g; };
-  // Rounded cargo shell: one extruded wall, wider through the middle, tapered at the closed ends.
-  const loop = [[0.28, 0.46], [0.56, 0.46], [0.76, 0.52], [0.90, 0.66], [0.96, 0.88], [0.90, 1.04], [0.74, 1.14], [0.60, 1.04], [0.56, 0.76], [0.28, 0.62], [0, 0.58], [-0.28, 0.62], [-0.56, 0.76], [-0.60, 1.04], [-0.74, 1.14], [-0.90, 1.04], [-0.96, 0.88], [-0.90, 0.66], [-0.76, 0.52], [-0.56, 0.46], [-0.28, 0.46]];
+  // Chamfered box section: proud top and bottom edges, a flat side set back between them, an open bed with wall thickness.
+  const loop = [[0.16, 0.44], [0.62, 0.44], [0.90, 0.52], [0.98, 0.60], [0.88, 0.68], [0.88, 0.98], [0.98, 1.06], [0.72, 1.14], [0.54, 1.02], [0.48, 0.72], [0, 0.58], [-0.48, 0.72], [-0.54, 1.02], [-0.72, 1.14], [-0.98, 1.06], [-0.88, 0.98], [-0.88, 0.68], [-0.98, 0.60], [-0.90, 0.52], [-0.62, 0.44], [-0.16, 0.44]];
   const zs = [-1.38, -0.92, -0.35, 0.22, 0.78, 1.22, 1.42], sxZ = [0.86, 0.98, 1, 1, 0.98, 0.92, 0.80];
   const shellPos = [], shellIdx = [];
   for (let s = 0; s < zs.length; s++) for (const [x, y] of loop) shellPos.push(x * sxZ[s], y, zs[s]);
@@ -247,7 +247,8 @@ export function haulerPieces(wheelN, bodyN = 8) {
     shellIdx.push(frontBase, frontBase + i, frontBase + i + 1);
   }
   const shell = mesh(shellPos, shellIdx);
-  add('ivory', shell, [0, 0, 0], '#f3ead8', 1, 0, null, (x, y) => { const u = Math.min(1, Math.max(0, (y - 0.46) / 0.6)); return [0.72 + u * 0.16, 0.66 + u * 0.18, 0.56 + u * 0.18, 0]; });
+  add('ivory', shell, [0, 0, 0], '#f3ead8', 1, 0, null, (x, y) => { const u = Math.min(1, Math.max(0, (y - 0.5) / 0.64)); return [0.76 + u * 0.08, 0.70 + u * 0.08, 0.60 + u * 0.08, 0]; });
+  for (const s of [-1, 1]) for (const [z, len] of [[-0.74, 0.48], [-0.07, 0.52], [0.62, 0.48]]) add('ivory', box(0.03, 0.26, len), [s * 0.915, 0.84, z], s > 0 ? '#f4ecdc' : '#e7dcc8');
   // Dark running gear tucked under the pod, plus the front bumper that holds the lamps.
   for (const s of [-1, 1]) add('dark', box(0.16, 0.14, 2.55), [s * 0.48, 0.32, 0.02], '#14110e');
   for (const z of AX) add('dark', box(1.05, 0.10, 0.14), [0, 0.34, z], '#221c18');
@@ -257,9 +258,9 @@ export function haulerPieces(wheelN, bodyN = 8) {
   add('dark', box(0.90, 0.10, 0.12), [0, 0.32, -1.42], '#161311');
   // Gold frame: top rail, lower rail, vertical straps, hexagonal end rings.
   for (const s of [-1, 1]) {
-    add('gold', box(0.055, 0.045, 2.35), [s * 0.78, 1.12, 0.02], '#d4a24a');
-    add('gold', box(0.045, 0.035, 2.15), [s * 0.88, 0.58, 0.02], '#b8893a');
-    for (const z of [-1.05, -0.42, 0.28, 0.95]) add('gold', box(0.04, 0.54, 0.045), [s * 0.92, 0.84, z], '#e2b04a');
+    add('gold', box(0.05, 0.045, 2.35), [s * 0.84, 1.12, 0.02], '#d4a24a');
+    add('gold', box(0.04, 0.035, 2.15), [s * 0.97, 0.58, 0.02], '#b8893a');
+    for (const z of [-1.05, -0.42, 0.28, 0.95]) add('gold', box(0.045, 0.52, 0.05), [s * 0.99, 0.84, z], '#e2b04a');
   }
   const cap = (z, sign, kind) => {
     const N = 6, y0 = 0.80, rx = 0.70, ry = 0.34, a = (i) => i * PI * 2 / N;
@@ -285,9 +286,9 @@ export function haulerPieces(wheelN, bodyN = 8) {
   add('ivory', cap(1.46, 1, 'face'), [0, 0, 0], '#b7aa96');
   add('gold', cap(1.46, 1, 'ring'), [0, 0, 0], '#e8b84a', 1, 0, HUB);
   for (const s of [-1, 1]) {
-    add('dark', box(0.26, 0.20, 0.08), [s * 0.34, 0.36, 1.64], '#1a1612');
-    add('gold', tube(0.11, 0.036, hubN, 'z'), [s * 0.34, 0.36, 1.69], '#e2b04a', 1, 0, HUB);
-    add('glow', tube(0.07, 0.022, hubN, 'z'), [s * 0.34, 0.36, 1.72], '#ffd7a4', 1.5, 0.85);
+    add('dark', box(0.34, 0.26, 0.12), [s * 0.36, 0.38, 1.60], '#100e0c');
+    add('gold', tube(0.145, 0.04, hubN, 'z'), [s * 0.36, 0.38, 1.68], '#e8b84a', 1, 0, HUB);
+    add('glow', tube(0.095, 0.03, hubN, 'z'), [s * 0.36, 0.38, 1.715], '#ffcc88', 1.7, 1.0);
   }
   // A mound of small blue crystals across the bed, with a few larger ones along the crown. Same matte blue as the last pass.
   const gems = [];
@@ -297,17 +298,18 @@ export function haulerPieces(wheelN, bodyN = 8) {
     const j = Math.sin(x0 * 12.2 + z0 * 5.1);
     const x = x0 + j * 0.04, z = z0 + Math.cos(x0 * 4.4 + z0 * 9.3) * 0.04;
     const dome = Math.max(0, 1 - (x / 0.52) ** 2 * 0.75 - ((z - 0.05) / 1.15) ** 2);
-    const big = dome > 0.55 && Math.abs(j) > 0.25;
-    const want = (big ? 1.24 : 1.16) + dome * (big ? 0.24 : 0.14);
-    const sy = (want - 0.58) * 0.62, wide = 0.10 + dome * 0.045;
-    gems.push([x, z, wide, sy, wide * 0.85, j * 0.9, x * 3.1, z * 1.7, big ? 1 : 0]);
+    const big = dome > 0.58 && j > 0.2;
+    const want = (big ? 1.22 : 1.16) + dome * (big ? 0.22 : 0.12);
+    const sy = (want - 0.58) * 0.55, wide = 0.075 + dome * 0.03;
+    const spin = x0 * 2.4 + z0 * 1.7;
+    gems.push([x, z, wide, sy, wide * 0.82, j * 0.16, spin, j * 0.1, big ? 1 : 0]);
   }
   const seat = 0.58;
   for (const [x, z, sx, sy, sz, rx, ry, rz, detail] of gems) {
     const g = new THREE.OctahedronGeometry(1, detail); g.scale(sx, sy, sz); g.rotateX(rx); g.rotateY(ry); g.rotateZ(rz); g.computeBoundingBox();
     g.translate(0, seat - g.boundingBox.min.y, 0); g.computeBoundingBox();
     const dome = Math.max(0, 1 - (x / 0.52) ** 2 * 0.75 - ((z - 0.05) / 1.15) ** 2);
-    const want = (detail ? 1.24 : 1.16) + dome * (detail ? 0.24 : 0.14);
+    const want = (detail ? 1.22 : 1.16) + dome * (detail ? 0.22 : 0.12);
     const span = g.boundingBox.max.y - seat;
     if (span > 0.02) { const k = Math.min(1.8, Math.max(0.65, (want - seat) / span)); g.translate(0, -seat, 0); g.scale(1, k, 1); g.translate(0, seat, 0); }
     g.translate(x, 0, z); g.computeBoundingBox();
@@ -315,8 +317,8 @@ export function haulerPieces(wheelN, bodyN = 8) {
     const shade = (lx, ly, lz) => {
       const t = Math.min(1, Math.max(0, Math.hypot(lx - c.x, ly - c.y, lz - c.z) / reach));
       const h = Math.min(1, Math.max(0, (ly - y0) / ((y1 - y0) || 1)));
-      const u = Math.min(1, Math.max(0, t * 0.55 + h * 0.45));
-      return [0.05 + u * 0.16, 0.12 + u * 0.32, 0.40 + u * 0.38, 0.03 + u * 0.08];
+      const u = Math.min(1, Math.max(0, t * 0.4 + h * 0.35));
+      return [0.04 + u * 0.12, 0.09 + u * 0.26, 0.36 + u * 0.36, 0.02 + u * 0.05];
     };
     add('ivory', g, [0, 0, 0], '#1a4ad8', 1, 0, GEM, shade);
   }
@@ -333,7 +335,7 @@ export function haulerPieces(wheelN, bodyN = 8) {
     add('dark', tube(0.06, 0.28, 5, 'x'), [s * 0.82, WY, dz], '#2a2622');
     for (let i = 0; i < lugN; i++) {
       const a = i / lugN * PI * 2 + 0.2;
-      const g = box(0.07, 0.055, 0.045); g.rotateX(a); g.translate(dx, WY + Math.cos(a) * 0.43, dz + Math.sin(a) * 0.43);
+      const g = box(0.05, 0.04, 0.03); g.rotateX(a); g.translate(dx, WY + Math.cos(a) * 0.432, dz + Math.sin(a) * 0.432);
       add('dark', g, [0, 0, 0], '#0c0b0a', 1, 0, RUB);
     }
   }
