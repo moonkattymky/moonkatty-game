@@ -214,56 +214,85 @@ function echo(b, beams, bn) {
   { const rx = x + 22, rz = z - 47; KEEP.push({ x: rx, z: rz, r: 6 }); rover(bn, rx, rz, 2.4); }
 }
 
-// Shared crystal-hauler parts (concept d04ca995). Parked copies bake into the zone hull; the moving world-life hauler merges the same parts, so there is one vehicle.
-// Rectilinear raised bed, not a capsule. wheelN 20 is the close tyre; 8 is the far/phone silhouette. Wheel stations stay at x=±1.14 so the 0.95 collider still covers the body. bodyN is unused (callers still pass 8).
+// Shared crystal hauler (concept d04ca995). Parked copies bake into the zone hull; the moving rig merges the same parts.
+// Beveled ivory tub, thick gold rails, chunky treaded tyres. Wheel stations stay at x=±1.14 so the 0.95 collider still covers the body. bodyN is unused.
 export function haulerPieces(wheelN, bodyN = 8) {
   void bodyN;
-  const rich = wheelN >= 12, hubN = rich ? 14 : 8;
+  const rich = wheelN >= 12, hubN = rich ? 12 : 8, lugN = rich ? 10 : 6;
   const tube = (r, len, n, axis) => { const g = new THREE.CylinderGeometry(r, r, len, n); if (axis === 'z') g.rotateX(PI / 2); else if (axis === 'x') g.rotateZ(PI / 2); return g; };
   const box = (w, h, d) => new THREE.BoxGeometry(w, h, d);
-  const P = []; const add = (group, geo, pos, color, intensity = 1, emit = 0) => P.push({ group, geo, pos, color, intensity, emit });
-  const WY = 0.48;
-  // Dark chassis clears the ground; the 0.48 tyres sit on y=0. Bed walls rise above a floor the crystals are sunk into.
-  add('dark', box(1.72, 0.28, 3.28), [0, 0.44, -0.02], '#241f1c');
-  add('ivory', box(1.62, 0.12, 2.46), [0, 0.70, -0.18], '#f3ead8');
-  add('dark', box(1.40, 0.05, 2.16), [0, 0.78, -0.20], '#3a342c');
-  add('ivory', box(0.09, 0.50, 2.42), [0.78, 1.01, -0.18], '#f7f1e6');
-  add('ivory', box(0.09, 0.50, 2.42), [-0.78, 1.01, -0.18], '#f7f1e6');
-  add('ivory', box(1.65, 0.50, 0.09), [0, 1.01, -1.35], '#f4ecdc');
-  add('ivory', box(1.65, 0.42, 0.09), [0, 0.97, 0.99], '#efe6d4');
-  add('gold', box(0.13, 0.05, 2.50), [0.78, 1.285, -0.18], '#e2b04a');
-  add('gold', box(0.13, 0.05, 2.50), [-0.78, 1.285, -0.18], '#e2b04a');
-  add('gold', box(1.74, 0.05, 0.11), [0, 1.285, -1.35], '#e2b04a');
-  add('gold', box(1.74, 0.05, 0.11), [0, 1.20, 0.99], '#e2b04a');
-  add('gold', box(1.78, 0.04, 3.32), [0, 0.60, -0.02], '#c9a24a');
-  add('ivory', box(1.40, 0.34, 0.64), [0, 0.86, 1.30], '#f7f1e4');
-  add('gold', box(1.46, 0.04, 0.68), [0, 1.05, 1.30], '#e2b04a');
-  for (const s of [-1, 1]) for (const z of [-1.35, 0.99]) add('gold', box(0.09, 0.10, 0.09), [s * 0.78, 1.33, z], '#e2b04a');
-  if (rich) {
-    for (const s of [-1, 1]) for (const z of [-0.82, -0.22, 0.38]) add('gold', box(0.028, 0.40, 0.032), [s * 0.85, 1.02, z], '#c9a24a');
-    for (const s of [-1, 1]) {
-      const upper = box(0.04, 0.05, 0.36); upper.rotateX(-0.62); upper.translate(s * 0.90, 1.12, 0.62);
-      const lower = box(0.04, 0.05, 0.36); lower.rotateX(0.62); lower.translate(s * 0.90, 0.96, 0.62);
-      add('gold', upper, [0, 0, 0], '#e2b04a'); add('gold', lower, [0, 0, 0], '#e2b04a');
-    }
+  const P = []; const add = (group, geo, pos, color, intensity = 1, emit = 0, mr = null) => P.push({ group, geo, pos, color, intensity, emit, mr });
+  const WY = 0.52, WX = 1.14, RUB = [0.02, 0.94], HUB = [0.9, 0.22];
+  const tilt = (w, h, d, rx, rz, x, y, z) => { const g = box(w, h, d); if (rx) g.rotateX(rx); if (rz) g.rotateZ(rz); g.translate(x, y, z); return g; };
+  // Dark chassis with depth: rails, belly, axle beds. Tyres of radius 0.52 sit on y=0.
+  for (const s of [-1, 1]) add('dark', box(0.22, 0.18, 3.05), [s * 0.52, 0.40, -0.02], '#1a1714');
+  add('dark', box(1.05, 0.10, 2.55), [0, 0.32, -0.08], '#141210');
+  for (const z of [-1.05, 0.02, 1.12]) add('dark', box(1.35, 0.12, 0.28), [0, 0.40, z], '#221e1a');
+  add('gold', box(1.55, 0.06, 0.10), [0, 0.50, 1.48], '#c9a24a');
+  // Volumetric tub: thick floor, thick walls, chamfered lips, round corner posts.
+  add('ivory', box(1.52, 0.18, 2.28), [0, 0.74, -0.12], '#efe4d0');
+  add('dark', box(1.22, 0.05, 1.95), [0, 0.86, -0.14], '#3a342c');
+  for (const s of [-1, 1]) {
+    add('ivory', box(0.18, 0.46, 2.22), [s * 0.74, 1.06, -0.12], '#f4ecdc');
+    add('ivory', tilt(0.16, 0.12, 2.10, 0, -s * 0.65, s * 0.66, 1.24, -0.12), [0, 0, 0], '#f7f1e6');
+    add('ivory', tilt(0.14, 0.10, 2.10, 0, s * 0.7, s * 0.82, 0.86, -0.12), [0, 0, 0], '#e7dcc8');
+    add('gold', box(0.20, 0.09, 2.36), [s * 0.74, 1.34, -0.12], '#e2b04a');
+    add('ivory', box(0.13, 0.34, 0.78), [s * 0.80, 1.04, -0.55], '#f8f2e6');
+    add('ivory', box(0.13, 0.34, 0.62), [s * 0.80, 1.04, 0.28], '#f8f2e6');
+    add('dark', box(0.03, 0.30, 0.045), [s * 0.875, 1.04, -0.10], '#5c564c');
+    add('gold', box(0.16, 0.055, 1.55), [s * 0.80, 0.98, -0.15], '#d4a24a');
   }
-  const cry = rich
-    ? [[-0.32, -0.92, 0.30, '#2ee0ff'], [0.30, -0.74, 0.28, '#1a78ff'], [0, -0.58, 0.34, '#47e6ff'], [-0.34, -0.26, 0.26, '#2ec8ff'], [0.32, -0.16, 0.30, '#1568ee'], [-0.06, 0.04, 0.32, '#2ee0ff'], [0.28, 0.30, 0.24, '#3ad4ff'], [-0.30, 0.42, 0.22, '#1a78ff'], [0.06, 0.52, 0.26, '#47e6ff']]
-    : [[-0.26, -0.68, 0.30, '#2ee0ff'], [0.24, -0.32, 0.28, '#1a78ff'], [0, 0.02, 0.34, '#47e6ff'], [-0.20, 0.40, 0.24, '#2ec8ff'], [0.22, 0.46, 0.22, '#3ad4ff']];
-  for (const [cx, cz, s, hex] of cry) {
-    const g = new THREE.OctahedronGeometry(s, 0); g.scale(1.05, 1.38, 1.05); g.rotateY(cx * 3 + cz * 2); g.rotateZ(cx * 0.28);
-    add('glow', g, [cx, 1.14 + (0.34 - s) * 0.2, cz], hex, 2.2, 0.75);
-  }
-  for (const dz of [-1.12, 0.02, 1.16]) for (const dx of [-1.14, 1.14]) {
-    const s = dx > 0 ? 1 : -1;
-    add('dark', tube(WY, 0.40, wheelN, 'x'), [dx, WY, dz], '#161412');
-    add('gold', tube(0.20, 0.16, hubN, 'x'), [dx + s * 0.15, WY, dz], '#e2b04a');
-    add('dark', tube(0.065, 0.07, 6, 'x'), [dx + s * 0.23, WY, dz], '#1a1612');
-    add('dark', tube(0.065, 0.36, 5, 'x'), [s * 0.88, WY, dz], '#2c2824');
+  add('ivory', box(1.66, 0.46, 0.18), [0, 1.06, -1.22], '#f3ead8');
+  add('ivory', tilt(1.50, 0.12, 0.14, -0.6, 0, 0, 1.24, -1.08), [0, 0, 0], '#f7f1e6');
+  add('gold', box(1.78, 0.09, 0.16), [0, 1.34, -1.22], '#e2b04a');
+  add('ivory', box(1.66, 0.36, 0.16), [0, 1.00, 0.96], '#f3ead8');
+  add('gold', box(1.78, 0.08, 0.14), [0, 1.20, 0.96], '#e2b04a');
+  const cn = rich ? 10 : 7;
+  for (const s of [-1, 1]) for (const z of [-1.22, 0.96]) {
+    add('ivory', tube(0.16, 0.50, cn, 'y'), [s * 0.74, 1.04, z], '#f6efe2');
+    add('gold', tube(0.19, 0.08, cn, 'y'), [s * 0.74, 1.32, z], '#e8b84a');
+    add('gold', box(0.22, 0.08, 0.08), [s * 0.74, 1.38, z], '#f0c14a');
+    add('gold', box(0.08, 0.08, 0.22), [s * 0.74, 1.38, z], '#f0c14a');
   }
   for (const s of [-1, 1]) {
-    add('gold', tube(0.13, 0.07, 8, 'z'), [s * 0.46, 0.82, 1.58], '#c9a24a');
-    add('glow', tube(0.09, 0.05, 8, 'z'), [s * 0.46, 0.82, 1.62], '#ffe7a4', 2.6, 1.8);
+    for (const ang of [-0.55, 0.55]) {
+      const g = box(0.08, 0.075, 0.44); g.translate(0, 0, -0.22); g.rotateX(ang); g.translate(s * 0.90, 1.05, 0.62);
+      add('gold', g, [0, 0, 0], '#f0c14a');
+    }
+  }
+  // Nose and the two lamp pods. Lamp centers match the existing headlight beams (x=±0.46, y=0.82, z=1.68).
+  add('ivory', tilt(1.28, 0.30, 0.62, 0.22, 0, 0, 0.78, 1.28), [0, 0, 0], '#f7f1e4');
+  add('dark', box(0.36, 0.16, 0.08), [0, 0.80, 1.52], '#2a2622');
+  add('gold', box(1.15, 0.05, 0.08), [0, 0.66, 1.52], '#c9a24a');
+  for (const s of [-1, 1]) {
+    add('ivory', box(0.40, 0.30, 0.26), [s * 0.46, 0.80, 1.40], '#f4ecdc');
+    add('dark', box(0.30, 0.24, 0.06), [s * 0.46, 0.82, 1.52], '#1c1916');
+    add('gold', tube(0.15, 0.07, hubN, 'z'), [s * 0.46, 0.82, 1.56], '#e8b84a', 1, 0, HUB);
+    add('glow', tube(0.10, 0.05, hubN, 'z'), [s * 0.46, 0.82, 1.60], '#ffc56a', 3.0, 2.4);
+  }
+  const heap = rich
+    ? [[0.00, -0.20, 0.22, 0.48, 0.20, 0.5, 0.3, 0.4, '#8af7ff', 0.85], [-0.24, -0.08, 0.16, 0.36, 0.16, 0.9, 1.2, 0.5, '#2ec8ff', 0.6], [0.22, -0.28, 0.18, 0.40, 0.15, 1.1, 0.4, 0.7, '#5ae4ff', 0.7], [-0.08, -0.48, 0.14, 0.32, 0.14, 0.3, 2.0, 1.0, '#1a78ff', 0.5], [0.28, -0.02, 0.15, 0.34, 0.18, 1.4, 0.8, 0.2, '#49e0ff', 0.65], [-0.30, -0.42, 0.12, 0.26, 0.12, 0.6, 1.5, 0.9, '#7ef0ff', 0.55], [0.08, 0.12, 0.20, 0.38, 0.16, 0.8, 2.4, 0.6, '#b8fbff', 0.8], [-0.16, 0.22, 0.13, 0.28, 0.14, 1.3, 0.2, 1.1, '#2ec8ff', 0.5], [0.20, 0.28, 0.12, 0.24, 0.12, 0.4, 1.7, 0.3, '#3ad4ff', 0.6], [0.02, -0.62, 0.14, 0.30, 0.12, 1.0, 0.6, 0.8, '#1568ee', 0.45], [-0.22, 0.42, 0.11, 0.22, 0.11, 0.7, 2.2, 0.4, '#8af7ff', 0.55], [0.30, -0.55, 0.10, 0.22, 0.12, 1.5, 1.1, 0.9, '#49e0ff', 0.5]]
+    : [[0.00, -0.15, 0.20, 0.44, 0.18, 0.4, 0.2, 0.5, '#8af7ff', 0.8], [-0.22, -0.40, 0.15, 0.32, 0.14, 0.9, 1.1, 0.4, '#2ec8ff', 0.55], [0.24, -0.05, 0.16, 0.34, 0.15, 1.2, 0.5, 0.8, '#5ae4ff', 0.65], [-0.06, 0.22, 0.13, 0.28, 0.13, 0.5, 2.0, 1.0, '#1a78ff', 0.5], [0.16, 0.40, 0.12, 0.22, 0.12, 1.1, 0.7, 0.3, '#7ef0ff', 0.6], [-0.26, 0.08, 0.11, 0.24, 0.12, 0.6, 1.6, 0.7, '#49e0ff', 0.5]];
+  for (const [x, z, sx, sy, sz, rx, ry, rz, hex, emit] of heap) {
+    const g = new THREE.OctahedronGeometry(1, 0); g.scale(sx, sy, sz); g.rotateX(rx); g.rotateY(ry); g.rotateZ(rz); g.computeBoundingBox();
+    const seat = 0.92, minY = g.boundingBox.min.y, h = g.boundingBox.max.y - minY;
+    g.translate(0, seat - minY, 0);
+    if (seat + h < 1.48) { const k = (1.52 - seat) / h; g.translate(0, -seat, 0); g.scale(1, k, 1); g.translate(0, seat, 0); }
+    g.translate(x, 0, z);
+    add('glow', g, [0, 0, 0], hex, 2.0, emit);
+  }
+  for (const dz of [-1.05, 0.02, 1.12]) for (const dx of [-WX, WX]) {
+    const s = dx > 0 ? 1 : -1;
+    add('dark', tube(WY, 0.46, wheelN, 'x'), [dx, WY, dz], '#121110', 1, 0, RUB);
+    add('dark', tube(0.34, 0.08, hubN, 'x'), [dx + s * 0.24, WY, dz], '#0c0b0a', 1, 0, RUB);
+    add('gold', tube(0.20, 0.12, hubN, 'x'), [dx + s * 0.32, WY, dz], '#f2c14e', 1, 0, HUB);
+    add('dark', tube(0.07, 0.05, 6, 'x'), [dx + s * 0.39, WY, dz], '#1a1612', 1, 0, RUB);
+    add('dark', tube(0.07, 0.34, 5, 'x'), [s * 0.86, WY, dz], '#2a2622');
+    for (let i = 0; i < lugN; i++) {
+      const a = i / lugN * PI * 2 + 0.2;
+      const g = box(0.30, 0.14, 0.16); g.rotateX(a); g.translate(dx + s * 0.06, WY + Math.cos(a) * 0.52, dz + Math.sin(a) * 0.52);
+      add('dark', g, [0, 0, 0], '#050403', 1, 0, RUB);
+    }
   }
   return P;
 }

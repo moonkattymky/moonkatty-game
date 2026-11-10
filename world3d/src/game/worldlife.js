@@ -94,7 +94,7 @@ function augerList(hi) {
 }
 function augerGeo(hi) { return merge(augerList(hi)); }
 // Same parts as the parked hauler (world.js haulerPieces). hi: 20-gon tyres up close. lo: 8-gon.
-function haulerGeo(hi) { const MR = { dark: [0.04, 0.9], ivory: [0.06, 0.52], gold: [0.72, 0.34], glow: [0.1, 0.18] }; const L = []; for (const p of haulerPieces(hi ? 20 : 8, 8)) { const g = p.geo.clone(); g.translate(p.pos[0], p.pos[1], p.pos[2]); L.push(col(g, p.color, p.group === 'glow' ? p.emit : 0, MR[p.group])); } return merge(L); }
+function haulerGeo(hi) { const MR = { dark: [0.04, 0.9], ivory: [0.08, 0.48], gold: [0.78, 0.32], glow: [0.12, 0.2] }; const L = []; for (const p of haulerPieces(hi ? 20 : 8, 8)) { const g = p.geo.clone(); g.translate(p.pos[0], p.pos[1], p.pos[2]); L.push(col(g, p.color, p.group === 'glow' ? p.emit : 0, p.mr || MR[p.group])); } return merge(L); }
 function drillGeo() { const L = [col(new THREE.BoxGeometry(2.2, 0.8, 3.2).translate(0, 0.9, 0), '#e6dcc6'), col(new THREE.BoxGeometry(2.3, 0.1, 3.3).translate(0, 1.32, 0), '#f0b020' /* v123 warmer gold */), col(new THREE.BoxGeometry(1.2, 0.9, 1.0).translate(0, 1.8, -1.0), '#d8cdb5'), col(new THREE.BoxGeometry(0.9, 0.4, 0.1).translate(0, 1.9, -0.48), '#2b3d5c', 0.2), col(new THREE.BoxGeometry(0.3, 4.2, 0.3).translate(0, 3.2, 1.1), '#e8b038' /* v123 warmer gold */), col(new THREE.BoxGeometry(0.9, 0.5, 0.6).translate(0, 5.1, 1.1), '#e6dcc6')];
   for (const z of [-1.1, 0, 1.1]) for (const x of [-1.2, 1.2]) L.push(col(new THREE.CylinderGeometry(0.42, 0.42, 0.34, 10).rotateZ(Math.PI / 2).translate(x, 0.42, z), '#3a3530'));
   L.push(col(new THREE.SphereGeometry(0.12, 6, 4).translate(0, 5.45, 1.1), '#ff4030', 4.0)); return merge(L); }
