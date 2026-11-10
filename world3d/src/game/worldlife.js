@@ -21,55 +21,73 @@ function roverGeo() { const L = [col(new THREE.BoxGeometry(1.6, 0.5, 2.6).transl
   for (const x of [-0.5, 0.5]) L.push(col(new THREE.CylinderGeometry(0.1, 0.1, 0.06, 8).rotateX(Math.PI / 2).translate(x, 0.85, 1.32), '#fff2c8', 3.0));
   for (let k = 0; k < 7; k++) L.push(col(new THREE.OctahedronGeometry(1, 0).scale(0.16, 0.38 + (k % 3) * 0.08, 0.16).rotateZ((k - 3) * 0.12).translate(-0.45 + (k % 4) * 0.3, 1.6 + (k % 3) * 0.04, -0.75 + Math.floor(k / 4) * 0.5), '#5fc4ff', 2.2));
   return merge(L); }
-// Heavy drill truck (d04ca995). Cab sits rear-right. DRILL_HEAD stays (0, 1.05, -2.7) — the auger socket. The body is cream and gold; the only blue is the cab glass.
+// Heavy drill truck (d04ca995). Cab sits at the rear. DRILL_HEAD stays (0, 1.05, -2.7) — the auger socket. Blue is only the cab glass.
 const IV = [0.06, 0.55], GD = [0.72, 0.34], DK = [0.04, 0.9], ST = [0.4, 0.4], GL = [0.06, 0.14];
 const AUGER_TIP = -1.42; // bit-local y of the cutting point. With the rig scale, this bites the ground under the head.
 function rigGeo(hi, aug) {
-  const Y = (r1, r2, h, n, open = false) => new THREE.CylinderGeometry(r1, r2, h, n, 1, open), B = (w, h, d) => new THREE.BoxGeometry(w, h, d), nC = hi ? 10 : 6, L = [];
+  const Y = (r1, r2, h, n, open = false) => new THREE.CylinderGeometry(r1, r2, h, n, 1, open), B = (w, h, d) => new THREE.BoxGeometry(w, h, d), nC = hi ? 12 : 6, L = [];
   const rod = (a, b, r, c, n, mr) => { const A = new THREE.Vector3(...a), Bv = new THREE.Vector3(...b), d = Bv.clone().sub(A), len = Math.max(0.05, d.length()), g = Y(r, r, len, n, true); g.translate(0, len / 2, 0); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize())); g.translate(A.x, A.y, A.z); return col(g, c, 0, mr); };
   const beam = (a, b, w, h, c, mr) => { const A = new THREE.Vector3(...a), Bv = new THREE.Vector3(...b), d = Bv.clone().sub(A), len = Math.max(0.05, d.length()), g = B(w, len, h).translate(0, len / 2, 0); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize())); g.translate(A.x, A.y, A.z); return col(g, c, 0, mr); };
-  const MZ = -2.7;
-  // Long low chassis. Wheels of radius 0.62 are centered at y=0.62 so they meet the ground.
-  L.push(col(B(1.55, 0.16, 4.35).translate(0, 0.46, -0.15), '#241f1c', 0, DK));
-  L.push(col(B(2.05, 0.52, 4.15).translate(0, 0.82, -0.12), '#f6efe2', 0, IV));
-  L.push(col(B(0.07, 0.06, 4.05).translate(1.02, 1.08, -0.12), '#c4923a', 0, GD), col(B(0.07, 0.06, 4.05).translate(-1.02, 1.08, -0.12), '#c4923a', 0, GD));
-  L.push(col(B(1.7, 0.04, 0.08).translate(0, 0.95, -2.05), '#c4923a', 0, GD), col(B(1.7, 0.04, 0.08).translate(0, 0.95, 1.85), '#c4923a', 0, GD));
-  if (hi) for (const z of [-1.15, -0.15, 0.85]) L.push(col(B(0.04, 0.28, 0.05).translate(1.02, 0.86, z), '#d8c48a', 0, GD), col(B(0.04, 0.28, 0.05).translate(-1.02, 0.86, z), '#d8c48a', 0, GD));
-  // Cab at the rear right: one cream volume, rounded roof, one blue window. No blue panels on the chassis.
-  L.push(col(B(1.20, 0.92, 1.28).translate(0.32, 1.48, 1.22), '#f7f1e4', 0, IV));
-  const roof = new THREE.SphereGeometry(0.58, hi ? 8 : 6, hi ? 5 : 4); roof.scale(1.05, 0.55, 1.15); L.push(col(roof.translate(0.32, 1.82, 1.22), '#f7f1e4', 0, IV));
-  L.push(col(B(1.05, 0.04, 1.22).translate(0.32, 1.78, 1.22), '#c4923a', 0, GD));
-  L.push(col(B(0.70, 0.36, 0.06).translate(0.32, 1.50, 0.56), '#16325c', 0.55, GL));
-  L.push(col(B(0.06, 0.36, 0.55).translate(-0.30, 1.50, 1.22), '#16325c', 0.55, GL));
-  L.push(col(B(0.08, 0.55, 0.08).translate(0.55, 2.15, 1.45), '#9aa3ab', 0, ST));
-  const tyre = (n) => { const pts = [[0.30, -0.18], [0.50, -0.15], [0.60, -0.06], [0.64, 0.0], [0.60, 0.06], [0.48, 0.14], [0.32, 0.17]].map(([r, y]) => new THREE.Vector2(r, y)); const g = new THREE.LatheGeometry(pts, n); g.rotateZ(Math.PI / 2); return g; };
-  for (const s of [-1, 1]) for (const z of [1.15, -1.35]) {
-    const x = s * 1.22;
-    L.push(col(hi ? tyre(12) : Y(0.62, 0.62, 0.40, 6).rotateZ(Math.PI / 2), '#141210', 0, DK).translate(x, 0.62, z));
-    L.push(col(Y(0.22, 0.22, 0.07, hi ? 8 : 6).rotateZ(Math.PI / 2).translate(x + s * 0.16, 0.62, z), '#e2b04a', 0, GD));
-    L.push(col(Y(0.08, 0.08, 0.04, 5).rotateZ(Math.PI / 2).translate(x + s * 0.20, 0.62, z), '#1a1612', 0, DK));
-    if (hi) for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2 + (s > 0 ? 0.2 : 0.55); const g = B(0.08, 0.08, 0.12); g.rotateX(a); g.translate(x, 0.62 + Math.cos(a) * 0.63, z + Math.sin(a) * 0.63); L.push(col(g, '#0e0c0a', 0, DK)); }
+  const MZ = -2.7, RIM = 0.86;
+  // Dark lower frame, cream hull set in above it, gold rail. The step between them is the chamfer.
+  L.push(col(B(1.72, 0.22, 4.45).translate(0, 0.40, -0.12), '#1a1612', 0, DK));
+  L.push(col(B(2.16, 0.28, 4.20).translate(0, 0.62, -0.12), '#cfc6b6', 0, IV));
+  L.push(col(B(1.92, 0.46, 3.95).translate(0, 0.98, -0.08), '#f3ecdf', 0, IV));
+  L.push(col(B(0.08, 0.07, 4.05).translate(0.98, 1.22, -0.08), '#e2b04a', 0, GD), col(B(0.08, 0.07, 4.05).translate(-0.98, 1.22, -0.08), '#e2b04a', 0, GD));
+  if (hi) for (const z of [-1.4, -0.35, 0.7]) L.push(col(B(0.05, 0.34, 0.06).translate(1.04, 0.95, z), '#b08940', 0, GD), col(B(0.05, 0.34, 0.06).translate(-1.04, 0.95, z), '#b08940', 0, GD));
+  if (hi) {
+    L.push(rod([-1.05, 0.72, -1.6], [-1.05, 0.72, 1.5], 0.045, '#9aa3ab', 5, ST));
+    L.push(rod([1.05, 0.78, -1.3], [1.05, 0.78, 1.2], 0.04, '#9aa3ab', 5, ST));
+    L.push(col(Y(0.18, 0.18, 0.55, 8).rotateZ(Math.PI / 2).translate(0.55, 1.28, -0.55), '#c5ccd4', 0, ST));
+    L.push(col(Y(0.09, 0.11, 1.05, 8).translate(0.72, 1.85, 1.55), '#3a342e', 0, DK));
+    L.push(col(Y(0.14, 0.14, 0.06, 8).translate(0.72, 2.40, 1.55), '#e2b04a', 0, GD));
   }
-  const P0 = [0.05, 1.72, 0.05], J = [0.02, 3.55, -1.25], H = [0.22, 4.05, MZ + 0.15];
-  for (const ox of [-0.30, 0.30]) {
-    L.push(beam([P0[0] + ox, P0[1], P0[2]], [J[0] + ox, J[1], J[2]], 0.14, 0.20, '#e2b04a', GD));
-    L.push(beam([J[0] + ox, J[1], J[2]], [H[0] + ox * 0.45, H[1], H[2]], 0.12, 0.16, '#e2b04a', GD));
+  // Cab: beveled roof (inset top), rounded nose, one large blue window. No dish.
+  L.push(col(B(1.28, 0.78, 1.22).translate(0.22, 1.55, 1.18), '#f4eee4', 0, IV));
+  L.push(col(B(1.02, 0.22, 0.98).translate(0.22, 2.02, 1.22), '#e7dfd2', 0, IV));
+  L.push(col(B(1.08, 0.035, 1.02).translate(0.22, 1.90, 1.20), '#e2b04a', 0, GD));
+  L.push(col(Y(0.40, 0.40, 1.15, hi ? 10 : 6).rotateZ(Math.PI / 2).translate(0.22, 1.48, 0.62), '#f4eee4', 0, IV));
+  L.push(col(B(0.92, 0.48, 0.06).translate(0.22, 1.58, 0.18), '#16325c', 0.6, GL));
+  L.push(col(B(0.05, 0.42, 0.62).translate(-0.44, 1.55, 1.22), '#16325c', 0.4, GL));
+  // Same round profile as the hauler, scaled up. Shallow blocks sit just proud of the crown.
+  const tyre = (n) => {
+    const k = RIM / 0.42;
+    const pts = [[0.20, -0.12], [0.32, -0.11], [0.40, -0.06], [0.44, -0.02], [0.445, 0.025], [0.42, 0.055], [0.36, 0.09], [0.28, 0.105], [0.22, 0.09]].map(([r, y]) => new THREE.Vector2(r * (0.42 / 0.445) * k, y * k));
+    const g = new THREE.LatheGeometry(pts, n); g.rotateZ(Math.PI / 2); return g;
+  };
+  for (const s of [-1, 1]) for (const z of [1.20, -1.25]) {
+    const x = s * 1.28;
+    L.push(col(hi ? tyre(16) : Y(RIM, RIM, 0.46, 8).rotateZ(Math.PI / 2), '#141210', 0, DK).translate(x, RIM, z));
+    L.push(col(Y(0.28, 0.28, 0.06, hi ? 10 : 6).rotateZ(Math.PI / 2).translate(x + s * 0.20, RIM, z), '#e2b04a', 0, GD));
+    L.push(col(Y(0.10, 0.10, 0.04, 5).rotateZ(Math.PI / 2).translate(x + s * 0.24, RIM, z), '#1a1612', 0, DK));
+    if (hi) for (let i = 0; i < 14; i++) {
+      const a = i / 14 * Math.PI * 2 + (s > 0 ? 0.05 : 0.25);
+      const g = B(0.10, 0.06, 0.12); g.rotateX(a); g.translate(x, RIM + Math.cos(a) * (RIM * 0.985), z + Math.sin(a) * (RIM * 0.985));
+      L.push(col(g, '#12100e', 0, DK));
+    }
   }
-  L.push(col(new THREE.SphereGeometry(0.28, hi ? 8 : 6, hi ? 6 : 4).translate(J[0], J[1], J[2]), '#8a7040', 0, ST));
-  L.push(col(Y(0.24, 0.24, 0.18, nC).translate(P0[0], P0[1] - 0.06, P0[2]), '#e2b04a', 0, GD));
-  L.push(rod([0.0, 0.98, -0.05], [0.0, 2.55, -0.62], 0.08, '#d5dbe2', hi ? 6 : 5, ST));
-  L.push(rod([0.0, 2.15, -0.45], [0.08, 3.35, -1.15], 0.07, '#d5dbe2', hi ? 6 : 5, ST));
-  // One lathe: a stacked ribbed silver column. The auger collar (bit at DRILL_HEAD) comes out the bottom.
-  const bands = hi ? 6 : 4, pts = [];
-  const y0 = 1.92, y1 = 4.28;
-  for (let b = 0; b < bands; b++) {
-    const t = b / bands, body = 0.50 - t * 0.08, yA = y0 + (y1 - y0) * t, yB = y0 + (y1 - y0) * ((b + 1) / bands);
-    pts.push(new THREE.Vector2(body + 0.12, yA + 0.015), new THREE.Vector2(body - 0.05, (yA + yB) * 0.5), new THREE.Vector2(body + 0.02, yB - 0.015));
+  // Vertical boxed mast beside the head, as tall as the column, plus one thick angled arm and two hydraulics.
+  const tx = 0.78, tz = -1.45, yb = 1.05, yt = 4.55;
+  for (const ox of [-0.28, 0.28]) for (const oz of [-0.22, 0.22]) L.push(beam([tx + ox, yb, tz + oz], [tx + ox, yt, tz + oz], 0.16, 0.18, '#e2b04a', GD));
+  for (const y of (hi ? [1.6, 2.7, 3.8] : [2.0, 3.6])) {
+    L.push(beam([tx - 0.28, y, tz], [tx + 0.28, y, tz], 0.14, 0.14, '#c4923a', GD));
+    L.push(beam([tx, y, tz - 0.22], [tx, y, tz + 0.22], 0.14, 0.14, '#c4923a', GD));
+  }
+  L.push(beam([0.05, 1.62, 0.25], [tx, 3.55, tz], 0.36, 0.42, '#e2b04a', GD));
+  L.push(col(new THREE.SphereGeometry(0.32, hi ? 8 : 6, hi ? 6 : 4).translate(tx, 3.55, tz), '#8a7040', 0, ST));
+  L.push(rod([tx, yb + 0.15, tz + 0.32], [tx, yt - 0.25, tz + 0.32], 0.09, '#d8dee4', hi ? 6 : 5, ST));
+  L.push(rod([0.4, 1.15, 0.05], [tx - 0.05, 3.15, tz + 0.15], 0.08, '#d8dee4', hi ? 6 : 5, ST));
+  // Upper 60% of the head: a straight banded column. The spiral auger is only the lower part.
+  const y0 = 2.55, y1 = 4.62, R = 0.50, ribs = hi ? 7 : 4, pts = [];
+  for (let i = 0; i < ribs; i++) {
+    const yA = y0 + (y1 - y0) * (i / ribs), yB = y0 + (y1 - y0) * ((i + 0.16) / ribs), yC = y0 + (y1 - y0) * ((i + 0.28) / ribs), yD = y0 + (y1 - y0) * ((i + 1) / ribs);
+    pts.push(new THREE.Vector2(R, yA), new THREE.Vector2(R + 0.14, yA + 0.015), new THREE.Vector2(R + 0.14, yB), new THREE.Vector2(R, yC), new THREE.Vector2(R, yD));
   }
   const stack = new THREE.LatheGeometry(pts, nC); stack.translate(0, 0, MZ);
   L.push(col(stack, '#d5dbe2', 0, ST));
-  for (const y of (hi ? [2.15, 2.75, 3.35, 3.95] : [2.4, 3.5])) L.push(col(Y(0.64 - (y - 2.1) * 0.04, 0.64 - (y - 2.1) * 0.04, 0.05, nC, true).translate(0, y, MZ), '#c4923a', 0, GD));
-  L.push(col(B(0.34, 0.22, 0.28).translate(H[0], H[1], H[2]), '#c4923a', 0, GD));
+  L.push(col(Y(0.66, 0.62, 0.42, nC).translate(0, y1 + 0.18, MZ), '#c5ccd4', 0, ST));
+  L.push(col(Y(0.74, 0.74, 0.06, nC, true).translate(0, y1 + 0.02, MZ), '#e2b04a', 0, GD));
+  if (hi) for (const y of [2.85, 3.55, 4.25]) L.push(col(Y(R + 0.16, R + 0.16, 0.045, nC, true).translate(0, y, MZ), '#c4923a', 0, GD));
   if (aug) for (const g of augerList(false)) L.push(g.translate(0, DRILL_HEAD.y, MZ));
   return merge(L);
 }
@@ -261,7 +279,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const crewSpark = vents[0]; /* orange sparks beside the hauler crew, same particle system as the welder */
   const zoneVents = [ventAt(camp.x, camp.z + 3, 0.1), ventAt(Lc.x - 8, Lc.z + 6, 0.3), ventAt(Rc.x + Math.cos(ah + 1.2) * 33, Rc.z + Math.sin(ah + 1.2) * 33, 0.15), ventAt(Ec.x + 12, Ec.z + 2, 0.4)];
   if (!low) { const cap = new THREE.InstancedMesh(col(new THREE.CylinderGeometry(0.45, 0.75, 0.55, 8).translate(0, 0.27, 0), '#8c919b'), mat, vents.length); cap.name = 'life_ventcaps'; const m4 = new THREE.Matrix4(); vents.forEach((v, i) => cap.setMatrixAt(i, m4.makeTranslation(v.x, v.gy, v.z))); root.add(cap); } /* vent caps so plumes start at the ground */
-  { drill.updateMatrixWorld(true); const w = drill.localToWorld(new THREE.Vector3(0.42, 2.44, 0.88)); vents.push({ x: w.x, z: w.z, y: w.y, gy: w.y - 0.2, tt: 0.3 }); } /* stack on the cab, same sample the plume uses */
+  { drill.updateMatrixWorld(true); const w = drill.localToWorld(new THREE.Vector3(0.72, 2.48, 1.55)); vents.push({ x: w.x, z: w.z, y: w.y, gy: w.y - 0.2, tt: 0.3 }); } /* plume starts at the cab exhaust stack */
   // lore anchors
   const J = crater; const bunnyPath = { a0: Math.atan2(J.z - base.z, J.x - base.x) + 0.9 };
   const RADIO = ['radio1', 'radio2', 'radio3', 'radio4', 'radio5']; let radioT = 25, beepT = 3, stepT = 0, waveCD = 0;
