@@ -241,7 +241,7 @@ function placeEarth() {
   const portrait = camera.aspect < 1;
   // Wide stand: full disc inside the frame with margin, upper-right of centre, bottom near the ridge, ~28% of width.
   // Portrait: same camera, disc nearer centre-top, ~45% of the narrow width, top still inside.
-  sky.setEarthPose(earthAim(portrait ? 0.0 : 0.22, portrait ? 0.23 : 0.11), portrait ? 440 : 1000);
+  sky.setEarthPose(earthAim(portrait ? 0.10 : 0.22, portrait ? 0.26 : 0.22), portrait ? 440 : 1000);
 }
 function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h); composer.setPixelRatio(PR); composer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); fxaa.material.uniforms.resolution.value.set(1 / (w * PR), 1 / (h * PR)); placeEarth(); }
 addEventListener('resize', resize); resize();
