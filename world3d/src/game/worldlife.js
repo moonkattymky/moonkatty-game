@@ -54,8 +54,8 @@ function rigGeo(hi, aug) {
   L.push(col(Y(0.36, 0.36, 1.18, hi ? 10 : 6).rotateZ(Math.PI / 2).translate(0.12, 1.42, 1.48), '#f4eee4', 0, IV));
   L.push(col(B(0.88, 0.46, 0.05).translate(0.12, 1.50, 1.22), '#16325c', 0.6, GL));
   L.push(col(B(0.96, 0.54, 0.04).translate(0.12, 1.50, 1.26), '#e2b04a', 0, GD));
-  L.push(col(B(0.05, 0.42, 0.70).translate(0.80, 1.50, 2.15), '#16325c', 0.45, GL));
-  L.push(col(B(0.04, 0.50, 0.78).translate(0.82, 1.50, 2.15), '#e2b04a', 0, GD));
+  L.push(col(B(0.045, 0.66, 1.16).translate(0.78, 1.52, 2.20), '#e2b04a', 0, GD));
+  L.push(col(B(0.06, 0.56, 1.02).translate(0.84, 1.52, 2.20), '#16325c', 0.75, GL));
   // Round hauler tyre, truck-sized. Front axle plus a close pair under the cab.
   const tyre = (n) => {
     const k = RIM / 0.42;
@@ -76,53 +76,45 @@ function rigGeo(hi, aug) {
       }
     }
   }
-  // Boxed gold tower beside the head, hydraulics on both sides, cross braces, a hose, and the deck boom.
-  const tx = 0.70, tz = -0.85, yb = 1.02, yt = 4.55;
-  for (const ox of [-0.34, 0.34]) for (const oz of [-0.26, 0.26]) L.push(beam([tx + ox, yb, tz + oz], [tx + ox, yt, tz + oz], hi ? 0.22 : 0.18, hi ? 0.24 : 0.18, '#e2b04a', GD));
-  for (const y of (hi ? [1.45, 2.35, 3.25, 4.15] : [1.7, 3.4])) {
-    L.push(beam([tx - 0.34, y, tz], [tx + 0.34, y, tz], 0.12, 0.12, '#c4923a', GD));
-    L.push(beam([tx, y, tz - 0.26], [tx, y, tz + 0.26], 0.12, 0.12, '#c4923a', GD));
+  // Gold tower beside the head. The boxed arm rises past the motor and leans toward the head, with a ram beside it.
+  const tx = 0.72, tz = -0.95, yb = 1.02, yt = 5.55, SV = [0.86, 0.22], GV = [0.16, 0.84];
+  for (const ox of [-0.32, 0.32]) for (const oz of [-0.24, 0.24]) L.push(beam([tx + ox, yb, tz + oz], [tx + ox, yt, tz + oz], hi ? 0.20 : 0.16, hi ? 0.22 : 0.16, '#e2b04a', GD));
+  for (const y of (hi ? [1.7, 2.9, 4.1, 5.2] : [2.2, 4.2])) {
+    L.push(beam([tx - 0.32, y, tz], [tx + 0.32, y, tz], 0.11, 0.11, '#c4923a', GD));
+    if (hi) L.push(beam([tx, y, tz - 0.24], [tx, y, tz + 0.24], 0.11, 0.11, '#c4923a', GD));
   }
-  if (hi) {
-    L.push(beam([tx - 0.34, 1.55, tz + 0.26], [tx + 0.34, 2.55, tz + 0.26], 0.09, 0.09, '#d8b15a', GD));
-    L.push(beam([tx + 0.34, 1.55, tz + 0.26], [tx - 0.34, 2.55, tz + 0.26], 0.09, 0.09, '#d8b15a', GD));
-    L.push(beam([tx - 0.34, 2.85, tz + 0.26], [tx + 0.34, 3.85, tz + 0.26], 0.09, 0.09, '#d8b15a', GD));
-    L.push(beam([tx + 0.34, 2.85, tz + 0.26], [tx - 0.34, 3.85, tz + 0.26], 0.09, 0.09, '#d8b15a', GD));
-    L.push(rod([tx + 0.22, yb + 0.3, tz + 0.42], [tx + 0.16, yt - 0.35, tz + 0.38], 0.045, '#2c2824', 5, DK));
+  const armA = [0.95, 1.42, 1.15], armB = [0.42, 5.48, -1.95];
+  L.push(beam(armA, armB, 0.36, 0.46, '#e2b04a', GD));
+  L.push(col(new THREE.SphereGeometry(0.28, hi ? 8 : 5, hi ? 6 : 4).translate(armB[0], armB[1], armB[2]), '#8a7040', 0, ST));
+  L.push(rod([1.12, 1.55, 1.02], [0.62, 5.22, -1.72], 0.09, '#d5dbe2', hi ? 6 : 5, SV));
+  L.push(rod([tx + 0.48, yb + 0.15, tz], [tx + 0.48, yt - 0.35, tz], 0.08, '#d8dee4', hi ? 6 : 5, SV));
+  if (hi) L.push(rod([tx - 0.48, yb + 0.2, tz], [tx - 0.48, yt - 0.5, tz], 0.07, '#d8dee4', 5, SV));
+  // Silver barrel. Raised bands are metal; the gaps are dark recessed grooves. Gold is two collars plus the motor housing.
+  const y0 = 2.16, R = 0.50, bands = hi ? 8 : 4, bandH = 0.20, gap = 0.09;
+  for (let i = 0; i < bands; i++) {
+    const y = y0 + i * (bandH + gap) + bandH / 2;
+    L.push(col(Y(R, R, bandH, nC).translate(0, y, MZ), '#d7dee6', 0, SV));
+    if (i < bands - 1) L.push(col(Y(R - 0.10, R - 0.10, gap + 0.02, nC, true).translate(0, y + (bandH + gap) / 2, MZ), '#161a1f', 0, GV));
   }
-  L.push(beam([0.05, 1.35, 0.95], [tx, 3.65, tz], 0.38, 0.44, '#e2b04a', GD));
-  L.push(col(new THREE.SphereGeometry(0.30, hi ? 8 : 5, hi ? 6 : 4).translate(tx, 3.65, tz), '#8a7040', 0, ST));
-  L.push(rod([tx + 0.52, yb + 0.1, tz], [tx + 0.52, yt - 0.45, tz], 0.10, '#d8dee4', hi ? 6 : 5, ST));
-  L.push(rod([tx - 0.52, yb + 0.1, tz], [tx - 0.52, yt - 0.45, tz], 0.10, '#d8dee4', hi ? 6 : 5, ST));
-  // Wide column: thick flanges packed along the barrel, gold collars, gearbox block on top. The auger is the lower spiral.
-  const y0 = 2.18, y1 = 4.42, R = 0.64, ribs = hi ? 12 : 4, span = y1 - y0, pts = [];
-  for (let i = 0; i < ribs; i++) {
-    const yA = y0 + span * (i / ribs);
-    const yF0 = yA + span * 0.012;
-    const yF1 = yA + span * 0.055;
-    const yB = y0 + span * ((i + 0.92) / ribs);
-    pts.push(new THREE.Vector2(R, yA), new THREE.Vector2(R + 0.22, yF0), new THREE.Vector2(R + 0.22, yF1), new THREE.Vector2(R, Math.min(yB, yF1 + span * 0.02)));
-  }
-  const stack = new THREE.LatheGeometry(pts, nC); stack.translate(0, 0, MZ);
-  L.push(col(stack, '#d5dbe2', 0, ST));
-  if (hi) for (let i = 0; i < ribs; i += 2) L.push(col(Y(R + 0.25, R + 0.25, 0.07, 8, true).translate(0, y0 + span * (i / ribs) + span * 0.03, MZ), '#e2b04a', 0, GD));
-  const top = y1 + 0.06;
-  L.push(col(B(1.42, 0.16, 1.22).translate(0, top + 0.08, MZ), '#e2b04a', 0, GD));
-  L.push(col(B(1.22, 0.48, 1.02).translate(0, top + 0.38, MZ), '#d5dbe2', 0, ST));
-  L.push(col(B(1.28, 0.08, 1.08).translate(0, top + 0.64, MZ), '#e2b04a', 0, GD));
-  L.push(col(B(0.36, 0.34, 0.28).translate(0.78, top + 0.40, MZ), '#e2b04a', 0, GD));
+  const yTopBand = y0 + (bands - 1) * (bandH + gap) + bandH;
+  L.push(col(Y(R + 0.06, R + 0.06, 0.05, nC, true).translate(0, y0 + 0.02, MZ), '#e2b04a', 0, GD));
+  L.push(col(Y(R + 0.06, R + 0.06, 0.05, nC, true).translate(0, yTopBand - 0.02, MZ), '#e2b04a', 0, GD));
+  const top = yTopBand + 0.04;
+  L.push(col(B(1.16, 0.12, 1.02).translate(0, top + 0.06, MZ), '#e2b04a', 0, GD));
+  L.push(col(B(0.98, 0.42, 0.84).translate(0, top + 0.32, MZ), '#d7dee6', 0, SV));
+  L.push(col(B(1.08, 0.07, 0.94).translate(0, top + 0.55, MZ), '#e2b04a', 0, GD));
   if (aug) for (const g of augerList(false)) L.push(g.translate(0, DRILL_HEAD.y, MZ));
   return merge(L);
 }
 function augerFlight(hi) {
   const y0 = 0.48, y1 = -1.02, yTop = 1.12, yBot = -1.20, turns = 2.5, seg = hi ? 28 : 12;
-  const rShaft = (y) => { const t = Math.min(1, Math.max(0, (yTop - y) / (yTop - yBot))); return 0.40 + (0.12 - 0.40) * t; };
+  const rShaft = (y) => { const t = Math.min(1, Math.max(0, (yTop - y) / (yTop - yBot))); return 0.26 + (0.08 - 0.26) * t; };
   const pos = [], idx = [], lift = hi ? 0.08 : 0.04;
   const V = (y, a, extra, dy) => { const r = rShaft(y) + extra, i = pos.length / 3; pos.push(Math.cos(a) * r, y + dy, Math.sin(a) * r); return i; };
   for (const phase of [0]) {
     const top = [], bot = [];
     for (let i = 0; i <= seg; i++) {
-      const t = i / seg, y = y0 + (y1 - y0) * t, a = t * turns * Math.PI * 2 + phase, w = 0.36 * (1 - t * 0.4);
+      const t = i / seg, y = y0 + (y1 - y0) * t, a = t * turns * Math.PI * 2 + phase, w = 0.30 * (1 - t * 0.28);
       top.push([V(y, a, 0.01, lift), V(y, a, w, lift)]);
       bot.push([V(y, a, 0.01, -lift), V(y, a, w, -lift)]);
     }
@@ -134,15 +126,13 @@ function augerFlight(hi) {
   const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setIndex(idx); geo.computeVertexNormals(); return geo;
 }
 function augerList(hi) {
-  const n = hi ? 8 : 5, ST = [0.35, 0.38], GD = [0.7, 0.32], L = [];
+  const n = hi ? 8 : 5, L = [];
   const yTop = 1.12, yBot = -1.20, h = yTop - yBot, cy = (yTop + yBot) / 2;
-  L.push(col(new THREE.CylinderGeometry(0.40, 0.12, h, n).translate(0, cy, 0), '#7f8b96', 0, ST));
-  const tip = new THREE.ConeGeometry(0.12, 0.32, n); tip.rotateX(Math.PI); tip.translate(0, -1.32, 0); L.push(col(tip, '#e8eef2', 0, ST));
-  const hot = new THREE.ConeGeometry(0.06, 0.16, n); hot.rotateX(Math.PI); hot.translate(0, AUGER_TIP, 0); L.push(col(hot, '#ff9a3c', 1.5, [0.12, 0.3]));
-  L.push(col(new THREE.CylinderGeometry(0.55, 0.46, 0.22, n).translate(0, 1.02, 0), '#c5ccd4', 0, ST));
-  L.push(col(new THREE.CylinderGeometry(0.62, 0.62, 0.06, n, 1, true).translate(0, 1.12, 0), '#e2b04a', 0, GD));
-  if (hi) for (const y of [0.35, -0.25]) L.push(col(new THREE.CylinderGeometry(0.36, 0.36, 0.05, n, 1, true).translate(0, y, 0), '#e2b04a', 0, GD));
-  L.push(col(augerFlight(hi), '#f4f7fa', 0, [0.55, 0.32]));
+  L.push(col(new THREE.CylinderGeometry(0.26, 0.08, h, n).translate(0, cy, 0), '#5c656e', 0, [0.5, 0.48]));
+  const tip = new THREE.ConeGeometry(0.08, 0.28, n); tip.rotateX(Math.PI); tip.translate(0, -1.30, 0); L.push(col(tip, '#c5ccd4', 0, [0.7, 0.3]));
+  const hot = new THREE.ConeGeometry(0.05, 0.16, n); hot.rotateX(Math.PI); hot.translate(0, AUGER_TIP, 0); L.push(col(hot, '#ff9a3c', 1.5, [0.12, 0.3]));
+  L.push(col(new THREE.CylinderGeometry(0.36, 0.30, 0.18, n).translate(0, 1.00, 0), '#8b949e', 0, [0.65, 0.35]));
+  L.push(col(augerFlight(hi), '#b7c0c8', 0, [0.75, 0.3]));
   return L;
 }
 function augerGeo(hi) { return merge(augerList(hi)); }
