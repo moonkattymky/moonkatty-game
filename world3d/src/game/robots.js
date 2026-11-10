@@ -37,7 +37,7 @@ function head(kit, y0, { round = false, hat = false, cap = false, lamp = false }
   return HY;
 }
 // eyes + smile baked as self-lit geometry on the screen (single-mesh LOD)
-function bakedFace(kit, HY, z, s = 1) { for (const sx of [-1, 1]) kit.add(sq(0.07, 0.1, 0.012, 2, 8, 6), 'eye', { p: [sx * 0.09 * s, HY + 0.02, z], s: [s, s, 1] }); kit.add(new THREE.TorusGeometry(0.05, 0.009, 3, 8, PI * 0.5).rotateZ(-PI * 0.75), 'eye', { p: [0, HY - 0.02, z] }); }
+function bakedFace(kit, HY, z, s = 1) { for (const sx of [-1, 1]) kit.add(sq(0.07, 0.1, 0.012, 2, 8, 6), 'eyeL', { p: [sx * 0.09 * s, HY + 0.02, z], s: [s, s, 1] }); kit.add(new THREE.TorusGeometry(0.05, 0.009, 3, 8, PI * 0.5).rotateZ(-PI * 0.75), 'eyeL', { p: [0, HY - 0.02, z] }); }
 
 function geologist(level) { const body = new Kit(), arm = new Kit(); const y0 = 0;
   legs(body); // v100: legs instead of tracks (concept)
