@@ -25,27 +25,28 @@ function roverGeo() { const L = [col(new THREE.BoxGeometry(1.6, 0.5, 2.6).transl
 const IV = [0.06, 0.55], GD = [0.72, 0.34], DK = [0.04, 0.9], ST = [0.4, 0.4], GL = [0.06, 0.14];
 const AUGER_TIP = -1.42; // bit-local y of the cutting point. With the rig scale, this bites the ground in front of the truck.
 function rigGeo(hi, aug) {
-  const Y = (r1, r2, h, n, open = false) => new THREE.CylinderGeometry(r1, r2, h, n, 1, open), B = (w, h, d) => new THREE.BoxGeometry(w, h, d), nC = hi ? 8 : 6, wN = hi ? 10 : 6, L = [];
+  const Y = (r1, r2, h, n, open = false) => new THREE.CylinderGeometry(r1, r2, h, n, 1, open), B = (w, h, d) => new THREE.BoxGeometry(w, h, d), nC = hi ? 8 : 6, wN = hi ? 14 : 6, L = [];
   const rod = (a, b, r, c, n, mr) => { const A = new THREE.Vector3(...a), Bv = new THREE.Vector3(...b), d = Bv.clone().sub(A), len = Math.max(0.05, d.length()), g = Y(r, r, len, n, true); g.translate(0, len / 2, 0); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize())); g.translate(A.x, A.y, A.z); return col(g, c, 0, mr); };
   const beam = (a, b, w, h, c, mr) => { const A = new THREE.Vector3(...a), Bv = new THREE.Vector3(...b), d = Bv.clone().sub(A), len = Math.max(0.05, d.length()), g = B(w, len, h).translate(0, len / 2, 0); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize())); g.translate(A.x, A.y, A.z); return col(g, c, 0, mr); };
   const MZ = -2.7;
   // Chassis bottom is 0.42; tyres of radius 0.46 are centered at y=0.46 so they meet the ground and the body stays above it.
   L.push(col(B(1.50, 0.16, 3.20).translate(0, 0.48, 0.02), '#241f1c', 0, DK));
-  L.push(col(B(1.86, 0.40, 3.08).translate(0, 0.78, 0.02), '#f6efe2', 0, IV));
-  L.push(col(B(0.06, 0.05, 3.12).translate(0.93, 0.99, 0.02), '#e2b04a', 0, GD), col(B(0.06, 0.05, 3.12).translate(-0.93, 0.99, 0.02), '#e2b04a', 0, GD));
-  L.push(col(B(1.28, 0.58, 1.16).translate(0, 1.14, 0.70), '#f7f1e4', 0, IV));
-  const cab = new THREE.SphereGeometry(0.56, hi ? 10 : 6, hi ? 7 : 4); cab.scale(1.12, 0.78, 1.16); L.push(col(cab.translate(0, 1.40, 0.60), '#f7f1e4', 0, IV));
-  L.push(col(B(1.00, 0.34, 0.06).translate(0, 1.26, 1.26), '#16325c', 0.7, GL));
-  L.push(col(B(0.06, 0.30, 0.52).translate(0.66, 1.24, 0.74), '#16325c', 0.45, GL), col(B(0.06, 0.30, 0.52).translate(-0.66, 1.24, 0.74), '#16325c', 0.45, GL));
-  L.push(col(B(1.08, 0.045, 0.07).translate(0, 1.46, 1.28), '#e2b04a', 0, GD));
+  L.push(col(B(1.86, 0.46, 3.08).translate(0, 0.82, 0.02), '#f6efe2', 0, IV));
+  L.push(col(B(0.06, 0.05, 3.12).translate(0.93, 1.06, 0.02), '#e2b04a', 0, GD), col(B(0.06, 0.05, 3.12).translate(-0.93, 1.06, 0.02), '#e2b04a', 0, GD));
+  // One cream cab: the dome and the box are the same body, with the glass set into the front and sides.
+  L.push(col(B(1.42, 0.86, 1.46).translate(0, 1.28, 0.58), '#f7f1e4', 0, IV));
+  L.push(col(B(1.46, 0.045, 1.50).translate(0, 1.73, 0.58), '#e2b04a', 0, GD));
+  L.push(col(B(1.08, 0.36, 0.06).translate(0, 1.32, 1.32), '#16325c', 0.7, GL));
+  L.push(col(B(0.06, 0.32, 0.62).translate(0.72, 1.30, 0.72), '#16325c', 0.45, GL), col(B(0.06, 0.32, 0.62).translate(-0.72, 1.30, 0.72), '#16325c', 0.45, GL));
+  L.push(col(B(1.20, 0.045, 0.07).translate(0, 1.54, 1.34), '#e2b04a', 0, GD));
   L.push(col(Y(0.08, 0.10, 0.52, nC).translate(0.42, 2.08, 0.88), '#9aa3ab', 0, ST), col(Y(0.13, 0.10, 0.12, nC).translate(0.42, 2.38, 0.88), '#2c2926', 0, DK));
   if (hi) { L.push(col(B(0.04, 0.16, 1.35).translate(1.02, 0.76, 0.05), '#e2b04a', 0, GD), col(B(0.04, 0.16, 1.35).translate(-1.02, 0.76, 0.05), '#e2b04a', 0, GD)); }
   for (const s of [-1, 1]) for (const z of [1.18, 0.08, -1.02]) {
-    const x = s * 1.08;
-    L.push(col(Y(0.46, 0.46, 0.32, wN).rotateZ(Math.PI / 2).translate(x, 0.46, z), '#141210', 0, DK));
-    L.push(col(Y(0.17, 0.17, 0.10, hi ? 12 : 6).rotateZ(Math.PI / 2).translate(x + s * 0.14, 0.46, z), '#e2b04a', 0, GD));
-    L.push(col(Y(0.055, 0.055, 0.06, 5).rotateZ(Math.PI / 2).translate(x + s * 0.20, 0.46, z), '#1a1612', 0, DK));
-    L.push(col(Y(0.06, 0.06, 0.32, 5).rotateZ(Math.PI / 2).translate(s * 0.86, 0.46, z), '#2a2724', 0, DK));
+    const x = s * 1.12;
+    L.push(col(Y(0.54, 0.54, 0.38, wN).rotateZ(Math.PI / 2).translate(x, 0.54, z), '#141210', 0, DK));
+    L.push(col(Y(0.20, 0.20, 0.08, hi ? 10 : 6).rotateZ(Math.PI / 2).translate(x + s * 0.16, 0.54, z), '#e2b04a', 0, GD));
+    L.push(col(Y(0.07, 0.07, 0.05, 5).rotateZ(Math.PI / 2).translate(x + s * 0.21, 0.54, z), '#1a1612', 0, DK));
+    L.push(col(Y(0.07, 0.07, 0.36, 5).rotateZ(Math.PI / 2).translate(s * 0.90, 0.54, z), '#2a2724', 0, DK));
   }
   const P0 = [0, 1.86, 0.42], J = [0, 3.72, -1.12], H = [0, 4.10, MZ];
   L.push(beam(P0, J, 0.12, 0.18, '#e2b04a', GD), beam(J, H, 0.10, 0.14, '#e2b04a', GD));
@@ -57,8 +58,8 @@ function rigGeo(hi, aug) {
   L.push(rod([0.58, 0.95, 0.15], [0.16, 3.15, -0.72], 0.055, '#c5ccd4', hi ? 6 : 5, ST));
   L.push(beam([-0.72, 0.78, -1.22], [-0.30, 2.22, MZ + 0.12], 0.10, 0.08, '#d5dbe2', ST), beam([0.72, 0.78, -1.22], [0.30, 2.22, MZ + 0.12], 0.10, 0.08, '#d5dbe2', ST));
   // Motor stack hangs off the boom jaw. Outlet bottom is y=1.92 so the auger collar (bit at DRILL_HEAD) stays inside it.
-  const hous = hi ? [[0.34, 0.52, 2.18], [0.50, 0.70, 2.71], [0.42, 0.56, 3.26], [0.30, 0.62, 3.77]] : [[0.40, 0.78, 2.31], [0.50, 0.86, 3.05], [0.34, 0.72, 3.76]];
-  for (const [r, h, y] of hous) L.push(col(Y(r, r * 0.94, h, nC).translate(0, y, MZ), '#d5dbe2', 0, ST), col(Y(r + 0.05, r + 0.05, 0.06, nC, true).translate(0, y + h * 0.42, MZ), '#e2b04a', 0, GD));
+  const hous = hi ? [[0.28, 0.46, 2.12], [0.40, 0.50, 2.62], [0.50, 0.46, 3.12], [0.38, 0.40, 3.58]] : [[0.34, 0.70, 2.28], [0.48, 0.62, 3.00], [0.36, 0.52, 3.58]];
+  for (const [r, h, y] of hous) L.push(col(Y(r, r * 0.78, h, nC).translate(0, y, MZ), '#d5dbe2', 0, ST), col(Y(r + 0.045, r + 0.045, 0.055, nC, true).translate(0, y + h * 0.36, MZ), '#e2b04a', 0, GD));
   if (aug) for (const g of augerList(false)) L.push(g.translate(0, DRILL_HEAD.y, MZ));
   return merge(L);
 }
