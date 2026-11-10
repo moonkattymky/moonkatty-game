@@ -218,71 +218,65 @@ function echo(b, beams, bn) {
 // Round tyres, recessed rims, a long tub on a dark frame. Wheel stations stay at x=±1.14 so the 0.95 collider still covers the body. bodyN is unused.
 export function haulerPieces(wheelN, bodyN = 8) {
   void bodyN;
-  const rich = wheelN >= 12, hubN = rich ? 14 : 8, lugN = rich ? 12 : 8, tyreN = rich ? 18 : 12;
+  const rich = wheelN >= 12, hubN = rich ? 10 : 8, lugN = rich ? 10 : 6, tyreN = rich ? 14 : 10;
   const tube = (r, len, n, axis) => { const g = new THREE.CylinderGeometry(r, r, len, n); if (axis === 'z') g.rotateX(PI / 2); else if (axis === 'x') g.rotateZ(PI / 2); return g; };
   const box = (w, h, d) => new THREE.BoxGeometry(w, h, d);
   const P = []; const add = (group, geo, pos, color, intensity = 1, emit = 0, mr = null, shade = null, region = null) => P.push({ group, geo, pos, color, intensity, emit, mr, shade, region });
-  const RIM = 0.445, WY = RIM, WX = 1.14, RUB = [0.02, 0.94], HUB = [0.86, 0.28], GLASS = [0.18, 0.2];
+  const RIM = 0.445, WY = RIM, WX = 1.14, RUB = [0.02, 0.92], HUB = [0.82, 0.32], GEM = [0.02, 0.55];
   const tilt = (w, h, d, rx, rz, x, y, z) => { const g = box(w, h, d); if (rx) g.rotateX(rx); if (rz) g.rotateZ(rz); g.translate(x, y, z); return g; };
-  // Dark frame under the bed. Tyres of radius RIM sit on y=0. Axles are symmetric with a visible gap.
-  for (const s of [-1, 1]) add('dark', box(0.20, 0.22, 3.15), [s * 0.50, 0.38, 0], '#1a1714');
-  add('dark', box(0.95, 0.08, 2.4), [0, 0.30, 0], '#12100e');
-  for (const z of [-1.12, 0, 1.12]) add('dark', box(1.15, 0.12, 0.22), [0, 0.38, z], '#241f1b');
-  add('ivory', box(1.46, 0.16, 2.15), [0, 0.72, -0.08], '#efe4d0');
-  add('dark', box(1.16, 0.04, 1.85), [0, 0.82, -0.08], '#2c2824');
-  // Long side panels stop short of the corners. A rotated block fills each corner as a bevel, with a gold strap from the top rail down to the panel.
+  // Dark mechanical frame, visible in the axle gaps. Tyres of radius RIM sit on y=0.
+  for (const s of [-1, 1]) add('dark', box(0.22, 0.20, 3.05), [s * 0.62, 0.36, 0], '#161311');
+  add('dark', box(0.85, 0.10, 2.2), [0, 0.28, 0], '#0e0c0a');
+  for (const z of [-1.12, 0, 1.12]) add('dark', box(1.20, 0.14, 0.20), [0, 0.36, z], '#221c18');
+  add('dark', box(0.28, 0.16, 0.36), [0, 0.42, 0], '#2a241e');
+  add('ivory', box(1.40, 0.14, 2.05), [0, 0.70, -0.06], '#efe4d0');
+  add('dark', box(1.10, 0.04, 1.75), [0, 0.78, -0.06], '#241e18');
+  // Side: a thick wall, a raised inner panel so the border has depth, top and bottom bevels, a gold frame. No full-width arrow.
   for (const s of [-1, 1]) {
-    add('ivory', box(0.16, 0.46, 1.72), [s * 0.72, 1.04, -0.08], '#f3ead8');
-    add('ivory', tilt(0.14, 0.10, 1.62, 0, -s * 0.55, s * 0.64, 1.22, -0.08), [0, 0, 0], '#f7f1e4');
-    add('ivory', box(0.10, 0.30, 1.55), [s * 0.78, 1.02, -0.08], '#f8f3e8');
-    add('dark', box(0.02, 0.025, 1.48), [s * 0.84, 1.02, -0.08], '#6a6258');
-    add('gold', box(0.12, 0.07, 1.85), [s * 0.72, 1.30, -0.08], '#e2b04a');
-    add('gold', box(0.08, 0.045, 1.7), [s * 0.74, 0.82, -0.08], '#c9963a');
-    for (const ang of [-0.5, 0.5]) {
-      const g = box(0.07, 0.07, 0.28); g.translate(0, 0, -0.14); g.rotateX(ang); g.translate(s * 0.84, 1.02, 0.42);
-      add('gold', g, [0, 0, 0], '#e8b84a');
-    }
+    add('ivory', box(0.16, 0.44, 1.70), [s * 0.70, 1.00, -0.06], '#e7dcc8');
+    add('ivory', box(0.06, 0.26, 1.28), [s * 0.80, 0.98, -0.10], '#f6f0e4');
+    add('ivory', tilt(0.12, 0.09, 1.55, 0, -s * 0.6, s * 0.62, 1.18, -0.06), [0, 0, 0], '#f3ead8');
+    add('ivory', tilt(0.12, 0.08, 1.55, 0, s * 0.55, s * 0.78, 0.80, -0.06), [0, 0, 0], '#ddd2bc');
+    add('gold', box(0.10, 0.06, 1.82), [s * 0.72, 1.24, -0.06], '#d4a24a');
+    add('gold', box(0.07, 0.04, 1.55), [s * 0.74, 0.78, -0.06], '#b8893a');
   }
-  add('ivory', box(1.28, 0.46, 0.16), [0, 1.04, -1.08], '#f3ead8');
-  add('gold', box(1.42, 0.07, 0.12), [0, 1.30, -1.08], '#e2b04a');
-  add('ivory', box(1.28, 0.40, 0.16), [0, 1.00, 0.88], '#f3ead8');
-  add('gold', box(1.42, 0.07, 0.12), [0, 1.22, 0.88], '#e2b04a');
-  for (const s of [-1, 1]) for (const z of [-1.08, 0.88]) {
-    const g = box(0.24, 0.46, 0.24); g.rotateY(PI / 4); g.translate(s * 0.72, 1.04, z);
-    add('ivory', g, [0, 0, 0], '#f6efe2');
-    add('gold', box(0.055, 0.50, 0.045), [s * 0.84, 1.06, z], '#e8b84a');
+  // Closed layered ends. Rear is a stacked panel; the nose is a center facet plus two cheeks, with the lamps in that face.
+  add('ivory', box(1.22, 0.22, 0.12), [0, 1.10, -1.00], '#efe6d4');
+  add('ivory', box(1.05, 0.16, 0.08), [0, 0.90, -1.06], '#f7f1e6');
+  add('gold', box(1.36, 0.055, 0.08), [0, 1.24, -1.00], '#d4a24a');
+  add('ivory', box(1.22, 0.20, 0.12), [0, 1.08, 0.86], '#efe6d4');
+  add('ivory', box(0.78, 0.18, 0.14), [0, 0.86, 0.98], '#f4ecdc');
+  for (const s of [-1, 1]) { const g = box(0.34, 0.20, 0.12); g.rotateY(s * 0.5); g.translate(s * 0.50, 0.90, 0.90); add('ivory', g, [0, 0, 0], '#ebe2d0'); }
+  add('gold', box(1.36, 0.05, 0.07), [0, 1.20, 0.86], '#d4a24a');
+  add('dark', box(1.05, 0.08, 0.10), [0, 0.58, 1.06], '#1a1614');
+  for (const s of [-1, 1]) for (const z of [-1.00, 0.86]) {
+    const g = box(0.22, 0.42, 0.22); g.rotateY(PI / 4); g.translate(s * 0.70, 1.00, z);
+    add('ivory', g, [0, 0, 0], '#f4ecdc');
+    add('gold', box(0.05, 0.46, 0.04), [s * 0.80, 1.02, z], '#e2b04a');
   }
-  // Polygonal nose: center panel and two cheeks, round lamps, no beam wedges.
-  add('ivory', box(0.72, 0.26, 0.20), [0, 0.74, 1.12], '#f7f1e4');
-  for (const s of [-1, 1]) { const g = box(0.38, 0.24, 0.16); g.rotateY(s * 0.55); g.translate(s * 0.52, 0.73, 1.02); add('ivory', g, [0, 0, 0], '#f4ecdc'); }
-  add('dark', box(1.15, 0.08, 0.14), [0, 0.56, 1.18], '#1c1916');
-  add('gold', box(1.05, 0.035, 0.06), [0, 0.62, 1.24], '#c9a24a');
   for (const s of [-1, 1]) {
-    add('dark', box(0.26, 0.22, 0.06), [s * 0.32, 0.74, 1.20], '#221e1a');
-    add('gold', tube(0.10, 0.045, hubN, 'z'), [s * 0.32, 0.74, 1.24], '#e8b84a', 1, 0, HUB);
-    add('glow', tube(0.062, 0.03, hubN, 'z'), [s * 0.32, 0.74, 1.27], '#ffd59a', 1.7, 1.15);
+    add('dark', box(0.22, 0.16, 0.05), [s * 0.30, 0.78, 1.06], '#1c1916');
+    add('gold', tube(0.09, 0.04, hubN, 'z'), [s * 0.30, 0.78, 1.09], '#e2b04a', 1, 0, HUB);
+    add('glow', tube(0.055, 0.025, hubN, 'z'), [s * 0.30, 0.78, 1.11], '#ffd7a4', 1.5, 0.85);
   }
+  // Cargo stays blue under ACES: matte ivory albedo, no glass specular, emissive only a trace on the tips. Heights clear the rail.
   const gems = rich
-    ? [[0.02, -0.16, 0.16, 0.42, 0.14, 0.35, 0.4, 0.55], [-0.20, 0.0, 0.13, 0.34, 0.12, 0.85, 1.2, 0.4], [0.22, -0.34, 0.12, 0.36, 0.13, 1.15, 0.5, 0.7], [-0.05, -0.42, 0.11, 0.28, 0.11, 0.25, 1.7, 0.9], [0.24, 0.10, 0.11, 0.30, 0.12, 1.3, 0.8, 0.25], [-0.16, 0.24, 0.12, 0.26, 0.11, 0.6, 2.0, 0.45], [0.02, 0.34, 0.14, 0.32, 0.12, 0.45, 0.9, 1.05], [-0.30, -0.26, 0.09, 0.22, 0.09, 1.05, 1.5, 0.3]]
-    : [[0.0, -0.10, 0.15, 0.38, 0.13, 0.4, 0.3, 0.5], [-0.20, -0.30, 0.12, 0.28, 0.11, 0.8, 1.1, 0.4], [0.22, 0.06, 0.13, 0.30, 0.12, 1.1, 0.6, 0.7], [-0.06, 0.28, 0.11, 0.24, 0.10, 0.5, 1.8, 0.9], [0.16, -0.40, 0.10, 0.22, 0.10, 1.2, 0.4, 0.3]];
+    ? [[0.00, -0.06, 0.18, 0.58, 0.16, 0.4, 0.2, 0.5], [-0.22, 0.08, 0.14, 0.44, 0.13, 0.9, 1.1, 0.35], [0.20, -0.26, 0.15, 0.50, 0.14, 1.1, 0.4, 0.7], [-0.08, -0.38, 0.12, 0.38, 0.12, 0.3, 1.6, 0.8], [0.24, 0.18, 0.12, 0.40, 0.13, 1.3, 0.7, 0.2], [-0.18, 0.30, 0.13, 0.36, 0.12, 0.6, 2.1, 0.5], [0.06, 0.40, 0.15, 0.42, 0.13, 0.5, 0.8, 1.0], [-0.32, -0.16, 0.10, 0.30, 0.10, 1.0, 1.4, 0.25], [0.32, -0.04, 0.09, 0.28, 0.10, 0.7, 2.2, 0.4], [-0.04, 0.14, 0.11, 0.32, 0.11, 1.4, 0.3, 0.9], [0.16, -0.46, 0.08, 0.24, 0.09, 0.2, 1.2, 0.6], [-0.28, 0.42, 0.08, 0.22, 0.08, 0.8, 0.5, 1.1], [0.36, 0.32, 0.07, 0.18, 0.07, 0.4, 1.8, 0.3], [-0.38, -0.36, 0.07, 0.16, 0.07, 1.2, 0.6, 0.8], [0.08, -0.22, 0.08, 0.20, 0.08, 0.9, 2.4, 0.2], [-0.12, -0.18, 0.07, 0.18, 0.07, 1.6, 0.9, 1.3]]
+    : [[0.0, -0.05, 0.16, 0.52, 0.14, 0.4, 0.2, 0.5], [-0.20, -0.26, 0.13, 0.38, 0.12, 0.8, 1.0, 0.4], [0.22, 0.12, 0.14, 0.42, 0.13, 1.1, 0.5, 0.7], [-0.08, 0.32, 0.12, 0.34, 0.11, 0.5, 1.7, 0.8], [0.18, -0.40, 0.10, 0.28, 0.10, 1.2, 0.4, 0.3], [-0.30, 0.16, 0.09, 0.24, 0.09, 0.6, 1.5, 0.4], [0.30, -0.08, 0.08, 0.20, 0.08, 0.7, 2.0, 0.5], [-0.14, -0.16, 0.07, 0.18, 0.07, 1.3, 0.4, 0.9]];
   for (const [x, z, sx, sy, sz, rx, ry, rz] of gems) {
     const g = new THREE.OctahedronGeometry(1, 1); g.scale(sx, sy, sz); g.rotateX(rx); g.rotateY(ry); g.rotateZ(rz); g.computeBoundingBox();
-    g.translate(x, 0.88 - g.boundingBox.min.y, z); g.computeBoundingBox();
-    const c = g.boundingBox.getCenter(new THREE.Vector3()), reach = Math.max(sx, sy, sz);
+    const seat = 0.86, minY = g.boundingBox.min.y;
+    g.translate(0, seat - minY, 0);
+    g.computeBoundingBox();
+    if (g.boundingBox.max.y < 1.62) { const k = (1.72 - seat) / (g.boundingBox.max.y - seat); g.translate(0, -seat, 0); g.scale(1, Math.min(k, 1.35), 1); g.translate(0, seat, 0); }
+    g.translate(x, 0, z); g.computeBoundingBox();
+    const c = g.boundingBox.getCenter(new THREE.Vector3()), reach = Math.max(sx, sy, sz) * 1.15;
     const shade = (lx, ly, lz) => {
       const t = Math.min(1, Math.max(0, Math.hypot(lx - c.x, ly - c.y, lz - c.z) / reach));
-      const u = Math.min(1, Math.max(0, (t - 0.42) / 0.58));
-      return [0.04 + u * 0.42, 0.08 + u * 0.78, 0.32 + u * 0.68, 0.06 + u * 0.36];
+      const u = Math.min(1, Math.max(0, (t - 0.34) / 0.66));
+      return [0.05 + u * 0.16, 0.12 + u * 0.32, 0.40 + u * 0.38, 0.03 + u * 0.08];
     };
-    add('tex', g, [0, 0, 0], '#1848e8', 1, 0, GLASS, shade, 'glass');
-  }
-  const chips = rich
-    ? [[-0.42, -0.58, 0.07], [0.40, -0.48, 0.055], [-0.38, 0.36, 0.05], [0.42, 0.18, 0.06], [-0.08, -0.66, 0.045], [0.12, 0.50, 0.05], [0.34, -0.12, 0.04], [-0.44, -0.08, 0.05], [0.06, -0.58, 0.04], [-0.28, 0.46, 0.045]]
-    : [[-0.38, -0.4, 0.06], [0.36, -0.1, 0.05], [-0.22, 0.36, 0.045], [0.28, 0.32, 0.05], [-0.08, -0.55, 0.04], [0.14, 0.12, 0.04]];
-  for (const [x, z, s] of chips) {
-    const g = new THREE.OctahedronGeometry(1, 0); g.scale(s * 0.7, s, s * 0.55); g.rotateX(x * 4); g.rotateY(z * 3); g.computeBoundingBox();
-    g.translate(x, 0.86 - g.boundingBox.min.y, z);
-    add('glow', g, [0, 0, 0], '#3ec8ea', 1.45, 0.4);
+    add('ivory', g, [0, 0, 0], '#1a4ad8', 1, 0, GEM, shade);
   }
   const tyre = (side) => {
     const pts = [new THREE.Vector2(0.20, -0.12), new THREE.Vector2(0.32, -0.11), new THREE.Vector2(0.40, -0.06), new THREE.Vector2(0.44, -0.02), new THREE.Vector2(0.445, 0.025), new THREE.Vector2(0.42, 0.055), new THREE.Vector2(0.36, 0.09), new THREE.Vector2(0.28, 0.105), new THREE.Vector2(0.22, 0.09)];
@@ -291,9 +285,9 @@ export function haulerPieces(wheelN, bodyN = 8) {
   for (const dz of [-1.12, 0, 1.12]) for (const dx of [-WX, WX]) {
     const s = dx > 0 ? 1 : -1;
     add('dark', tyre(s), [dx, WY, dz], '#161412', 1, 0, RUB);
-    add('gold', tube(0.20, 0.025, hubN, 'x'), [dx + s * 0.045, WY, dz], '#c9963a', 1, 0, HUB);
-    add('gold', tube(0.145, 0.02, hubN, 'x'), [dx + s * 0.058, WY, dz], '#f0c14a', 1, 0, HUB);
-    add('dark', tube(0.07, 0.018, 8, 'x'), [dx + s * 0.07, WY, dz], '#14110e', 1, 0, [0.4, 0.45]);
+    add('gold', tube(0.20, 0.022, hubN, 'x'), [dx + s * 0.040, WY, dz], '#8d6a2e', 1, 0, HUB);
+    add('gold', tube(0.145, 0.02, hubN, 'x'), [dx + s * 0.055, WY, dz], '#f0c14e', 1, 0, HUB);
+    add('dark', tube(0.07, 0.016, 8, 'x'), [dx + s * 0.068, WY, dz], '#100e0c', 1, 0, [0.35, 0.5]);
     add('dark', tube(0.06, 0.28, 5, 'x'), [s * 0.82, WY, dz], '#2a2622');
     for (let i = 0; i < lugN; i++) {
       const a = i / lugN * PI * 2 + 0.2;
