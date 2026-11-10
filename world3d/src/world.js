@@ -222,7 +222,7 @@ export function haulerPieces(wheelN, bodyN = 8) {
   const tube = (r, len, n, axis) => { const g = new THREE.CylinderGeometry(r, r, len, n); if (axis === 'z') g.rotateX(PI / 2); else if (axis === 'x') g.rotateZ(PI / 2); return g; };
   const box = (w, h, d) => new THREE.BoxGeometry(w, h, d);
   const P = []; const add = (group, geo, pos, color, intensity = 1, emit = 0, mr = null, shade = null, region = null) => P.push({ group, geo, pos, color, intensity, emit, mr, shade, region });
-  const RIM = 0.392, WY = RIM, WX = 1.14, AX = [-0.78, 0.16, 1.10], RUB = [0.02, 0.92], HUB = [0.82, 0.32], GEM = [0.06, 0.48];
+  const RIM = 0.356, WY = RIM, WX = 1.14, AX = [-0.78, 0.16, 1.10], RUB = [0.02, 0.92], HUB = [0.82, 0.32], GEM = [0.04, 0.34];
   const mesh = (pos, idx) => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals(); return g; };
   // Chamfered box section: proud top and bottom edges, a flat side set back between them, an open bed with wall thickness.
   const loop = [[0.18, 0.42], [0.70, 0.42], [1.02, 0.50], [1.08, 0.56], [0.98, 0.64], [0.98, 1.16], [1.08, 1.24], [0.78, 1.30], [0.56, 1.16], [0.50, 0.76], [0, 0.64], [-0.50, 0.76], [-0.56, 1.16], [-0.78, 1.30], [-1.08, 1.24], [-0.98, 1.16], [-0.98, 0.64], [-1.08, 0.56], [-1.02, 0.50], [-0.70, 0.42], [-0.18, 0.42]];
@@ -295,22 +295,42 @@ export function haulerPieces(wheelN, bodyN = 8) {
   for (const s of [-1, 1]) {
     add('dark', box(0.34, 0.26, 0.12), [s * 0.36, 0.38, 1.60], '#100e0c');
     add('gold', tube(0.145, 0.04, hubN, 'z'), [s * 0.36, 0.38, 1.68], '#e8b84a', 1, 0, HUB);
-    add('glow', tube(0.095, 0.03, hubN, 'z'), [s * 0.36, 0.38, 1.715], '#ffcc88', 1.7, 1.0);
   }
-  // One merged cluster: wide hexagonal prisms with short pointed tips, tallest in the middle, leaning outward.
+  // Lamp: a warm core with a dimmer ring, one mesh, emissive falling off from the middle. No sprite.
+  {
+    const n = rich ? 10 : 8, pos = [];
+    for (const s of [-1, 1]) {
+      const cx = s * 0.36, cy = 0.38, cz = 1.725;
+      const ring = (r, z) => Array.from({ length: n }, (_, i) => { const a = i / n * PI * 2; return [cx + Math.cos(a) * r, cy + Math.sin(a) * r, z]; });
+      const inner = ring(0.05, cz), outer = ring(0.19, cz - 0.016), c = [cx, cy, cz + 0.008];
+      const tri = (a, b, c3) => pos.push(a[0], a[1], a[2], b[0], b[1], b[2], c3[0], c3[1], c3[2]);
+      for (let i = 0; i < n; i++) {
+        const j = (i + 1) % n;
+        tri(c, inner[i], inner[j]); tri(inner[i], outer[i], inner[j]); tri(inner[j], outer[i], outer[j]);
+      }
+    }
+    const lamp = new THREE.BufferGeometry();
+    lamp.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    lamp.computeVertexNormals();
+    add('glow', lamp, [0, 0, 0], '#ffcc88', 1, 0, [0.05, 0.28], (x, y) => {
+      const d = Math.min(Math.hypot(x - 0.36, y - 0.38), Math.hypot(x + 0.36, y - 0.38)) / 0.19;
+      const u = Math.min(1, Math.max(0, d)), e = (1 - u) * (1 - u);
+      return [0.22 + (1 - u) * 0.55, 0.08 + (1 - u) * 0.32, 0.02 + (1 - u) * 0.06, 0.35 + e * 1.35];
+    });
+  }
+  // One merged cluster. Each face has a bright emissive core and a lighter rim, so the heap reads as glowing glass without a second draw.
   const bunch = rich
-    ? [[0, 0.00, 0.28, 0.88, 0.34, 0.05], [0.20, -0.20, 0.20, 0.74, 0.26, 0.22], [-0.18, -0.12, 0.20, 0.76, 0.26, 0.20], [0.16, 0.24, 0.19, 0.72, 0.24, 0.24], [-0.18, 0.26, 0.19, 0.70, 0.24, 0.26], [0.00, -0.40, 0.18, 0.66, 0.22, 0.28], [0.02, 0.44, 0.18, 0.64, 0.22, 0.30], [0.32, 0.02, 0.17, 0.70, 0.22, 0.32], [-0.30, 0.06, 0.17, 0.68, 0.22, 0.30], [0.26, -0.42, 0.15, 0.58, 0.20, 0.36], [-0.24, -0.38, 0.15, 0.60, 0.20, 0.34], [0.28, 0.42, 0.15, 0.56, 0.18, 0.38], [-0.26, 0.46, 0.15, 0.54, 0.18, 0.36], [0.08, 0.62, 0.14, 0.52, 0.16, 0.40], [-0.10, -0.58, 0.14, 0.52, 0.16, 0.38], [0.12, 0.02, 0.16, 0.64, 0.20, 0.12], [-0.12, -0.02, 0.16, 0.62, 0.20, 0.14]]
-    : [[0, 0.02, 0.26, 0.82, 0.30, 0.06], [0.22, -0.18, 0.18, 0.68, 0.22, 0.24], [-0.20, -0.08, 0.18, 0.70, 0.22, 0.22], [0.16, 0.26, 0.17, 0.64, 0.20, 0.28], [-0.18, 0.28, 0.17, 0.62, 0.20, 0.30], [0.00, -0.40, 0.16, 0.56, 0.18, 0.32], [0.02, 0.46, 0.16, 0.54, 0.18, 0.34], [0.30, 0.04, 0.15, 0.60, 0.18, 0.32], [-0.28, 0.08, 0.15, 0.58, 0.18, 0.30]];
-  const seat = 0.66, cpos = [];
-  const put = (a, b, c) => cpos.push(a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2]);
+    ? [[0, 0, 0.30, 0.86, 0.32, 0.04], [0.14, -0.16, 0.20, 0.70, 0.24, 0.14], [-0.12, -0.08, 0.20, 0.72, 0.24, 0.12], [0.10, 0.18, 0.19, 0.66, 0.22, 0.14], [-0.12, 0.20, 0.19, 0.64, 0.22, 0.16], [0, -0.30, 0.18, 0.58, 0.20, 0.16], [0, 0.34, 0.18, 0.56, 0.20, 0.18], [0.20, 0.02, 0.16, 0.62, 0.20, 0.16], [-0.18, 0.04, 0.16, 0.60, 0.20, 0.14], [0.14, -0.32, 0.15, 0.48, 0.16, 0.18], [-0.12, -0.28, 0.15, 0.50, 0.16, 0.16], [0.14, 0.34, 0.15, 0.46, 0.16, 0.18], [-0.12, 0.36, 0.15, 0.44, 0.16, 0.18], [0.02, 0.48, 0.14, 0.40, 0.14, 0.18], [-0.02, -0.46, 0.14, 0.40, 0.14, 0.16], [0.06, 0.02, 0.16, 0.52, 0.18, 0.06], [-0.06, -0.02, 0.16, 0.50, 0.18, 0.06], [0.18, 0.16, 0.14, 0.22, 0.10, 0.08], [-0.16, 0.14, 0.14, 0.20, 0.10, 0.08], [0.16, -0.14, 0.14, 0.22, 0.10, 0.10], [-0.14, -0.12, 0.14, 0.20, 0.10, 0.08]]
+    : [[0, 0.02, 0.28, 0.80, 0.30, 0.05], [0.14, -0.14, 0.19, 0.64, 0.22, 0.14], [-0.12, -0.04, 0.19, 0.66, 0.22, 0.12], [0.10, 0.20, 0.18, 0.58, 0.18, 0.16], [-0.12, 0.22, 0.18, 0.56, 0.18, 0.16], [0, -0.30, 0.16, 0.50, 0.16, 0.16], [0, 0.36, 0.16, 0.48, 0.16, 0.18], [0.18, 0.04, 0.15, 0.54, 0.16, 0.16], [-0.16, 0.06, 0.15, 0.52, 0.16, 0.14], [0.12, 0.14, 0.14, 0.22, 0.10, 0.08], [-0.10, -0.12, 0.14, 0.22, 0.10, 0.08]];
+  const seat = 0.66, cpos = [], ccol = [], cemit = [];
+  const CORE = [0.012, 0.04, 0.22], EDGE = [0.03, 0.08, 0.34], TIP = [0.045, 0.13, 0.42];
+  const put = (a, b, c, ca, cb, cc, ea, eb, ec) => { cpos.push(a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2]); ccol.push(...ca, ...cb, ...cc); cemit.push(ea, eb, ec); };
+  const mid = (pts) => { const m = [0, 0, 0]; for (const p of pts) { m[0] += p[0]; m[1] += p[1]; m[2] += p[2]; } return m.map(v => v / pts.length); };
   for (const [x, z, rad, bodyH, tipH, tilt] of bunch) {
-    const len = Math.hypot(x, z) || 1, ox = x / len, oz = z / len;
-    const spin = x * 1.7 + z * 2.3;
+    const len = Math.hypot(x, z), ox = len > 0.04 ? x / len : 0, oz = len > 0.04 ? z / len : 1, spin = x * 1.7 + z * 2.3;
     const place = (px, py, pz) => {
-      const cs = Math.cos(spin), sn = Math.sin(spin);
-      const lx = px * cs - pz * sn, lz = px * sn + pz * cs;
-      const radial = lx * ox + lz * oz, side = -lx * oz + lz * ox;
-      const ct = Math.cos(tilt), st = Math.sin(tilt);
+      const cs = Math.cos(spin), sn = Math.sin(spin), lx = px * cs - pz * sn, lz = px * sn + pz * cs;
+      const radial = lx * ox + lz * oz, side = -lx * oz + lz * ox, ct = Math.cos(tilt), st = Math.sin(tilt);
       const nr = radial * ct + py * st, ny = py * ct - radial * st;
       return [x + nr * ox - side * oz, seat + ny, z + nr * oz + side * ox];
     };
@@ -320,35 +340,38 @@ export function haulerPieces(wheelN, bodyN = 8) {
       B.push(place(Math.cos(a) * rad, 0, Math.sin(a) * rad));
       T.push(place(Math.cos(a) * rad * 0.94, bodyH, Math.sin(a) * rad * 0.94));
     }
-    const tip = place(0, bodyH + tipH, 0);
+    const tip = place(0, bodyH + tipH, 0), coreE = 4.2, rimE = 1.5, tipE = 2.4;
     for (let i = 0; i < 6; i++) {
-      const j = (i + 1) % 6;
-      put(B[i], T[i], B[j]); put(B[j], T[i], T[j]); put(T[i], tip, T[j]);
+      const j = (i + 1) % 6, A = B[i], C = T[i], D = T[j], E = B[j], M = mid([A, C, D, E]);
+      put(A, C, M, EDGE, EDGE, CORE, rimE, rimE, coreE); put(C, D, M, EDGE, EDGE, CORE, rimE, rimE, coreE);
+      put(D, E, M, EDGE, EDGE, CORE, rimE, rimE, coreE); put(E, A, M, EDGE, EDGE, CORE, rimE, rimE, coreE);
+      const P = tip, Q = mid([T[i], T[j], P]);
+      put(T[i], P, Q, EDGE, TIP, CORE, rimE, tipE, coreE); put(P, T[j], Q, TIP, EDGE, CORE, tipE, rimE, coreE); put(T[j], T[i], Q, EDGE, EDGE, CORE, rimE, rimE, coreE);
     }
   }
   const cluster = new THREE.BufferGeometry();
   cluster.setAttribute('position', new THREE.Float32BufferAttribute(cpos, 3));
+  cluster.setAttribute('color', new THREE.Float32BufferAttribute(ccol, 3));
+  cluster.setAttribute('aGemE', new THREE.Float32BufferAttribute(cemit, 1));
   cluster.computeVertexNormals();
-  add('ivory', cluster, [0, 0, 0], '#1236c8', 1, 0, GEM, (x, y, z) => {
+  add('ivory', cluster, [0, 0, 0], '#1236c8', 1, 0, GEM, (x, y) => {
     const h = Math.min(1, Math.max(0, (y - seat) / 1.15));
-    const f = 0.5 + 0.5 * Math.sin(x * 37 + z * 23 + y * 11);
-    const u = Math.min(1, h * 0.55 + (f > 0.72 ? 0.45 : f * 0.12));
-    return [0.015 + u * 0.08, 0.04 + u * 0.16, 0.26 + u * 0.34, 0.02 + u * 0.08];
+    return [0.02 + h * 0.06, 0.06 + h * 0.16, 0.32 + h * 0.28, 0];
   });
   const tyre = (side) => {
-    const pts = [[0.20, -0.12], [0.32, -0.11], [0.40, -0.06], [0.44, -0.02], [0.445, 0.025], [0.42, 0.055], [0.36, 0.09], [0.28, 0.105], [0.22, 0.09]].map(([r, y]) => new THREE.Vector2(r * 0.88, y));
+    const pts = [[0.20, -0.12], [0.32, -0.11], [0.40, -0.06], [0.44, -0.02], [0.445, 0.025], [0.42, 0.055], [0.36, 0.09], [0.28, 0.105], [0.22, 0.09]].map(([r, y]) => new THREE.Vector2(r * 0.80, y));
     const g = new THREE.LatheGeometry(pts, tyreN); g.rotateZ(PI / 2); if (side > 0) g.rotateY(PI); g.computeVertexNormals(); return g;
   };
   for (const dz of AX) for (const dx of [-WX, WX]) {
     const s = dx > 0 ? 1 : -1;
     add('dark', tyre(s), [dx, WY, dz], '#161412', 1, 0, RUB);
-    add('gold', tube(0.175, 0.02, hubN, 'x'), [dx + s * 0.040, WY, dz], '#8d6a2e', 1, 0, HUB);
-    add('gold', tube(0.125, 0.018, hubN, 'x'), [dx + s * 0.052, WY, dz], '#f0c14e', 1, 0, HUB);
-    add('dark', tube(0.06, 0.014, 8, 'x'), [dx + s * 0.062, WY, dz], '#100e0c', 1, 0, [0.35, 0.5]);
+    add('gold', tube(0.145, 0.018, hubN, 'x'), [dx + s * 0.038, WY, dz], '#8d6a2e', 1, 0, HUB);
+    add('gold', tube(0.10, 0.016, hubN, 'x'), [dx + s * 0.048, WY, dz], '#f0c14e', 1, 0, HUB);
+    add('dark', tube(0.048, 0.012, 8, 'x'), [dx + s * 0.056, WY, dz], '#100e0c', 1, 0, [0.35, 0.5]);
     add('dark', tube(0.06, 0.28, 5, 'x'), [s * 0.82, WY, dz], '#2a2622');
     for (let i = 0; i < lugN; i++) {
       const a = i / lugN * PI * 2 + 0.2;
-      const g = box(0.045, 0.036, 0.028); g.rotateX(a); g.translate(dx, WY + Math.cos(a) * 0.378, dz + Math.sin(a) * 0.378);
+      const g = box(0.042, 0.032, 0.026); g.rotateX(a); g.translate(dx, WY + Math.cos(a) * 0.342, dz + Math.sin(a) * 0.342);
       add('dark', g, [0, 0, 0], '#0c0b0a', 1, 0, RUB);
     }
   }

@@ -100,6 +100,12 @@ function haulerGeo(hi) {
   for (const p of haulerPieces(hi ? 20 : 8, 8)) {
     let g = p.geo.clone(); g.translate(p.pos[0], p.pos[1], p.pos[2]);
     const mr = p.mr || MR[p.group] || MR.ivory;
+    if (g.attributes.aGemE && g.attributes.color) {
+      const n = g.attributes.position.count, ae = new Float32Array(g.attributes.aGemE.array), am = new Float32Array(n * 2);
+      for (let i = 0; i < n; i++) { am[i * 2] = mr[0]; am[i * 2 + 1] = mr[1]; }
+      g.setAttribute('aE', new THREE.BufferAttribute(ae, 1)); g.setAttribute('aMR', new THREE.BufferAttribute(am, 2)); g.deleteAttribute('aGemE');
+      if (g.attributes.uv) g.deleteAttribute('uv'); L.push(g); continue;
+    }
     if (!p.shade) { L.push(col(g, p.color, p.emit || 0, mr)); continue; }
     g = g.index ? g.toNonIndexed() : g;
     const P = g.attributes.position, n = P.count, a = new Float32Array(n * 3), ae = new Float32Array(n), am = new Float32Array(n * 2);
