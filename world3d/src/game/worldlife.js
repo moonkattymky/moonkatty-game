@@ -7,7 +7,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from '../../vendor/three/jsm/utils/BufferGeometryUtils.js';
 import { DRILL_HEAD } from './machines.js';
-import { setRut, setCrater, setRut2, setRut3, PLAY_START, PLAY_CRATER, F, sd, REGIONS, canyonPoint, canyonS } from '../terrain.js';
+import { setRut, setCrater, setRut2, setRut3, PLAY_START, PLAY_CRATER, F, sd, REGIONS, canyonPoint, canyonS, YARD } from '../terrain.js';
 import { haulerPieces } from '../world.js';
 
 const col = (g, hex, e = 0, mr = null) => { g = g.index ? g.toNonIndexed() : g; const c = new THREE.Color(hex), n = g.attributes.position.count, a = new Float32Array(n * 3), ae = new Float32Array(n), am = new Float32Array(n * 2); const metal = mr ? mr[0] : 0.45, rough = mr ? mr[1] : 0.45; for (let i = 0; i < n; i++) { c.toArray(a, i * 3); ae[i] = e; am[i * 2] = metal; am[i * 2 + 1] = rough; } g.setAttribute('color', new THREE.BufferAttribute(a, 3)); g.setAttribute('aE', new THREE.BufferAttribute(ae, 1)); g.setAttribute('aMR', new THREE.BufferAttribute(am, 2)); if (g.attributes.uv) g.deleteAttribute('uv'); return g; };
@@ -248,6 +248,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const skyAt = (daz, del, dist) => { const e = 0.22 + del, a = 0.22 + daz, ce = Math.cos(e); return { x: PLAY_START.x + (fwd.x * ce * Math.cos(a) + right.x * ce * Math.sin(a)) * dist, z: PLAY_START.z + (fwd.z * ce * Math.cos(a) + right.z * ce * Math.sin(a)) * dist, y: groundAt(PLAY_START.x, PLAY_START.z) + 1.6 + Math.sin(e) * dist }; };
   const shipP = skyAt(-0.48, 0.04, 44); Object.assign(shipRoutes[0], { cx: shipP.x, cz: shipP.z, rx: 6, rz: 3, yaw: Math.atan2(fwd.x, fwd.z), y0: shipP.y - groundAt(base.x, base.z) - 1, y1: shipP.y - groundAt(base.x, base.z) + 2 }); if (ships[0]) ships[0].t = 0.02;
   // Yard in front of the depot: hauler loops on the camera-left, drill parks on the camera-right, both in the yard frame.
+  YARD.value.set(depotP.x, depotP.z, 1);
   const dyaw = depotP.yaw || 0, dfx = Math.sin(dyaw), dfz = Math.cos(dyaw), dlx = dfz, dlz = -dfx, drx = -dfz, drz = dfx;
   let D = { x: depotP.x + dfx * 3.5 + drx * 8, z: depotP.z + dfz * 3.5 + drz * 8 };
   if (flat(D.x, D.z, 4) > 3.2 || clear(D.x, D.z) < 2.4) { let bs = 1e9, fallback = D; for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; const x = D.x + Math.cos(a) * 5, z = D.z + Math.sin(a) * 5; const sc = flat(x, z, 3) * 3 + Math.max(0, 3 - clear(x, z)) * 4; if (sc < bs) { bs = sc; fallback = { x, z }; } } D = fallback; }
@@ -263,10 +264,10 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const pA = { x: D.x - ux * 3 + px * 2, z: D.z - uz * 3 + pz * 2 }, pB = { x: depotP.x + ux * 2.5 + px * 1.2, z: depotP.z + uz * 2.5 + pz * 1.2 };
   if (welder) { const gx = welder.x, gz = welder.z; welder.y = groundAt(gx, gz);
   const pos = [], col = []; const spike = (ox, oz, h, r) => { const n = 5; for (let i = 0; i < n; i++) { const a0 = i / n * Math.PI * 2, a1 = (i + 1) / n * Math.PI * 2; const x0 = ox + Math.cos(a0) * r, z0 = oz + Math.sin(a0) * r, x1 = ox + Math.cos(a1) * r, z1 = oz + Math.sin(a1) * r; pos.push(x0, 0, z0, ox, h, oz, x1, 0, z1, x1, 0, z1, ox, h, oz, ox, -0.15, oz); col.push(0.55, 0.85, 1, 0.85, 1, 1, 0.55, 0.85, 1, 0.55, 0.85, 1, 0.85, 1, 1, 0.35, 0.6, 0.8); } };
-  spike(0, 0, 1.15, 0.22); spike(0.38, 0.1, 0.78, 0.15); spike(-0.32, 0.18, 0.66, 0.13); spike(0.08, -0.34, 0.52, 0.12);
+  spike(0, 0, 0.72, 0.2); spike(0.34, 0.06, 0.5, 0.14); spike(-0.28, 0.14, 0.42, 0.12); spike(0.05, -0.3, 0.34, 0.11);
   const cg = new THREE.BufferGeometry(); cg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); cg.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); cg.computeVertexNormals();
-  const cm = new THREE.MeshStandardMaterial({ vertexColors: true, color: '#d8fbff', emissive: '#3ec8ea', emissiveIntensity: 1.6, roughness: 0.18, metalness: 0.35, flatShading: true });
-  const crystals = new THREE.Mesh(cg, cm); crystals.name = 'life_crystals'; crystals.position.set(gx + Math.cos(welder.yaw) * 1.45, welder.y, gz - Math.sin(welder.yaw) * 1.45); root.add(crystals); }
+  const cm = new THREE.MeshBasicMaterial({ vertexColors: true, color: '#9af4ff', toneMapped: false });
+  const crystals = new THREE.Mesh(cg, cm); crystals.name = 'life_crystals'; crystals.scale.setScalar(1.45); crystals.position.set(gx - Math.cos(welder.yaw) * 0.95, welder.y, gz + Math.sin(welder.yaw) * 0.95); root.add(crystals); }
   // Fixed world worksites. Positions do not depend on the camera. Near: the real crew mesh (its own hi/lo). Far: the shared impostor.
   const zones = [];
   const s0c = canyonS(REGIONS.canyon.x, REGIONS.canyon.z);
@@ -361,7 +362,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
     const ZNEAR = low ? 8 : mobile ? 10 : 12;
     for (const Z of zones) { const R = Z.r.root; R.position.set(Z.x, Z.y, Z.z); R.rotation.y = Z.yaw; const dcam = Math.hypot(Z.x - cam.x, Z.z - cam.z); const show = dcam < ZNEAR; Z.far = !show && dcam < 120; R.visible = show; if (show) Z.r.update(dt, 'work', cam); if (dcam < 70 && Math.random() < dt * 70) parts.emit(Z.x + 0.4, Z.y + 0.9, Z.z + 0.3, (Math.random() - 0.5) * 2.2, 1.4 + Math.random() * 1.8, (Math.random() - 0.5) * 2.2, 0.7, 0.35, 4.2, 1.3, 0.22, 0, 'spark', 0, 8); }
     if (welder) { const W = welder, R = W.r.root; R.position.set(W.x, W.y, W.z); R.rotation.y = W.yaw; const dcam = Math.hypot(W.x - cam.x, W.z - cam.z); W.far = dcam >= NEAR && dcam < 90; R.visible = dcam < NEAR; /* static prop: impostor sooner than the porters (budget) */ if (R.visible) { W.r.update(dt, 'work', null); W.r.pivot.rotation.x = 0.28 + Math.sin(T * 7) * 0.05; }
-      const burst = (T % 3.2) < 2.2; if (burst && dcam < 70) { const fx = Math.sin(W.yaw), fz = Math.cos(W.yaw), sx = W.x + fx * 0.8, sz = W.z + fz * 0.8; for (let s = 0; s < 2; s++) parts.emit(sx, W.y + 0.9, sz, (Math.random() - 0.5) * 3.4 - fx * 1.4, 1.2 + Math.random() * 2.8, (Math.random() - 0.5) * 3.4 - fz * 1.4, 0.85, 0.48, 4.4, 1.15, 0.12, 0.9, 'spark', 0, 7); } }
+      const burst = (T % 3.2) < 2.2; if (burst && dcam < 70) { const fx = Math.sin(W.yaw), fz = Math.cos(W.yaw), sx = W.x + fx * 0.55, sz = W.z + fz * 0.55; for (let s = 0; s < 3; s++) parts.emit(sx, W.y + 0.72, sz, (Math.random() - 0.5) * 3.6 - fx * 0.4, 1.6 + Math.random() * 2.8, (Math.random() - 0.5) * 3.6 - fz * 0.4, 1.1, 1.15, 6.5, 1.8, 0.18, 1, 'spark', 0, 5); } }
     if (crewSpark && Math.hypot(crewSpark.x - cam.x, crewSpark.z - cam.z) < 90 && Math.random() < dt * 45) { parts.emit(crewSpark.x + (Math.random() - 0.5) * 0.45, crewSpark.gy + 0.5, crewSpark.z + (Math.random() - 0.5) * 0.45, (Math.random() - 0.5) * 3.2, 1.2 + Math.random() * 2.2, (Math.random() - 0.5) * 3.2, 0.6, 0.3, 3.6, 1.2, 0.15, 0, 'spark', 0, 8); }
     { const dVR = mobile ? 8 : VR; const dv = Math.hypot(D.x - cam.x, D.z - cam.z) < (globalThis.__mkStorm ? 0 : dVR); drill.visible = dv; if (dv) { drill.geometry = Math.hypot(D.x - cam.x, D.z - cam.z) < (globalThis.__mkStorm ? 0 : HIDD) ? /* phone keeps the rig out of the side yard view */ drG[1] : drG[0]; bit.rotation.y += dt * 14; bit.position.y = DRILL_HEAD.y + Math.sin(T * 1.3) * 0.035; sparkAcc += dt * 80; sparkFl -= dt; if (sparkFl <= 0) { sparkFl = 0.85; sparkAcc += 8; } if (sparkAcc >= 1) { bit.updateMatrixWorld(true); bit.localToWorld(v.set(0, AUGER_TIP, 0));
           while (sparkAcc >= 1) { sparkAcc -= 1; const a = Math.random() * Math.PI * 2, sp = 0.25 + Math.random() * 0.7; parts.emit(v.x, v.y, v.z, Math.cos(a) * sp, -0.15 - Math.random() * 1.3, Math.sin(a) * sp, 0.4, 0.14, 1.05, 0.42, 0.06, 0, 'spark', 0, 10); } } } }

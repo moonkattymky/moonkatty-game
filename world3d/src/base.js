@@ -77,6 +77,7 @@ function reactor(b, s, d) {
   b.add('dark', G.cyl(R * 1.1, R * 1.16, 0.5, 36), { pos: [x, y - 0.2, z], color: '#3a4250' });
   b.add('gold', G.torus(R * 1.09, 0.14, 3, 32), { pos: [x, y + 0.3, z], rot: [PI / 2, 0, 0], color: C.gold });
   b.add('tex', G.cyl(R, R * 1.04, H, 36, true), { region: 'reactorWall', pos: [x, y + 0.3, z], color: '#ffffff', ao: [y - 0.5, y + H * 1.3] });
+  windowsRing(b, x, y + 0.3 + H * 0.55, z, R * 1.01, 12, 1.55, 1.55, { round: true, I: 5, a0: faceCam, color: '#ffe08a' });
   const doors = [faceCam, faceCam + 1.9, faceCam - 1.6, faceCam + PI];
   for (const a of doors) door(b, x, y + 0.3, z, a, R * 1.0, 1.6, 2.0, '#ffe0b0');
   const yt = y + 0.3 + H;
@@ -101,7 +102,7 @@ function reactor(b, s, d) {
   { const Rd = R - 0.35, sy = 0.46, y0 = yt + 0.02; b.add('ivory', G.cap(Rd, 48, 7), { pos: [x, y0, z], scale: [1, sy, 1], color: '#f4ead8' });
     const onShell = (f) => { const yy = y0 + Rd * sy * f; return { y: yy, r: Math.sqrt(Math.max(0.2, Rd * Rd - ((yy - y0) / sy) ** 2)) }; };
     const band = onShell(0.18); b.add('gold', G.torus(band.r, 0.11, 4, 42), { pos: [x, band.y, z], rot: [PI / 2, 0, 0], color: C.gold });
-    const w1 = onShell(0.48); windowsRing(b, x, w1.y, z, w1.r + 0.04, 12, 0.85, 0.85, { round: true, I: 4.2, a0: faceCam, color: '#ffd7a1' });
+    const w1 = onShell(0.48); windowsRing(b, x, w1.y, z, w1.r + 0.04, 10, 1.7, 1.7, { round: true, I: 5, a0: faceCam, color: '#ffe08a' });
     finial(b, x, y0 + Rd * sy - 0.08, z, 3.2); }
   return { x, y: yt, z, Ri };
 }
@@ -133,7 +134,7 @@ function frontAnnex(b) {
   b.add('gold', G.box(5.55, 0.14, 2.95), { pos: W(0, 3.28, 0), rot: [0, yaw, 0], color: C.gold });
   b.add('ivory', G.box(2.4, 1.7, 2.2), { pos: W(-3.7, 0.95, 0.1), rot: [0, yaw, 0], color: '#efe2cc' });
   b.add('gold', G.box(2.52, 0.1, 2.32), { pos: W(-3.7, 1.84, 0.1), rot: [0, yaw, 0], color: C.gold });
-  b.add('glow', new THREE.PlaneGeometry(2.5, 2.45), { pos: W(0.45, 1.45, 1.48), rot: [0, yaw, 0], color: '#ffe08a', intensity: 8 });
+  b.add('glow', new THREE.PlaneGeometry(2.15, 2.2), { pos: W(0.45, 1.35, 1.52), rot: [0, yaw, 0], color: '#ffe08a', intensity: 8 });
   b.add('gold', G.box(2.75, 0.12, 0.1), { pos: W(0.45, 2.74, 1.48), rot: [0, yaw, 0], color: C.gold });
   b.add('gold', G.box(0.12, 2.55, 0.1), { pos: W(-0.85, 1.45, 1.48), rot: [0, yaw, 0], color: C.gold });
   b.add('gold', G.box(0.12, 2.55, 0.1), { pos: W(1.75, 1.45, 1.48), rot: [0, yaw, 0], color: C.gold });

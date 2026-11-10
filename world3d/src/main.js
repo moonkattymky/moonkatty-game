@@ -13,6 +13,7 @@ const TGAPI = initTelegram({ exitUrl: '../' }); // Telegram Mini App shell (no-o
 const ASSET_V = '39'; // bump with the GLB (immutable per version -> HTTP + service-worker cache hits)
 const loadMsg = (f) => { const el = document.getElementById('loadbar'); if (el) el.style.width = Math.round(20 + f * 80) + '%'; };
 import { buildTerrain, GRID, groundAt, sd, F, Rt, LOOKOUT, CONCEPT, PLAY_START, LAMPMAP, LAMPMAP_R, AOMAP, REGIONS, PATCH, PATCH2, PATCH3, canyonPoint, canyonS } from './terrain.js';
+import { mergeGeometries } from '../vendor/three/jsm/utils/BufferGeometryUtils.js';
 import { Builder, GQ } from './builder.js';
 import { buildHub, colliders, C, LAMPS } from './base.js';
 import { buildWorld } from './world.js';
@@ -84,6 +85,24 @@ const terrain = buildTerrain(); scene.add(terrain);
 const b = new Builder(), wb = new Builder(); const beams = [];
 const WB = { launch: new Builder(), reactor: new Builder(), reactorNear: new Builder(), reactorFar: new Builder(), launchNear: new Builder(), canyonNear: new Builder(), echoNear: new Builder(), canyon: new Builder(), echo: new Builder(), roads: new Builder(), misc: new Builder() };
 const hub = buildHub(b, beams); buildWorld(WB, beams); addBeams(wb, beams);
+{ // additive doorway, ground spill, and the large hall windows. One draw; the atlas glow stays the warm core underneath.
+  const face = Math.atan2(-F.x, -F.z), s = Math.sin(face), c = Math.cos(face);
+  const ap = sd(-4.8, -10.2), gy = groundAt(ap.x, ap.z);
+  const W = (lx, ly, lz) => new THREE.Vector3(ap.x + c * lx + s * lz, gy + ly, ap.z - s * lx + c * lz);
+  const put = (g, pos, euler) => g.applyMatrix4(new THREE.Matrix4().compose(pos, new THREE.Quaternion().setFromEuler(euler), new THREE.Vector3(1, 1, 1)));
+  const door = new THREE.PlaneGeometry(1.85, 2.05); put(door, W(0.45, 1.28, 1.66), new THREE.Euler(0, face, 0));
+  const spill = new THREE.PlaneGeometry(3.6, 2.8); spill.rotateX(-Math.PI / 2); put(spill, W(0.45, 0.05, 3.15), new THREE.Euler(0, face, 0));
+  const parts = [door, spill];
+  const rp = sd(0, 0), ry = groundAt(rp.x, rp.z) - 0.1, Rd = 8.15, sy = 0.46, f = 0.48;
+  const y0 = ry + 0.3 + 2.6 + 0.02, wy = y0 + Rd * sy * f, wr = Math.sqrt(Math.max(0.2, Rd * Rd * (1 - f * f)));
+  for (let i = 0; i < 10; i++) { const a = face + i / 10 * Math.PI * 2; const circ = new THREE.CircleGeometry(0.78, 10); put(circ, new THREE.Vector3(rp.x + Math.sin(a) * (wr + 0.08), wy, rp.z + Math.cos(a) * (wr + 0.08)), new THREE.Euler(0, a, 0)); parts.push(circ); }
+  const wallY = ry + 0.3 + 2.6 * 0.55, wallR = 8.5 * 1.04;
+  for (let i = 0; i < 12; i++) { const a = face + i / 12 * Math.PI * 2; const circ = new THREE.CircleGeometry(0.7, 10); put(circ, new THREE.Vector3(rp.x + Math.sin(a) * wallR, wallY, rp.z + Math.cos(a) * wallR), new THREE.Euler(0, a, 0)); parts.push(circ); }
+  const glow = new THREE.Mesh(mergeGeometries(parts), new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false,
+    vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: 'varying vec2 vUv; void main(){ float a = smoothstep(1.05, 0.12, length(vUv - 0.5) * 2.0); gl_FragColor = vec4(vec3(1.25, 0.82, 0.32) * a * 1.7, 1.0); }' }));
+  glow.name = 'hall_glow'; glow.frustumCulled = false; glow.renderOrder = 2; scene.add(glow);
+}
 { // warm light pools under the path lamps (terrain samples this map; no runtime lights)
   const N = 512, c = document.createElement('canvas'); c.width = c.height = N; const g = c.getContext('2d'); g.fillStyle = '#000'; g.fillRect(0, 0, N, N); g.globalCompositeOperation = 'lighter';
   for (const L of LAMPS) { const u = (L.x / (2 * LAMPMAP_R) + 0.5) * N, v = (L.z / (2 * LAMPMAP_R) + 0.5) * N; const r = 3.2 / (2 * LAMPMAP_R) * N; const gr = g.createRadialGradient(u, v, 0, u, v, r); gr.addColorStop(0, 'rgba(255,170,90,0.55)'); gr.addColorStop(0.45, 'rgba(255,150,70,0.2)'); gr.addColorStop(1, 'rgba(255,140,60,0)'); g.fillStyle = gr; g.fillRect(u - r, v - r, 2 * r, 2 * r); }
