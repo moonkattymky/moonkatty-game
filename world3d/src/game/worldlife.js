@@ -7,7 +7,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from '../../vendor/three/jsm/utils/BufferGeometryUtils.js';
 import { DRILL_HEAD } from './machines.js';
-import { setRut, setCrater, setRut2, setRut3, PLAY_START, PLAY_CRATER, F, sd, REGIONS, canyonPoint, canyonS } from '../terrain.js';
+import { setRut, setCrater, setRut2, setRut3, PLAY_START, PLAY_CRATER, F, sd, REGIONS, canyonPoint, canyonS, YARD } from '../terrain.js';
 import { haulerPieces } from '../world.js';
 
 const col = (g, hex, e = 0, mr = null) => { g = g.index ? g.toNonIndexed() : g; const c = new THREE.Color(hex), n = g.attributes.position.count, a = new Float32Array(n * 3), ae = new Float32Array(n), am = new Float32Array(n * 2); const metal = mr ? mr[0] : 0.45, rough = mr ? mr[1] : 0.45; for (let i = 0; i < n; i++) { c.toArray(a, i * 3); ae[i] = e; am[i * 2] = metal; am[i * 2 + 1] = rough; } g.setAttribute('color', new THREE.BufferAttribute(a, 3)); g.setAttribute('aE', new THREE.BufferAttribute(ae, 1)); g.setAttribute('aMR', new THREE.BufferAttribute(am, 2)); if (g.attributes.uv) g.deleteAttribute('uv'); return g; };
@@ -21,53 +21,143 @@ function roverGeo() { const L = [col(new THREE.BoxGeometry(1.6, 0.5, 2.6).transl
   for (const x of [-0.5, 0.5]) L.push(col(new THREE.CylinderGeometry(0.1, 0.1, 0.06, 8).rotateX(Math.PI / 2).translate(x, 0.85, 1.32), '#fff2c8', 3.0));
   for (let k = 0; k < 7; k++) L.push(col(new THREE.OctahedronGeometry(1, 0).scale(0.16, 0.38 + (k % 3) * 0.08, 0.16).rotateZ((k - 3) * 0.12).translate(-0.45 + (k % 4) * 0.3, 1.6 + (k % 3) * 0.04, -0.75 + Math.floor(k / 4) * 0.5), '#5fc4ff', 2.2));
   return merge(L); }
-// Wheeled drill (d04ca995): rounded ivory cab, four road wheels, articulated boom, stacked housings, and the spiral auger hanging in front. DRILL_HEAD stays (0, 1.05, -2.7).
+// Heavy drill truck (d04ca995). Long low chassis, cab at the rear. DRILL_HEAD stays (0, 1.05, -2.7). Blue is only the cab glass.
 const IV = [0.06, 0.55], GD = [0.72, 0.34], DK = [0.04, 0.9], ST = [0.4, 0.4], GL = [0.06, 0.14];
+const AUGER_TIP = -1.42; // bit-local y of the cutting point. With the rig scale, this bites the ground under the head.
 function rigGeo(hi, aug) {
-  const Y = (r1, r2, h, n, open = false) => new THREE.CylinderGeometry(r1, r2, h, n, 1, open), nC = hi ? 10 : 7, wN = hi ? 12 : 8, L = [];
+  const Y = (r1, r2, h, n, open = false) => new THREE.CylinderGeometry(r1, r2, h, n, 1, open), B = (w, h, d) => new THREE.BoxGeometry(w, h, d), nC = hi ? 8 : 5, L = [];
   const rod = (a, b, r, c, n, mr) => { const A = new THREE.Vector3(...a), Bv = new THREE.Vector3(...b), d = Bv.clone().sub(A), len = Math.max(0.05, d.length()), g = Y(r, r, len, n, true); g.translate(0, len / 2, 0); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize())); g.translate(A.x, A.y, A.z); return col(g, c, 0, mr); };
-  const MZ = -2.7;
-  const hull = Y(0.46, 0.46, 2.7, nC).rotateX(Math.PI / 2); hull.scale(1.85, 0.72, 1); L.push(col(hull, '#f4ecdc', 0, IV));
-  const skirt = Y(0.5, 0.5, 2.35, nC).rotateX(Math.PI / 2); skirt.scale(1.9, 0.78, 1); L.push(col(skirt, '#e2b04a', 0, GD));
-  L.push(col(Y(0.22, 0.28, 0.7, nC).translate(0, 0.72, 1.35), '#d9d0bc', 0, IV));
-  const cab = new THREE.SphereGeometry(0.62, hi ? 12 : 8, hi ? 9 : 6); cab.scale(1.05, 0.82, 1.25); L.push(col(cab.translate(0, 1.95, 0.55), '#f7f1e4', 0, IV));
-  const glass = new THREE.SphereGeometry(0.4, hi ? 10 : 7, hi ? 7 : 5); glass.scale(1.35, 0.72, 0.35); L.push(col(glass.translate(0, 2.02, 1.15), '#16325c', 0.7, GL));
-  L.push(col(new THREE.TorusGeometry(0.62, 0.035, 4, hi ? 12 : 8).rotateX(Math.PI / 2).translate(0, 1.72, 0.55), '#e2b04a', 0, GD));
-  L.push(col(Y(0.1, 0.13, 0.7, nC).translate(0.35, 2.85, 0.85), '#9aa3ab', 0, ST), col(Y(0.16, 0.12, 0.16, nC).translate(0.35, 3.22, 0.85), '#2c2926', 0, DK));
-  for (const s of [-1, 1]) for (const z of [1.05, -1.15]) {
-    L.push(col(Y(0.48, 0.48, 0.34, wN).rotateZ(Math.PI / 2).translate(s * 1.02, 0.48, z), '#141210', 0, DK));
-    L.push(col(Y(0.52, 0.52, 0.07, wN).rotateZ(Math.PI / 2).translate(s * 1.02, 0.48, z - 0.1), '#0c0b0a', 0, DK));
-    L.push(col(Y(0.52, 0.52, 0.07, wN).rotateZ(Math.PI / 2).translate(s * 1.02, 0.48, z + 0.1), '#0c0b0a', 0, DK));
-    L.push(col(Y(0.18, 0.18, 0.2, hi ? 8 : 6).rotateZ(Math.PI / 2).translate(s * 1.02, 0.48, z), '#e2b04a', 0, GD));
+  const beam = (a, b, w, h, c, mr) => { const A = new THREE.Vector3(...a), Bv = new THREE.Vector3(...b), d = Bv.clone().sub(A), len = Math.max(0.05, d.length()), g = B(w, len, h).translate(0, len / 2, 0); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize())); g.translate(A.x, A.y, A.z); return col(g, c, 0, mr); };
+  const MZ = -2.7, RIM = 0.58, ZC = 0.35;
+  // Dark frame under a longer cream hull (about 1.3x the previous deck). The frame is narrower, so it shows between the wheels.
+  L.push(col(B(1.58, 0.38, 5.80).translate(0, 0.34, ZC), '#1a1612', 0, DK));
+  L.push(col(B(2.08, 0.16, 5.55).translate(0, 0.58, ZC), '#cfc6b6', 0, IV));
+  L.push(col(B(1.86, 0.40, 5.30).translate(0, 0.86, ZC + 0.04), '#f3ecdf', 0, IV));
+  L.push(col(B(0.09, 0.08, 5.20).translate(0.96, 1.08, ZC), '#e2b04a', 0, GD), col(B(0.09, 0.08, 5.20).translate(-0.96, 1.08, ZC), '#e2b04a', 0, GD));
+  L.push(col(B(1.9, 0.06, 0.08).translate(0, 0.72, -2.35), '#e2b04a', 0, GD), col(B(1.9, 0.06, 0.08).translate(0, 0.72, 3.15), '#e2b04a', 0, GD));
+  if (hi) {
+    for (const z of [-1.7, -0.4, 0.9, 2.2]) L.push(col(B(0.07, 0.36, 0.07).translate(0.96, 0.86, z), '#c4923a', 0, GD), col(B(0.07, 0.36, 0.07).translate(-0.96, 0.86, z), '#c4923a', 0, GD));
+    L.push(col(B(1.7, 0.025, 0.04).translate(0, 0.95, -0.9), '#8a8174', 0, DK), col(B(1.7, 0.025, 0.04).translate(0, 0.95, 0.5), '#8a8174', 0, DK), col(B(1.7, 0.025, 0.04).translate(0, 0.95, 1.7), '#8a8174', 0, DK));
+    L.push(col(Y(0.26, 0.26, 0.85, 8).rotateZ(Math.PI / 2).translate(0.62, 1.32, 0.15), '#c5ccd4', 0, ST));
+    L.push(col(Y(0.30, 0.30, 0.06, 8).rotateZ(Math.PI / 2).translate(0.22, 1.32, 0.15), '#e2b04a', 0, GD));
+    L.push(col(Y(0.12, 0.14, 1.20, 8).translate(-0.55, 1.72, 2.95), '#3a342e', 0, DK));
+    L.push(col(Y(0.18, 0.18, 0.08, 8).translate(-0.55, 2.36, 2.95), '#e2b04a', 0, GD));
+    for (const x of [-0.72, 0.72]) L.push(col(Y(0.09, 0.09, 0.10, 8).rotateX(Math.PI / 2).translate(x, 0.78, -2.42), '#ffe1a0', 1.3, [0.2, 0.3]));
+    L.push(col(Y(0.07, 0.07, 0.08, 6).rotateX(Math.PI / 2).translate(0.7, 0.85, 3.22), '#ff5a3c', 0.8, [0.2, 0.35]));
+    L.push(beam([0.98, 1.08, 2.15], [0.98, 1.95, 2.15], 0.06, 0.06, '#c4923a', GD), beam([1.16, 1.08, 2.15], [1.16, 1.95, 2.15], 0.06, 0.06, '#c4923a', GD));
+    for (const y of [1.28, 1.52, 1.76]) L.push(beam([0.98, y, 2.15], [1.16, y, 2.15], 0.05, 0.05, '#e2b04a', GD));
   }
-  const P0 = [0, 2.55, 0.35], J = [0, 4.05, -1.15], H = [0, 4.55, MZ];
-  L.push(rod(P0, J, 0.11, '#e2b04a', nC, GD), rod([0.16, P0[1], P0[2]], [0.14, J[1], J[2]], 0.07, '#c5ccd4', hi ? 6 : 5, ST), rod([-0.16, P0[1], P0[2]], [-0.14, J[1], J[2]], 0.07, '#c5ccd4', hi ? 6 : 5, ST));
-  L.push(rod(J, H, 0.1, '#e2b04a', nC, GD), rod([0.14, J[1], J[2]], [0.12, H[1], H[2]], 0.06, '#c5ccd4', hi ? 6 : 5, ST));
-  L.push(col(new THREE.SphereGeometry(0.22, hi ? 8 : 6, hi ? 6 : 4).translate(J[0], J[1], J[2]), '#5c584f', 0, ST), col(new THREE.SphereGeometry(0.16, 6, 5).translate(P0[0], P0[1], P0[2]), '#5c584f', 0, ST));
-  L.push(rod([0, 1.35, -0.2], [0, 3.15, -0.85], 0.09, '#d5dbe2', nC, ST), rod([0, 3.15, -0.85], [0, 3.85, -1.35], 0.06, '#9aa3ab', hi ? 6 : 5, ST));
-  const hous = hi ? [[0.34, 3.15], [0.46, 3.7], [0.55, 4.3], [0.4, 4.85]] : [[0.4, 3.4], [0.52, 4.35]];
-  for (const [r, y] of hous) L.push(col(Y(r, r * 0.92, 0.42, nC).translate(0, y, MZ), '#d5dbe2', 0, ST), col(Y(r + 0.06, r + 0.06, 0.07, nC).translate(0, y + 0.2, MZ), '#e2b04a', 0, GD));
-  L.push(col(Y(0.28, 0.36, 0.28, nC).translate(0, 2.85, MZ), '#9aa3ab', 0, ST));
-  if (hi) { L.push(rod([0.55, 1.85, 0.2], [0.28, 3.3, -1.3], 0.045, '#241f1c', 6, DK), rod([0.28, 3.3, -1.3], [0.12, 4.2, MZ + 0.15], 0.04, '#241f1c', 6, DK), rod([-0.4, 1.7, 0.15], [-0.15, 3.6, MZ + 0.1], 0.04, '#241f1c', 5, DK)); }
-  if (aug) L.push(...augerList(false).map(g => g.translate(0, 1.2, MZ)));
+  // Cab on the rear deck: inset roof, round nose, gold window frame, large blue glass.
+  L.push(col(B(1.32, 0.78, 1.48).translate(0.12, 1.48, 2.15), '#f4eee4', 0, IV));
+  L.push(col(B(1.05, 0.22, 1.18).translate(0.12, 1.96, 2.22), '#e7dfd2', 0, IV));
+  L.push(col(B(1.16, 0.045, 1.28).translate(0.12, 1.84, 2.18), '#e2b04a', 0, GD));
+  L.push(col(Y(0.36, 0.36, 1.18, hi ? 10 : 6).rotateZ(Math.PI / 2).translate(0.12, 1.42, 1.48), '#f4eee4', 0, IV));
+  L.push(col(B(0.88, 0.46, 0.05).translate(0.12, 1.50, 1.22), '#16325c', 0.6, GL));
+  L.push(col(B(0.96, 0.54, 0.04).translate(0.12, 1.50, 1.26), '#e2b04a', 0, GD));
+  L.push(col(B(0.045, 0.66, 1.16).translate(0.78, 1.52, 2.20), '#e2b04a', 0, GD));
+  L.push(col(B(0.06, 0.56, 1.02).translate(0.84, 1.52, 2.20), '#16325c', 0.75, GL));
+  // Round hauler tyre, truck-sized. Front axle plus a close pair under the cab.
+  const tyre = (n) => {
+    const k = RIM / 0.42;
+    const pts = [[0.20, -0.12], [0.32, -0.11], [0.40, -0.06], [0.44, -0.02], [0.445, 0.025], [0.42, 0.055], [0.36, 0.09], [0.28, 0.105], [0.22, 0.09]].map(([r, y]) => new THREE.Vector2(r * (0.42 / 0.445) * k, y * k));
+    const g = new THREE.LatheGeometry(pts, n); g.rotateZ(Math.PI / 2); return g;
+  };
+  for (const z of [-1.45, 1.55, 2.22]) L.push(col(Y(0.07, 0.07, 2.15, 5).rotateZ(Math.PI / 2).translate(0, RIM, z), '#2a2622', 0, DK));
+  for (const s of [-1, 1]) for (const z of [-1.45, 1.55, 2.22]) {
+    const x = s * 1.22;
+    L.push(col(hi ? tyre(12) : Y(RIM, RIM, 0.32, 5).rotateZ(Math.PI / 2), '#141210', 0, DK).translate(x, RIM, z));
+    L.push(col(Y(0.18, 0.18, 0.05, hi ? 8 : 5).rotateZ(Math.PI / 2).translate(x + s * 0.14, RIM, z), '#e2b04a', 0, GD));
+    if (hi) {
+      L.push(col(Y(0.07, 0.07, 0.03, 5).rotateZ(Math.PI / 2).translate(x + s * 0.17, RIM, z), '#1a1612', 0, DK));
+      for (let i = 0; i < 8; i++) {
+        const a = i / 8 * Math.PI * 2 + (s > 0 ? 0.04 : 0.22);
+        const g = B(0.08, 0.05, 0.09); g.rotateX(a); g.translate(x, RIM + Math.cos(a) * (RIM - 0.01), z + Math.sin(a) * (RIM - 0.01));
+        L.push(col(g, '#12100e', 0, DK));
+      }
+    }
+  }
+  // Gold tower beside the head. The boxed arm rises past the motor and leans toward the head, with a ram beside it.
+  const tx = 0.72, tz = -0.95, yb = 1.02, yt = 5.55, SV = [0.86, 0.22], GV = [0.16, 0.84];
+  for (const ox of [-0.32, 0.32]) for (const oz of [-0.24, 0.24]) L.push(beam([tx + ox, yb, tz + oz], [tx + ox, yt, tz + oz], hi ? 0.20 : 0.16, hi ? 0.22 : 0.16, '#e2b04a', GD));
+  for (const y of (hi ? [1.7, 2.9, 4.1, 5.2] : [2.2, 4.2])) {
+    L.push(beam([tx - 0.32, y, tz], [tx + 0.32, y, tz], 0.11, 0.11, '#c4923a', GD));
+    if (hi) L.push(beam([tx, y, tz - 0.24], [tx, y, tz + 0.24], 0.11, 0.11, '#c4923a', GD));
+  }
+  const armA = [0.95, 1.42, 1.15], armB = [0.42, 5.48, -1.95];
+  L.push(beam(armA, armB, 0.36, 0.46, '#e2b04a', GD));
+  L.push(col(new THREE.SphereGeometry(0.28, hi ? 8 : 5, hi ? 6 : 4).translate(armB[0], armB[1], armB[2]), '#8a7040', 0, ST));
+  L.push(rod([1.12, 1.55, 1.02], [0.62, 5.22, -1.72], 0.09, '#d5dbe2', hi ? 6 : 5, SV));
+  L.push(rod([tx + 0.48, yb + 0.15, tz], [tx + 0.48, yt - 0.35, tz], 0.08, '#d8dee4', hi ? 6 : 5, SV));
+  if (hi) L.push(rod([tx - 0.48, yb + 0.2, tz], [tx - 0.48, yt - 0.5, tz], 0.07, '#d8dee4', 5, SV));
+  // Silver barrel. Raised bands are metal; the gaps are dark recessed grooves. Gold is two collars plus the motor housing.
+  const y0 = 2.16, R = 0.50, bands = hi ? 8 : 4, bandH = 0.20, gap = 0.09;
+  for (let i = 0; i < bands; i++) {
+    const y = y0 + i * (bandH + gap) + bandH / 2;
+    L.push(col(Y(R, R, bandH, nC).translate(0, y, MZ), '#d7dee6', 0, SV));
+    if (i < bands - 1) L.push(col(Y(R - 0.10, R - 0.10, gap + 0.02, nC, true).translate(0, y + (bandH + gap) / 2, MZ), '#161a1f', 0, GV));
+  }
+  const yTopBand = y0 + (bands - 1) * (bandH + gap) + bandH;
+  L.push(col(Y(R + 0.06, R + 0.06, 0.05, nC, true).translate(0, y0 + 0.02, MZ), '#e2b04a', 0, GD));
+  L.push(col(Y(R + 0.06, R + 0.06, 0.05, nC, true).translate(0, yTopBand - 0.02, MZ), '#e2b04a', 0, GD));
+  const top = yTopBand + 0.04;
+  L.push(col(B(1.16, 0.12, 1.02).translate(0, top + 0.06, MZ), '#e2b04a', 0, GD));
+  L.push(col(B(0.98, 0.42, 0.84).translate(0, top + 0.32, MZ), '#d7dee6', 0, SV));
+  L.push(col(B(1.08, 0.07, 0.94).translate(0, top + 0.55, MZ), '#e2b04a', 0, GD));
+  if (aug) for (const g of augerList(false)) L.push(g.translate(0, DRILL_HEAD.y, MZ));
   return merge(L);
 }
-function augerList(hi) {
-  const Y = (r1, r2, h, n) => new THREE.CylinderGeometry(r1, r2, h, n), n = hi ? 8 : 6, ST = [0.35, 0.38], GD = [0.7, 0.32], L = [];
-  const T = hi ? 6 : 4;
-  for (let k = 0; k < T; k++) {
-    const t = k / (T - 1), r = 0.5 - t * 0.38, y = 1.35 - k * (2.15 / T), h = 2.15 / T * 0.82;
-    L.push(col(Y(r, Math.max(0.06, r - 0.06), h, n).translate(0, y, 0), k % 2 ? '#c5ccd4' : '#e4e8ec', 0, ST));
-    L.push(col(Y(r + 0.05, r + 0.05, 0.06, n, true).translate(0, y + h * 0.35, 0), '#e2b04a', 0, GD));
-    const turns = hi ? 3 : 2;
-    for (let s = 0; s < turns; s++) { const a = k * 0.85 + s * (Math.PI * 2 / turns); const fl = new THREE.BoxGeometry(r * 0.85, 0.05, 0.1); fl.rotateY(a); fl.translate(Math.cos(a) * r * 0.55, y, Math.sin(a) * r * 0.55); L.push(col(fl, '#f2f5f7', 0, ST)); }
+function augerFlight(hi) {
+  const y0 = 0.48, y1 = -1.02, yTop = 1.12, yBot = -1.20, turns = 2.5, seg = hi ? 28 : 12;
+  const rShaft = (y) => { const t = Math.min(1, Math.max(0, (yTop - y) / (yTop - yBot))); return 0.26 + (0.08 - 0.26) * t; };
+  const pos = [], idx = [], lift = hi ? 0.08 : 0.04;
+  const V = (y, a, extra, dy) => { const r = rShaft(y) + extra, i = pos.length / 3; pos.push(Math.cos(a) * r, y + dy, Math.sin(a) * r); return i; };
+  for (const phase of [0]) {
+    const top = [], bot = [];
+    for (let i = 0; i <= seg; i++) {
+      const t = i / seg, y = y0 + (y1 - y0) * t, a = t * turns * Math.PI * 2 + phase, w = 0.30 * (1 - t * 0.28);
+      top.push([V(y, a, 0.01, lift), V(y, a, w, lift)]);
+      bot.push([V(y, a, 0.01, -lift), V(y, a, w, -lift)]);
+    }
+    for (let i = 0; i < seg; i++) {
+      const [a, b] = top[i], [c, d] = top[i + 1]; idx.push(a, b, d, a, d, c);
+      const [e, f] = bot[i], [g, h] = bot[i + 1]; idx.push(e, h, f, e, g, h);
+    }
   }
-  L.push(col(Y(0.1, 0.02, 0.42, n).translate(0, -0.85, 0), '#ff9a3c', 1.6, [0.12, 0.3]));
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setIndex(idx); geo.computeVertexNormals(); return geo;
+}
+function augerList(hi) {
+  const n = hi ? 8 : 5, L = [];
+  const yTop = 1.12, yBot = -1.20, h = yTop - yBot, cy = (yTop + yBot) / 2;
+  L.push(col(new THREE.CylinderGeometry(0.26, 0.08, h, n).translate(0, cy, 0), '#5c656e', 0, [0.5, 0.48]));
+  const tip = new THREE.ConeGeometry(0.08, 0.28, n); tip.rotateX(Math.PI); tip.translate(0, -1.30, 0); L.push(col(tip, '#c5ccd4', 0, [0.7, 0.3]));
+  const hot = new THREE.ConeGeometry(0.05, 0.16, n); hot.rotateX(Math.PI); hot.translate(0, AUGER_TIP, 0); L.push(col(hot, '#ff9a3c', 1.5, [0.12, 0.3]));
+  L.push(col(new THREE.CylinderGeometry(0.36, 0.30, 0.18, n).translate(0, 1.00, 0), '#8b949e', 0, [0.65, 0.35]));
+  L.push(col(augerFlight(hi), '#b7c0c8', 0, [0.75, 0.3]));
   return L;
 }
 function augerGeo(hi) { return merge(augerList(hi)); }
 // Same parts as the parked hauler (world.js haulerPieces). hi: 20-gon tyres up close. lo: 8-gon.
-function haulerGeo(hi) { const MR = { dark: [0.04, 0.9], ivory: [0.06, 0.52], gold: [0.72, 0.34], glow: [0.1, 0.18] }; const L = []; for (const p of haulerPieces(hi ? 20 : 8, 8)) { const g = p.geo.clone(); g.translate(p.pos[0], p.pos[1], p.pos[2]); L.push(col(g, p.color, p.group === 'glow' ? p.emit : 0, MR[p.group])); } return merge(L); }
+function haulerGeo(hi) {
+  const MR = { dark: [0.04, 0.9], ivory: [0.08, 0.48], gold: [0.78, 0.32], glow: [0.12, 0.2], tex: [0.2, 0.22] };
+  const L = [];
+  for (const p of haulerPieces(hi ? 20 : 8, 8)) {
+    let g = p.geo.clone(); g.translate(p.pos[0], p.pos[1], p.pos[2]);
+    const mr = p.mr || MR[p.group] || MR.ivory;
+    if (g.attributes.aGemE && g.attributes.color) {
+      const n = g.attributes.position.count, ae = new Float32Array(g.attributes.aGemE.array), am = new Float32Array(n * 2);
+      for (let i = 0; i < n; i++) { am[i * 2] = mr[0]; am[i * 2 + 1] = mr[1]; }
+      g.setAttribute('aE', new THREE.BufferAttribute(ae, 1)); g.setAttribute('aMR', new THREE.BufferAttribute(am, 2)); g.deleteAttribute('aGemE');
+      if (g.attributes.uv) g.deleteAttribute('uv'); L.push(g); continue;
+    }
+    if (!p.shade) { L.push(col(g, p.color, p.emit || 0, mr)); continue; }
+    g = g.index ? g.toNonIndexed() : g;
+    const P = g.attributes.position, n = P.count, a = new Float32Array(n * 3), ae = new Float32Array(n), am = new Float32Array(n * 2);
+    for (let i = 0; i < n; i++) { const c = p.shade(P.getX(i), P.getY(i), P.getZ(i)); a[i * 3] = c[0]; a[i * 3 + 1] = c[1]; a[i * 3 + 2] = c[2]; ae[i] = c[3] || 0; am[i * 2] = mr[0]; am[i * 2 + 1] = mr[1]; }
+    g.setAttribute('color', new THREE.BufferAttribute(a, 3)); g.setAttribute('aE', new THREE.BufferAttribute(ae, 1)); g.setAttribute('aMR', new THREE.BufferAttribute(am, 2)); if (g.attributes.uv) g.deleteAttribute('uv');
+    L.push(g);
+  }
+  return merge(L);
+}
 function drillGeo() { const L = [col(new THREE.BoxGeometry(2.2, 0.8, 3.2).translate(0, 0.9, 0), '#e6dcc6'), col(new THREE.BoxGeometry(2.3, 0.1, 3.3).translate(0, 1.32, 0), '#f0b020' /* v123 warmer gold */), col(new THREE.BoxGeometry(1.2, 0.9, 1.0).translate(0, 1.8, -1.0), '#d8cdb5'), col(new THREE.BoxGeometry(0.9, 0.4, 0.1).translate(0, 1.9, -0.48), '#2b3d5c', 0.2), col(new THREE.BoxGeometry(0.3, 4.2, 0.3).translate(0, 3.2, 1.1), '#e8b038' /* v123 warmer gold */), col(new THREE.BoxGeometry(0.9, 0.5, 0.6).translate(0, 5.1, 1.1), '#e6dcc6')];
   for (const z of [-1.1, 0, 1.1]) for (const x of [-1.2, 1.2]) L.push(col(new THREE.CylinderGeometry(0.42, 0.42, 0.34, 10).rotateZ(Math.PI / 2).translate(x, 0.42, z), '#3a3530'));
   L.push(col(new THREE.SphereGeometry(0.12, 6, 4).translate(0, 5.45, 1.1), '#ff4030', 4.0)); return merge(L); }
@@ -133,16 +223,16 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const ships = (low ? [] : LITE ? [0] : [0, 1]).map(i => { const m = new THREE.Mesh(shG, mat); m.name = 'life_ship'; m.scale.setScalar(2.2); root.add(m); return { m, i, t: i === 0 ? 0.4 : 18 }; });
   // v124: shuttles fly fixed world routes (hub oval + hub↔launch corridor), not whatever the camera happens to face.
   const shipRoutes = [
-    { cx: base.x + 4, cz: base.z - 6, rx: 42, rz: 16, yaw: Math.atan2(-0.595, 0.803), y0: 14, y1: 20, dur: 24 },
+    { cx: base.x + 4, cz: base.z - 6, rx: 36, rz: 14, yaw: Math.atan2(-0.595, 0.803), y0: 34, y1: 48, dur: 22 },
     { cx: (base.x + launch.x) * 0.5, cz: (base.z + launch.z) * 0.5, rx: 210, rz: 72, yaw: Math.atan2(launch.z - base.z, launch.x - base.x), y0: 96, y1: 132, dur: 44 },
   ];
   const SKY_R = low ? 0 : mobile ? 200 : 250; // hub and the launch pad still see their craft; a canyon/echo centre does not pick up the base traffic
   const sat = new THREE.Mesh(satGeo(), mat); sat.name = 'life_sat'; sat.scale.setScalar(0.85); root.add(sat); sat.visible = !LITE;
   const lift = new THREE.Mesh(shG, mat); lift.name = 'life_liftoff'; lift.scale.setScalar(2.6); root.add(lift); let liftT = 5;
   // ground vehicles
-  const HID = low ? 0 : mobile ? 16 : 28, /* 20-gon tyres while the hauler is readable from the play stand; 8-gon only once it is a small shape */ HIDD = low ? 0 : mobile ? 40 : 48; /* the play stand and a walk around the rig stay on the full mast; low keeps the same silhouette with fewer wheels */ const rvG = [haulerGeo(false), low ? null : haulerGeo(true)], drG = [rigGeo(false, low), low ? null : rigGeo(true, false)] /* v99: own rig (concept), machines.js untouched */;
-  const rover = new THREE.Mesh(rvG[0], mat); rover.name = 'life_rover'; rover.userData.hi = rvG[1]; if (!low) { const bm = new THREE.MeshBasicMaterial({ color: 0xffc070, transparent: true, opacity: 0.26, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false }); const bg = new THREE.ConeGeometry(1.1, 5.0, 10, 1, true).translate(0, -2.5, 0).rotateX(-Math.PI / 2 + 0.22); const b = new THREE.Mesh(merge([-0.62, 0.62].map(sx => bg.clone().translate(sx, 0.92, 1.62))), bm); b.name = 'life_rover_beam'; rover.add(b); } /* v98: headlight beams on the dust */ rover.scale.setScalar(1.0); rover.castShadow = true; root.add(rover);
-  const roverCol = { x: 0, z: 0, r: 0.95, h: 1.7 }; if (ctrl && ctrl.colliders) ctrl.colliders.push(roverCol);
+  const HID = low ? 0 : mobile ? 16 : 28, /* 20-gon tyres while the hauler is readable from the play stand; 8-gon only once it is a small shape */ HIDD = low ? 0 : mobile ? 16 : 48; /* phone yard view uses the lighter rig; a close desktop look keeps the full mast */ const rvG = [haulerGeo(false), low ? null : haulerGeo(true)], drG = [rigGeo(false, low), low ? null : rigGeo(true, false)] /* v99: own rig (concept), machines.js untouched */;
+  const rover = new THREE.Mesh(rvG[0], mat); rover.name = 'life_rover'; rover.userData.hi = rvG[1]; /* lamps are the round discs in the hauler mesh; no cone wedges */ rover.scale.setScalar(1.0); rover.castShadow = true; root.add(rover);
+  const roverCols = [{ lz: -0.55, r: 1.02 }, { lz: 0.12, r: 1.10 }, { lz: 0.80, r: 1.02 }].map(c => ({ x: 0, z: 0, r: c.r, h: 2.0, lz: c.lz })); if (ctrl && ctrl.colliders) roverCols.forEach(c => ctrl.colliders.push(c));
   let sparkAcc = 0, sparkFl = 0; const drill = new THREE.Mesh(drG[0], mat); drill.name = 'life_drill'; drill.userData.hi = drG[1]; drill.scale.setScalar(1.15); /* concept: the drill rig is a big hero prop */ root.add(drill); const bit = new THREE.Mesh(augerGeo(!mobile), mat); bit.position.copy(DRILL_HEAD); drill.add(bit); bit.visible = !low;
   // rotating radar dish next to the base
   if (false) { const rg = merge([col(new THREE.CylinderGeometry(0.25, 0.4, 3.2, 8).translate(0, 1.6, 0), '#d8cdb5'), col(new THREE.BoxGeometry(0.8, 0.5, 0.8).translate(0, 3.3, 0), '#f0b020' /* v123 warmer gold */)]); const st_ = new THREE.Mesh(rg, mat); const rx = base.x + 22, rz = base.z - 12; st_.position.set(rx, groundAt(rx, rz), rz); root.add(st_);
@@ -155,22 +245,29 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const flat = (x, z, r) => { let mn = 1e9, mx = -1e9; for (let dx = -r; dx <= r; dx += 2) for (let dz = -r; dz <= r; dz += 2) { const h = sAt(x + dx, z + dz); mn = Math.min(mn, h); mx = Math.max(mx, h); } return mx - mn; };
   const clear = (x, z) => cols.reduce((m, c) => Math.min(m, Math.hypot(c.x - x, c.z - z) - (c.r || 1)), 1e9);
   const cy0 = Math.atan2(-F.x, -F.z) - 0.30, fwd = { x: -Math.sin(cy0), z: -Math.cos(cy0) }, right = { x: Math.cos(cy0), z: -Math.sin(cy0) };
-  shipRoutes[0].cx -= right.x * 8; shipRoutes[0].cz -= right.z * 8; // stand sky: the near shuttle sits upper-left of the dome, not on the look axis
-  // mid-right of the play stand, clear of the cat's corridor and of the crater bowl
-  let D = { x: PLAY_START.x + fwd.x * 26 + right.x * 14, z: PLAY_START.z + fwd.z * 26 + right.z * 14 };
-  if (flat(D.x, D.z, 4) > 2.5 || clear(D.x, D.z) < 3) { let bs = 1e9, fallback = D; for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2; const x = D.x + Math.cos(a) * 4, z = D.z + Math.sin(a) * 4; const sc = flat(x, z, 4) * 3 + Math.max(0, 4 - clear(x, z)) * 4; if (sc < bs) { bs = sc; fallback = { x, z }; } } D = fallback; }
+  const skyAt = (daz, del, dist) => { const e = 0.22 + del, a = 0.22 + daz, ce = Math.cos(e); return { x: PLAY_START.x + (fwd.x * ce * Math.cos(a) + right.x * ce * Math.sin(a)) * dist, z: PLAY_START.z + (fwd.z * ce * Math.cos(a) + right.z * ce * Math.sin(a)) * dist, y: groundAt(PLAY_START.x, PLAY_START.z) + 1.6 + Math.sin(e) * dist }; };
+  const shipP = skyAt(-0.48, 0.04, 44); Object.assign(shipRoutes[0], { cx: shipP.x, cz: shipP.z, rx: 6, rz: 3, yaw: Math.atan2(fwd.x, fwd.z), y0: shipP.y - groundAt(base.x, base.z) - 1, y1: shipP.y - groundAt(base.x, base.z) + 2 }); if (ships[0]) ships[0].t = 0.02;
+  // Yard in front of the depot: hauler loops on the camera-left, drill parks on the camera-right, both in the yard frame.
+  YARD.value.set(depotP.x, depotP.z, 1);
+  const dyaw = depotP.yaw || 0, dfx = Math.sin(dyaw), dfz = Math.cos(dyaw), dlx = dfz, dlz = -dfx, drx = -dfz, drz = dfx;
+  let D = { x: depotP.x + dfx * 3.5 + drx * 8, z: depotP.z + dfz * 3.5 + drz * 8 };
+  if (flat(D.x, D.z, 4) > 3.2 || clear(D.x, D.z) < 2.4) { let bs = 1e9, fallback = D; for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; const x = D.x + Math.cos(a) * 5, z = D.z + Math.sin(a) * 5; const sc = flat(x, z, 3) * 3 + Math.max(0, 3 - clear(x, z)) * 4; if (sc < bs) { bs = sc; fallback = { x, z }; } } D = fallback; }
   const dd = { x: D.x - depotP.x, z: D.z - depotP.z }, dl = Math.hypot(dd.x, dd.z) || 1, ux = dd.x / dl, uz = dd.z / dl, px = -uz, pz = ux;
-  drill.position.set(D.x, groundAt(D.x, D.z), D.z); drill.rotation.y = Math.atan2(PLAY_START.x - D.x, PLAY_START.z - D.z) + 0.6;
-  // rover: depot -> around the drill -> back (closed loop), all inside the open patch
-  const hc = sd(4, -18); const hux = F.x, huz = F.z, hpx = -huz, hpz = hux; const loopPts = []; for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2; loopPts.push(new THREE.Vector3(hc.x + hux * Math.cos(a) * 5.2 + hpx * Math.sin(a) * 1.8, 0, hc.z + huz * Math.cos(a) * 5.2 + hpz * Math.sin(a) * 1.8)); } setRut(hc.x, hc.z, 5.2, 1.8, hux, huz); setCrater(PLAY_CRATER.x, PLAY_CRATER.z, PLAY_CRATER.r); setRut2(REGIONS.echo.x + 6, REGIONS.echo.z - 2, 8.5, 2.4, 0.71, -0.70); { const _ah = Math.atan2(-REGIONS.reactor.z, -REGIONS.reactor.x); setRut3(REGIONS.reactor.x + Math.cos(_ah) * 34, REGIONS.reactor.z + Math.sin(_ah) * 34, 10, 2.6, Math.cos(_ah), Math.sin(_ah)); }
+  drill.position.set(D.x, groundAt(D.x, D.z), D.z); drill.rotation.y = Math.atan2(depotP.x - D.x, depotP.z - D.z) + 0.35;
+  const hc = { x: depotP.x + dfx * 2.5 + dlx * 8, z: depotP.z + dfz * 2.5 + dlz * 8 }; const hux = dlx, huz = dlz, hpx = dfx, hpz = dfz; const loopPts = []; for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2; loopPts.push(new THREE.Vector3(hc.x + hux * Math.cos(a) * 2.2 + hpx * Math.sin(a) * 1.1, 0, hc.z + huz * Math.cos(a) * 2.2 + hpz * Math.sin(a) * 1.1)); } setRut(hc.x, hc.z, 2.2, 1.1, hux, huz); setCrater(PLAY_CRATER.x, PLAY_CRATER.z, PLAY_CRATER.r); setRut2(REGIONS.echo.x + 6, REGIONS.echo.z - 2, 8.5, 2.4, 0.71, -0.70); { const _ah = Math.atan2(-REGIONS.reactor.z, -REGIONS.reactor.x); setRut3(REGIONS.reactor.x + Math.cos(_ah) * 34, REGIONS.reactor.z + Math.sin(_ah) * 34, 10, 2.6, Math.cos(_ah), Math.sin(_ah)); }
   const loop = new THREE.CatmullRomCurve3(loopPts, true); const loopLen = loop.getLength();
   // porters: two crew robots shuttling crystals drill -> depot; they wave at the cat when it comes close
   const porters = makeCrew ? [['builder', 0, -7], ['geologist', 0.27, 0.8]].map(([ty, o, ln]) => { const r = makeCrew(scene, env, ty, 2); r.root.name = 'life_porter'; return { r, o, ln, wave: 0 }; }) /* v97: separate lanes + phase so they never stack behind the cat */ : [];
   // v51: a builder welding at the depot wall near the base (orange spark bursts); impostor when far, like the porters
-  const welder = makeCrew ? (() => { const r = makeCrew(scene, env, 'builder', 2); r.root.name = 'life_welder'; const x = D.x - fwd.x * 3.4 - right.x * 2.0, z = D.z - fwd.z * 3.4 - right.z * 2.0; return { r, x, z, yaw: Math.atan2(D.x - x, D.z - z), far: false }; })() : null;
+  const welder = makeCrew ? (() => { const r = makeCrew(scene, env, 'builder', 2); r.root.name = 'life_welder'; const x = depotP.x + dfx * 6.2 + dlx * 1.6, z = depotP.z + dfz * 6.2 + dlz * 1.6; return { r, x, z, yaw: Math.atan2(depotP.x - x, depotP.z - z), far: false }; })() : null;
   const IMP_D = low ? 6 : mobile ? 7 : 8; const NEAR = low ? 2.4 : mobile ? 2.6 : 2.2; /* v125: the lower boom sits closer to the plaza, so the hi band shrinks or the among-crew view exceeds 100k */ /* v51: life robots show hi only (no lo band) -> impostor beyond NEAR */ // same as the crew: far porters become impostors (one shared instanced draw)
   const pA = { x: D.x - ux * 3 + px * 2, z: D.z - uz * 3 + pz * 2 }, pB = { x: depotP.x + ux * 2.5 + px * 1.2, z: depotP.z + uz * 2.5 + pz * 1.2 };
-  if (welder) { const gx = welder.x, gz = welder.z; welder.y = groundAt(gx, gz); }
+  if (welder) { const gx = welder.x, gz = welder.z; welder.y = groundAt(gx, gz);
+  const pos = [], col = []; const spike = (ox, oz, h, r) => { const n = 5; for (let i = 0; i < n; i++) { const a0 = i / n * Math.PI * 2, a1 = (i + 1) / n * Math.PI * 2; const x0 = ox + Math.cos(a0) * r, z0 = oz + Math.sin(a0) * r, x1 = ox + Math.cos(a1) * r, z1 = oz + Math.sin(a1) * r; pos.push(x0, 0, z0, ox, h, oz, x1, 0, z1, x1, 0, z1, ox, h, oz, ox, -0.12, oz); col.push(0.0, 0.35, 1, 0.25, 0.85, 1, 0.0, 0.35, 1, 0.0, 0.35, 1, 0.25, 0.85, 1, 0.0, 0.15, 0.7); } };
+  spike(0, 0, 0.85, 0.22); spike(0.32, 0.05, 0.58, 0.15); spike(-0.26, 0.12, 0.5, 0.13); spike(0.04, -0.28, 0.4, 0.12);
+  const cg = new THREE.BufferGeometry(); cg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); cg.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); cg.computeVertexNormals();
+  const cm = new THREE.MeshBasicMaterial({ vertexColors: true, color: '#00b7ff', toneMapped: false });
+  const crystals = new THREE.Mesh(cg, cm); crystals.name = 'life_crystals'; crystals.scale.setScalar(1.35); crystals.position.set(gx + Math.cos(welder.yaw) * 0.9, welder.y, gz - Math.sin(welder.yaw) * 0.9); root.add(crystals); }
   // Fixed world worksites. Positions do not depend on the camera. Near: the real crew mesh (its own hi/lo). Far: the shared impostor.
   const zones = [];
   const s0c = canyonS(REGIONS.canyon.x, REGIONS.canyon.z);
@@ -196,14 +293,20 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   ];
   // steam vents: play-stand right plain (hauler crew), welder, and the plaza toward the drill
   const ventAt = (x, z, tt) => { const gy = Math.max(groundAt(x, z), sAt(x, z)); return { x, z, y: gy + 1.15, gy, tt }; };
-  const vents = [ventAt(PLAY_START.x + fwd.x * 8 + right.x * 8, PLAY_START.z + fwd.z * 8 + right.z * 8, 0.05), ventAt(PLAY_START.x + fwd.x * 12 + right.x * 10.5, PLAY_START.z + fwd.z * 12 + right.z * 10.5, 0.4)];
+  const vents = [ventAt(hc.x + dlx * 1.2, hc.z + dlz * 1.2, 0.05), ventAt(D.x + drx * 1.4, D.z + drz * 1.4, 0.25), ventAt(PLAY_START.x + fwd.x * 12 + right.x * 10.5, PLAY_START.z + fwd.z * 12 + right.z * 10.5, 0.4)];
   vents[0].play = vents[1].play = true;
   if (welder) vents.push(ventAt(welder.x + Math.sin(welder.yaw) * 1.5, welder.z + Math.cos(welder.yaw) * 1.5, 0.35));
   { const x = base.x + (D.x - base.x) * 0.62 - (D.z - base.z) * 0.12, z = base.z + (D.z - base.z) * 0.62 + (D.x - base.x) * 0.12; vents.push(ventAt(x, z, 0)); }
   const crewSpark = vents[0]; /* orange sparks beside the hauler crew, same particle system as the welder */
+  { const crates = []; const put = (g, hex, x, y, z, yw) => { g.rotateY(yw); g.translate(x, y, z); crates.push(col(g, hex, 0, hex === '#e2b04a' ? [0.7, 0.34] : [0.08, 0.55])); };
+    put(new THREE.BoxGeometry(0.7, 0.55, 0.55), '#c4a56a', hc.x + dlx * 2.2, groundAt(hc.x, hc.z) + 0.28, hc.z + dlz * 2.2, dyaw);
+    put(new THREE.BoxGeometry(0.55, 0.45, 0.5), '#e7d4b4', hc.x + dlx * 2.6, groundAt(hc.x, hc.z) + 0.78, hc.z + dlz * 2.4, dyaw + 0.4);
+    put(new THREE.BoxGeometry(1.3, 0.12, 0.8), '#8a7040', hc.x + dfx * 1.5, groundAt(hc.x, hc.z) + 0.08, hc.z + dfz * 1.5, dyaw);
+    for (const [ox, oz, sc] of [[-0.32, -0.16, 0.28], [0.26, -0.1, 0.22], [0.02, 0.22, 0.24], [0.06, 0, 0.18]]) { const g = new THREE.OctahedronGeometry(sc, 0); g.rotateY(0.4); g.translate(hc.x + dfx * 1.5 + ox, groundAt(hc.x, hc.z) + sc * 0.9, hc.z + dfz * 1.5 + oz); crates.push(col(g, '#14c8ff', 2.4, [0.1, 0.2])); }
+    const cm = new THREE.Mesh(merge(crates), mat); cm.name = 'life_crates'; root.add(cm); }
   const zoneVents = [ventAt(camp.x, camp.z + 3, 0.1), ventAt(Lc.x - 8, Lc.z + 6, 0.3), ventAt(Rc.x + Math.cos(ah + 1.2) * 33, Rc.z + Math.sin(ah + 1.2) * 33, 0.15), ventAt(Ec.x + 12, Ec.z + 2, 0.4)];
   if (!low) { const cap = new THREE.InstancedMesh(col(new THREE.CylinderGeometry(0.45, 0.75, 0.55, 8).translate(0, 0.27, 0), '#8c919b'), mat, vents.length); cap.name = 'life_ventcaps'; const m4 = new THREE.Matrix4(); vents.forEach((v, i) => cap.setMatrixAt(i, m4.makeTranslation(v.x, v.gy, v.z))); root.add(cap); } /* vent caps so plumes start at the ground */
-  { drill.updateMatrixWorld(true); const w = drill.localToWorld(new THREE.Vector3(0.35, 3.22, 0.85)); vents.push({ x: w.x, z: w.z, y: w.y, gy: w.y - 0.2, tt: 0.3 }); } /* stack on the cab, same sample the plume uses */
+  { drill.updateMatrixWorld(true); const w = drill.localToWorld(new THREE.Vector3(-0.55, 2.40, 2.95)); vents.push({ x: w.x, z: w.z, y: w.y, gy: w.y - 0.2, tt: 0.3 }); } /* plume starts at the cab exhaust stack */
   // lore anchors
   const J = crater; const bunnyPath = { a0: Math.atan2(J.z - base.z, J.x - base.x) + 0.9 };
   const RADIO = ['radio1', 'radio2', 'radio3', 'radio4', 'radio5']; let radioT = 25, beepT = 3, stepT = 0, waveCD = 0;
@@ -218,7 +321,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   const JR = low ? 55 : mobile ? 80 : 110;
   function jelly(bi, k, x, y, z, s) { const cam = camera.position, far = Math.hypot(x - cam.x, z - cam.z) > (k >= 2 ? JR : 260); if (!creatures) { if (far) bb.set(bi, 0, -999, 0, 0, 0); else bb.set(bi, x, y, z, s, 0, k * 1.3); return; } bb.set(bi, 0, -999, 0, 0, 0); const sl = creatures.S.jelly + (k >= 2 ? k - 2 : 2 + k), sc = s * 0.75;
     if (far) { creatures.hide(sl); return; } creatures.set(sl, x, y - 1.25 * sc, z, T * 0.08 + k * 1.7, sc, [k * 1.3, 1, 0, 1], 0.06 * Math.sin(T * 0.5 + k), 0, 1 + 0.07 * Math.sin(T * 1.7 + k), 1.6); } /* v124: far jellies stay over the crater (hub still sees them); other zones do not pay for them */
-  function update(dt, time, cat, robots) {
+  function update(dt, time, cat, robots, ground = true) {
     if (!on) return; T += dt; bb.U.uT.value = T;
     const cam = camera.position;
     // ships across the sky (relative to the base so they read from anywhere)
@@ -230,23 +333,26 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
     liftT += dt; { const cyc = 48, k = liftT % cyc; const gy = groundAt(launch.x, launch.z); const climb = k < 18 ? Math.pow(k / 18, 2) * 260 : 260 + (k - 18) * 40; const liftNear = Math.hypot(launch.x - cam.x, launch.z - cam.z) < 750; lift.visible = k < 30 && !LITE && liftNear; lift.position.set(launch.x + (k > 8 ? (k - 8) * (k - 8) * 0.25 : 0), gy + 6 + climb, launch.z); lift.rotation.set(0, 0, Math.PI / 2 - Math.min(0.5, Math.max(0, k - 8) * 0.03));
       if (lift.visible && k < 26) { for (let n = 0; n < 2; n++) parts.emit(lift.position.x - 1, lift.position.y - 5, lift.position.z, (Math.random() - 0.5) * 3, -8 - Math.random() * 6, (Math.random() - 0.5) * 3, 1.2, 4.5, 2.2, 1.0, 0.3, 0.0, 'fire', 6); if (k < 4) parts.emit(launch.x + (Math.random() - 0.5) * 8, gy + 1, launch.z + (Math.random() - 0.5) * 8, (Math.random() - 0.5) * 6, 1.5, (Math.random() - 0.5) * 6, 2.5, 4, 0.5, 0.5, 0.5, 0.35, 'smoke', 10); } }
     // engine glows for the ships, shooting stars, jellies, bunny (billboards)
-    let bi = 0; for (const s of ships) { if (s.m.visible) { s.m.localToWorld(v.set(-2.5, 0, 0)); bb.set(bi, v.x, v.y, v.z, s.i === 0 ? 4.2 : 11, 3, 0); } else bb.set(bi, 0, -999, 0, 0, 3); bi++; }
+    let bi = 0; for (const s of ships) { if (s.m.visible) { s.m.localToWorld(v.set(-2.5, 0, 0)); bb.set(bi, v.x, v.y, v.z, s.i === 0 ? 4.2 : 11, 3, 0); const rt = shipRoutes[s.i] || shipRoutes[0]; const spd = 8; parts.emit(v.x, v.y, v.z, -Math.sin(s.m.rotation.y) * spd, 0.15, -Math.cos(s.m.rotation.y) * spd, 0.45, 1.6, 0.35, 0.85, 1.5, 0.9, 'spark', 0.4); } else bb.set(bi, 0, -999, 0, 0, 3); bi++; }
     // v124: three fixed meteor lanes (hub sky, hub sky offset, hub↔launch). Same billboard slots. They do not respawn into the lens.
     const lanes = [
-      { x: PLAY_START.x + fwd.x * 42 + right.x * 1, z: PLAY_START.z + fwd.z * 42 + right.z * 1, y: groundAt(base.x, base.z) + 18, dir: Math.atan2(right.x, right.z), span: 32, per: 7, ph: 0.8, drop: 8 },
+      (() => { const m = skyAt(-0.40, 0.10, 48); return { x: m.x, z: m.z, y: m.y, dir: Math.atan2(-right.x, -right.z), span: 14, per: 16, ph: 7.6, drop: 2 }; })(),
       { x: base.x + 36, z: base.z - 24, y: groundAt(base.x, base.z) + 120, dir: Math.atan2(-0.806, 0.592) - 0.55, span: 190, per: 9.5, ph: 3.1 },
       { x: (base.x + launch.x) * 0.5, z: (base.z + launch.z) * 0.5, y: groundAt(launch.x, launch.z) + 150, dir: Math.atan2(launch.x - base.x, launch.z - base.z), span: 280, per: 12, ph: 1.6 },
     ];
     for (let k = 0; k < 3; k++) { const s = lanes[k], u = ((T + s.ph) % s.per) / s.per, along = (u - 0.5) * s.span; const x = s.x + Math.sin(s.dir) * along, z = s.z + Math.cos(s.dir) * along, y = s.y - u * (s.drop || 36); if (Math.hypot(x - cam.x, z - cam.z) > SKY_R) bb.set(bi, 0, -999, 0, 0, 2); else bb.set(bi, x, y, z, k === 0 ? 7 : 18, 2, 0, s.dir); bi++; }
-    for (let k = 0; k < 4; k++) { if (k < 2) { const a = k * 1.7 + T * 0.03; const x = J.x + Math.cos(a) * (14 + k * 6), z = J.z + Math.sin(a) * (14 + k * 6), y = groundAt(J.x, J.z) + 22 + k * 7 + Math.sin(T * 0.6 + k) * 3; jelly(bi++, k, x, y, z, 8 + k * 2); } else { const a = k * 2.1 + T * 0.05; const along = k === 2 ? 36 : 42, side = k === 2 ? 20 : 26; const cx = PLAY_START.x + fwd.x * along + right.x * side, cz = PLAY_START.z + fwd.z * along + right.z * side; const x = cx + Math.cos(a) * 1.6, z = cz + Math.sin(a) * 1.6, y = groundAt(base.x, base.z) + (k === 2 ? 14 : 17) + Math.sin(T * 0.7 + k) * 0.6; jelly(bi++, k, x, y, z, k === 2 ? 3.6 : 3.1); } }
+    const jSp = [skyAt(0.24, -0.04, 52), skyAt(0.33, -0.08, 58)];
+    for (let k = 0; k < 4; k++) { if (k < 2) { const a = k * 1.7 + T * 0.03; const x = J.x + Math.cos(a) * (22 + k * 8), z = J.z + Math.sin(a) * (22 + k * 8), y = groundAt(J.x, J.z) + 26 + k * 6; jelly(bi++, k, x, y, z, 2.4); } else { const p = jSp[k - 2]; const x = p.x + Math.cos(T * 0.12 + k) * 0.8, z = p.z + Math.sin(T * 0.12 + k) * 0.8; jelly(bi++, k, x, p.y, z, k === 2 ? 4.0 : 3.3); } }
     for (const H of skyHomes) { const d = Math.hypot(H.x - cam.x, H.z - cam.z); if (d > 260) bb.set(bi, 0, -999, 0, 0, 0); else bb.set(bi, H.x + Math.cos(T * 0.12 + H.ph) * 3.5, H.y + Math.sin(T * 0.35 + H.ph) * 1.4, H.z + Math.sin(T * 0.12 + H.ph) * 3.5, 4.4, 0, H.ph); bi++; }
     { const cyc = 75, k = T % cyc; if (k < 6) { const a = bunnyPath.a0 + k * 0.05; const r = 320; const x = base.x + Math.cos(a) * r, z = base.z + Math.sin(a) * r; bb.set(bi, x, groundAt(x, z) + 3 + Math.abs(Math.sin(k * 6)) * 2.5, z, 5, 1, 0); } else bb.set(bi, 0, -999, 0, 0, 1); bi++; }
     bb.flush(); bb.mesh.visible = !low && (nearBase || nearLaunch || nearZone); /* far zones skip the always-on billboard draw */
+    { const crates = root.getObjectByName('life_crates'); if (crates) crates.visible = ground; const yardCrystals = root.getObjectByName('life_crystals'); if (yardCrystals) yardCrystals.visible = ground; if (!ground) { rover.visible = false; drill.visible = false; beacons.visible = false; } }
     // rover on its loop: follows the ground, dust trail, crystals while hauling back
-    { const u = ((T * 2.2) / loopLen) % 1; loop.getPointAt(u, v); const gy = groundAt(v.x, v.z); const tng = loop.getTangentAt(u); rover.position.set(v.x, gy, v.z); rover.rotation.y = Math.atan2(tng.x, tng.z); roverCol.x = v.x; roverCol.z = v.z;
+    if (ground) { const u = ((T * 2.2) / loopLen) % 1; loop.getPointAt(u, v); const gy = groundAt(v.x, v.z); const tng = loop.getTangentAt(u); rover.position.set(v.x, gy, v.z); rover.rotation.y = Math.atan2(tng.x, tng.z); { const fx = Math.sin(rover.rotation.y), fz = Math.cos(rover.rotation.y); for (const c of roverCols) { c.x = v.x + fx * c.lz; c.z = v.z + fz * c.lz; } }
       const e = 0.9; const fy = groundAt(v.x + tng.x * e, v.z + tng.z * e), by = groundAt(v.x - tng.x * e, v.z - tng.z * e); rover.rotation.x = -Math.atan2(fy - by, 2 * e) ; { const dR = Math.hypot(v.x - cam.x, v.z - cam.z); rover.visible = dR < (globalThis.__mkStorm ? 12 : VR); const hiD = HID + (rover.userData.hiOn ? 8 : 0); rover.userData.hiOn = dR < (globalThis.__mkStorm ? 0 : hiD); rover.geometry = rover.userData.hiOn && rvG[1] ? rvG[1] : rvG[0]; }
       if (rover.visible && Math.random() < dt * 90) { const bx = v.x - tng.x * 1.6, bz = v.z - tng.z * 1.6; parts.emit(bx + (Math.random() - 0.5), gy + 0.3, bz + (Math.random() - 0.5), (Math.random() - 0.5) * 0.9, 0.55 + Math.random() * 0.6, (Math.random() - 0.5) * 0.9, 2.0, 1.25, 0.5, 0.46, 0.42, 0.35, 'smoke', 2.6); /* v119 denser dust */ } }
     // drill: bit spins + bobs, sparks at the ground
+    if (ground) {
     // porters: walk A->B carrying a crystal, return empty; wave when the cat is near
     for (const P of porters) { const cyc = 22, k = ((T / cyc + P.o) % 1); const go = k < 0.5, u = go ? k * 2 : (k - 0.5) * 2; const e = u < 0.1 ? 0 : u > 0.9 ? 1 : (u - 0.1) / 0.8; const a = go ? pA : pB, b = go ? pB : pA;
       const x = a.x + (b.x - a.x) * e + px * P.ln, z = a.z + (b.z - a.z) * e + pz * P.ln; const dc = cat ? Math.hypot(cat.x - x, cat.z - z) : 99; if (dc < 4.5 && P.wave <= 0) P.wave = 3.5; P.wave -= dt;
@@ -256,14 +362,15 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
     const ZNEAR = low ? 8 : mobile ? 10 : 12;
     for (const Z of zones) { const R = Z.r.root; R.position.set(Z.x, Z.y, Z.z); R.rotation.y = Z.yaw; const dcam = Math.hypot(Z.x - cam.x, Z.z - cam.z); const show = dcam < ZNEAR; Z.far = !show && dcam < 120; R.visible = show; if (show) Z.r.update(dt, 'work', cam); if (dcam < 70 && Math.random() < dt * 70) parts.emit(Z.x + 0.4, Z.y + 0.9, Z.z + 0.3, (Math.random() - 0.5) * 2.2, 1.4 + Math.random() * 1.8, (Math.random() - 0.5) * 2.2, 0.7, 0.35, 4.2, 1.3, 0.22, 0, 'spark', 0, 8); }
     if (welder) { const W = welder, R = W.r.root; R.position.set(W.x, W.y, W.z); R.rotation.y = W.yaw; const dcam = Math.hypot(W.x - cam.x, W.z - cam.z); W.far = dcam >= NEAR && dcam < 90; R.visible = dcam < NEAR; /* static prop: impostor sooner than the porters (budget) */ if (R.visible) { W.r.update(dt, 'work', null); W.r.pivot.rotation.x = 0.28 + Math.sin(T * 7) * 0.05; }
-      const burst = (T % 3.2) < 2.2; if (burst && dcam < 70 && Math.random() < dt * 70) { const fx = Math.sin(W.yaw), fz = Math.cos(W.yaw), sx = W.x + fx * 0.8, sz = W.z + fz * 0.8; parts.emit(sx, W.y + 0.85, sz, (Math.random() - 0.5) * 3 - fx * 1.2, 1 + Math.random() * 2.5, (Math.random() - 0.5) * 3 - fz * 1.2, 0.7, 0.22, 3.0, 0.9, 0.12, 0, 'spark', 0, 9); } }
+      const burst = (T % 3.2) < 2.2; if (burst && dcam < 70) { const fx = Math.sin(W.yaw), fz = Math.cos(W.yaw), sx = W.x + fx * 0.62, sz = W.z + fz * 0.62, sy = W.y + 0.62; parts.emit(sx, sy + 0.12, sz, fx * 0.3, 0.25, fz * 0.3, 0.16, 3.4, 10.0, 4.2, 0.4, 1, 'spark', 0, 0.4); for (let s = 0; s < 5; s++) parts.emit(sx, sy + 0.1, sz, fx * (1.4 + Math.random() * 3.2) + (Math.random() - 0.5) * 1.6, 1.2 + Math.random() * 2.4, fz * (1.4 + Math.random() * 3.2) + (Math.random() - 0.5) * 1.6, 0.38, 1.5, 10.0, 4.6, 0.2, 1, 'spark', 0, 0.8); } }
     if (crewSpark && Math.hypot(crewSpark.x - cam.x, crewSpark.z - cam.z) < 90 && Math.random() < dt * 45) { parts.emit(crewSpark.x + (Math.random() - 0.5) * 0.45, crewSpark.gy + 0.5, crewSpark.z + (Math.random() - 0.5) * 0.45, (Math.random() - 0.5) * 3.2, 1.2 + Math.random() * 2.2, (Math.random() - 0.5) * 3.2, 0.6, 0.3, 3.6, 1.2, 0.15, 0, 'spark', 0, 8); }
-    { const dv = Math.hypot(D.x - cam.x, D.z - cam.z) < (globalThis.__mkStorm ? 0 : VR); drill.visible = dv; if (dv) { drill.geometry = Math.hypot(D.x - cam.x, D.z - cam.z) < (globalThis.__mkStorm ? 0 : HIDD) ? /* v75: storm view budget */ drG[1] : drG[0]; bit.rotation.y += dt * 14; bit.position.y = 1.2 + Math.sin(T * 1.3) * 0.2; sparkAcc += dt * 80; sparkFl -= dt; if (sparkFl <= 0) { sparkFl = 0.85; sparkAcc += 8; } if (sparkAcc >= 1) { bit.updateMatrixWorld(true); bit.localToWorld(v.set(0, -0.85, 0));
+    { const dVR = mobile ? 8 : VR; const dv = Math.hypot(D.x - cam.x, D.z - cam.z) < (globalThis.__mkStorm ? 0 : dVR); drill.visible = dv; if (dv) { drill.geometry = Math.hypot(D.x - cam.x, D.z - cam.z) < (globalThis.__mkStorm ? 0 : HIDD) ? /* phone keeps the rig out of the side yard view */ drG[1] : drG[0]; bit.rotation.y += dt * 14; bit.position.y = DRILL_HEAD.y + Math.sin(T * 1.3) * 0.035; sparkAcc += dt * 80; sparkFl -= dt; if (sparkFl <= 0) { sparkFl = 0.85; sparkAcc += 8; } if (sparkAcc >= 1) { bit.updateMatrixWorld(true); bit.localToWorld(v.set(0, AUGER_TIP, 0));
           while (sparkAcc >= 1) { sparkAcc -= 1; const a = Math.random() * Math.PI * 2, sp = 0.25 + Math.random() * 0.7; parts.emit(v.x, v.y, v.z, Math.cos(a) * sp, -0.15 - Math.random() * 1.3, Math.sin(a) * sp, 0.4, 0.14, 1.05, 0.42, 0.06, 0, 'spark', 0, 10); } } } }
+    } else { for (const P of porters) P.r.root.visible = false; if (welder) welder.r.root.visible = false; for (const Z of zones) Z.r.root.visible = false; }
     // steam puffs
     for (const s of vents.concat(zoneVents)) { s.tt -= dt; if (s.tt <= 0) { s.tt = 0.16 + Math.random() * 0.06; if (Math.hypot(s.x - cam.x, s.z - cam.z) < 160) { const nP = s.play ? 2 : 1; for (let n = 0; n < nP; n++) parts.emitR(s.x + (Math.random() - 0.5) * 0.5, s.gy + 0.5 + n * 0.2, s.z + (Math.random() - 0.5) * 0.55, 0.25 + (Math.random() - 0.5) * 0.35, 2.0 + Math.random() * 0.45, 0.12 + (Math.random() - 0.5) * 0.3, 4.0, 1.05, 0.82, 0.84, 0.88, 0.42, 'steam', 2.6); } } } /* play-stand vents puff a pair of wisps; drill and welder stay on the same steam slots */
     // beacons blink, dish turns
-    { const nearB = Math.hypot(base.x - cam.x, base.z - cam.z) < (mobile ? 100 : 160); beacons.visible = !low && nearB; const caps = root.getObjectByName('life_ventcaps'); if (caps) caps.visible = nearB; const M = new THREE.Matrix4(); bPos.forEach((b, i) => { const on_ = Math.sin(T * 3.0 + b.ph) > 0.2; M.makeTranslation(b.x, b.y, b.z); beacons.setMatrixAt(i, M); beacons.setColorAt(i, on_ ? b.c : new THREE.Color(0.06, 0.06, 0.08)); }); beacons.instanceMatrix.needsUpdate = true; if (beacons.instanceColor) beacons.instanceColor.needsUpdate = true; }
+    { const nearB = ground && Math.hypot(base.x - cam.x, base.z - cam.z) < (mobile ? 100 : 160); beacons.visible = !low && nearB; const caps = root.getObjectByName('life_ventcaps'); if (caps) caps.visible = nearB; const M = new THREE.Matrix4(); bPos.forEach((b, i) => { const on_ = Math.sin(T * 3.0 + b.ph) > 0.2; M.makeTranslation(b.x, b.y, b.z); beacons.setMatrixAt(i, M); beacons.setColorAt(i, on_ ? b.c : new THREE.Color(0.06, 0.06, 0.08)); }); beacons.instanceMatrix.needsUpdate = true; if (beacons.instanceColor) beacons.instanceColor.needsUpdate = true; }
     if (dish) dish.rotation.y += dt * 0.15;
     parts.update(dt); parts.pts.visible = parts.pts.visible && !low && (nearBase || nearLaunch || nearZone);
     // audio: robot beeps nearby, footsteps, radio chatter with subtitles; robots greet the cat

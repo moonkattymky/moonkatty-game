@@ -13,6 +13,7 @@ const TGAPI = initTelegram({ exitUrl: '../' }); // Telegram Mini App shell (no-o
 const ASSET_V = '39'; // bump with the GLB (immutable per version -> HTTP + service-worker cache hits)
 const loadMsg = (f) => { const el = document.getElementById('loadbar'); if (el) el.style.width = Math.round(20 + f * 80) + '%'; };
 import { buildTerrain, GRID, groundAt, sd, F, Rt, LOOKOUT, CONCEPT, PLAY_START, LAMPMAP, LAMPMAP_R, AOMAP, REGIONS, PATCH, PATCH2, PATCH3, canyonPoint, canyonS } from './terrain.js';
+import { mergeGeometries } from '../vendor/three/jsm/utils/BufferGeometryUtils.js';
 import { Builder, GQ } from './builder.js';
 import { buildHub, colliders, C, LAMPS } from './base.js';
 import { buildWorld } from './world.js';
@@ -41,7 +42,7 @@ document.body.classList.toggle('shot', SHOT);
 const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance', preserveDrawingBuffer: SHOT });
 let PR = Math.min(devicePixelRatio, LOW ? 1 : MOBILE ? 1.25 : 1.5); if (Q.get('pr')) PR = +Q.get('pr');
 renderer.setPixelRatio(PR); renderer.setSize(innerWidth, innerHeight);
-renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = +(Q.get('exp') || 0.92);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = +(Q.get('exp') || 0.78);
 renderer.shadowMap.enabled = !LOW; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.getElementById('app').appendChild(renderer.domElement);
 
@@ -51,19 +52,19 @@ const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.2, 90
 
 // light: sun from camera-left in the concept framing, cool sky fill, warm bounce
 const v3 = (x, y, z) => new THREE.Vector3(x, y, z);
-const sunDir = v3(-Rt.x * 0.75 - F.x * 0.45, 0.62, -Rt.z * 0.75 - F.z * 0.45).normalize();
+const sunDir = v3(-Rt.x * 0.75 - F.x * 0.45, 0.34, -Rt.z * 0.75 - F.z * 0.45).normalize();
 // Play-stand sky: Earth sits upper-right of the default boom (camYaw = atan2(-F.x,-F.z) - 0.30), not on the concept axis.
 const playYaw = Math.atan2(-F.x, -F.z) - 0.30;
 const view = v3(-Math.sin(playYaw), 0, -Math.cos(playYaw)), right = v3(Math.cos(playYaw), 0, -Math.sin(playYaw));
 const earthAim = (az, el) => view.clone().multiplyScalar(Math.cos(el) * Math.cos(az)).add(right.clone().multiplyScalar(Math.cos(el) * Math.sin(az))).add(v3(0, Math.sin(el), 0)).normalize();
 const earthDir = earthAim(0.26, 0.10); // desktop first frame; resize() retargets per aspect
-const hemi = new THREE.HemisphereLight('#b3b6bc', '#4a4a4d', 0.6); scene.add(hemi);
-const sun = new THREE.DirectionalLight('#fff1dc', 1.65); sun.castShadow = true;
+const hemi = new THREE.HemisphereLight('#a8b0be', '#5a4c42', 0.40); scene.add(hemi);
+const sun = new THREE.DirectionalLight('#fff1d6', 1.7); sun.castShadow = true;
 sun.shadow.mapSize.set(MOBILE ? 1024 : 2048, MOBILE ? 1024 : 2048); const sc = sun.shadow.camera; sc.left = -120; sc.right = 120; sc.top = 120; sc.bottom = -120; sc.near = 1; sc.far = 400; sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04; /* the ±70 box left a hard unshadowed cut across the reactor wall; the wider box keeps that slope inside the map so the shadow edge stays on the geometry */
 scene.add(sun, sun.target);
-const fill = new THREE.DirectionalLight('#8f9aab', 0.45); fill.position.copy(earthDir).multiplyScalar(100); scene.add(fill);
-const front = new THREE.DirectionalLight('#d6d3cc', 0.55); front.position.set(-F.x * 80 - Rt.x * 40, 60, -F.z * 80 - Rt.z * 40); scene.add(front);
-const rim = new THREE.DirectionalLight('#ffc978', 0.75); rim.position.set(F.x * 80 + Rt.x * 20, 34, F.z * 80 + Rt.z * 20); scene.add(rim); // gentle warm gold rim from behind the base (toward the play/concept cameras) // soft key from behind the concept camera (lights the left hillside)
+const fill = new THREE.DirectionalLight('#b7aa9c', 0.14); fill.position.copy(earthDir).multiplyScalar(100); scene.add(fill);
+const front = new THREE.DirectionalLight('#eadcc8', 0.30); front.position.set(-F.x * 80 - Rt.x * 40, 60, -F.z * 80 - Rt.z * 40); scene.add(front);
+const rim = new THREE.DirectionalLight('#ffc56a', 0.48); rim.position.set(F.x * 80 + Rt.x * 20, 34, F.z * 80 + Rt.z * 20); scene.add(rim); // raking sun, less fill, so shadows stay deep and the cat still reads
 const coreLight = new THREE.PointLight('#ff9a40', 60, 32, 1.6); scene.add(coreLight);
 
 // environment for gold/ivory reflections: dark sky, light ground, warm sun panel
@@ -84,6 +85,24 @@ const terrain = buildTerrain(); scene.add(terrain);
 const b = new Builder(), wb = new Builder(); const beams = [];
 const WB = { launch: new Builder(), reactor: new Builder(), reactorNear: new Builder(), reactorFar: new Builder(), launchNear: new Builder(), canyonNear: new Builder(), echoNear: new Builder(), canyon: new Builder(), echo: new Builder(), roads: new Builder(), misc: new Builder() };
 const hub = buildHub(b, beams); buildWorld(WB, beams); addBeams(wb, beams);
+{ // additive doorway, ground spill, and the large hall windows. One draw; the atlas glow stays the warm core underneath.
+  const face = Math.atan2(-F.x, -F.z), s = Math.sin(face), c = Math.cos(face);
+  const ap = sd(-4.8, -10.2), gy = groundAt(ap.x, ap.z);
+  const W = (lx, ly, lz) => new THREE.Vector3(ap.x + c * lx + s * lz, gy + ly, ap.z - s * lx + c * lz);
+  const put = (g, pos, euler) => g.applyMatrix4(new THREE.Matrix4().compose(pos, new THREE.Quaternion().setFromEuler(euler), new THREE.Vector3(1, 1, 1)));
+  const door = new THREE.PlaneGeometry(1.85, 2.05); put(door, W(0.45, 1.28, 1.66), new THREE.Euler(0, face, 0));
+  const spill = new THREE.PlaneGeometry(3.6, 2.8); spill.rotateX(-Math.PI / 2); put(spill, W(0.45, 0.05, 3.15), new THREE.Euler(0, face, 0));
+  const parts = [door, spill];
+  const rp = sd(0, 0), ry = groundAt(rp.x, rp.z) - 0.1, Rd = 8.15, sy = 0.46, f = 0.48;
+  const y0 = ry + 0.3 + 2.6 + 0.02, wy = y0 + Rd * sy * f, wr = Math.sqrt(Math.max(0.2, Rd * Rd * (1 - f * f)));
+  for (let i = 0; i < 10; i++) { const a = face + i / 10 * Math.PI * 2; const circ = new THREE.CircleGeometry(0.78, 10); put(circ, new THREE.Vector3(rp.x + Math.sin(a) * (wr + 0.08), wy, rp.z + Math.cos(a) * (wr + 0.08)), new THREE.Euler(0, a, 0)); parts.push(circ); }
+  const wallY = ry + 0.3 + 2.6 * 0.55, wallR = 8.5 * 1.04;
+  for (let i = 0; i < 12; i++) { const a = face + i / 12 * Math.PI * 2; const circ = new THREE.CircleGeometry(0.7, 10); put(circ, new THREE.Vector3(rp.x + Math.sin(a) * wallR, wallY, rp.z + Math.cos(a) * wallR), new THREE.Euler(0, a, 0)); parts.push(circ); }
+  const glow = new THREE.Mesh(mergeGeometries(parts), new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false,
+    vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: 'varying vec2 vUv; void main(){ float a = smoothstep(1.05, 0.12, length(vUv - 0.5) * 2.0); gl_FragColor = vec4(vec3(1.25, 0.82, 0.32) * a * 1.7, 1.0); }' }));
+  glow.name = 'hall_glow'; glow.frustumCulled = false; glow.renderOrder = 2; scene.add(glow);
+}
 { // warm light pools under the path lamps (terrain samples this map; no runtime lights)
   const N = 512, c = document.createElement('canvas'); c.width = c.height = N; const g = c.getContext('2d'); g.fillStyle = '#000'; g.fillRect(0, 0, N, N); g.globalCompositeOperation = 'lighter';
   for (const L of LAMPS) { const u = (L.x / (2 * LAMPMAP_R) + 0.5) * N, v = (L.z / (2 * LAMPMAP_R) + 0.5) * N; const r = 3.2 / (2 * LAMPMAP_R) * N; const gr = g.createRadialGradient(u, v, 0, u, v, r); gr.addColorStop(0, 'rgba(255,170,90,0.55)'); gr.addColorStop(0.45, 'rgba(255,150,70,0.2)'); gr.addColorStop(1, 'rgba(255,140,60,0)'); g.fillStyle = gr; g.fillRect(u - r, v - r, 2 * r, 2 * r); }
@@ -106,11 +125,11 @@ mats.hull.color.setRGB(0.8, 0.78, 0.77); mats.lattice.color.setRGB(0.8, 0.78, 0.
       .replace('#include <color_fragment>', `#include <color_fragment>
       { float dH = length(vWPh - cameraPosition); float kH = 1.0 - smoothstep(30.0, 90.0, dH); vec3 fn = normalize(cross(dFdx(vWPh), dFdy(vWPh)));
         float lum = dot(diffuseColor.rgb, vec3(0.3, 0.59, 0.11)); float sat = max(max(diffuseColor.r, diffuseColor.g), diffuseColor.b) - min(min(diffuseColor.r, diffuseColor.g), diffuseColor.b);
-        float iv = smoothstep(0.3, 0.45, lum) * smoothstep(0.42, 0.58, diffuseColor.b / max(diffuseColor.r, 1e-3)); /* ivory (linear): bright, not gold */ float flat_ = 1.0 - smoothstep(0.02, 0.08, length(fwidth(fn)));
-        float ny_ = abs(fn.y); float k = kH * iv * flat_ * max(max(1.0 - smoothstep(0.2, 0.4, ny_), smoothstep(0.9, 0.97, ny_)), 0.3); /* pass 41: only walls + flat tops (no diagonal stripes on slanted roofs) */ if (k > 0.01) { vec3 aw = abs(fn); vec2 uv = (aw.x > aw.y && aw.x > aw.z) ? vWPh.zy : ((aw.y > aw.z) ? vWPh.xz : vWPh.xy);
+        float iv = smoothstep(0.3, 0.45, lum) * smoothstep(0.42, 0.58, diffuseColor.b / max(diffuseColor.r, 1e-3)); /* ivory (linear): bright, not gold */
+        float ny_ = abs(fn.y); float flat_ = 1.0 - smoothstep(0.003, 0.01, length(fwidth(fn))); float axisN = max(abs(fn.x), max(abs(fn.y), abs(fn.z))); float wallN = smoothstep(0.92, 0.99, axisN); /* cylinder and sphere faces are locally flat, so the seam grid was tiling the launch tank; real walls point near a world axis */ float k = kH * iv * flat_ * wallN * max(max(1.0 - smoothstep(0.2, 0.4, ny_), smoothstep(0.9, 0.97, ny_)), 0.3); /* pass 41: only walls + flat tops (no diagonal stripes on slanted roofs) */ if (k > 0.01) { vec3 aw = abs(fn); vec2 uv = (aw.x > aw.y && aw.x > aw.z) ? vWPh.zy : ((aw.y > aw.z) ? vWPh.xz : vWPh.xy);
           vec2 g = uv / vec2(0.8, 0.55); vec2 fw = fwidth(g); vec2 dd = min(fract(g), 1.0 - fract(g)); vec2 sl = (1.0 - smoothstep(fw * 0.9, fw * 2.2, dd)) * (1.0 - smoothstep(0.18, 0.4, fw)); vec2 hl = (1.0 - smoothstep(fw * 2.2, fw * 3.6, abs(fract(g) - fw * 3.0))) * (1.0 - smoothstep(0.18, 0.4, fw));
           float seam = max(sl.x, sl.y); float pt = hhP(floor(g) + floor(vWPh.y * 0.1)); diffuseColor.rgb *= mix(1.0, (1.0 - 0.42 * seam + 0.12 * max(hl.x, hl.y) * (1.0 - seam)) * (0.93 + 0.14 * pt), k); } } /* dark seam + lit bevel on one side */`);
-  }; hm.customProgramCacheKey = () => 'hull_p41';
+  }; hm.customProgramCacheKey = () => 'hull_p43';
 }
 const built = b.build(mats, scene); for (const [n, B] of [...Object.entries(WB), ['beams', wb]]) { const bw = B.build(mats, scene, '_' + n); for (const k in bw) bw[k].castShadow = false; }
 // far chapter-region hulls sit behind the crater rim: skip them while the camera is low inside the hub basin (cheap occlusion cull)
@@ -226,13 +245,17 @@ let bloom = null; if (BLOOM) { bloom = new UnrealBloomPass(new THREE.Vector2(inn
 composer.addPass(new OutputPass());
 const grade = new ShaderPass({ uniforms: { tDiffuse: { value: null }, uVig: { value: 0.3 } }, vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
   fragmentShader: `uniform sampler2D tDiffuse; uniform float uVig; varying vec2 vUv;
-    void main(){ vec4 t = texture2D(tDiffuse, vUv); vec3 c = t.rgb; float l = dot(c, vec3(0.299, 0.587, 0.114));
-      c = mix(c, c * vec3(0.95, 0.98, 1.06), (1.0 - smoothstep(0.0, 0.5, l)) * 0.7); // pass 41 grade (concept): cool neutral shadows/rock
-      { float s0 = max(max(c.r, c.g), c.b) - min(min(c.r, c.g), c.b); float ws = smoothstep(0.12, 0.3, s0) * step(c.b, c.r);
-        c += vec3(0.045, 0.02, -0.025) * smoothstep(0.45, 1.0, l) * ws; // warm highlights only on already-warm colours (cat fur, lights, gold); greys stay neutral
-        c = mix(vec3(l), c, mix(0.94, 0.8, smoothstep(0.12, 0.4, s0) * (1.0 - smoothstep(0.35, 0.6, s0)))); } // tame mid-saturation ivory/beige cast, keep vivid colours
-      c = mix(c, c * c * (3.0 - 2.0 * c), 0.42); // stronger S-curve: deep crevices, bright sunlit faces
-      c += vec3(0.0, 0.002, 0.008) * (1.0 - smoothstep(0.0, 0.08, l)); // faint blue in the black sky
+    void main(){ vec4 t = texture2D(tDiffuse, vUv); vec3 c = t.rgb; float l0 = dot(c, vec3(0.299, 0.587, 0.114));
+      float s0 = max(max(c.r, c.g), c.b) - min(min(c.r, c.g), c.b);
+      float grey = (1.0 - smoothstep(0.03, 0.16, s0)) * (1.0 - smoothstep(0.015, 0.07, c.r - c.b)); // neutral regolith, not warm ivory or the cat
+      c *= mix(0.94, 0.75, grey); // ground about 25% down; cream suits, the hall and the cat stay up
+      c = mix(c, c * vec3(0.90, 0.94, 1.08), (1.0 - smoothstep(0.0, 0.35, l0)) * 0.55); // cool the shadows
+      c = clamp((c - 0.40) * 1.18 + 0.40, 0.0, 1.0);
+      float l = dot(c, vec3(0.299, 0.587, 0.114));
+      c *= mix(0.82, 1.0, smoothstep(0.0, 0.14, l)); // shadow toe, still a readable dark grey
+      float warm = smoothstep(0.06, 0.20, c.r - c.b);
+      c += vec3(0.055, 0.028, -0.012) * warm * smoothstep(0.28, 0.7, l); // windows, lamps, gold and the cat's fur pop
+      c += vec3(0.0, 0.002, 0.010) * (1.0 - smoothstep(0.0, 0.06, l));
       vec2 d = vUv - 0.5; d.x *= 1.15; c *= 1.0 - uVig * smoothstep(0.3, 0.85, length(d) * 1.25);
       gl_FragColor = vec4(c, t.a); }` });
 composer.addPass(grade);
@@ -241,7 +264,7 @@ function placeEarth() {
   const portrait = camera.aspect < 1;
   // Wide stand: full disc inside the frame with margin, upper-right of centre, bottom near the ridge, ~28% of width.
   // Portrait: same camera, disc nearer centre-top, ~45% of the narrow width, top still inside.
-  sky.setEarthPose(earthAim(portrait ? 0.0 : 0.22, portrait ? 0.23 : 0.11), portrait ? 440 : 800);
+  sky.setEarthPose(earthAim(portrait ? 0.10 : 0.22, portrait ? 0.16 : 0.08), portrait ? 440 : 1000);
 }
 function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h); composer.setPixelRatio(PR); composer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); fxaa.material.uniforms.resolution.value.set(1 / (w * PR), 1 / (h * PR)); placeEarth(); }
 addEventListener('resize', resize); resize();

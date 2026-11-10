@@ -72,7 +72,7 @@ export function createChapter2(ctx) {
   const yaw = depotP.yaw || 0, cy = Math.cos(yaw), sy = Math.sin(yaw);
   const toW = (lx, lz) => ({ x: depotP.x + lx * cy + lz * sy, z: depotP.z - lx * sy + lz * cy });
   const base = makeBaseGrowth(scene, depotP, env, { groundAt, low, mobile: !!ctx.mobile });
-  const HOMES = [[1.3, 2.7], [-1.3, 2.7], [0, 3.7], [2.3, 3.4], [-1.8, 4.3], [1.0, 4.9], [-0.6, 5.6], [2.6, 5.0]].map(([x, z]) => toW(x, z));
+  const HOMES = [[4.2, 5.2], [-4.4, 5.0], [0.4, 7.4], [6.2, 7.6], [-6.0, 7.8], [2.6, 9.6], [-2.8, 9.8], [7.4, 10.2]].map(([x, z]) => toW(x, z));
   const WORK = { 2: toW(5.6, 0.7), 3: toW(-2.0, -1.9), 4: toW(3.4, -3.0), 5: toW(6.0, -1.6) };
   const canyonSite = free({ x: layout.ore[0].x + 1.5, z: layout.ore[0].z }, 3); const meteorSite = free({ x: layout.meteor.x + layout.meteor.r * 0.75, z: layout.meteor.z }, 3);
   const engSite = free({ x: places.reactorConsole.x + 1.8, z: places.reactorConsole.z + 1.2 }, 3);

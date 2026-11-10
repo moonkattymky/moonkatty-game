@@ -17,14 +17,21 @@ function windowsRing(b, x, y, z, R, count, w, h, opts = {}) {
   for (let i = 0; i < count; i++) {
     const a = a0 + i / count * PI * 2;
     if (skip.some(s => Math.abs(Math.atan2(Math.sin(a - s), Math.cos(a - s))) < (opts.skipW || 0.35))) continue;
-    b.add('glow', new THREE.PlaneGeometry(w, h), { pos: [x + Math.sin(a) * R, y, z + Math.cos(a) * R], rot: [0, a, 0], color: opts.color || C.win, intensity: opts.I || 2.2 });
-    if (opts.frame) b.add('gold', G.box(w + 0.14, 0.08, 0.12), { pos: [x + Math.sin(a) * R, y - h / 2 - 0.04, z + Math.cos(a) * R], rot: [0, a, 0], color: C.gold });
+    const px = x + Math.sin(a) * R, pz = z + Math.cos(a) * R;
+    if (opts.round) {
+      const rad = Math.min(w, h) * 0.48;
+      b.add('glow', new THREE.CircleGeometry(rad, 12), { pos: [px, y, pz], rot: [0, a, 0], color: opts.color || '#ffd7a1', intensity: opts.I || 3.6 });
+      b.add('gold', G.torus(rad, 0.045, 4, 14), { pos: [px, y, pz], rot: [Math.PI / 2, a, 0], color: C.gold });
+    } else {
+      b.add('glow', new THREE.PlaneGeometry(w, h), { pos: [px, y, pz], rot: [0, a, 0], color: opts.color || C.win, intensity: opts.I || 2.2 });
+      if (opts.frame) b.add('gold', G.box(w + 0.14, 0.08, 0.12), { pos: [px, y - h / 2 - 0.04, pz], rot: [0, a, 0], color: C.gold });
+    }
   }
 }
 function door(b, x, y, z, a, R, w = 1.4, h = 1.9, color = C.winHot) {
   const px = x + Math.sin(a) * R, pz = z + Math.cos(a) * R;
-  b.add('gold', G.box(w + 0.5, h + 0.3, 0.7), { pos: [px, y + (h + 0.3) / 2, pz], rot: [0, a, 0], color: C.gold });
-  b.add('glow', G.box(w, h, 0.2), { pos: [px + Math.sin(a) * 0.3, y + h / 2, pz + Math.cos(a) * 0.3], rot: [0, a, 0], color, intensity: 1.5 });
+  b.add('gold', G.torus(Math.min(w, h) * 0.42, 0.08, 4, 16), { pos: [px, y + h * 0.45, pz], rot: [Math.PI / 2, a, 0], color: C.gold });
+  b.add('glow', new THREE.CircleGeometry(Math.min(w, h) * 0.36, 14), { pos: [px + Math.sin(a) * 0.08, y + h * 0.45, pz + Math.cos(a) * 0.08], rot: [0, a, 0], color: '#ffd7a1', intensity: 3.4 });
 }
 function antenna(b, x, y, z, h, light = C.win) {
   b.add('gold', G.cyl(0.08, 0.14, h, 6), { pos: [x, y, z], color: C.gold });
@@ -44,18 +51,19 @@ export function dome(b, s, d, r, o = {}) {
   const { x, z } = sd(s, d); const y = groundAt(x, z) - 0.15;
   colliders.push({ x, z, r: r * 1.15 }); const seg = r > 4 ? 18 : 14;
   // wide skirt platform (concept: low stepped deck ringed in gold, warm edge lights)
-  b.add('dark', G.cyl(r * 1.5, r * 1.58, 0.45, seg), { pos: [x, y - 0.25, z], color: '#3a4250' });
-  b.add('ivory', G.cyl(r * 1.4, r * 1.48, 0.3, seg), { pos: [x, y + 0.05, z], color: '#babdc3' });
+  b.add('dark', G.cyl(r * 1.5, r * 1.58, 0.45, seg), { pos: [x, y - 0.25, z], color: '#6d6558' });
+  b.add('ivory', G.cyl(r * 1.4, r * 1.48, 0.3, seg), { pos: [x, y + 0.05, z], color: '#e7dcc8' });
   b.add('gold', G.torus(r * 1.46, 0.09, 3, 14), { pos: [x, y + 0.33, z], rot: [PI / 2, 0, 0], color: C.gold });
   b.add('gold', G.torus(r * 1.12, 0.12, 3, 14), { pos: [x, y + 0.36, z], rot: [PI / 2, 0, 0], color: C.gold });
-  for (let k = 0; k < 8; k++) { const a = k / 8 * PI * 2 + 0.2; b.add('glow', G.box(0.18, 0.08, 0.18), { pos: [x + Math.sin(a) * r * 1.3, y + 0.38, z + Math.cos(a) * r * 1.3], color: C.win, intensity: 3 }); }
+  for (let k = 0; k < 8; k++) { const a = k / 8 * PI * 2 + 0.2; b.add('glow', new THREE.CircleGeometry(0.1, 8).rotateX(-PI / 2), { pos: [x + Math.sin(a) * r * 1.3, y + 0.4, z + Math.cos(a) * r * 1.3], color: '#ffd7a1', intensity: 2.4 }); }
   const wallH = r * 0.45, yw = y + 0.3;
-  b.add('tex', G.cyl(r, r * 1.05, wallH, seg, true), { region: 'domeWall', pos: [x, yw, z], rot: [0, o.rotA || 0.2, 0], color: '#e8e9ec', ao: [yw - 0.4, yw + wallH * 1.4] });
+  b.add('tex', G.cyl(r, r * 1.05, wallH, seg, true), { region: 'domeWall', pos: [x, yw, z], rot: [0, o.rotA || 0.2, 0], color: '#f4ead8', ao: [yw - 0.4, yw + wallH * 1.4] });
+  windowsRing(b, x, yw + wallH * 0.55, z, r * 1.02, 10, 0.72, 0.72, { round: true, I: 4.0, a0: faceCam, color: '#ffd7a1' });
   const dA = o.doorA ?? faceCam;
-  door(b, x, yw, z, dA, r * 0.97, 1.3, Math.min(1.9, wallH * 0.8));
+  door(b, x, yw, z, dA, r * 0.97, 1.3, Math.min(1.9, wallH * 0.8), '#ffe0b0');
   b.add('gold', G.torus(r * 1.01, 0.12, 3, seg), { pos: [x, yw + wallH, z], rot: [PI / 2, 0, 0], color: C.gold });
   const sy = 0.8, yd = yw + wallH;
-  b.add('tex', G.cap(r, seg, 4), { region: 'domeCap', pos: [x, yd, z], rot: [0, (o.rotA || 0.2) + 0.1, 0], scale: [1, sy, 1], color: '#e2e4e8' });
+  b.add('tex', G.cap(r, seg, 4), { region: 'domeCap', pos: [x, yd, z], rot: [0, (o.rotA || 0.2) + 0.1, 0], scale: [1, sy, 1], color: '#f6efe2' });
   const top = yd + r * sy;
   b.add('ivory', G.cyl(r * 0.18, r * 0.24, 0.5, 16), { pos: [x, top - 0.15, z], color: C.ivory2 });
   b.add('gold', G.torus(r * 0.2, 0.06, 3, 16), { pos: [x, top + 0.33, z], rot: [PI / 2, 0, 0], color: C.gold });
@@ -69,8 +77,9 @@ function reactor(b, s, d) {
   b.add('dark', G.cyl(R * 1.1, R * 1.16, 0.5, 36), { pos: [x, y - 0.2, z], color: '#3a4250' });
   b.add('gold', G.torus(R * 1.09, 0.14, 3, 32), { pos: [x, y + 0.3, z], rot: [PI / 2, 0, 0], color: C.gold });
   b.add('tex', G.cyl(R, R * 1.04, H, 36, true), { region: 'reactorWall', pos: [x, y + 0.3, z], color: '#ffffff', ao: [y - 0.5, y + H * 1.3] });
+  windowsRing(b, x, y + 0.3 + H * 0.55, z, R * 1.01, 12, 1.55, 1.55, { round: true, I: 5, a0: faceCam, color: '#ffe08a' });
   const doors = [faceCam, faceCam + 1.9, faceCam - 1.6, faceCam + PI];
-  for (const a of doors) door(b, x, y + 0.3, z, a, R * 1.0, 1.6, 2.0);
+  for (const a of doors) door(b, x, y + 0.3, z, a, R * 1.0, 1.6, 2.0, '#ffe0b0');
   const yt = y + 0.3 + H;
   // rounded shoulder so the outer wall reads as a fat ring (concept) rather than a flat drum
   b.add('ivory', G.torus(R - 0.15, 0.68, 5, 36).rotateZ(PI / 36), { pos: [x, yt - 0.2, z], rot: [PI / 2, 0, 0], color: C.ivory });
@@ -83,21 +92,20 @@ function reactor(b, s, d) {
   b.add('gold', G.torus(Ri + 0.08, 0.13, 4, 36), { pos: [x, yt + 0.32, z], rot: [PI / 2, 0, 0], color: C.gold });
   b.add('gold', G.torus(Ri + 0.72, 0.08, 3, 36), { pos: [x, yt + 0.05, z], rot: [PI / 2, 0, 0], color: C.goldD });
   // ring of warm lights on the inner lip around the core + walkway railing posts / deck plates
-  for (let i = 0; i < 28; i++) { const a = i / 28 * PI * 2; b.add('glow', G.box(0.32, 0.12, 0.22), { pos: [x + Math.sin(a) * (Ri + 0.42), yt + 0.36, z + Math.cos(a) * (Ri + 0.42)], rot: [0, a, 0], color: i % 2 ? C.winHot : C.win, intensity: 4 }); }
-  for (let i = 0; i < 18; i++) { const a = i / 18 * PI * 2 + 0.09; const rr = Ri + 1.25; b.add('gold', G.cyl(0.05, 0.05, 0.55, 4), { pos: [x + Math.sin(a) * rr, yt + 0.02, z + Math.cos(a) * rr], color: C.gold2 }); b.add('dark', G.box(0.08, 0.02, 1.0), { pos: [x + Math.sin(a + 0.17) * (Ri + 1.1), yt + 0.012, z + Math.cos(a + 0.17) * (Ri + 1.1)], rot: [0, a + 0.17, 0], color: '#8a8070' }); }
-  b.add('gold', G.torus(Ri + 1.25, 0.035, 3, 36), { pos: [x, yt + 0.57, z], rot: [PI / 2, 0, 0], color: C.gold2 });
+  b.add('gold', G.torus(Ri + 1.25, 0.035, 3, 24), { pos: [x, yt + 0.57, z], rot: [PI / 2, 0, 0], color: C.gold2 });
   // deep glowing pit: walls glow hotter toward the molten floor, with dark vertical ribs
   const pitD = 0.85;
   b.add('glow', G.cyl(Ri, Ri * 0.92, pitD + 0.55, 36, true), { pos: [x, yt - pitD, z], flip: true, color: (px, py, pz) => { const hh = pitD + 0.55; const ly = py > yt - pitD - 1 ? py - (yt - pitD) : py; const t = THREE.MathUtils.clamp(ly / hh, 0, 1); const k = 1.55 - 0.6 * t; return [k, k * 0.17, k * 0.012]; } });
-  for (let i = 0; i < 20; i++) { const a = i / 20 * PI * 2; b.add('dark', G.box(0.16, pitD + 0.8, 0.1), { pos: [x + Math.sin(a) * (Ri * 0.96 - 0.06), yt - pitD / 2 + 0.4, z + Math.cos(a) * (Ri * 0.96 - 0.06)], rot: [0, a, 0], color: '#5a3a20' }); }
-  b.add('glow', G.disc(Ri * 0.97, 32), { pos: [x, yt + 0.2, z], color: (px, py, pz) => { const t = Math.hypot(px - x, pz - z) / Ri; const k = 0.95 - 0.4 * t; return [k, k * 0.2, k * 0.012]; } });
+  b.add('glow', G.disc(Ri * 0.97, 24), { pos: [x, yt + 0.2, z], color: (px, py, pz) => { const t = Math.hypot(px - x, pz - z) / Ri; const k = 0.95 - 0.4 * t; return [k, k * 0.2, k * 0.012]; } });
   b.add('glow', G.disc(Ri * 0.42, 24), { pos: [x, yt + 0.215, z], color: '#ffb347', intensity: 2.4 }); for (const f of [0.55, 0.78]) b.add('dark', G.ring(Ri * f, Ri * f + 0.34, 48), { pos: [x, yt + 0.218, z], color: '#1c0d06' }); // molten core: hot centre + crust rings
   // low wide ivory cap over the ring: smooth shell, one gold band, a window tier, a short gold spire. The dish module is the left annex. The pit stays inside.
-  { const Rd = R - 0.35, sy = 0.46, y0 = yt + 0.02; b.add('ivory', G.cap(Rd, 48, 7), { pos: [x, y0, z], scale: [1, sy, 1], color: C.ivory });
+  { const Rd = R - 0.35, sy = 0.46, y0 = yt + 0.02; b.add('ivory', G.cap(Rd, 48, 7), { pos: [x, y0, z], scale: [1, sy, 1], color: '#f4ead8' });
     const onShell = (f) => { const yy = y0 + Rd * sy * f; return { y: yy, r: Math.sqrt(Math.max(0.2, Rd * Rd - ((yy - y0) / sy) ** 2)) }; };
-    const band = onShell(0.18); b.add('gold', G.torus(band.r, 0.11, 4, 42), { pos: [x, band.y, z], rot: [PI / 2, 0, 0], color: C.gold });
-    const w1 = onShell(0.48); windowsRing(b, x, w1.y, z, w1.r + 0.04, 12, 1.05, 0.62, { frame: true, I: 3.1, a0: faceCam });
-    finial(b, x, y0 + Rd * sy - 0.08, z, 3.2); }
+    const band = onShell(0.18); b.add('gold', G.torus(band.r, 0.11, 4, 28), { pos: [x, band.y, z], rot: [PI / 2, 0, 0], color: C.gold });
+    const ring2 = onShell(0.58); b.add('gold', G.torus(ring2.r, 0.055, 3, 20), { pos: [x, ring2.y, z], rot: [PI / 2, 0, 0], color: C.gold2 });
+    for (let i = -2; i <= 2; i++) { const a = faceCam + i * 0.42; const rib = onShell(0.4); b.add('gold', G.box(0.16, 2.4, 0.22), { pos: [x + Math.sin(a) * rib.r, rib.y, z + Math.cos(a) * rib.r], rot: [0.35, a, 0], color: C.gold }); }
+    const w1 = onShell(0.48); windowsRing(b, x, w1.y, z, w1.r + 0.04, 10, 1.7, 1.7, { round: true, I: 5, a0: faceCam, color: '#ffe08a' });
+    finial(b, x, y0 + Rd * sy - 0.08, z, 4.0); }
   return { x, y: yt, z, Ri };
 }
 
@@ -118,6 +126,29 @@ function corridor(b, A, B, r = 1.05, h = r + 0.3) {
   for (let i = 0; i < 6; i++) colliders.push({ x: A.x + (B.x - A.x) * (i + 0.5) / 6, z: A.z + (B.z - A.z) * (i + 0.5) / 6, r: r + 0.4 });
 }
 
+// Rectangular cream annex on the camera-left of the hall: a bright doorway and gold pipes. Merged into the hall mesh.
+function frontAnnex(b) {
+  const p = sd(-4.8, -10.2); const y = groundAt(p.x, p.z); const yaw = faceCam;
+  const s = Math.sin(yaw), c = Math.cos(yaw);
+  const W = (lx, ly, lz) => [p.x + c * lx + s * lz, y + ly, p.z - s * lx + c * lz];
+  colliders.push({ x: p.x, z: p.z, r: 3.1 });
+  b.add('ivory', G.box(5.4, 3.15, 2.8), { pos: W(0, 1.65, 0), rot: [0, yaw, 0], color: '#e7d4b4' });
+  b.add('gold', G.box(5.55, 0.14, 2.95), { pos: W(0, 3.28, 0), rot: [0, yaw, 0], color: C.gold });
+  b.add('ivory', G.box(2.4, 1.7, 2.2), { pos: W(-3.7, 0.95, 0.1), rot: [0, yaw, 0], color: '#efe2cc' });
+  b.add('gold', G.box(2.52, 0.1, 2.32), { pos: W(-3.7, 1.84, 0.1), rot: [0, yaw, 0], color: C.gold });
+  b.add('glow', new THREE.PlaneGeometry(2.15, 2.2), { pos: W(0.45, 1.35, 1.52), rot: [0, yaw, 0], color: '#ffe08a', intensity: 8 });
+  b.add('gold', G.box(2.75, 0.12, 0.1), { pos: W(0.45, 2.74, 1.48), rot: [0, yaw, 0], color: C.gold });
+  b.add('gold', G.box(0.12, 2.55, 0.1), { pos: W(-0.85, 1.45, 1.48), rot: [0, yaw, 0], color: C.gold });
+  b.add('gold', G.box(0.12, 2.55, 0.1), { pos: W(1.75, 1.45, 1.48), rot: [0, yaw, 0], color: C.gold });
+  const pipe = (lx, ly, lz, len, axis) => { const g = G.cyl(0.07, 0.07, len, 5); if (axis === 'x') g.rotateZ(PI / 2); else if (axis === 'z') g.rotateX(PI / 2); b.add('gold', g, { pos: W(lx, ly, lz), rot: [0, yaw, 0], color: C.gold }); };
+  pipe(-1.15, 1.7, 1.55, 1.5, 'y'); pipe(-1.15, 2.45, 1.15, 1.5, 'x'); pipe(1.9, 2.2, 1.55, 1.2, 'y');
+  b.add('ivory', G.cyl(0.34, 0.34, 1.25, 8).rotateZ(PI / 2), { pos: W(2.45, 0.48, 2.05), rot: [0, yaw, 0], color: '#efe2cc' });
+  b.add('gold', G.torus(0.36, 0.04, 3, 8).rotateY(PI / 2), { pos: W(2.45, 0.48, 2.05), rot: [0, yaw, 0], color: C.gold });
+  b.add('ivory', G.cyl(0.22, 0.22, 0.9, 8).rotateZ(PI / 2), { pos: W(2.15, 0.95, 2.55), rot: [0, yaw, 0], color: '#e7d4b4' });
+  pipe(2.45, 1.2, 2.05, 0.7, 'y'); pipe(2.45, 1.5, 1.7, 0.9, 'z');
+  b.add('gold', G.sphere(0.16, 6, 5), { pos: W(-1.15, 2.45, 1.55), color: C.gold2 });
+  b.add('gold', G.torus(0.18, 0.04, 3, 8), { pos: W(1.9, 2.85, 1.55), rot: [PI / 2, 0, 0], color: C.gold });
+}
 function dishModule(b, s, d) {
   const { x, z } = sd(s, d); const y = groundAt(x, z) - 0.1;
   colliders.push({ x, z, r: 5 });
@@ -131,9 +162,7 @@ function dishModule(b, s, d) {
   b.add('gold', G.cyl(0.9, 1.3, 1.0, 12), { pos: [x, y + 4.9, z], color: C.gold }); b.add('gold', G.cyl(0.55, 0.7, 1.4, 10), { pos: [x, y + 5.9, z], color: C.goldD });
   // ornate turret: stacked gold collars, buttress fins, light ring
   for (const [yy, rr] of [[5.35, 1.05], [5.75, 0.85], [6.2, 0.75]]) b.add('gold', G.torus(rr, 0.08, 3, 16), { pos: [x, y + yy, z], rot: [PI / 2, 0, 0], color: C.gold2 });
-  for (let k = 0; k < 8; k++) { const a = k / 8 * PI * 2; const sh = new THREE.Shape(); sh.moveTo(0, 0); sh.lineTo(0.9, 0); sh.lineTo(0, 1.6); sh.lineTo(0, 0); const g = new THREE.ExtrudeGeometry(sh, { depth: 0.1, bevelEnabled: false }).translate(0, 0, -0.05); b.add('gold', g, { pos: [x + Math.sin(a) * 1.1, y + 4.9, z + Math.cos(a) * 1.1], rot: [0, a - PI / 2, 0], color: C.goldD }); }
-  for (let k = 0; k < 14; k++) { const a = k / 14 * PI * 2; b.add('glow', G.box(0.18, 0.1, 0.18), { pos: [x + Math.sin(a) * 2.25, y + 4.92, z + Math.cos(a) * 2.25], color: C.win, intensity: 3.5 }); }
-  for (let k = 0; k < 16; k++) { const a = k / 16 * PI * 2; b.add('glow', G.box(0.22, 0.1, 0.22), { pos: [x + Math.sin(a) * 3.65, y + 4.12, z + Math.cos(a) * 3.65], color: C.gold2, intensity: 3 }); }
+  for (let k = 0; k < 6; k++) { const a = k / 6 * PI * 2; b.add('gold', G.box(0.12, 1.15, 0.28), { pos: [x + Math.sin(a) * 1.15, y + 5.5, z + Math.cos(a) * 1.15], rot: [0, a, 0], color: C.goldD }); }
   { const DY = faceCam + PI + 0.9; // yoke: two ornate gold arms + pivot hubs + elevation drum
     for (const sx of [-1, 1]) { const ox = Math.cos(DY) * sx * 1.25, oz = -Math.sin(DY) * sx * 1.25; b.add('gold', G.box(0.32, 1.6, 0.95), { pos: [x + ox, y + 7.8, z + oz], rot: [0, DY, 0], color: C.gold }); b.add('gold', G.cyl(0.42, 0.42, 0.3, 14).rotateZ(PI / 2), { pos: [x + ox * 1.12, y + 8.35, z + oz * 1.12], rot: [0, DY, 0], color: C.gold2 }); b.add('glow', G.box(0.12, 0.7, 0.12), { pos: [x + ox * 1.15, y + 7.6, z + oz * 1.15], rot: [0, DY, 0], color: C.win, intensity: 3 }); }
     b.add('ivory', G.cyl(0.95, 1.1, 0.7, 18), { pos: [x, y + 7.35, z], color: C.ivory }); b.add('gold', G.torus(1.0, 0.07, 3, 18), { pos: [x, y + 7.7, z], rot: [PI / 2, 0, 0], color: C.gold });
@@ -141,8 +170,7 @@ function dishModule(b, s, d) {
     b.add('ivory', G.cyl(0.62, 0.8, 0.9, 16), { pos: [x, y + 6.45, z], color: C.ivory, ao: [y + 6.2, y + 7.4] }); for (const [yy, rr] of [[6.45, 0.82], [6.9, 0.7], [7.32, 0.66]]) b.add('gold', G.torus(rr, 0.07, 3, 16), { pos: [x, y + yy, z], rot: [PI / 2, 0, 0], color: C.gold2 });
     b.add('glow', G.cyl(0.71, 0.71, 0.12, 16, true), { pos: [x, y + 7.0, z], color: C.win, intensity: 2.5 });
     // balustrade on the upper deck: gold posts + rail
-    for (let k = 0; k < 18; k++) { const a = k / 18 * PI * 2; b.add('gold', G.box(0.07, 0.45, 0.07), { pos: [x + Math.sin(a) * 3.0, y + 4.32, z + Math.cos(a) * 3.0], color: C.gold }); }
-    b.add('gold', G.torus(3.0, 0.05, 3, 28), { pos: [x, y + 4.55, z], rot: [PI / 2, 0, 0], color: C.gold2 }); }
+    b.add('gold', G.torus(3.0, 0.05, 3, 20), { pos: [x, y + 4.55, z], rot: [PI / 2, 0, 0], color: C.gold2 }); }
   // dish
   const DY = faceCam + PI + 0.9; const tilt = new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.55, DY, 0, 'YXZ'));
   const center = new THREE.Vector3(x, y + 9.8, z);
@@ -315,6 +343,7 @@ function tracks(b) {
 }
 export function buildHub(b, beams) {
   const R = reactor(b, 0, 0);
+  frontAnnex(b);
   beams.push({ x: R.x, y: R.y + 0.2, z: R.z, r: R.Ri * 0.92, h: 2.4, color: "#ff7a1e", I: 0.55, taper: 1.2 }); // warm glow stays under the low cap
   beams.push({ x: R.x, y: R.y + 0.2, z: R.z, r: R.Ri * 0.5, h: 1.6, color: "#ffa04a", I: 0.5, taper: 1.3 });
   dome(b, -22, 3, 5.0); // home door stays on this dome
