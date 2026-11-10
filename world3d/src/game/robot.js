@@ -5,7 +5,7 @@ import { mergeGeometries } from '../../vendor/three/jsm/utils/BufferGeometryUtil
 // gold crescent, chunky rounded shoulder caps with gold pads, rounded limbs with dark joints and gold cuffs, dark segmented gloves with
 // gold knuckles, welding torch + dark hose in the right hand, steel I-beam in the left, gold knee pads and rounded ivory boots on gold soles.
 // Materials per vertex: glossy ivory, metallic gold, painted hat gold, dark rubber, glossy black glass, steel. 3 draws + sparks/flame.
-export const COL = { ivory: '#b49a7c', ivoryS: '#a58c70', gold: '#a07812', hat: '#a27408', dark: '#24272d', rubber: '#16181c', steel: '#80858d', black: '#050608', eye: '#4fe8ff', eyeL: '#3fd8ff', leather: '#5a3a1e', holo: '#3fc8ff', flame: '#5fb8ff', lamp: '#ffe8b0', glyph: '#c88a1a' };
+export const COL = { ivory: '#b49a7c', ivoryS: '#a58c70', gold: '#a07812', hat: '#a27408', dark: '#24272d', rubber: '#16181c', steel: '#80858d', black: '#050608', eye: '#4fe8ff', eyeL: '#1a9ad8', leather: '#5a3a1e', holo: '#3fc8ff', flame: '#5fb8ff', lamp: '#ffe8b0', glyph: '#c88a1a' };
 export const MAT = { ivory: [0.0, 0.16], ivoryS: [0.0, 0.22], gold: [0.85, 0.3], hat: [0.3, 0.2], dark: [0.15, 0.55], rubber: [0.0, 0.62], steel: [0.8, 0.35], black: [0.1, 0.08], leather: [0.0, 0.7], eye: [0, 2.5], eyeL: [0, 3.5], holo: [0, 2.5], flame: [0, 2.5], lamp: [0, 2.5], glyph: [0, 2.5] }; // roughness > 1.5 = self-lit (eyes / holo / flame baked into the single-mesh LOD)
 
 // geometry detail per preset (same detection as main.js): phone / q=low get coarser tessellation of the rounded volumes (Chapter-1 triangle budget)
@@ -49,7 +49,7 @@ export function material(env) { const m = new THREE.MeshStandardMaterial({ verte
     sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec2 vMR; varying vec3 vWN;')
       .replace('#include <color_fragment>', '#include <color_fragment>\n diffuseColor.rgb *= mix(0.68, 1.0, smoothstep(-0.85, 0.55, vWN.y)); /* soft sky/ground occlusion: keep cream bright */')
       .replace('#include <metalnessmap_fragment>', 'float metalnessFactor = vMR.x;').replace('#include <roughnessmap_fragment>', 'float roughnessFactor = min(vMR.y, 1.0);')
-      .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n totalEmissiveRadiance += diffuseColor.rgb * vec3(1.12, 0.98, 0.78) * 0.26 * (1.0 - 0.65 * vMR.x); /* warm concept fill so ivory stays creamy at night */\n if (vMR.y > 1.5) totalEmissiveRadiance += diffuseColor.rgb * (vMR.y > 3.0 ? 1.7 : 5.0); /* self-lit parts; eyeL (lo-LOD baked eyes) dimmer so they stay cyan, not ACES-white */'); };
+      .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n totalEmissiveRadiance += diffuseColor.rgb * vec3(1.12, 0.98, 0.78) * 0.26 * (1.0 - 0.65 * vMR.x); /* warm concept fill so ivory stays creamy at night */\n if (vMR.y > 1.5) totalEmissiveRadiance += diffuseColor.rgb * (vMR.y > 3.0 ? 1.15 : 5.0); /* self-lit parts; eyeL (lo-LOD baked eyes) dimmer so they stay cyan, not ACES-white */'); };
   m.customProgramCacheKey = () => 'mk_robot4'; return m; }
 export function faceTexture() { const W = 256, H = 150, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
   const rr = (x, y, w, h, r) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
