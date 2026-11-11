@@ -1,0 +1,92 @@
+{
+  "baseCommit": "eaa09304c773129d8b06ec4c85a542e123e13450",
+  "baseTree": "a08ec6ee9578eacca3f81da296964613d8dd7299",
+  "objectProvenance": "actual fetched public commit",
+  "modelSourceCommit": "a158781dbd334bcd0ffcde9a0b00756f929942c7",
+  "modelMaterialization": "PR47 model/native copies retain one extra terminal LF; upstreamGitBlob excludes only that LF",
+  "runtimeReference": [
+    {
+      "path": "app.js",
+      "sha256": "3932e005cd7ebb26db7d954dac13f4c9a7bfe695f556e36d4a95c490a2a3896f",
+      "gitBlob": "b3c9bd20f8f45066afb76113b56d32e8eec41597"
+    },
+    {
+      "path": "experience.js",
+      "sha256": "13f5dd4b6eb840d89a51389b8bf0c879ef8ff322633b8fb36e2ae64348e57491",
+      "gitBlob": "3798bbac0639d1fdc5fa7c6d4c539cd9988e9870"
+    },
+    {
+      "path": "campaign.js",
+      "sha256": "54d5deea269bbc09e7a22c7a5b3c2e44da810e1daabebf80a193d307b67f35ad",
+      "gitBlob": "e38e0d49ecbd0f0ad4a2674c06515007abbad0e8"
+    },
+    {
+      "path": "index.html",
+      "sha256": "3c51e6458d985c46257c265e667bfcabbf3420cfa2f41722bb48ebf4a1da9643",
+      "gitBlob": "8b97e2447a37216399c9618b2eeb1bc5e6f7ddc1"
+    },
+    {
+      "path": "styles.css",
+      "sha256": "45b91d8df2047d9292d2c3614bb205ca0d4bd6b0e209840c83dfd0ed327bdb19",
+      "gitBlob": "af1c210541de9fa6c5da2e2d2bf52c1979639aaf"
+    },
+    {
+      "path": "chapters-1-4.css",
+      "sha256": "da358cc14e8ceacb02135b9ae17fafa81f6f86e380e449ce207245d961280ed0",
+      "gitBlob": "e2b2e0d487217b8ed25e857bc8b82019a8c54a9f"
+    },
+    {
+      "path": "mission-polish.css",
+      "sha256": "63830b60a4691060cfd1a9a3a29f35e3313f970dfb4fa9e5563c19b83d47fafd",
+      "gitBlob": "1ac21627f4635511ba5efd63e60d138c39a7e581"
+    },
+    {
+      "path": "mission-rules.js",
+      "sha256": "45406186d3a38380a7f3bbb0255cd95f28ef8aa9ac50cd71325b2ba3270ccb97",
+      "gitBlob": "3e2277e3d7a5053d91e958304ef22e0b9242ce4b"
+    },
+    {
+      "path": "field-art.js",
+      "sha256": "7d292278537c8b58ad85f47b212470f1767d66c6449134584d45224ac135827e",
+      "gitBlob": "4482089ea47800ad4a1b2bec09e31aaa4ab88357"
+    },
+    {
+      "path": "package.json",
+      "sha256": "c64ad6b5b1445b4422339ecccc2b9b1c88fb8038827b7301066e76167feee97d",
+      "gitBlob": "45a5279e73b36a9e3a8d815d42f31b586fc71cb6"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "beae513fda0d54cd6208f08951a5ae9759b4d0df64c358c67c511e0f64b184e0",
+      "gitBlob": "3622810e2f980838902dcbd3bb25e7021d47c60f"
+    }
+  ],
+  "frozenDependencies": [
+    {
+      "path": "prototypes/life1-capture/pr47/life1-model.js",
+      "sha256": "68bfd63a15b7670a25ad0d30cbce120d569df462520e2fd7671c040b4d4f3a34",
+      "upstreamGitBlob": "96523de22939ed91b1cb1744ef0294feafa3d21c"
+    },
+    {
+      "path": "prototypes/life1-capture/pr47/life1-native-geometry.js",
+      "sha256": "4e6b34637e7d57da2d95a9bd4db73f9b8fb252a309443f07662a56a4e9ab77b6",
+      "upstreamGitBlob": "49962910f1f91895d8b3b2bf27fe76d08eb154ee"
+    },
+    {
+      "path": "prototypes/life1-capture/prototype/chapter1-recorder.cjs",
+      "sha256": "f7ff7d7ce661354a79b79b733ccf684233e67e08f192c172e7ea4e6ac2f91d06"
+    },
+    {
+      "path": "prototypes/life1-capture/prototype/source-callback-model.cjs",
+      "sha256": "03abdf5daa8aaf23a49ee082f06183d9adc2658a87855efd2b4375e0fff5ebdc"
+    },
+    {
+      "path": "prototypes/life1-capture/prototype/CALLBACK_DIFFERENTIAL.md",
+      "sha256": "9ee8dc265bc7cdc12cacb0e9d754de4e40ef4a73ef083aa963c68d41eff67f33"
+    },
+    {
+      "path": "tests/fixtures/life1-recording-source-controller.cjs",
+      "sha256": "669887107233f27fdfc52d1f26ddef15c18e91dacb2536bcb7d04b384695b4c2"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "environment": "socket-free local source execution, Node v24.19.0",
+  "passed": [
+    "life1-recording-source.cjs: 17 reference hashes, 3 instrumented sources and browser bundle compile; import starts no browser/socket",
+    "life1-recording-controller.cjs: 318 exact compared states and explicit refusal regressions",
+    "life1-geometry-lifecycle.cjs",
+    "life1-touch-lifecycle.cjs",
+    "original frozen four suites rerun successfully in disposable copy",
+    "node --check on browser fixture and controller adapter",
+    "independent bounded reviewed hashes verified against final source",
+    "stable source checkout remains clean"
+  ],
+  "preparedNotExecuted": ["native reload/browser geometry lane", "native mixed-clock diagnostic lane", "GitHub Actions workflow"],
+  "diffCheck": {
+    "authoredFiles": "passes",
+    "frozenCopies": "git diff --check reports blank line at EOF in two PR47 model/native copies and the source-controller fixture; retained intentionally for exact frozen-copy provenance"
+  },
+  "openIntegrationLimits": [
+    "legitimate mixed dispatch/RAF clocks are explicitly unsupported by frozen single-time model",
+    "general exact floating-point equivalence across affine document clock rebasing remains unproven",
+    "zero-sentinel collision and unsupported recovery phases are explicit pre-mutation refusals",
+    "native geometry/profile coverage is unexecuted here",
+    "long-session codec measurements are separate and exclude this wrapper journal unless expressly included",
+    "source consistency is not authoritative route, timing, human-play or server admission evidence"
+  ],
+  "runtimeActivation": false,
+  "publicUploadPerformed": false
+}
