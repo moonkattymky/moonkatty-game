@@ -93,7 +93,7 @@ const hub = buildHub(b, beams); buildWorld(WB, beams); addBeams(wb, beams);
   const door = new THREE.PlaneGeometry(1.85, 2.05); put(door, W(0.45, 1.28, 1.66), new THREE.Euler(0, face, 0));
   const spill = new THREE.PlaneGeometry(3.6, 2.8); spill.rotateX(-Math.PI / 2); put(spill, W(0.45, 0.05, 3.15), new THREE.Euler(0, face, 0));
   const parts = [door, spill];
-  const rp = sd(0, 0), ry = groundAt(rp.x, rp.z) - 0.1, Rd = 8.15, sy = 0.46, f = 0.48;
+  const rp = sd(0, 0), ry = groundAt(rp.x, rp.z) - 0.1, Rd = 8.15, sy = 0.70, f = 0.48;
   const y0 = ry + 0.3 + 2.6 + 0.02, wy = y0 + Rd * sy * f, wr = Math.sqrt(Math.max(0.2, Rd * Rd * (1 - f * f)));
   for (let i = 0; i < 10; i++) { const a = face + i / 10 * Math.PI * 2; const circ = new THREE.CircleGeometry(0.78, 10); put(circ, new THREE.Vector3(rp.x + Math.sin(a) * (wr + 0.08), wy, rp.z + Math.cos(a) * (wr + 0.08)), new THREE.Euler(0, a, 0)); parts.push(circ); }
   const wallY = ry + 0.3 + 2.6 * 0.55, wallR = 8.5 * 1.04;

@@ -99,9 +99,11 @@ function reactor(b, s, d) {
   b.add('glow', G.disc(Ri * 0.97, 24), { pos: [x, yt + 0.2, z], color: (px, py, pz) => { const t = Math.hypot(px - x, pz - z) / Ri; const k = 0.95 - 0.4 * t; return [k, k * 0.2, k * 0.012]; } });
   b.add('glow', G.disc(Ri * 0.42, 24), { pos: [x, yt + 0.215, z], color: '#ffb347', intensity: 2.4 }); for (const f of [0.55, 0.78]) b.add('dark', G.ring(Ri * f, Ri * f + 0.34, 48), { pos: [x, yt + 0.218, z], color: '#1c0d06' }); // molten core: hot centre + crust rings
   // low wide ivory cap over the ring: smooth shell, one gold band, a window tier, a short gold spire. The dish module is the left annex. The pit stays inside.
-  { const Rd = R - 0.35, sy = 0.46, y0 = yt + 0.02; b.add('ivory', G.cap(Rd, 48, 7), { pos: [x, y0, z], scale: [1, sy, 1], color: '#f4ead8' });
+  { const Rd = R - 0.35, sy = 0.70, y0 = yt + 0.02; b.add('tex', G.cap(Rd, 40, 9), { region: 'domeCap', pos: [x, y0, z], scale: [1, sy, 1], color: '#ffffff' });
     const onShell = (f) => { const yy = y0 + Rd * sy * f; return { y: yy, r: Math.sqrt(Math.max(0.2, Rd * Rd - ((yy - y0) / sy) ** 2)) }; };
-    const band = onShell(0.16); b.add('gold', G.torus(band.r, 0.07, 3, 28), { pos: [x, band.y, z], rot: [PI / 2, 0, 0], color: C.gold });
+    const band = onShell(0.12); b.add('gold', G.torus(band.r, 0.07, 3, 24), { pos: [x, band.y, z], rot: [PI / 2, 0, 0], color: C.gold });
+    const step = onShell(0.84); b.add('gold', G.torus(Math.max(0.9, step.r), 0.1, 3, 16), { pos: [x, step.y, z], rot: [PI / 2, 0, 0], color: C.gold });
+    const crown = onShell(0.93); b.add('gold', G.cyl(0.42, Math.max(0.7, crown.r * 0.85), 0.32, 10), { pos: [x, crown.y - 0.1, z], color: C.goldD });
     // meridian strips: sample the scaled-sphere profile and sit 2 cm off the shell, rim to the cap, never above the silhouette
     const rib = (a) => { const N = 8, f0 = 0.05, f1 = 0.86, w = 0.075, lift = 0.02, pos = [];
       const at = (f) => { const yy = y0 + Rd * sy * f, rad = Math.sqrt(Math.max(0.04, Rd * Rd - ((yy - y0) / sy) ** 2)); const nx = Math.sin(a) * rad / Rd, ny = ((yy - y0) / sy) / Rd / sy, nz = Math.cos(a) * rad / Rd, nl = Math.hypot(nx, ny, nz) || 1; return [x + Math.sin(a) * rad + nx / nl * lift, yy + ny / nl * lift, z + Math.cos(a) * rad + nz / nl * lift, Math.cos(a), -Math.sin(a)]; };
@@ -109,7 +111,13 @@ function reactor(b, s, d) {
       const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.computeVertexNormals(); b.add('gold', g, { color: C.gold }); };
     for (let i = -3; i <= 3; i++) rib(faceCam + i * 0.42);
     const w1 = onShell(0.48); windowsRing(b, x, w1.y, z, w1.r + 0.04, 10, 1.7, 1.7, { round: true, I: 5, a0: faceCam, color: '#ffe08a' });
-    finial(b, x, y0 + Rd * sy - 0.08, z, 4.0); }
+    finial(b, x, y0 + Rd * sy - 0.05, z, 6.6); }
+  { const py = faceCam - 0.3, rx = Math.cos(py), rz = -Math.sin(py); const mx = x + rx * (R + 4.4), mz = z + rz * (R + 4.4), my = groundAt(mx, mz);
+    b.add('gold', G.cyl(0.18, 0.26, 9.5, 6), { pos: [mx, my, mz], color: C.gold });
+    b.add('gold', G.cyl(0.34, 0.34, 0.16, 6), { pos: [mx, my + 5.2, mz], color: C.gold2 });
+    b.add('gold', G.cyl(0.1, 0.14, 4.2, 5), { pos: [mx, my + 9.5, mz], color: C.gold });
+    b.add('glow', G.octa(0.16), { pos: [mx, my + 13.8, mz], color: '#7fdcff', intensity: 2.4 });
+    b.add('ivory', G.cyl(0.24, 0.32, 2.8, 6), { pos: [mx - rx * 1.7, my, mz - rz * 1.7], color: '#d8cdb5' }); }
   return { x, y: yt, z, Ri };
 }
 
