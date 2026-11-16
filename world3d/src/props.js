@@ -411,11 +411,11 @@ export function buildRocks(scene, culler, quality = 1) { LOD_SCALE = quality < 0
   // v68: concept foreground boulders are tall jagged blocks, not low slabs -> stretch the near peak rocks up (the ledge rock under the cat keeps its height)
   for (const it of L.peak) { const d = Math.hypot(it.x - K.cam.x, it.z - K.cam.z); if (d < 26 && Math.hypot(it.x - LEDGE.x, it.z - LEDGE.z) > 1.0) { const k = 0.82; /* v77: rounder, smaller, gaps between (scattered) */ it.y -= it.s[1] * 0.53 * 0.18; it.s[1] *= k; it.s[0] *= 0.86; it.s[2] *= 0.86; } }
   const kinds = {
-    rockA: makeKind(scene, 'rockA', [[creaseRock(protoGeom(1, 2, [1.25, 0.9, 1.05], 0.02), 180, 1), 8], [creaseRock(protoGeom(0, 2, [1.25, 0.85, 1.05], 0.06), 180, 1), 24], /* mid range uses the 20-tri boulder; the nearest 8 m stay on the finer mesh */ [creaseRock(protoGeom(0, 2, [1.25, 0.8, 1.05], 0.1), 62), 116]], A, mat, 2),
+    rockA: makeKind(scene, 'rockA', [[creaseRock(protoGeom(1, 2, [1.25, 0.9, 1.05], 0.02), 180, 1), 8], [creaseRock(protoGeom(0, 2, [1.25, 0.85, 1.05], 0.06), 180, 1), 24], /* mid range uses the 20-tri boulder; the nearest 8 m stay on the finer mesh */ [creaseRock(protoGeom(0, 2, [1.25, 0.8, 1.05], 0.1), 62), quality <= 0.6 ? 64 : 116]], A, mat, 2),
     debris: makeKind(scene, 'debris', [[roundStone(0, 14), 7.5]] /* v78 smooth pale pebbles, same 20 tris */, debris, matDebris, 0),
     scatter: makeKind(scene, 'scatter', [[pebbleGeom(23), SCAT_D]], scatter, matScatter, 0),
     strata: makeKind(scene, 'strata', [[roundStone(2, 9), 6.5], [roundStone(1, 9), 14], /* v78: smooth rounded pale stones near camera (same tri count as the chisel LODs) */ [roundStone(0, 9), 95]], L.peak, matFar, 0),
-    wall: makeKind(scene, 'wall', [[creaseRock(mesaGeom(protoGeom(1, 33, [1, 1, 1], 0.55), 33), 60), 118], [creaseRock(mesaGeom(protoGeom(0, 33, [1, 1, 1], 0.45), 33), 60), 3000]], L.wall, matWall, 0),
+    wall: makeKind(scene, 'wall', [[creaseRock(mesaGeom(protoGeom(1, 33, [1, 1, 1], 0.55), 33), 60), quality <= 0.6 ? 70 : 118], [creaseRock(mesaGeom(protoGeom(0, 33, [1, 1, 1], 0.45), 33), 60), quality <= 0.6 ? 220 : 3000]], L.wall, matWall, 0),
   };
     for (const k of Object.values(kinds)) culler.add(k);
   // contact shadows / crevices: every rock near the hub darkens the regolith around its base (painted into the terrain AO map in main.js)

@@ -33,7 +33,7 @@ import { LEDGE, LAMPK } from './terrain.js';
 
 const Q = new URLSearchParams(location.search);
 const SHOT = Q.has('shot'); const VIEW = Q.get('view') || 'play';
-const LOW = Q.get('q') === 'low'; if (LOW) { GQ.s = 0.4; GRID.Mn = 72; GRID.Mf = 40; } // phones: fewer segments on all architecture + coarser near terrain rings
+const LOW = Q.get('q') === 'low'; if (LOW) { GQ.s = 0.36; GRID.Mn = 52; GRID.Mf = 28; } // low tier: fewer segments on architecture, coarser terrain rings (60k cap)
 const MOBILE = Q.get('q') === 'mobile' || (!Q.get('q') && (matchMedia('(pointer:coarse)').matches || Math.min(innerWidth, innerHeight) < 480));
 if (MOBILE && !LOW) { GQ.s = 0.46; GRID.Mn = 84; GRID.Mf = 44; GRID.si = 1; GRID.sn = 4; GRID.sf = 1; } // auto phone preset: lighter architecture + terrain in fewer, larger chunks (fewer draw calls), keeps ridge/crystals/bloom/shadows
 const BLOOM = Q.get('bloom') !== '0' && !LOW;
