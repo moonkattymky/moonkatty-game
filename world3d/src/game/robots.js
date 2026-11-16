@@ -37,7 +37,7 @@ function head(kit, y0, { round = false, hat = false, cap = false, lamp = false }
   return HY;
 }
 // eyes + smile baked as self-lit geometry on the screen (single-mesh LOD)
-function bakedFace(kit, HY, z, s = 1) { for (const sx of [-1, 1]) kit.add(sq(0.07, 0.1, 0.012, 2, 8, 6), 'eye', { p: [sx * 0.09 * s, HY + 0.02, z], s: [s, s, 1] }); kit.add(new THREE.TorusGeometry(0.05, 0.009, 3, 8, PI * 0.5).rotateZ(-PI * 0.75), 'eye', { p: [0, HY - 0.02, z] }); }
+function bakedFace(kit, HY, z, s = 1) { for (const sx of [-1, 1]) kit.add(sq(0.07, 0.1, 0.012, 2, 8, 6), 'eyeL', { p: [sx * 0.09 * s, HY + 0.02, z], s: [s, s, 1] }); kit.add(new THREE.TorusGeometry(0.05, 0.009, 3, 8, PI * 0.5).rotateZ(-PI * 0.75), 'eyeL', { p: [0, HY - 0.02, z] }); }
 
 function geologist(level) { const body = new Kit(), arm = new Kit(); const y0 = 0;
   legs(body); // v100: legs instead of tracks (concept)
@@ -117,7 +117,7 @@ const SX = 0.86, SZ = 0.92;
 // type: builder|geologist|archaeologist|engineer. returns { root, update(dt, mode, camPos), setLevel(l), tris, type }
 export function makeCrewRobot(scene, env, type, level = 1, cos = null) {
   const mat = makeCrewRobot.mat ||= material(env); const root = new THREE.Group(); root.name = 'crew_' + type; root.visible = false; scene.add(root);
-  const hi = new THREE.Group(); root.add(hi); let lo = null, parts = null, lvl = level, look = cos || { p: 'classic', d: 'crescent' }, ph = Math.random() * 10;
+  const hi = new THREE.Group(); root.add(hi); let lo = null, parts = null, lvl = level, look = cos || { p: 'classic', d: 'crescent' }, ph = Math.random() * 10, life = 0; const seed = Math.random(), wavP = 9 + seed * 5; /* gd pr159: per-robot idle rhythm (wave every 9-14 s) */
   const faceTex = makeCrewRobot.faceTex ||= faceTexture(); const flameTex = makeCrewRobot.flameTex ||= (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(220,245,255,1)'); gr.addColorStop(0.4, 'rgba(90,180,255,0.7)'); gr.addColorStop(1, 'rgba(40,120,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })();
   function build() {
     for (const c of [...hi.children]) { hi.remove(c); c.geometry?.dispose(); } if (lo) { root.remove(lo); lo.geometry.dispose(); }
@@ -141,14 +141,25 @@ export function makeCrewRobot(scene, env, type, level = 1, cos = null) {
     setLevel(l) { if (l === lvl) return; lvl = l; build(); },
     get look() { return look; }, get paintIdx() { return Math.max(0, PAINT_IDS.indexOf(look.p)); }, setLook(c) { c = c || { p: 'classic', d: 'crescent' }; if (c.p === look.p && c.d === look.d) return; look = { p: c.p, d: c.d }; build(); },
     // mode: idle|walk|work|drive; cam: camera world position (hi mesh within near distance; ?q=low: lo beyond 7 m)
-    update(dt, mode, cam) { ph += dt; const near = PRESET.low ? 3.5 : PRESET.mobile ? 4 : 5; // hi mesh only up close (far crew are impostors, see impostors.js) root.getWorldPosition(_w); const d = cam ? _w.distanceTo(cam) : 0; const useHi = d < near; hi.visible = useHi; lo.visible = !useHi;
+    update(dt, mode, cam) { ph += dt; life += dt; const near = PRESET.low ? 3.5 : PRESET.mobile ? 4 : 5; /* hi mesh only up close (far crew are impostors, see impostors.js); gd pr159: this LOD switch used to sit inside a // comment, so near crew drew hi AND lo */ root.getWorldPosition(_w); const d = cam ? _w.distanceTo(cam) : 0; const useHi = d < near; hi.visible = useHi; lo.visible = !useHi;
       const carry = mode === 'carry' || mode === 'carryidle' || mode === 'wavecarry', wav = mode === 'wave' || mode === 'wavecarry'; if (carry || wav) { if (!api.cry) { const g = makeCrewRobot.cryG ||= new THREE.OctahedronGeometry(0.17, 0).scale(0.8, 1.5, 0.8); const m = makeCrewRobot.cryM ||= new THREE.MeshBasicMaterial({ color: new THREE.Color(0.5, 2.2, 3.0), toneMapped: false }); api.cry = new THREE.Mesh(g, m); api.cry.name = 'crew_crystal'; api.cry.position.set(-0.3, 0.66, 0.5); root.add(api.cry); } }
       if (api.cry) { api.cry.visible = carry; if (carry) api.cry.rotation.y += dt * 1.5; }
       if (mode === 'carry') mode = 'walk'; else if (mode === 'carryidle') mode = 'idle';
       const P = parts; const b = mode === 'walk' && !P.hover ? Math.abs(Math.sin(ph * 7)) * 0.035 : 0; const hov = P.hover ? 0.04 * Math.sin(ph * 2.2) : 0;
       hi.position.y = b + hov; lo.position.y = hov; api.pivot.rotation.set(0, 0, 0);
+      // gd pr159 (concept d04ca995: crew wave and work): body language on the hi/lo groups only - no new meshes, 0 extra draws/tris.
+      // idle: breathing bob + slow look-around, and every wavP seconds a ~2 s greeting wave (geologist lifts the drill instead); never during the
+      // first 4 s of life, so the impostor atlas (rendered once at startup in 'idle') keeps the neutral pose. work: effort lean; walk: waddle.
+      let yaw = 0, lean = 0, roll = 0, bob = 0, idleWave = false;
+      if (mode === 'idle' && !wav) { yaw = 0.22 * Math.sin(ph * 0.45 + seed * 6) + 0.08 * Math.sin(ph * 1.1); bob = P.hover ? 0 : 0.008 * Math.sin(ph * 2.1); roll = 0.025 * Math.sin(ph * 0.8 + seed * 3);
+        const wt = (ph + seed * wavP) % wavP; idleWave = life > 4 && !carry && wt > wavP - 2.2; if (idleWave) { const k = Math.min(1, (wavP - wt) * 3, (wt - (wavP - 2.2)) * 3); yaw *= 1 - k; lean = -0.05 * k; } }
+      else if (mode === 'work') { lean = 0.07 + 0.035 * Math.sin(ph * (type === 'engineer' ? 6 : 2.6)); bob = P.hover ? 0 : -0.012 * Math.abs(Math.sin(ph * 2.6)); }
+      else if (mode === 'walk' && !P.hover) roll = 0.045 * Math.sin(ph * 7);
+      for (const o of [hi, lo]) { o.rotation.set(lean, yaw, roll); } hi.position.y += bob; lo.position.y += bob;
       if (carry && !wav) api.pivot.rotation.x = -0.9 + Math.sin(ph * 7) * 0.03; else if (wav) { api.pivot.rotation.z = -2.3 + Math.sin(ph * 10) * 0.35; api.pivot.rotation.x = -0.25; }
+      else if (idleWave) { const k = Math.min(1, (wavP - (ph + seed * wavP) % wavP) * 3, (((ph + seed * wavP) % wavP) - (wavP - 2.2)) * 3); if (type === 'geologist') { api.pivot.rotation.x = -0.75 * k + Math.sin(ph * 5) * 0.06 * k; } else { api.pivot.rotation.z = (-2.3 + Math.sin(ph * 10) * 0.35) * k; api.pivot.rotation.x = -0.25 * k; } }
       else if (mode === 'walk') api.pivot.rotation.x = Math.sin(ph * 7) * 0.1;
+      else if (mode === 'idle') { api.pivot.rotation.x = 0.04 * Math.sin(ph * 2.1 + 1); }
       else if (mode === 'work') { if (type === 'geologist') { api.pivot.rotation.x = 0.12 + Math.sin(ph * 9) * 0.02; } else if (type === 'archaeologist') { api.pivot.rotation.x = -0.15 + Math.sin(ph * 1.3) * 0.25; api.pivot.rotation.y = Math.sin(ph * 0.9) * 0.3; } else if (type === 'engineer') { api.pivot.rotation.x = Math.sin(ph * 6) * 0.18; api.pivot.rotation.z = Math.sin(ph * 6) * 0.1; } else api.pivot.rotation.x = Math.sin(ph * 2.3) * 0.05; }
       if (api.bitM) api.bitM.rotateY(mode === 'work' ? dt * 22 : 0);
       if (api.flame) { const k = 0.85 + 0.15 * Math.sin(ph * 31); api.flame.scale.set(0.3 * k, 0.48 * k, 1); }

@@ -5,12 +5,12 @@ import { mergeGeometries } from '../../vendor/three/jsm/utils/BufferGeometryUtil
 // gold crescent, chunky rounded shoulder caps with gold pads, rounded limbs with dark joints and gold cuffs, dark segmented gloves with
 // gold knuckles, welding torch + dark hose in the right hand, steel I-beam in the left, gold knee pads and rounded ivory boots on gold soles.
 // Materials per vertex: glossy ivory, metallic gold, painted hat gold, dark rubber, glossy black glass, steel. 3 draws + sparks/flame.
-export const COL = { ivory: '#b49a7c', ivoryS: '#a58c70', gold: '#a07812', hat: '#a27408', dark: '#24272d', rubber: '#16181c', steel: '#80858d', black: '#050608', eye: '#4fe8ff', leather: '#5a3a1e', holo: '#3fc8ff', flame: '#5fb8ff', lamp: '#ffe8b0', glyph: '#c88a1a' };
-export const MAT = { ivory: [0.0, 0.16], ivoryS: [0.0, 0.22], gold: [0.85, 0.3], hat: [0.3, 0.2], dark: [0.15, 0.55], rubber: [0.0, 0.62], steel: [0.8, 0.35], black: [0.1, 0.08], leather: [0.0, 0.7], eye: [0, 2.5], holo: [0, 2.5], flame: [0, 2.5], lamp: [0, 2.5], glyph: [0, 2.5] }; // roughness > 1.5 = self-lit (eyes / holo / flame baked into the single-mesh LOD)
+export const COL = { ivory: '#f6f1e6', ivoryS: '#ebe4d4', gold: '#e8b23a', hat: '#e2b25a', dark: '#2a3140', rubber: '#1a1e26', steel: '#9aa3ad', black: '#070a10', eye: '#c8fbff', eyeL: '#7ef4ff', leather: '#6a4a2a', holo: '#5fd8ff', flame: '#7ecbff', lamp: '#ffe8b0', glyph: '#f0c24a' };
+export const MAT = { ivory: [0.0, 0.16], ivoryS: [0.0, 0.22], gold: [0.85, 0.3], hat: [0.3, 0.2], dark: [0.15, 0.55], rubber: [0.0, 0.62], steel: [0.8, 0.35], black: [0.1, 0.08], leather: [0.0, 0.7], eye: [0, 2.5], eyeL: [0, 3.5], holo: [0, 2.5], flame: [0, 2.5], lamp: [0, 2.5], glyph: [0, 2.5] }; // roughness > 1.5 = self-lit (eyes / holo / flame baked into the single-mesh LOD)
 
 // geometry detail per preset (same detection as main.js): phone / q=low get coarser tessellation of the rounded volumes (Chapter-1 triangle budget)
 const _Q = new URLSearchParams(location.search).get('q'); const _MOB = _Q === 'mobile' || _Q === 'low' || (!_Q && (matchMedia('(pointer:coarse)').matches || Math.min(innerWidth, innerHeight) < 480));
-export const LQ0 = _Q === 'low' ? 0.42 : _MOB ? 0.72 : 0.9; let LQ = LQ0; export const setLQ = (v) => { LQ = v; }; export const PRESET = { low: _Q === 'low', mobile: _MOB }; const sg = (n, lo = 3) => Math.max(lo, Math.round(n * LQ));
+export const LQ0 = _Q === 'low' ? 0.42 : _MOB ? 0.72 : 0.9; let LQ = LQ0; export const setLQ = (v) => { LQ = v; }; export const getLQ = () => LQ; /* gd pr159: suit detail only when building the desktop hi mesh */ const HIDET = () => LQ >= 0.85; export const PRESET = { low: _Q === 'low', mobile: _MOB }; const sg = (n, lo = 3) => Math.max(lo, Math.round(n * LQ));
 // superellipsoid (rounded, soft "squircle" volumes): unit sphere vertices pushed onto |x|^p+|y|^p+|z|^p=1, then scaled to w,h,d
 export function sq(w, h, d, p = 3, ws = 16, hs = 10, o = {}) { const g = new THREE.SphereGeometry(1, sg(ws, 6), sg(hs, 3), 0, Math.PI * 2, 0, o.th || Math.PI); const P = g.attributes.position, v = new THREE.Vector3();
   for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i); const n = Math.pow(Math.pow(Math.abs(v.x), p) + Math.pow(Math.abs(v.y), p) + Math.pow(Math.abs(v.z), p), 1 / p) || 1; v.divideScalar(n);
@@ -49,8 +49,8 @@ export function material(env) { const m = new THREE.MeshStandardMaterial({ verte
     sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec2 vMR; varying vec3 vWN;')
       .replace('#include <color_fragment>', '#include <color_fragment>\n diffuseColor.rgb *= mix(0.68, 1.0, smoothstep(-0.85, 0.55, vWN.y)); /* soft sky/ground occlusion: keep cream bright */')
       .replace('#include <metalnessmap_fragment>', 'float metalnessFactor = vMR.x;').replace('#include <roughnessmap_fragment>', 'float roughnessFactor = min(vMR.y, 1.0);')
-      .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n totalEmissiveRadiance += diffuseColor.rgb * vec3(1.12, 0.98, 0.78) * 0.26 * (1.0 - 0.65 * vMR.x); /* warm concept fill so ivory stays creamy at night */\n if (vMR.y > 1.5) totalEmissiveRadiance += diffuseColor.rgb * 5.0; /* self-lit parts */'); };
-  m.customProgramCacheKey = () => 'mk_robot4'; return m; }
+      .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n totalEmissiveRadiance += diffuseColor.rgb * vec3(1.02, 1.0, 0.96) * 0.16 * (1.0 - smoothstep(0.35, 0.7, vMR.x)); /* cream body, no gold wash */\n { float gld = smoothstep(0.2, 0.5, diffuseColor.r - diffuseColor.b) * smoothstep(0.5, 0.8, vMR.x); totalEmissiveRadiance += vec3(1.05, 0.72, 0.22) * gld; } /* gold only on the metal trims */\n if (vMR.y > 1.5) totalEmissiveRadiance += diffuseColor.rgb * (vMR.y > 3.0 ? 1.35 : 8.0); /* visors glow cyan */'); };
+  m.customProgramCacheKey = () => 'mk_robot7'; return m; }
 export function faceTexture() { const W = 256, H = 150, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
   const rr = (x, y, w, h, r) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
   g.clearRect(0, 0, W, H); g.shadowColor = '#2fd9ff'; g.shadowBlur = 22; g.fillStyle = '#8ff6ff'; for (const x of [82, 174]) { g.beginPath(); g.ellipse(x, 64, 17, 26, 0, 0, Math.PI * 2); g.fill(); g.fill(); }
@@ -65,6 +65,7 @@ export function conceptLegs(kit, L = [{ x: -0.31, z: 0 }, { x: 0.31, z: 0 }]) {
     kit.add(tor(0.13, 0.032, 3, 12), 'gold', { p: [x, 0.22, z + 0.02], r: [PI2, 0, 0] }); // gold boot cuff
     kit.add(sq(0.255, 0.16, 0.255, 2.05, 8, 4, { taper: 0.18 }), 'ivory', { p: [x * 0.97, 0.29, z + 0.02] }); // plump shin (narrows toward knee)
     kit.add(tor(0.112, 0.028, 3, 10), 'gold', { p: [x * 0.95, 0.37, z + 0.025], r: [PI2, 0, 0] }); // gold knee ring
+    if (HIDET()) { kit.add(sq(0.17, 0.12, 0.07, 2.4, 8, 5), 'ivoryS', { p: [x * 0.95, 0.375, z + 0.135], r: [-0.15 + 0, yaw, 0] }); kit.add(sph(0.018, 6, 4), 'gold', { p: [x * 0.95, 0.375, z + 0.175] }); kit.add(tor(0.13, 0.012, 3, 12), 'dark', { p: [x, 0.215, z + 0.02], r: [PI2, 0, 0] }); } // gd pr159 suit: knee pad + stud, boot seal (desktop hi only)
     kit.add(sq(0.29, 0.15, 0.29, 2.05, 8, 4, { taper: -0.12 }), 'ivoryS', { p: [x * 0.88, 0.45, z * 0.5 + 0.015] }); } } // stout thigh (wider at hip)
 const PI2 = Math.PI / 2;
 // v100 concept chest: gold panel with a warm glowing lamp (cosmetic decal, if any, sits above the lamp)
@@ -72,7 +73,18 @@ export function conceptChest(kit, y0 = 0, z = 0.19) {
   kit.add(sq(0.4, 0.31, 0.05, 5, 8, 5, { taper: 0.08 }), 'gold', { p: [0, 0.74 + y0, z] });
   kit.add(sq(0.19, 0.14, 0.03, 4, 6, 4), 'dark', { p: [0, 0.725 + y0, z + 0.027] }); // lamp bezel
   kit.add(sq(0.15, 0.1, 0.03, 3, 6, 4), 'lamp', { p: [0, 0.725 + y0, z + 0.037] }); // warm glowing lamp
-  if (hasDecal()) kit.add(crescent(0.035), 'gold', { p: [0, 0.81 + y0, z + 0.025] }); }
+  if (hasDecal()) kit.add(crescent(0.035), 'gold', { p: [0, 0.81 + y0, z + 0.025] });
+  if (HIDET()) suitDetail(kit, y0, z); }
+// gd pr159 (concept d04ca995 suits): panel bolts, side vents, life-support pack with gold rim + status lights, hip seal, collar studs.
+// Built only into the desktop hi mesh (LQ >= 0.85): the phone/low hi meshes and every lo LOD / impostor stay exactly as before.
+function suitDetail(kit, y0, z) { const Y = (y) => y + y0;
+  for (const [x, y] of [[-0.17, 0.87], [0.17, 0.87], [-0.17, 0.6], [0.17, 0.6]]) kit.add(sph(0.016, 6, 4), 'gold', { p: [x, Y(y), z + 0.03] }); // panel bolts
+  for (const sx of [-1, 1]) for (let k = 0; k < 3; k++) kit.add(new THREE.BoxGeometry(0.012, 0.022, 0.09), 'dark', { p: [sx * 0.325, Y(0.66 + k * 0.045), 0.05], r: [0, sx * 0.25, 0] }); // side vents
+  kit.add(sq(0.44, 0.38, 0.17, 3.2, 10, 6), 'ivoryS', { p: [0, Y(0.76), -0.27] }); kit.add(sq(0.46, 0.04, 0.19, 3, 10, 3), 'gold', { p: [0, Y(0.95), -0.27] }); kit.add(sq(0.46, 0.04, 0.19, 3, 10, 3), 'gold', { p: [0, Y(0.57), -0.27] }); // pack + rims
+  for (const [x, c] of [[-0.08, 'eye'], [0.0, 'gold'], [0.08, 'eye']]) kit.add(cyl(0.016, 0.016, 0.014, 8), c, { p: [x, Y(0.83), -0.36], r: [PI2, 0, 0] }); // pack status lights
+  for (const sx of [-1, 1]) kit.add(tube([[sx * 0.15, 0.9 + y0, -0.2], [sx * 0.24, 0.98 + y0, -0.08], [sx * 0.15, 0.97 + y0, 0.05]], 0.016, 6, 3), 'dark'); // air hoses over the shoulders
+  kit.add(tor(0.27, 0.018, 3, 18), 'dark', { p: [0, Y(0.49), 0], r: [PI2, 0, 0], s: [1.05, 0.72, 1] }); // hip seal
+  for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2; kit.add(sph(0.012, 5, 3), 'gold', { p: [Math.sin(a) * 0.2, Y(0.945), Math.cos(a) * 0.16] }); } } // collar studs
 export function builderKits() {
   const body = new Kit(), arm = new Kit();
   // proportions measured on the concept cut-out (feet y=0, hat top ~1.67): boots .2, knees .37, waist .5, torso .5-.95, head .94-1.38, brim 1.29

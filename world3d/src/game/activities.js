@@ -124,20 +124,20 @@ export const DEPOT_STAGES = [{ id: 'foundation', w: 0.13, a: 0 }, { id: 'frame',
 export function makeDepot(scene, p, env) {
   const parts = []; const add = (g, col, st) => { g = colorize(g, col); g.computeBoundingBox(); const b = g.boundingBox, n = g.attributes.position.count, a = new Float32Array(n * 3); for (let i = 0; i < n; i++) a.set([st, b.min.y, b.max.y], i * 3); g.setAttribute('aStg', new THREE.BufferAttribute(a, 3)); parts.push(g); };
   // 0 foundation: slab + anchor pads
-  add(new THREE.CylinderGeometry(1.58, 1.58, 0.16, 18, 1).translate(0, 0.08, 0), '#8d8a84', 0);
-  for (let k = 0; k < 4; k++) { const a = k * Math.PI / 2 + Math.PI / 4; add(new THREE.BoxGeometry(0.34, 0.1, 0.34).translate(Math.cos(a) * 1.62, 0.05, Math.sin(a) * 1.62), '#6e6b66', 0); }
-  // 1 frame: 10 struts + top ring
-  for (let k = 0; k < 10; k++) { const a = k * Math.PI / 5; add(new THREE.BoxGeometry(0.07, 1.78, 0.07).translate(Math.cos(a) * 1.5, 1.05, Math.sin(a) * 1.5), '#a8a296', 1); }
-  add(new THREE.TorusGeometry(1.5, 0.045, 4, 20).rotateX(Math.PI / 2).translate(0, 1.92, 0), '#a8a296', 1);
-  // 2 panels: shell, gold band, door
-  add(new THREE.CylinderGeometry(1.45, 1.55, 1.9, 18, 1).translate(0, 0.95, 0), '#e4dccb', 2);
-  add(new THREE.CylinderGeometry(1.5, 1.5, 0.14, 18, 1, true).translate(0, 1.35, 0), '#d6a136', 2);
-  add(new THREE.BoxGeometry(0.85, 1.25, 0.2).translate(0, 0.72, 1.45), '#3a3f47', 2); add(new THREE.BoxGeometry(1.0, 0.1, 0.24).translate(0, 1.4, 1.47), '#d6a136', 2);
+  add(new THREE.CylinderGeometry(1.58, 1.58, 0.16, 18, 1).translate(0, 0.08, 0), '#c4b49a', 0);
+  for (let k = 0; k < 4; k++) { const a = k * Math.PI / 2 + Math.PI / 4; add(new THREE.BoxGeometry(0.34, 0.1, 0.34).translate(Math.cos(a) * 1.62, 0.05, Math.sin(a) * 1.62), '#b7a48c', 0); }
+  // 1 frame: gold trim struts + top ring (same boxes, cream-gold instead of silver)
+  for (let k = 0; k < 10; k++) { const a = k * Math.PI / 5; add(new THREE.BoxGeometry(0.07, 1.78, 0.07).translate(Math.cos(a) * 1.5, 1.05, Math.sin(a) * 1.5), '#e0ae3a', 1); }
+  add(new THREE.TorusGeometry(1.5, 0.045, 4, 20).rotateX(Math.PI / 2).translate(0, 1.92, 0), '#e0ae3a', 1);
+  // 2 panels: cream shell, gold band, round warm door
+  add(new THREE.CylinderGeometry(1.45, 1.55, 1.9, 18, 1).translate(0, 0.95, 0), '#e4cfb0', 2);
+  add(new THREE.CylinderGeometry(1.5, 1.5, 0.14, 18, 1, true).translate(0, 1.35, 0), '#e0ae3a', 2);
+  add(new THREE.CircleGeometry(0.42, 10).translate(0, 0.78, 1.52), '#ffb030', 2);
   // 3 dome
-  add(new THREE.SphereGeometry(1.45, 18, 5, 0, Math.PI * 2, 0, Math.PI / 2).translate(0, 1.9, 0), '#ece4d2', 3);
-  // 4 lights: windows, mast, beacon
-  add(new THREE.BoxGeometry(0.42, 0.16, 0.08).translate(-0.95, 1.1, 1.1).rotateY(-0.6), '#6fe7ff', 4); add(new THREE.BoxGeometry(0.42, 0.16, 0.08).translate(0.95, 1.1, 1.1).rotateY(0.6), '#6fe7ff', 4);
-  add(new THREE.CylinderGeometry(0.04, 0.04, 1.0, 5).translate(0.5, 3.6, 0), '#c9c2b2', 4); add(new THREE.SphereGeometry(0.09, 6, 4).translate(0.5, 4.12, 0), '#ffb347', 4);
+  add(new THREE.SphereGeometry(1.45, 18, 5, 0, Math.PI * 2, 0, Math.PI / 2).translate(0, 1.9, 0), '#eadcc4', 3);
+  // 4 lights: round warm windows, gold mast, beacon
+  add(new THREE.CircleGeometry(0.16, 8).rotateY(0.6).translate(-0.95, 1.15, 1.16), '#ffb030', 4); add(new THREE.CircleGeometry(0.16, 8).rotateY(-0.6).translate(0.95, 1.15, 1.16), '#ffb030', 4);
+  add(new THREE.CylinderGeometry(0.04, 0.04, 1.0, 5).translate(0.5, 3.6, 0), '#e0ae3a', 4); add(new THREE.SphereGeometry(0.09, 6, 4).translate(0.5, 4.12, 0), '#ffb030', 4);
   const geo = mergeGeometries(parts.map(g => g.index ? g.toNonIndexed() : g)); geo.computeBoundingSphere();
   const uB = { value: 0 }, NS = DEPOT_STAGES.length;
   const inject = (sh, ghost) => { sh.uniforms.uB = uB;
@@ -147,7 +147,7 @@ export function makeDepot(scene, p, env) {
       float sf = clamp(uB - vStg.x, 0.0, 1.0); float cut = mix(vStg.y - 0.001, vStg.z + 0.001, sf); bool built = vLY <= cut && uB > vStg.x;
       ${ghost ? 'if (built) discard;' : 'if (!built) discard; float seam = (sf < 1.0) ? 1.0 - smoothstep(0.0, 0.07, cut - vLY) : 0.0;'}`); };
   const mat = new THREE.MeshStandardMaterial({ vertexColors: true, metalness: 0.35, roughness: 0.5, envMap: env || null, side: THREE.DoubleSide });
-  mat.onBeforeCompile = (sh) => { inject(sh, false); sh.fragmentShader = sh.fragmentShader.replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n totalEmissiveRadiance = vColor.rgb * step(0.9, vColor.b) * step(vColor.r, 0.5) * 1.6 + vec3(1.6, 0.75, 0.25) * seam * 0.9;'); };
+  mat.onBeforeCompile = (sh) => { inject(sh, false); sh.fragmentShader = sh.fragmentShader.replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n totalEmissiveRadiance = vColor.rgb * step(0.9, vColor.b) * step(vColor.r, 0.5) * 1.6 + vColor.rgb * step(0.95, vColor.r) * step(vColor.b, 0.28) * 4.2 + vec3(1.6, 0.75, 0.25) * seam * 0.9;'); };
   mat.customProgramCacheKey = () => 'depot_stg';
   const m = new THREE.Mesh(geo, mat); m.name = 'game_depot'; m.position.set(p.x, p.y, p.z); m.rotation.y = p.yaw || 0; m.castShadow = false; m.receiveShadow = true; m.visible = false; scene.add(m);
   const gm = new THREE.MeshBasicMaterial({ color: new THREE.Color(0.25, 1.1, 1.5), transparent: true, opacity: 0.16, depthWrite: false, blending: THREE.AdditiveBlending, wireframe: true, toneMapped: false });

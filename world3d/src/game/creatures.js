@@ -79,18 +79,18 @@ function bugGeo(slot, Q) { const L = []; const ws = Math.max(5, Math.round(9 * Q
 
 // ---- Dust Jelly: bell ~1 m wide (scaled up for the far drifting ones), cute face, frilled rim, glowing tentacles ----
 function jellyGeo(slot, Q) { const L = [], vf = Q < 0.2; /* low-tier far jelly: coarser */ const ws = vf ? 6 : Math.max(8, Math.round(18 * Q)), hs = vf ? 3 : Math.max(4, Math.round(8 * Q)), Y = 1.25;
-  L.push(prep(new THREE.SphereGeometry(0.5, ws, hs, 0, Math.PI * 2, 0, Math.PI * 0.56).scale(1, 0.8, 1).translate(0, Y - 0.06, 0), '#5b2cf0', 1.5, P_BELL, slot)); // bell (v74: brighter purple-blue glow)
-  if (!vf) L.push(prep(new THREE.SphereGeometry(0.32, Math.max(6, Math.round(12 * Q)), Math.max(3, Math.round(6 * Q))).scale(1, 0.75, 1).translate(0, Y + 0.05, 0), '#9a62ff', 2.0, P_BELL, slot)); // inner glow
-  L.push(prep(new THREE.TorusGeometry(0.47, 0.045, 3, ws).rotateX(Math.PI / 2).translate(0, Y - 0.12, 0), '#9478ff', 1.3, P_BELL, slot)); // frilled rim
-  const nF = Q > 0.4 ? Math.round(9 * Q) : 0; for (let k = 0; k < nF; k++) { const a = k / nF * Math.PI * 2; L.push(prep(new THREE.SphereGeometry(0.06, 5, 3).scale(1, 0.6, 1).translate(Math.cos(a) * 0.47, Y - 0.15, Math.sin(a) * 0.47), '#a58cff', 1.2, P_BELL, slot)); }
-  eye(L, -0.15, Y + 0.08, 0.38, 0.075, slot, '#4a5cff', 0.38, Q); eye(L, 0.15, Y + 0.08, 0.38, 0.075, slot, '#4a5cff', 0.38, Q);
-  if (Q > 0.4) for (const s of [-1, 1]) L.push(prep(new THREE.SphereGeometry(0.05, 6, 3).scale(1, 0.55, 0.4).translate(s * 0.25, Y - 0.02, 0.38), '#ff9fd2', 1.3, P_BODY, slot));
+  L.push(prep(new THREE.SphereGeometry(0.5, ws, hs, 0, Math.PI * 2, 0, Math.PI * 0.56).scale(1, 0.8, 1).translate(0, Y - 0.06, 0), '#c5e8f4', 0.85, P_BELL, slot)); // pale cyan bell
+  if (!vf) L.push(prep(new THREE.SphereGeometry(0.32, Math.max(6, Math.round(12 * Q)), Math.max(3, Math.round(6 * Q))).scale(1, 0.75, 1).translate(0, Y + 0.05, 0), '#e7f7fc', 1.15, P_BELL, slot)); // soft inner glow
+  L.push(prep(new THREE.TorusGeometry(0.47, 0.045, 3, ws).rotateX(Math.PI / 2).translate(0, Y - 0.12, 0), '#8fd0e4', 0.7, P_BELL, slot)); // frilled rim
+  const nF = Q > 0.4 ? Math.round(9 * Q) : 0; for (let k = 0; k < nF; k++) { const a = k / nF * Math.PI * 2; L.push(prep(new THREE.SphereGeometry(0.06, 5, 3).scale(1, 0.6, 1).translate(Math.cos(a) * 0.47, Y - 0.15, Math.sin(a) * 0.47), '#b7e4f2', 0.8, P_BELL, slot)); }
+  eye(L, -0.15, Y + 0.08, 0.38, 0.075, slot, '#1a4a66', 0.2, Q); eye(L, 0.15, Y + 0.08, 0.38, 0.075, slot, '#1a4a66', 0.2, Q);
+  if (Q > 0.4) for (const s of [-1, 1]) L.push(prep(new THREE.SphereGeometry(0.05, 6, 3).scale(1, 0.55, 0.4).translate(s * 0.25, Y - 0.02, 0.38), '#d8f3fa', 0.6, P_BODY, slot));
   L.push(prep(new THREE.TorusGeometry(0.03, 0.007, 3, 8, Math.PI).rotateZ(Math.PI).translate(0, Y - 0.02, 0.44), '#5a3f8a', 0, P_BODY, slot));
   // tentacles (thin, long, glowing cyan-violet) + 4 thicker frilly oral arms; wave in the shader, weight grows toward the tip
   const nT = vf ? 5 : Math.max(6, Math.round(11 * Q)); for (let k = 0; k < nT; k++) { const a = k / nT * Math.PI * 2 + 0.2, r = 0.38 + (k % 2) * 0.06, len = 1.3 + rnd() * 0.6; const pts = []; for (let j = 0; j <= 6; j++) { const u = j / 6; pts.push(new THREE.Vector3(Math.cos(a) * r * (1 - u * 0.25) + Math.sin(u * 5 + k) * 0.05, Y - 0.14 - u * len, Math.sin(a) * r * (1 - u * 0.25) + Math.cos(u * 4 + k) * 0.05)); }
-    L.push(prep(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), vf ? 3 : Math.max(4, Math.round(9 * Q)), 0.018, 3, false), k % 3 ? '#6cc8ff' : '#b48cff', 3.2, P_WAVE, slot, (x, y) => Math.max(0, (Y - 0.14 - y) / len))); }
+    L.push(prep(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), vf ? 3 : Math.max(4, Math.round(9 * Q)), 0.018, 3, false), '#d7f4fb', 1.3, P_WAVE, slot, (x, y) => Math.max(0, (Y - 0.14 - y) / len))); }
   for (let k = 0; k < 4; k++) { const a = k / 4 * Math.PI * 2 + 0.6; const pts = []; for (let j = 0; j <= 5; j++) { const u = j / 5; pts.push(new THREE.Vector3(Math.cos(a) * 0.12 * (1 + u), Y - 0.12 - u * 0.75, Math.sin(a) * 0.12 * (1 + u))); }
-    L.push(prep(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), Math.max(3, Math.round(7 * Q)), 0.02, 3, false), '#8a7cff', 1.5, P_WAVE, slot, (x, y) => Math.max(0, (Y - 0.12 - y) / 0.75))); }
+    L.push(prep(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), Math.max(3, Math.round(7 * Q)), 0.02, 3, false), '#b9e6f3', 0.9, P_WAVE, slot, (x, y) => Math.max(0, (Y - 0.12 - y) / 0.75))); }
   return L; }
 
 export function makeCreatures(scene, env, { low = false, mobile = false } = {}) {
@@ -127,7 +127,7 @@ export function makeCreatures(scene, env, { low = false, mobile = false } = {}) 
     hide(i) { want[i] = false; if (LOD && i === S.bunny) want[S.bunnyLo] = false; },
     visible: (i) => vis[i] || (LOD && i === S.bunny && vis[S.bunnyLo]), wanted: (i) => want[i] || (LOD && i === S.bunny && want[S.bunnyLo]),
     flush(T, camera) { U.uT.value = T; if (camera) camP = camera.position; if (camera) _fr.setFromProjectionMatrix(_m.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)); // frustum-cull per slot: off-screen creatures cost nothing
-      for (let i = 0; i < NS; i++) { vis[i] = want[i] && !globalThis.__mkStorm && (!camera || (_fr.intersectsSphere(sph[i]) && (i === S.bunny || i === S.bunnyLo || sph[i].center.distanceTo(camera.position) < (i >= S.bug && i < S.bug + NB ? 28 : 45) + sph[i].radius))); /* v76: small creatures (hedgehog/jellies/bugs) distance-culled (drill-view budget) */ if (!vis[i]) uM[i].makeScale(0, 0, 0); } const k = vis.map(x => x ? 1 : 0).join(''); if (k !== key) { key = k; let n = 0; const A = IDX.array; for (let i = 0; i < NS; i++) if (vis[i]) { for (let j = i ? ends[i - 1] : 0; j < ends[i]; j++) A[n++] = j; } geo.setDrawRange(0, n); IDX.needsUpdate = true; IDX.addUpdateRange ? (IDX.clearUpdateRanges(), IDX.addUpdateRange(0, n)) : 0; api.drawn = n / 3; } mesh.visible = key.includes('1'); },
+      for (let i = 0; i < NS; i++) { const lim = i >= S.bug && i < S.bug + NB ? 28 : i >= S.jelly && i < S.jelly + NJ ? 90 : 45; vis[i] = want[i] && !globalThis.__mkStorm && (!camera || (_fr.intersectsSphere(sph[i]) && (i === S.bunny || i === S.bunnyLo || sph[i].center.distanceTo(camera.position) < lim + sph[i].radius))); /* sky jellies stay in the play frame; bugs stay short */ if (!vis[i]) uM[i].makeScale(0, 0, 0); } const k = vis.map(x => x ? 1 : 0).join(''); if (k !== key) { key = k; let n = 0; const A = IDX.array; for (let i = 0; i < NS; i++) if (vis[i]) { for (let j = i ? ends[i - 1] : 0; j < ends[i]; j++) A[n++] = j; } geo.setDrawRange(0, n); IDX.needsUpdate = true; IDX.addUpdateRange ? (IDX.clearUpdateRanges(), IDX.addUpdateRange(0, n)) : 0; api.drawn = n / 3; } mesh.visible = key.includes('1'); },
   };
   return api;
 }

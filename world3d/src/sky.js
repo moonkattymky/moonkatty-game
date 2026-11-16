@@ -11,32 +11,34 @@ float n3(vec3 x){ vec3 i=floor(x); vec3 f=fract(x); f=f*f*(3.0-2.0*f);
             mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z); }
 float fbm3(vec3 p){ float a=0.5,s=0.; for(int i=0;i<5;i++){ s+=a*n3(p); p=p*2.03+vec3(1.7,9.2,3.1); a*=0.5;} return s; }`;
 
+let _earthDir = null; // remembered for the satellite (buildSpace runs right after buildSky)
 export function buildSky(sunDir, earthDir, lite = false) {
+  _earthDir = earthDir.clone();
   const group = new THREE.Group(); group.name = 'sky';
-  // Blue-grey horizon fades gently above the terrain silhouette, not a narrow cyan rim.
+  // gd pr159 (concept d04ca995, measured): near-black zenith, deep navy lower sky, no grey haze; fewer, dimmer stars.
   // Reuse the existing dome shader: no added geometry, passes, textures or draw calls.
   // Keep the zenith dark so stars and the Earth retain their night-sky contrast.
   // gradient dome + faint milky way
   const skyMat = new THREE.ShaderMaterial({
     side: THREE.BackSide, depthWrite: false, fog: false,
-    uniforms: { top: { value: new THREE.Color('#03050b') }, mid: { value: new THREE.Color('#26303d') }, hor: { value: new THREE.Color('#697580') }, band: { value: new THREE.Vector3(0.35, 0.55, -0.76).normalize() } },
+    uniforms: { top: { value: new THREE.Color('#010207') }, mid: { value: new THREE.Color('#06122a') }, hor: { value: new THREE.Color('#123058') }, band: { value: new THREE.Vector3(0.35, 0.55, -0.76).normalize() } },
     vertexShader: `varying vec3 vD; void main(){ vD=normalize(position); vec4 p=projectionMatrix*modelViewMatrix*vec4(position,1.); gl_Position=p.xyww; }`,
     fragmentShader: `uniform vec3 top,mid,hor,band; uniform samplerCube stars; varying vec3 vD; ${NOISE_GLSL}
       void main(){ float y=normalize(vD).y; vec3 c=mix(hor,mid,smoothstep(-0.08,0.34,y)); c=mix(c,top,smoothstep(0.26,0.85,y));
-        float b=exp(-pow(dot(vD,band)/0.16,2.)); float n=fbm3(vD*6.0); float n2=fbm3(vD*14.0+3.0); c+=vec3(0.07,0.085,0.13)*b*smoothstep(0.3,0.8,n)*2.1; c+=vec3(0.025,0.032,0.04)*exp(-pow((y-0.055)/0.18,2.)); c+=vec3(0.035,0.038,0.06)*b; c+=vec3(0.09,0.07,0.06)*b*b*smoothstep(0.5,0.85,n2)*0.8; c-=vec3(0.02)*b*smoothstep(0.55,0.75,fbm3(vD*9.0+7.0)); c+=textureCube(stars,vD).rgb*1.7*smoothstep(-0.12,0.0,y);
+        float b=exp(-pow(dot(vD,band)/0.16,2.)); float n=fbm3(vD*6.0); float n2=fbm3(vD*14.0+3.0); c+=vec3(0.03,0.045,0.08)*b*smoothstep(0.3,0.8,n)*1.6; c+=vec3(0.025,0.032,0.04)*exp(-pow((y-0.055)/0.18,2.)); c+=vec3(0.012,0.016,0.03)*b; c+=vec3(0.09,0.07,0.06)*b*b*smoothstep(0.5,0.85,n2)*0.8; c-=vec3(0.02)*b*smoothstep(0.55,0.75,fbm3(vD*9.0+7.0)); c+=textureCube(stars,vD).rgb*1.25*smoothstep(-0.12,0.0,y);
         gl_FragColor=vec4(c,1.); }`,
   });
   const dome = new THREE.Mesh(new THREE.SphereGeometry(6000, 24, 12), skyMat); dome.renderOrder = -10; dome.frustumCulled = false; group.add(dome);
   // stars
-  const r = seeded(99); const N = lite ? 32000 : 48000; const pos = new Float32Array(N * 3), size = new Float32Array(N), col = new Float32Array(N * 3);
+  const r = seeded(99); const N = lite ? 9000 : 13000; /* gd pr159: concept star px ~0.3% vs game ~0.9% */ const pos = new Float32Array(N * 3), size = new Float32Array(N), col = new Float32Array(N * 3);
   const band = skyMat.uniforms.band.value;
   for (let i = 0; i < N; i++) {
     let v; do { v = new THREE.Vector3(r() * 2 - 1, r() * 2 - 1, r() * 2 - 1); } while (v.lengthSq() > 1 || v.lengthSq() < 0.01);
-    v.normalize(); if (i < N * 0.5) { v.addScaledVector(band, -v.dot(band) * (0.8 + r() * 0.2)); v.normalize(); }
+    v.normalize(); if (i < N * 0.25) { v.addScaledVector(band, -v.dot(band) * (0.8 + r() * 0.2)); v.normalize(); }
     if (v.y < -0.08) v.y = -v.y;
     pos.set(v.clone().multiplyScalar(5500).toArray(), i * 3);
     const m = r(); size[i] = m > 0.985 ? 3.6 + r() * 2 : m > 0.88 ? 2.2 + r() : 1.2 + r() * 0.9;
-    const t = r(); const c = t < 0.15 ? [1, 0.85, 0.65] : t < 0.3 ? [0.7, 0.85, 1] : [1, 1, 1]; const br = 0.6 + r() * 0.6; col.set(c.map(x => x * br), i * 3);
+    const t = r(); const c = t < 0.15 ? [1, 0.85, 0.65] : t < 0.3 ? [0.7, 0.85, 1] : [1, 1, 1]; const br = 0.35 + r() * 0.55; col.set(c.map(x => x * br), i * 3);
   }
   // stars baked into a cube map sampled by the sky dome (0 extra draw calls / primitives)
   const FS = 1024; const faces = []; for (let f = 0; f < 6; f++) { const cv = document.createElement('canvas'); cv.width = cv.height = FS; const cx = cv.getContext('2d'); cx.fillStyle = '#000'; cx.fillRect(0, 0, FS, FS); faces.push(cx); }
@@ -59,17 +61,22 @@ export function buildSky(sunDir, earthDir, lite = false) {
     vertexShader: `varying vec3 vN; varying vec3 vP; varying vec3 vV; void main(){ vN=normalize(mat3(modelMatrix)*normal); vP=position; vec4 w=modelMatrix*vec4(position,1.); vV=normalize(cameraPosition-w.xyz); gl_Position=projectionMatrix*viewMatrix*w; }`,
     fragmentShader: `uniform vec3 sun; uniform float uTime; varying vec3 vN; varying vec3 vP; varying vec3 vV; ${NOISE_GLSL}
       void main(){ vec3 p=normalize(vP);
-        // continents: warped fbm with crisp coastlines; ocean deep blue with shallow shelves
-        vec3 wq=p*2.0+vec3(3.,1.,7.); wq+=vec3(fbm3(p*3.1+2.),fbm3(p*3.1+8.),fbm3(p*3.1+5.))*0.55; float land=fbm3(wq); float l=smoothstep(0.55,0.565,land); float shelf=smoothstep(0.49,0.55,land)*(1.-l);
-        vec3 ocean=mix(vec3(0.004,0.03,0.16),vec3(0.01,0.09,0.34),fbm3(p*5.)); ocean=mix(ocean,vec3(0.03,0.22,0.45),shelf*0.6);
-        float gn=fbm3(p*9.); vec3 ground=mix(vec3(0.09,0.17,0.06),vec3(0.46,0.34,0.18),smoothstep(0.35,0.65,gn)); ground=mix(ground,vec3(0.62,0.52,0.36),smoothstep(0.62,0.75,fbm3(p*16.+4.))*0.5);
-        vec3 c=mix(ocean,ground,l);
-        // clouds: domain-warped swirls, crisp edges + fine streaks
-        vec3 q=p*3.2+vec3(fbm3(p*4.+uTime*0.01),fbm3(p*4.+5.),fbm3(p*4.+9.))*1.6; float cf=fbm3(q*1.9); float cl=smoothstep(0.56,0.64,cf); float cl2=smoothstep(0.6,0.66,fbm3(q*4.3+2.))*0.45; float cov=clamp(cl*0.92+cl2*(1.-cl),0.,1.);
-        c=mix(c,vec3(0.92,0.94,0.97),cov);
-        float ndl=dot(normalize(vN),sun); float lit=smoothstep(-0.2,0.45,ndl); vec3 col=c*(0.05+1.2*lit);
-        float fr=pow(1.-max(dot(normalize(vN),vV),0.),4.); col+=vec3(0.2,0.45,1.0)*fr*(0.08+0.55*lit); float rim=pow(1.-max(dot(normalize(vN),vV),0.),2.2); col+=vec3(0.3,0.6,1.0)*smoothstep(0.55,1.0,rim)*(0.12+0.5*lit);
-        float lum=dot(col,vec3(0.3,0.59,0.11)); col=mix(vec3(lum),col,0.9)*0.5; gl_FragColor=vec4(col,1.); }`,
+        vec3 wq=p*2.6+vec3(2.2,0.4,6.5); wq+=vec3(fbm3(p*3.6+2.),fbm3(p*3.6+8.),fbm3(p*3.6+5.))*0.28;
+        float land=fbm3(wq); float lnd=smoothstep(0.43,0.47,land); float shelf=smoothstep(0.46,0.51,land)*(1.0-lnd);
+        vec3 ocean=mix(vec3(0.008,0.07,0.34),vec3(0.015,0.16,0.55),fbm3(p*7.0)); ocean=mix(ocean,vec3(0.05,0.32,0.58),shelf);
+        float gn=fbm3(p*8.0); vec3 ground=mix(vec3(0.06,0.30,0.07),vec3(0.46,0.26,0.10),smoothstep(0.28,0.70,gn));
+        ground=mix(ground,vec3(0.52,0.44,0.30),smoothstep(0.55,0.8,fbm3(p*14.0+4.0))*0.65);
+        ground=mix(ground,vec3(0.78,0.84,0.90),smoothstep(0.82,0.96,abs(p.y)));
+        vec3 c=mix(ocean,ground,lnd);
+        float cw=fbm3(p*14.0+vec3(fbm3(p*7.0),fbm3(p*7.0+3.0),fbm3(p*7.0+7.0))*0.4);
+        float streak=fbm3(p*30.0+vec3(4.0,uTime*0.004,1.0));
+        float cov=smoothstep(0.74,0.90,cw)*0.22+smoothstep(0.82,0.95,streak)*0.08;
+        c=mix(c,vec3(0.95,0.97,1.0),clamp(cov,0.0,0.26));
+        float ndl=dot(normalize(vN),normalize(sun)); float lit=smoothstep(-0.05,0.55,ndl);
+        vec3 col=c*(0.18+0.85*lit);
+        float ndv=max(dot(normalize(vN),normalize(vV)),0.0); float limb=pow(1.0-ndv,1.45);
+        col+=vec3(0.45,0.72,1.0)*limb*0.95; col+=vec3(0.9,0.96,1.0)*pow(1.0-ndv,5.0)*0.45;
+        gl_FragColor=vec4(col,1.0); }`,
   });
   const earth = new THREE.Mesh(new THREE.SphereGeometry(1, lite ? 28 : 40, lite ? 14 : 20), earthMat); earth.renderOrder = -8;
   const ED = 4200, ER = lite ? 440 : 800; // resized per aspect in main.js; these are the first-frame sizes
@@ -122,23 +129,25 @@ export function buildSpace(scene, hullMat, lite = false) {
       for (let i = 0; i < NP / NCH; i++) { const ph = Math.PI * (0.12 + 0.76 * (c + r()) / NCH); place(ph, 0.8 + r() * 0.5); pos.set([p.x, p.y, p.z], i * 3); const k = 0.18 + r() ** 2 * 0.42; col.set([k * 0.95, k * 0.97, k * 1.04], i * 3); }
       const gp = new THREE.BufferGeometry(); gp.setAttribute('position', new THREE.BufferAttribute(pos, 3)); gp.setAttribute('color', new THREE.BufferAttribute(col, 3)); gp.computeBoundingSphere();
       const pts = new THREE.Points(gp, pm); pts.name = 'beltDust' + c; bg.add(pts); } }
-  // pass 21: Ark station rebuilt in its own local frame (ring in XY, spin axis Z): detailed, lit, frustum-culled
-  const b = new Builder(); const st = new THREE.Group(); st.name = 'ark'; st.position.set(2300, 2050, -2500); st.rotation.set(1.15, 0.5, 0); st.scale.setScalar(1.3); g.add(st);
-  b.add('ivory', G.torus(220, 18, 10, 64), { color: C.ivory });
-  b.add('gold', G.torus(220, 19.5, 4, 64), { scale: [1, 1, 0.22], color: C.gold });
-  for (let k = 0; k < 12; k++) { const a = (k + 0.5) / 12 * Math.PI * 2; b.add('ivory', G.box(30, 46, 44), { pos: [Math.cos(a) * 224, Math.sin(a) * 224, 0], rot: [0, 0, a], color: C.ivory2 }); b.add('gold', G.box(31, 47, 3), { pos: [Math.cos(a) * 224, Math.sin(a) * 224, 23], rot: [0, 0, a], color: C.goldD }); }
-  for (let k = 0; k < 36; k++) { const a = k / 36 * Math.PI * 2; if (k % 3 === 1) continue; b.add('glow', G.box(3, 9, 26), { pos: [Math.cos(a) * 238.5, Math.sin(a) * 238.5, 0], rot: [0, 0, a], color: C.win, intensity: 2.6 }); }
-  for (let k = 0; k < 6; k++) b.add('gold', G.cyl(6, 6, 404, 6).translate(0, -202, 0).rotateZ(k * Math.PI / 3 + 0.26), { color: C.goldD });
-  b.add('ivory', G.sphere(44, 16, 10), { color: C.ivory }); b.add('gold', G.torus(45, 4, 4, 24), { color: C.gold });
-  b.add('ivory', G.cyl(20, 20, 540, 12).translate(0, -270, 0).rotateX(Math.PI / 2), { color: C.ivory2 });
-  for (const zz of [-210, 190]) { b.add('gold', G.torus(32, 6, 4, 20), { pos: [0, 0, zz], color: C.gold }); for (let k = 0; k < 4; k++) { const a = k * Math.PI / 2; b.add('glow', G.octa(5), { pos: [Math.cos(a) * 38, Math.sin(a) * 38, zz], color: k % 2 ? '#ff5030' : '#fff2d0', intensity: 6 }); } }
-  for (const sg of [-1, 1]) for (const zz of [-262, -232]) { b.add('dark', G.box(150, 2, 26), { pos: [sg * 100, 0, zz], color: '#2b3d63' }); b.add('gold', G.box(152, 2.6, 2.5), { pos: [sg * 100, 0, zz + 13], color: C.goldD }); }
-  b.add('glow', G.octa(8), { pos: [0, 0, 280], color: '#ff5030', intensity: 7 });
-  for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2; b.add('glow', G.octa(4.5), { pos: [Math.cos(a) * 220, Math.sin(a) * 220, 20], color: k % 2 ? '#ff5030' : '#fff2d0', intensity: 6 }); }
+  // gd pr159: concept d04ca995 has no ring station; it has a solar-panel satellite just off the Earth's upper-right limb.
+  // Same single merged hull mesh the ring used (1 draw call, fewer triangles), parked next to the first-frame Earth and not
+  // in the slowly turning space group so it keeps that framing; a slow tumble is applied in updateBelt (called every frame).
+  const b = new Builder(); const st = new THREE.Group(); st.name = 'ark'; scene.add(st);
+  { const d = (_earthDir || new THREE.Vector3(0.5, 0.2, -0.8)).clone().normalize(), up = new THREE.Vector3(0, 1, 0), rt = new THREE.Vector3().crossVectors(d, up).normalize(), u2 = new THREE.Vector3().crossVectors(rt, d).normalize();
+    st.position.copy(d).addScaledVector(rt, Math.tan(0.17)).addScaledVector(u2, Math.tan(0.15)).normalize().multiplyScalar(3900); st.lookAt(0, 0, 0); st.rotateZ(-0.55); st.rotateY(0.35); st.scale.setScalar(1.35); }
+  const PN = '#2c55a8', PN2 = '#3a6cc8'; // solar cells: concept blue
+  b.add('ivory', G.box(40, 64, 40), { pos: [0, -32, 0], color: C.ivory2 }); // bus
+  b.add('gold', G.box(43, 26, 43), { pos: [0, -8, 0], color: C.gold }); // gold foil wrap
+  b.add('ivory', G.cyl(16, 22, 18, 10), { pos: [0, 32, 0], color: C.ivory }); b.add('gold', G.cyl(26, 4, 12, 12), { pos: [0, 50, 0], rot: [0.5, 0, 0], color: C.goldD }); // top dish
+  b.add('gold', G.cyl(1.6, 1.6, 40, 4), { pos: [8, 50, 0], color: C.goldD }); // antenna
+  for (const sx of [-1, 1]) { b.add('gold', G.cyl(3, 3, 46, 6).rotateZ(Math.PI / 2), { pos: [sx * 20, 0, 0], color: C.goldD }); // boom
+    const x0 = sx * (42 + 66); b.add('dark', G.box(132, 52, 2.5), { pos: [x0, 0, 0], color: PN }); // cells face the base (+z)
+    for (let k = -2; k <= 2; k++) b.add('dark', G.box(1.6, 52, 3.4), { pos: [x0 + k * 26.4, 0, 0], color: PN2 }); b.add('gold', G.box(134, 2.4, 3.6), { pos: [x0, 26, 0], color: C.goldD }); b.add('gold', G.box(134, 2.4, 3.6), { pos: [x0, -26, 0], color: C.goldD }); }
+  b.add('glow', G.octa(4), { pos: [0, 74, 0], color: '#ff5030', intensity: 6 }); b.add('glow', G.octa(3), { pos: [0, -66, 0], color: '#fff2d0', intensity: 5 });
   const hm = hullMat.clone(); hm.fog = false; const mats = { hull: hm };
   const built = b.build(mats, st); for (const k in built) { built[k].castShadow = built[k].receiveShadow = false; built[k].frustumCulled = true; }
   scene.add(g);
   const fr = new THREE.Frustum(), pm4 = new THREE.Matrix4();
-  const updateBelt = (camera, hideAll) => { if (hideAll) { bg.visible = false; return; } if (!lite) { bg.visible = true; return; } pm4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); fr.setFromProjectionMatrix(pm4); bg.visible = bg.userData.samples.some(sp => fr.intersectsSphere(sp)); }; // off past 320 m (a speck from a zone) and, on phones, inside the hub or off-screen
+  const updateBelt = (camera, hideAll) => { st.rotateZ(0.0002); if (hideAll) { bg.visible = false; return; } if (!lite) { bg.visible = true; return; } pm4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); fr.setFromProjectionMatrix(pm4); bg.visible = bg.userData.samples.some(sp => fr.intersectsSphere(sp)); }; // off past 320 m (a speck from a zone) and, on phones, inside the hub or off-screen
   return { group: g, mats, beltU, updateBelt };
 }

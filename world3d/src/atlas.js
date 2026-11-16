@@ -35,6 +35,7 @@ export function makeAtlas() {
   const GOLD = '#e9bd58', GOLD2 = '#f3d58e', GOLDD = '#b8873c', IV = '#dcdde0', IVL = '#b6b9bf', IVD = '#9a9ea6';
   const gold = (x, y, w, h, c = GOLD) => P(x, y, w, h, c, null, 0.28, 0.95);
   const win = (x, y, w, h, frame = 2) => { gold(x - frame, y - frame, w + frame * 2, h + frame * 2); const g = a.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, '#ffcf7a'); g.addColorStop(1, '#d0782a'); a.fillStyle = g; a.fillRect(x, y, w, h); const ge = e.createLinearGradient(0, y, 0, y + h); ge.addColorStop(0, '#b07a40'); ge.addColorStop(1, '#94501e'); e.fillStyle = ge; e.fillRect(x, y, w, h); m.fillStyle = orm(0.2, 0.0); m.fillRect(x, y, w, h); };
+  const port = (cx, cy, rx, ry) => { a.fillStyle = GOLD; a.beginPath(); a.ellipse(cx, cy, rx + 3, ry + 3, 0, 0, 7); a.fill(); const g = a.createRadialGradient(cx - rx * 0.25, cy - ry * 0.3, ry * 0.1, cx, cy, ry); g.addColorStop(0, '#fff3d4'); g.addColorStop(1, '#e09040'); a.fillStyle = g; a.beginPath(); a.ellipse(cx, cy, rx, ry, 0, 0, 7); a.fill(); e.fillStyle = '#d4924a'; e.beginPath(); e.ellipse(cx, cy, rx, ry, 0, 0, 7); e.fill(); m.fillStyle = orm(0.16, 0); m.beginPath(); m.ellipse(cx, cy, rx, ry, 0, 0, 7); m.fill(); };
   const lines = (x, y, w, h, stepX, stepY, col = IVL, lw = 2, stagger = false) => { a.fillStyle = col; if (stepY) for (let yy = y; yy < y + h; yy += stepY) a.fillRect(x, yy, w, lw); if (stepX) for (let yy = y, row = 0; yy < y + h; yy += (stepY || h), row++) for (let xx = x + (stagger && row % 2 ? stepX / 2 : 0); xx < x + w; xx += stepX) a.fillRect(xx, yy, lw, Math.min(stepY || h, y + h - yy)); };
   // solids
   P(...R.ivory, '#ffffff', null, 0.48, 0.02); P(...R.gold, '#ffffff', null, 0.28, 0.93); P(...R.dark, '#ffffff', null, 0.75, 0.15); P(...R.glass, '#ffffff', null, 0.1, 0.3);
@@ -46,19 +47,19 @@ export function makeAtlas() {
   { const [x, y, w, h] = R.domeCap; P(x, y, w, h, IV, null, 0.5, 0.02);
     const g = a.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, 'rgba(255,250,240,0.18)'); g.addColorStop(1, 'rgba(90,82,70,0.12)'); a.fillStyle = g; a.fillRect(x, y, w, h);
     const seam = (sx, sy, sw, sh) => { a.fillStyle = '#857a66'; a.fillRect(sx, sy, sw, sh); a.fillStyle = 'rgba(255,250,238,0.55)'; if (sw > sh) a.fillRect(sx, sy + sh, sw, 1); else a.fillRect(sx + sw, sy, 1, sh); }; // dark groove + lit bevel edge (reads at distance after mipmapping)
-    for (let b = 0; b < 7; b++) { const y0 = y + 26 + b * 30; seam(x, y0, w, 3); for (let xx = (b % 2) * 42; xx < w; xx += 85) seam(x + xx, y0, 3, 30); }
-    for (let k = 0; k < 12; k++) seam(x + k * 85 + 20, y + 16, 4, h - 16); // main segment seams
+    for (let b = 0; b < 7; b++) { const y0 = y + 26 + b * 30; seam(x, y0, w, 2); }
+    for (let k = 0; k < 8; k++) { a.fillStyle = 'rgba(150,132,108,0.22)'; a.fillRect(x + k * 128 + 30, y + 16, 2, h - 16); } // faint vertical seams, not dark ribs
     gold(x, y, w, 12, GOLDD); gold(x, y + h - 30, w, 8, GOLD); gold(x, y + h - 10, w, 10, GOLDD);
-    for (let k = 0; k < 24; k++) win(x + k * 42.6 + 14, y + h - 50, 12, 9, 2); /* lit porthole ring low on the cap */
+    for (let k = 0; k < 18; k++) port(x + k * 56 + 28, y + h - 42, 11, 12); /* round lit portholes low on the cap */
     gold(x, y + h - 58, w, 3, GOLD2); }
   // dome wall (short base ring with small warm windows + darker plinth)
-  { const [x, y, w, h] = R.domeWall; P(x, y, w, h, IV, null, 0.5, 0.02); lines(x, y, w, h, 85, 0, IVL, 2);
-    gold(x, y, w, 8, GOLD); a.fillStyle = '#6b6658'; a.fillRect(x, y + h - 26, w, 26); gold(x, y + h - 30, w, 5, GOLDD);
-    for (let k = 0; k < 32; k++) win(x + k * 32 + 9, y + 34, 13, 20, 2); for (let k = 0; k < 32; k++) win(x + k * 32 + 13, y + 70, 6, 8, 1); }
+  { const [x, y, w, h] = R.domeWall; P(x, y, w, h, '#f3eadc', null, 0.48, 0.02); lines(x, y, w, h, 90, 0, '#e6d9c6', 2);
+    gold(x, y, w, 10, GOLD); gold(x, y + h - 16, w, 8, GOLD);
+    for (let k = 0; k < 16; k++) port(x + k * 64 + 32, y + 62, 16, 18); }
   // reactor wall
   { const [x, y, w, h] = R.reactorWall; P(x, y, w, h, IV, null, 0.45, 0.02); a.fillStyle = IVL; a.fillRect(x, y + 24, w, 2); a.fillRect(x, y + 98, w, 2);
     gold(x, y, w, 8); gold(x, y + h - 10, w, 10, GOLDD);
-    for (let k = 0; k < 24; k++) { const xx = x + k * (w / 24); gold(xx, y, 6, h, GOLDD); for (const cx of [xx + 14, xx + 34]) { const cy = y + 62; const el = (ctx, c, rx, ry) => { ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, 7); ctx.fill(); }; el(a, GOLD, 7, 17); el(a, '#e8b468', 4.8, 11.5); el(e, '#7a4f24', 4.8, 11.5); m.fillStyle = orm(0.2, 0); m.beginPath(); m.ellipse(cx, cy, 4.8, 11.5, 0, 0, 7); m.fill(); } } }
+    for (let k = 0; k < 16; k++) { const xx = x + k * (w / 16); a.fillStyle = 'rgba(140,122,96,0.16)'; a.fillRect(xx, y + 18, 2, h - 32); for (const cx of [xx + 22, xx + 46]) { const cy = y + 62; const el = (ctx, c, rx, ry) => { ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, 7); ctx.fill(); }; el(a, GOLD, 7, 17); el(a, '#e8b468', 4.8, 11.5); el(e, '#7a4f24', 4.8, 11.5); m.fillStyle = orm(0.2, 0); m.beginPath(); m.ellipse(cx, cy, 4.8, 11.5, 0, 0, 7); m.fill(); } } }
   // corridor segment (u around, v along)
   { const [x, y, w, h] = R.corridor; P(x, y, w, h, IV, null, 0.45, 0.02);
     for (let k = 0; k < 6; k++) { const yy = y + 8 + k * 13.3; const g = a.createLinearGradient(0, yy, 0, yy + 13); g.addColorStop(0, '#f1e6cf'); g.addColorStop(0.45, IV); g.addColorStop(1, '#a8977a'); a.fillStyle = g; a.fillRect(x, yy, w, 13); }
@@ -97,10 +98,9 @@ export function makeAtlas() {
     const led = (x, y, w, h, col = '#c8843c') => { a.fillStyle = '#ffe2a8'; a.fillRect(x, y, w, h); e.fillStyle = col; e.fillRect(x, y, w, h); m.fillStyle = orm(0.2, 0); m.fillRect(x, y, w, h); };
     const grime = (x, y, w, h, k) => { const g = a.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, 'rgba(60,52,40,0)'); g.addColorStop(1, `rgba(60,52,40,${k})`); a.fillStyle = g; a.fillRect(x, y, w, h);
       for (let i = 0; i < w / 6; i++) { const sx = x + rr() * w, sw = 1 + rr() * 3, sh = h * (0.3 + rr() * 0.7); a.fillStyle = `rgba(70,60,46,${(0.04 + rr() * 0.07).toFixed(3)})`; a.fillRect(sx, y + h - sh, sw, sh); } };
-    { const [x, y, w, h] = R.domeWall; grime(x, y + 56, w, h - 86, 0.16);
-      for (let k = 0; k < 32; k++) { spill(x + k * 32 + 15.5, y + 44, 10, 20, 0.6); spill(x + k * 32 + 16, y + 74, 6, 10, 0.4); }
-      for (let k = 0; k < 4; k++) { const cx = x + k * 256 + 128 + 7; a.fillStyle = IV; a.fillRect(cx - 24, y + 28, 48, 54); e.fillStyle = '#000'; e.fillRect(cx - 24, y + 28, 48, 54); m.fillStyle = orm(0.5, 0.02); m.fillRect(cx - 24, y + 28, 48, 54); badge(cx, y + 54, 17, 0.62, k % 2 ? 'moon' : 'paw'); }
-      led(x, y + h - 34, w, 2); for (let k = 0; k < 64; k++) led(x + k * 16 + 6, y + h - 16, 4, 3, '#a8662c'); }
+    { const [x, y, w, h] = R.domeWall; grime(x, y + 80, w, h - 96, 0.1);
+      for (let k = 0; k < 16; k++) spill(x + k * 64 + 32, y + 62, 18, 22, 0.55);
+      led(x, y + h - 22, w, 2); }
     { const [x, y, w, h] = R.reactorWall; grime(x, y + 70, w, h - 80, 0.14); led(x, y + 101, w, 2); led(x, y + 10, w, 2, '#a8662c');
       for (let k = 0; k < 24; k++) { const xx = x + k * (w / 24); for (const cx of [xx + 14, xx + 34]) spill(cx, y + 62, 11, 28, 0.5); } }
     { const [x, y, w, h] = R.corridor; grime(x, y + 60, w, 28, 0.12); for (let k = 0; k < 32; k++) led(x + k * 32 + 14, y + h / 2 - 1, 5, 2); for (const u of [0.125, 0.375, 0.625, 0.875]) spill(x + u * w, y + 48, 28, 28, 0.45); }
