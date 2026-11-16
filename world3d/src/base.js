@@ -102,7 +102,7 @@ function reactor(b, s, d) {
   { const Rd = R - 0.35, sy = 0.70, y0 = yt + 0.02, lowD = GQ.s <= 0.4; b.add('tex', G.cap(Rd, lowD ? 18 : 40, lowD ? 4 : 9), { region: 'domeCap', pos: [x, y0, z], scale: [1, sy, 1], color: '#ffffff' });
     const onShell = (f) => { const yy = y0 + Rd * sy * f; return { y: yy, r: Math.sqrt(Math.max(0.2, Rd * Rd - ((yy - y0) / sy) ** 2)) }; };
     const band = onShell(0.12); b.add('gold', G.torus(band.r, 0.07, 3, 24), { pos: [x, band.y, z], rot: [PI / 2, 0, 0], color: C.gold });
-    for (const [f, tube] of [[0.66, 0.16], [0.8, 0.12], [0.91, 0.08]]) { const s = onShell(f); b.add('gold', G.torus(Math.max(0.55, s.r), tube, 4, lowD ? 12 : 22), { pos: [x, s.y, z], rot: [PI / 2, 0, 0], color: f > 0.88 ? C.gold2 : C.gold }); }
+    for (const [f, tube] of [[0.66, 0.16], [0.8, 0.12], [0.91, 0.08]]) { const s = onShell(f); b.add('gold', G.torus(Math.max(0.55, s.r), tube, 3, lowD ? 10 : 12), { pos: [x, s.y, z], rot: [PI / 2, 0, 0], color: f > 0.88 ? C.gold2 : C.gold }); }
     // meridian strips: sample the scaled-sphere profile and sit 2 cm off the shell, rim to the cap, never above the silhouette
     const rib = (a) => { const N = lowD ? 4 : 8, f0 = 0.05, f1 = 0.86, w = 0.075, lift = 0.02, pos = [];
       const at = (f) => { const yy = y0 + Rd * sy * f, rad = Math.sqrt(Math.max(0.04, Rd * Rd - ((yy - y0) / sy) ** 2)); const nx = Math.sin(a) * rad / Rd, ny = ((yy - y0) / sy) / Rd / sy, nz = Math.cos(a) * rad / Rd, nl = Math.hypot(nx, ny, nz) || 1; return [x + Math.sin(a) * rad + nx / nl * lift, yy + ny / nl * lift, z + Math.cos(a) * rad + nz / nl * lift, Math.cos(a), -Math.sin(a)]; };
@@ -112,7 +112,7 @@ function reactor(b, s, d) {
     const w1 = onShell(0.48); windowsRing(b, x, w1.y, z, w1.r + 0.04, 10, 1.7, 1.7, { round: true, I: 5, a0: faceCam, color: '#ffe08a' });
     const fy = y0 + Rd * sy, fk = lowD ? 0.72 : 1;
     b.add('gold', G.cyl(0.42 * fk, 0.72 * fk, 0.42, lowD ? 6 : 10), { pos: [x, fy - 0.2, z], color: C.goldD });
-    b.add('gold', G.sphere(0.48 * fk, lowD ? 6 : 8, lowD ? 4 : 5), { pos: [x, fy + 0.42, z], color: C.gold });
+    b.add('gold', G.sphere(0.48 * fk, 6, 4), { pos: [x, fy + 0.42, z], color: C.gold });
     b.add('gold', G.cone(0.26 * fk, 4.6, lowD ? 6 : 8), { pos: [x, fy + 0.7, z], color: C.gold });
     b.add('gold', G.sphere(0.2 * fk, 6, 4), { pos: [x, fy + 5.45, z], color: C.gold2 });
     b.add('glow', G.octa(0.16), { pos: [x, fy + 5.9, z], color: C.win, intensity: 2.6 }); }
