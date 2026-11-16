@@ -121,7 +121,9 @@ function reactor(b, s, d) {
     b.add('gold', G.cyl(0.34, 0.34, 0.16, 6), { pos: [mx, my + 5.2, mz], color: C.gold2 });
     b.add('gold', G.cyl(0.1, 0.14, 4.2, 5), { pos: [mx, my + 9.5, mz], color: C.gold });
     b.add('glow', G.octa(0.16), { pos: [mx, my + 13.8, mz], color: '#7fdcff', intensity: 2.4 });
-    b.add('ivory', G.cyl(0.24, 0.32, 2.8, 6), { pos: [mx - rx * 1.7, my, mz - rz * 1.7], color: '#d8cdb5' }); }
+    const sx = mx - rx * 1.7, sz = mz - rz * 1.7, sy0 = groundAt(sx, sz);
+    b.add('ivory', G.cyl(0.32, 0.46, 5.4, 6), { pos: [sx, sy0, sz], color: '#d8cdb5' });
+    b.add('gold', G.torus(0.4, 0.06, 3, 8), { pos: [sx, sy0 + 5.4, sz], rot: [PI / 2, 0, 0], color: C.gold }); }
   return { x, y: yt, z, Ri };
 }
 

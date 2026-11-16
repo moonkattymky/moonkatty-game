@@ -7,7 +7,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from '../../vendor/three/jsm/utils/BufferGeometryUtils.js';
 import { DRILL_HEAD } from './machines.js';
-import { setRut, setCrater, setRut2, setRut3, PLAY_START, PLAY_CRATER, F, sd, REGIONS, canyonPoint, canyonS, YARD } from '../terrain.js';
+import { setRut, setCrater, setRut2, setRut3, PLAY_START, PLAY_CRATER, F, sd, REGIONS, canyonPoint, canyonS, YARD, groundAt } from '../terrain.js';
 import { haulerPieces } from '../world.js';
 
 const col = (g, hex, e = 0, mr = null) => { g = g.index ? g.toNonIndexed() : g; const c = new THREE.Color(hex), n = g.attributes.position.count, a = new Float32Array(n * 3), ae = new Float32Array(n), am = new Float32Array(n * 2); const metal = mr ? mr[0] : 0.45, rough = mr ? mr[1] : 0.45; for (let i = 0; i < n; i++) { c.toArray(a, i * 3); ae[i] = e; am[i * 2] = metal; am[i * 2 + 1] = rough; } g.setAttribute('color', new THREE.BufferAttribute(a, 3)); g.setAttribute('aE', new THREE.BufferAttribute(ae, 1)); g.setAttribute('aMR', new THREE.BufferAttribute(am, 2)); if (g.attributes.uv) g.deleteAttribute('uv'); return g; };
@@ -215,6 +215,13 @@ function makeAudio() {
     step() { noise(0.06, 380, 1.2, 0.05); }, radio() { noise(0.35, 1800, 0.8, 0.04); setTimeout(() => blip(1200, 1200, 0.05, 0.03, 'sine'), 360); }, whoosh() { noise(1.4, 500, 0.6, 0.03); } };
 }
 
+export function makeHallPlume(scene, low) {
+  if (low) return { update() { } };
+  const parts = makeParticles(scene, 40); parts.pts.name = 'hall_steam';
+  const py = Math.atan2(-F.x, -F.z) - 0.3, rx = Math.cos(py), rz = -Math.sin(py), hall = sd(0, 0);
+  const x = hall.x + rx * (8.5 + 4.4 - 1.7), z = hall.z + rz * (8.5 + 4.4 - 1.7), y = groundAt(x, z) + 5.45; let tt = 0;
+  return { update(dt) { tt -= dt; if (tt <= 0) { tt = 0.1; for (let n = 0; n < 3; n++) parts.emitR(x + (Math.random() - 0.5) * 0.35, y + n * 0.22, z + (Math.random() - 0.5) * 0.35, (Math.random() - 0.5) * 0.25, 2.2 + Math.random() * 0.6, (Math.random() - 0.5) * 0.25, 3.2, 1.7, 0.82, 0.84, 0.88, 0.55, 'steam', 3.6); } parts.update(dt); } };
+}
 export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, depotP, fields, base, launch, crater, t, hud, low, mobile, ctrl, dish, makeCrew }) {
   const mat = vcMat(env); const root = new THREE.Group(); root.name = 'world_life'; scene.add(root);
   const parts = makeParticles(scene, low ? 140 : mobile ? 340 : 520); const bb = makeBillboards(scene, 16); if (low) { parts.pts.visible = false; parts.emit = () => { }; parts.emitR = () => { }; } /* ?q=low: no particle draw (call budget) */ const audio = makeAudio();
@@ -237,10 +244,6 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   // rotating radar dish next to the base
   if (false) { const rg = merge([col(new THREE.CylinderGeometry(0.25, 0.4, 3.2, 8).translate(0, 1.6, 0), '#d8cdb5'), col(new THREE.BoxGeometry(0.8, 0.5, 0.8).translate(0, 3.3, 0), '#f0b020' /* v123 warmer gold */)]); const st_ = new THREE.Mesh(rg, mat); const rx = base.x + 22, rz = base.z - 12; st_.position.set(rx, groundAt(rx, rz), rz); root.add(st_);
     dish = new THREE.Mesh(merge([col(new THREE.SphereGeometry(2.2, 16, 6, 0, Math.PI * 2, 0, 0.9).rotateX(-Math.PI / 2 + 0.5).translate(0, 0.6, 0), '#efe6d2'), col(new THREE.CylinderGeometry(0.05, 0.05, 2.0, 4).rotateX(-0.6).translate(0, 1.3, 0.55), '#f0b020' /* v123 warmer gold */), col(new THREE.SphereGeometry(0.15, 6, 4).translate(0, 2.1, 1.1), '#7fe0ff', 3.0)]), mat); dish.position.set(0, 3.5, 0); st_.add(dish); dish.name = 'life_radar'; }
-  // beacons (instanced spheres, blinking) on the base
-  const bN = 6; const beacons = new THREE.InstancedMesh(new THREE.SphereGeometry(0.28, 6, 4), new THREE.MeshBasicMaterial({ toneMapped: false }), bN); beacons.name = 'life_beacons'; root.add(beacons); beacons.visible = !low; // ?q=low: no beacons / no separate drill bit (draw calls)
-  const hall = sd(0, 0), rimY = groundAt(hall.x, hall.z) - 0.1 + 2.9 + 0.02, domeTop = rimY + 8.15 * 0.70;
-  const bPos = Array.from({ length: bN }, (_, i) => { const a = Math.atan2(-F.x, -F.z) + (i - 1) * 0.7, onRim = i < 4; const rad = onRim ? 8.05 : 0.3; const x = hall.x + Math.cos(a) * rad, z = hall.z + Math.sin(a) * rad; return { x, z, y: onRim ? rimY + 8.15 * 0.70 * 0.28 : domeTop + 0.55, c: i % 2 ? new THREE.Color(2.4, 0.22, 0.12) : new THREE.Color(0.25, 0.85, 2.6), ph: i * 1.05 }; });
   // drill site + rover loop on open, flat ground next to the depot (scored: flatness incl. rocks via solids, clearance from props, distance from the base core)
   const sAt = ctrl && ctrl.solids ? (x, z) => ctrl.solids.standAt(x, z) : groundAt; const cols = (ctrl && ctrl.colliders) || [];
   const flat = (x, z, r) => { let mn = 1e9, mx = -1e9; for (let dx = -r; dx <= r; dx += 2) for (let dz = -r; dz <= r; dz += 2) { const h = sAt(x + dx, z + dz); mn = Math.min(mn, h); mx = Math.max(mx, h); } return mx - mn; };
@@ -298,7 +301,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   vents[0].play = vents[1].play = true;
   if (welder) vents.push(ventAt(welder.x + Math.sin(welder.yaw) * 1.5, welder.z + Math.cos(welder.yaw) * 1.5, 0.35));
   { const x = base.x + (D.x - base.x) * 0.62 - (D.z - base.z) * 0.12, z = base.z + (D.z - base.z) * 0.62 + (D.x - base.x) * 0.12; vents.push(ventAt(x, z, 0)); }
-  { const py = Math.atan2(-F.x, -F.z) - 0.3, rx = Math.cos(py), rz = -Math.sin(py); const hall = sd(0, 0); const sx = hall.x + rx * (8.5 + 4.4 - 1.7), sz = hall.z + rz * (8.5 + 4.4 - 1.7); const st = ventAt(sx, sz, 0.08); st.gy += 2.7; st.y = st.gy + 1.1; vents.push(st); }
+  { const py = Math.atan2(-F.x, -F.z) - 0.3, rx = Math.cos(py), rz = -Math.sin(py); const hall = sd(0, 0); const sx = hall.x + rx * (8.5 + 4.4 - 1.7), sz = hall.z + rz * (8.5 + 4.4 - 1.7); const st = ventAt(sx, sz, 0.04); st.gy = groundAt(sx, sz) + 5.4; st.y = st.gy + 0.3; st.plume = true; vents.push(st); }
   const crewSpark = vents[0]; /* orange sparks beside the hauler crew, same particle system as the welder */
   { const crates = []; const put = (g, hex, x, y, z, yw) => { g.rotateY(yw); g.translate(x, y, z); crates.push(col(g, hex, 0, hex === '#e2b04a' ? [0.7, 0.34] : [0.08, 0.55])); };
     put(new THREE.BoxGeometry(0.7, 0.55, 0.55), '#c4a56a', hc.x + dlx * 2.2, groundAt(hc.x, hc.z) + 0.28, hc.z + dlz * 2.2, dyaw);
@@ -348,7 +351,7 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
     for (const H of skyHomes) { const d = Math.hypot(H.x - cam.x, H.z - cam.z); if (d > 260) bb.set(bi, 0, -999, 0, 0, 0); else bb.set(bi, H.x + Math.cos(T * 0.12 + H.ph) * 3.5, H.y + Math.sin(T * 0.35 + H.ph) * 1.4, H.z + Math.sin(T * 0.12 + H.ph) * 3.5, 4.4, 0, H.ph); bi++; }
     { const cyc = 75, k = T % cyc; if (k < 6) { const a = bunnyPath.a0 + k * 0.05; const r = 320; const x = base.x + Math.cos(a) * r, z = base.z + Math.sin(a) * r; bb.set(bi, x, groundAt(x, z) + 3 + Math.abs(Math.sin(k * 6)) * 2.5, z, 5, 1, 0); } else bb.set(bi, 0, -999, 0, 0, 1); bi++; }
     bb.flush(); bb.mesh.visible = !low && (nearBase || nearLaunch || nearZone); /* far zones skip the always-on billboard draw */
-    { const crates = root.getObjectByName('life_crates'); if (crates) crates.visible = ground; const yardCrystals = root.getObjectByName('life_crystals'); if (yardCrystals) yardCrystals.visible = ground; if (!ground) { rover.visible = false; drill.visible = false; beacons.visible = false; } }
+    { const crates = root.getObjectByName('life_crates'); if (crates) crates.visible = ground; const yardCrystals = root.getObjectByName('life_crystals'); if (yardCrystals) yardCrystals.visible = ground; if (!ground) { rover.visible = false; drill.visible = false; } }
     // rover on its loop: follows the ground, dust trail, crystals while hauling back
     if (ground) { const u = ((T * 2.2) / loopLen) % 1; loop.getPointAt(u, v); const gy = groundAt(v.x, v.z); const tng = loop.getTangentAt(u); rover.position.set(v.x, gy, v.z); rover.rotation.y = Math.atan2(tng.x, tng.z); { const fx = Math.sin(rover.rotation.y), fz = Math.cos(rover.rotation.y); for (const c of roverCols) { c.x = v.x + fx * c.lz; c.z = v.z + fz * c.lz; } }
       const e = 0.9; const fy = groundAt(v.x + tng.x * e, v.z + tng.z * e), by = groundAt(v.x - tng.x * e, v.z - tng.z * e); rover.rotation.x = -Math.atan2(fy - by, 2 * e) ; { const dR = Math.hypot(v.x - cam.x, v.z - cam.z); rover.visible = dR < (globalThis.__mkStorm ? 12 : VR); const hiD = HID + (rover.userData.hiOn ? 8 : 0); rover.userData.hiOn = dR < (globalThis.__mkStorm ? 0 : hiD); rover.geometry = rover.userData.hiOn && rvG[1] ? rvG[1] : rvG[0]; }
@@ -370,9 +373,8 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
           while (sparkAcc >= 1) { sparkAcc -= 1; const a = Math.random() * Math.PI * 2, sp = 0.25 + Math.random() * 0.7; parts.emit(v.x, v.y, v.z, Math.cos(a) * sp, -0.15 - Math.random() * 1.3, Math.sin(a) * sp, 0.4, 0.14, 1.05, 0.42, 0.06, 0, 'spark', 0, 10); } } } }
     } else { for (const P of porters) P.r.root.visible = false; if (welder) welder.r.root.visible = false; for (const Z of zones) Z.r.root.visible = false; }
     // steam puffs
-    for (const s of vents.concat(zoneVents)) { s.tt -= dt; if (s.tt <= 0) { s.tt = 0.16 + Math.random() * 0.06; if (Math.hypot(s.x - cam.x, s.z - cam.z) < 160) { const nP = s.play ? 2 : 1; for (let n = 0; n < nP; n++) parts.emitR(s.x + (Math.random() - 0.5) * 0.5, s.gy + 0.5 + n * 0.2, s.z + (Math.random() - 0.5) * 0.55, 0.25 + (Math.random() - 0.5) * 0.35, 2.0 + Math.random() * 0.45, 0.12 + (Math.random() - 0.5) * 0.3, 4.0, 1.05, 0.82, 0.84, 0.88, 0.42, 'steam', 2.6); } } } /* play-stand vents puff a pair of wisps; drill and welder stay on the same steam slots */
-    // beacons blink, dish turns
-    { const nearB = ground && Math.hypot(base.x - cam.x, base.z - cam.z) < (mobile ? 100 : 160); beacons.visible = !low && nearB; const caps = root.getObjectByName('life_ventcaps'); if (caps) caps.visible = nearB; const M = new THREE.Matrix4(); bPos.forEach((b, i) => { const on_ = Math.sin(T * 0.85 + b.ph) > -0.15; M.makeTranslation(b.x, b.y, b.z); beacons.setMatrixAt(i, M); beacons.setColorAt(i, on_ ? b.c : new THREE.Color(0.06, 0.06, 0.08)); }); beacons.instanceMatrix.needsUpdate = true; if (beacons.instanceColor) beacons.instanceColor.needsUpdate = true; }
+    for (const s of vents.concat(zoneVents)) { s.tt -= dt; if (s.tt <= 0) { s.tt = (s.plume ? 0.1 : 0.16) + Math.random() * 0.06; if (Math.hypot(s.x - cam.x, s.z - cam.z) < 160) { const nP = s.plume ? 3 : s.play ? 2 : 1; for (let n = 0; n < nP; n++) parts.emitR(s.x + (Math.random() - 0.5) * 0.4, s.gy + 0.15 + n * 0.25, s.z + (Math.random() - 0.5) * 0.4, 0.2 + (Math.random() - 0.5) * 0.3, (s.plume ? 2.4 : 2.0) + Math.random() * 0.5, 0.1 + (Math.random() - 0.5) * 0.25, s.plume ? 3.4 : 4.0, s.plume ? 1.6 : 1.05, 0.82, 0.84, 0.88, 0.5, 'steam', s.plume ? 3.4 : 2.6); } } } /* play-stand vents puff a pair of wisps; the hall stack reuses the same steam slots */
+    { const nearB = ground && Math.hypot(base.x - cam.x, base.z - cam.z) < (mobile ? 100 : 160); const caps = root.getObjectByName('life_ventcaps'); if (caps) caps.visible = nearB; }
     if (dish) dish.rotation.y += dt * 0.15;
     parts.update(dt); parts.pts.visible = parts.pts.visible && !low && (nearBase || nearLaunch || nearZone);
     // audio: robot beeps nearby, footsteps, radio chatter with subtitles; robots greet the cat
@@ -385,5 +387,5 @@ export function makeWorldLife({ scene, camera, env, creatures = null, groundAt, 
   }
   const pushImp = (imp) => { if (!on) return; for (const P of porters) if (P.far) imp.push(P.r.root.position, P.r.type || 'builder', P.yaw); if (welder && welder.far) imp.push(welder.r.root.position, 'builder', welder.yaw); for (const Z of zones) if (Z.far) imp.push(Z.r.root.position, Z.type, Z.yaw); };
   const anchors = () => ({ crew: zones.map(Z => ({ kind: Z.kind, type: Z.type, x: Z.x, z: Z.z })), vents: zoneVents.map(v => ({ x: v.x, z: v.z })), sky: skyHomes.map(H => ({ x: H.x, z: H.z, y: H.y })) });
-  return { root, update, audio, pushImp, anchors, setVisible(v_) { on = v_; root.visible = v_; if (!v_) { porters.forEach(P => { P.r.root.visible = false; P.far = false; }); if (welder) { welder.r.root.visible = false; welder.far = false; } zones.forEach(Z => { Z.r.root.visible = false; Z.far = false; }); } parts.pts.visible = v_ && !low; bb.mesh.visible = v_; mb.style.display = v_ ? '' : 'none'; }, meshes: { rover, drill, ships, sat, lift, beacons, porters: porters.map(p => p.r.root), welder: welder && welder.r.root, zones: zones.map(Z => Z.r.root) }, drillAt: D };
+  return { root, update, audio, pushImp, anchors, setVisible(v_) { on = v_; root.visible = v_; if (!v_) { porters.forEach(P => { P.r.root.visible = false; P.far = false; }); if (welder) { welder.r.root.visible = false; welder.far = false; } zones.forEach(Z => { Z.r.root.visible = false; Z.far = false; }); } parts.pts.visible = v_ && !low; bb.mesh.visible = v_; mb.style.display = v_ ? '' : 'none'; }, meshes: { rover, drill, ships, sat, lift, porters: porters.map(p => p.r.root), welder: welder && welder.r.root, zones: zones.map(Z => Z.r.root) }, drillAt: D };
 }

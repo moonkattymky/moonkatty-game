@@ -23,6 +23,7 @@ import { buildSky, buildSpace } from './sky.js';
 import { Controller } from './controller.js';
 import { buildSolids } from './collide.js';
 import { createGame } from './game/index.js';
+import { makeHallPlume } from './game/worldlife.js';
 import { LEDGE, LAMPK } from './terrain.js';
 // NaN/Inf guard (iPad "blinking black squares"): a single non-finite pixel (derivative-based normals of sub-pixel far-rock facets -> normalize(0))
 // gets smeared by UnrealBloom's separable blur into a big black rectangle for that frame. Make normals safe, clamp lit output, and sanitize the bloom input.
@@ -103,6 +104,18 @@ const hub = buildHub(b, beams); buildWorld(WB, beams); addBeams(wb, beams);
     fragmentShader: 'varying vec2 vUv; void main(){ float a = smoothstep(1.05, 0.2, length(vUv - 0.5) * 2.0); gl_FragColor = vec4(vec3(0.55, 0.24, 0.05) * a, 1.0); }' }));
   glow.name = 'hall_glow'; glow.frustumCulled = false; glow.renderOrder = 2; scene.add(glow);
 }
+const hallBeacons = (() => { // slow red/blue rim lights. Hidden on low so the call cap stays put.
+  if (LOW) return { update() { } };
+  const n = 6, fB = 0.78, Rd = 8.15, sy = 0.70, face = Math.atan2(-F.x, -F.z);
+  const rp = sd(0, 0), y0 = groundAt(rp.x, rp.z) - 0.1 + 0.3 + 2.6 + 0.02;
+  const shellR = Rd * Math.sqrt(Math.max(0.04, 1 - fB * fB)), y = y0 + Rd * sy * fB;
+  const mesh = new THREE.InstancedMesh(new THREE.SphereGeometry(0.42, 6, 4), new THREE.MeshBasicMaterial({ toneMapped: false }), n);
+  mesh.name = 'hall_beacons'; mesh.frustumCulled = false; scene.add(mesh);
+  const pos = Array.from({ length: n }, (_, i) => { const a = face + i / n * Math.PI * 2; return { x: rp.x + Math.sin(a) * (shellR + 0.45), y, z: rp.z + Math.cos(a) * (shellR + 0.45), c: i % 2 ? new THREE.Color(3.2, 0.16, 0.1) : new THREE.Color(0.2, 0.55, 3.4), ph: i * 1.05 }; });
+  const M = new THREE.Matrix4(), off = new THREE.Color(0.08, 0.05, 0.06);
+  return { update(time) { pos.forEach((b, i) => { const on = Math.sin(time * 0.55 + b.ph) > -0.05; M.makeTranslation(b.x, b.y, b.z); mesh.setMatrixAt(i, M); mesh.setColorAt(i, on ? b.c : off); }); mesh.instanceMatrix.needsUpdate = true; if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true; } };
+})();
+const hallPlume = makeHallPlume(scene, LOW);
 { // warm light pools under the path lamps (terrain samples this map; no runtime lights)
   const N = 512, c = document.createElement('canvas'); c.width = c.height = N; const g = c.getContext('2d'); g.fillStyle = '#000'; g.fillRect(0, 0, N, N); g.globalCompositeOperation = 'lighter';
   for (const L of LAMPS) { const u = (L.x / (2 * LAMPMAP_R) + 0.5) * N, v = (L.z / (2 * LAMPMAP_R) + 0.5) * N; const r = 3.2 / (2 * LAMPMAP_R) * N; const gr = g.createRadialGradient(u, v, 0, u, v, r); gr.addColorStop(0, 'rgba(255,170,90,0.55)'); gr.addColorStop(0.45, 'rgba(255,150,70,0.2)'); gr.addColorStop(1, 'rgba(255,140,60,0)'); g.fillStyle = gr; g.fillRect(u - r, v - r, 2 * r, 2 * r); }
@@ -357,7 +370,7 @@ function frame(dt) {
   applyCatPose();
   headLook(SHOT ? 1 : dt);
   flame.visible = ctrl.thrusting; if (flame.visible) flame.scale.y = 0.8 + Math.random() * 0.5;
-  crystals.update(t); mats.beam.uniforms.uTime.value = t; sky.starMat.uniforms.uTime.value = t; sky.earthMat.uniforms.uTime.value = t;
+  crystals.update(t); hallBeacons.update(t); hallPlume.update(dt); mats.beam.uniforms.uTime.value = t; sky.starMat.uniforms.uTime.value = t; sky.earthMat.uniforms.uTime.value = t;
   sky.group.position.copy(camera.position);
   cullFarRegions(); camera.updateMatrixWorld(); space.updateBelt(camera, Math.hypot(camera.position.x, camera.position.z) > 320 || (Math.hypot(camera.position.x, camera.position.z) < 280 && camera.position.y < 70));
   space.group.rotation.y = t * 0.002; space.beltU.value = t;
