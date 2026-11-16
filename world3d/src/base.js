@@ -102,8 +102,7 @@ function reactor(b, s, d) {
   { const Rd = R - 0.35, sy = 0.70, y0 = yt + 0.02, lowD = GQ.s <= 0.4; b.add('tex', G.cap(Rd, lowD ? 18 : 40, lowD ? 4 : 9), { region: 'domeCap', pos: [x, y0, z], scale: [1, sy, 1], color: '#ffffff' });
     const onShell = (f) => { const yy = y0 + Rd * sy * f; return { y: yy, r: Math.sqrt(Math.max(0.2, Rd * Rd - ((yy - y0) / sy) ** 2)) }; };
     const band = onShell(0.12); b.add('gold', G.torus(band.r, 0.07, 3, 24), { pos: [x, band.y, z], rot: [PI / 2, 0, 0], color: C.gold });
-    const step = onShell(0.84); b.add('gold', G.torus(Math.max(0.9, step.r), 0.1, 3, 16), { pos: [x, step.y, z], rot: [PI / 2, 0, 0], color: C.gold });
-    const crown = onShell(0.93); b.add('gold', G.cyl(0.42, Math.max(0.7, crown.r * 0.85), 0.32, 10), { pos: [x, crown.y - 0.1, z], color: C.goldD });
+    for (const [f, tube] of [[0.66, 0.16], [0.8, 0.12], [0.91, 0.08]]) { const s = onShell(f); b.add('gold', G.torus(Math.max(0.55, s.r), tube, 4, lowD ? 12 : 22), { pos: [x, s.y, z], rot: [PI / 2, 0, 0], color: f > 0.88 ? C.gold2 : C.gold }); }
     // meridian strips: sample the scaled-sphere profile and sit 2 cm off the shell, rim to the cap, never above the silhouette
     const rib = (a) => { const N = lowD ? 4 : 8, f0 = 0.05, f1 = 0.86, w = 0.075, lift = 0.02, pos = [];
       const at = (f) => { const yy = y0 + Rd * sy * f, rad = Math.sqrt(Math.max(0.04, Rd * Rd - ((yy - y0) / sy) ** 2)); const nx = Math.sin(a) * rad / Rd, ny = ((yy - y0) / sy) / Rd / sy, nz = Math.cos(a) * rad / Rd, nl = Math.hypot(nx, ny, nz) || 1; return [x + Math.sin(a) * rad + nx / nl * lift, yy + ny / nl * lift, z + Math.cos(a) * rad + nz / nl * lift, Math.cos(a), -Math.sin(a)]; };
@@ -111,7 +110,12 @@ function reactor(b, s, d) {
       const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.computeVertexNormals(); b.add('gold', g, { color: C.gold }); };
     for (let i = lowD ? -2 : -3; i <= (lowD ? 2 : 3); i++) rib(faceCam + i * (lowD ? 0.55 : 0.42));
     const w1 = onShell(0.48); windowsRing(b, x, w1.y, z, w1.r + 0.04, 10, 1.7, 1.7, { round: true, I: 5, a0: faceCam, color: '#ffe08a' });
-    finial(b, x, y0 + Rd * sy - 0.05, z, 6.6); }
+    const fy = y0 + Rd * sy, fk = lowD ? 0.72 : 1;
+    b.add('gold', G.cyl(0.42 * fk, 0.72 * fk, 0.42, lowD ? 6 : 10), { pos: [x, fy - 0.2, z], color: C.goldD });
+    b.add('gold', G.sphere(0.48 * fk, lowD ? 6 : 8, lowD ? 4 : 5), { pos: [x, fy + 0.42, z], color: C.gold });
+    b.add('gold', G.cone(0.26 * fk, 4.6, lowD ? 6 : 8), { pos: [x, fy + 0.7, z], color: C.gold });
+    b.add('gold', G.sphere(0.2 * fk, 6, 4), { pos: [x, fy + 5.45, z], color: C.gold2 });
+    b.add('glow', G.octa(0.16), { pos: [x, fy + 5.9, z], color: C.win, intensity: 2.6 }); }
   { const py = faceCam - 0.3, rx = Math.cos(py), rz = -Math.sin(py); const mx = x + rx * (R + 4.4), mz = z + rz * (R + 4.4), my = groundAt(mx, mz);
     b.add('gold', G.cyl(0.18, 0.26, 9.5, 6), { pos: [mx, my, mz], color: C.gold });
     b.add('gold', G.cyl(0.34, 0.34, 0.16, 6), { pos: [mx, my + 5.2, mz], color: C.gold2 });
