@@ -101,9 +101,13 @@ function reactor(b, s, d) {
   // low wide ivory cap over the ring: smooth shell, one gold band, a window tier, a short gold spire. The dish module is the left annex. The pit stays inside.
   { const Rd = R - 0.35, sy = 0.46, y0 = yt + 0.02; b.add('ivory', G.cap(Rd, 48, 7), { pos: [x, y0, z], scale: [1, sy, 1], color: '#f4ead8' });
     const onShell = (f) => { const yy = y0 + Rd * sy * f; return { y: yy, r: Math.sqrt(Math.max(0.2, Rd * Rd - ((yy - y0) / sy) ** 2)) }; };
-    const band = onShell(0.18); b.add('gold', G.torus(band.r, 0.2, 4, 28), { pos: [x, band.y, z], rot: [PI / 2, 0, 0], color: '#ffe08a', intensity: 1.65 });
-    const ring2 = onShell(0.58); b.add('gold', G.torus(ring2.r, 0.14, 3, 20), { pos: [x, ring2.y, z], rot: [PI / 2, 0, 0], color: '#ffe08a', intensity: 1.65 });
-    for (let i = -2; i <= 2; i++) { const a = faceCam + i * 0.42; const rib = onShell(0.4); b.add('gold', G.box(0.42, 2.8, 0.5), { pos: [x + Math.sin(a) * rib.r, rib.y, z + Math.cos(a) * rib.r], rot: [0.35, a, 0], color: '#ffe08a', intensity: 1.65 }); }
+    const band = onShell(0.16); b.add('gold', G.torus(band.r, 0.07, 3, 28), { pos: [x, band.y, z], rot: [PI / 2, 0, 0], color: C.gold });
+    // meridian strips: sample the scaled-sphere profile and sit 2 cm off the shell, rim to the cap, never above the silhouette
+    const rib = (a) => { const N = 8, f0 = 0.05, f1 = 0.86, w = 0.075, lift = 0.02, pos = [];
+      const at = (f) => { const yy = y0 + Rd * sy * f, rad = Math.sqrt(Math.max(0.04, Rd * Rd - ((yy - y0) / sy) ** 2)); const nx = Math.sin(a) * rad / Rd, ny = ((yy - y0) / sy) / Rd / sy, nz = Math.cos(a) * rad / Rd, nl = Math.hypot(nx, ny, nz) || 1; return [x + Math.sin(a) * rad + nx / nl * lift, yy + ny / nl * lift, z + Math.cos(a) * rad + nz / nl * lift, Math.cos(a), -Math.sin(a)]; };
+      for (let i = 0; i < N; i++) { const A = at(f0 + (f1 - f0) * i / N), B = at(f0 + (f1 - f0) * (i + 1) / N), h = w * 0.5; const ax = A[0] + A[3] * h, az = A[2] + A[4] * h, bx = A[0] - A[3] * h, bz = A[2] - A[4] * h, cx = B[0] + B[3] * h, cz = B[2] + B[4] * h, dx = B[0] - B[3] * h, dz = B[2] - B[4] * h; pos.push(ax, A[1], az, cx, B[1], cz, bx, A[1], bz, bx, A[1], bz, cx, B[1], cz, dx, B[1], dz); }
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.computeVertexNormals(); b.add('gold', g, { color: C.gold }); };
+    for (let i = -3; i <= 3; i++) rib(faceCam + i * 0.42);
     const w1 = onShell(0.48); windowsRing(b, x, w1.y, z, w1.r + 0.04, 10, 1.7, 1.7, { round: true, I: 5, a0: faceCam, color: '#ffe08a' });
     finial(b, x, y0 + Rd * sy - 0.08, z, 4.0); }
   return { x, y: yt, z, Ri };
@@ -136,18 +140,18 @@ function frontAnnex(b) {
   b.add('gold', G.box(5.55, 0.14, 2.95), { pos: W(0, 3.28, 0), rot: [0, yaw, 0], color: C.gold });
   b.add('ivory', G.box(2.4, 1.7, 2.2), { pos: W(-3.7, 0.95, 0.1), rot: [0, yaw, 0], color: '#efe2cc' });
   b.add('gold', G.box(2.52, 0.1, 2.32), { pos: W(-3.7, 1.84, 0.1), rot: [0, yaw, 0], color: C.gold });
-  b.add('glow', new THREE.PlaneGeometry(2.15, 2.2), { pos: W(0.45, 1.35, 1.52), rot: [0, yaw, 0], color: '#ffe08a', intensity: 8 });
+  b.add('glow', new THREE.PlaneGeometry(2.15, 2.2), { pos: W(0.45, 1.35, 1.52), rot: [0, yaw, 0], color: '#ffb347', intensity: 2.6 });
   b.add('gold', G.box(2.75, 0.12, 0.1), { pos: W(0.45, 2.74, 1.48), rot: [0, yaw, 0], color: C.gold });
   b.add('gold', G.box(0.12, 2.55, 0.1), { pos: W(-0.85, 1.45, 1.48), rot: [0, yaw, 0], color: C.gold });
   b.add('gold', G.box(0.12, 2.55, 0.1), { pos: W(1.75, 1.45, 1.48), rot: [0, yaw, 0], color: C.gold });
   const pipe = (lx, ly, lz, len, axis) => { const g = G.cyl(0.07, 0.07, len, 5); if (axis === 'x') g.rotateZ(PI / 2); else if (axis === 'z') g.rotateX(PI / 2); b.add('gold', g, { pos: W(lx, ly, lz), rot: [0, yaw, 0], color: C.gold }); };
   pipe(-1.15, 1.7, 1.55, 1.5, 'y'); pipe(-1.15, 2.45, 1.15, 1.5, 'x'); pipe(1.9, 2.2, 1.55, 1.2, 'y');
   b.add('ivory', G.cyl(0.4, 0.4, 1.7, 8).rotateZ(PI / 2), { pos: W(2.7, 0.48, 2.25), rot: [0, yaw, 0], color: '#efe2cc' });
-  b.add('gold', G.torus(0.44, 0.07, 3, 8).rotateY(PI / 2), { pos: W(2.25, 0.48, 2.25), rot: [0, yaw, 0], color: '#ffe08a', intensity: 1.5 });
-  b.add('gold', G.torus(0.44, 0.07, 3, 8).rotateY(PI / 2), { pos: W(3.15, 0.48, 2.25), rot: [0, yaw, 0], color: '#ffe08a', intensity: 1.5 });
+  b.add('gold', G.torus(0.44, 0.07, 3, 8).rotateY(PI / 2), { pos: W(2.25, 0.48, 2.25), rot: [0, yaw, 0], color: C.gold });
+  b.add('gold', G.torus(0.44, 0.07, 3, 8).rotateY(PI / 2), { pos: W(3.15, 0.48, 2.25), rot: [0, yaw, 0], color: C.gold });
   b.add('ivory', G.cyl(0.36, 0.36, 1.45, 8).rotateZ(PI / 2), { pos: W(2.55, 1.25, 2.45), rot: [0, yaw, 0], color: '#e7d4b4' });
-  b.add('gold', G.torus(0.4, 0.06, 3, 8).rotateY(PI / 2), { pos: W(2.15, 1.25, 2.45), rot: [0, yaw, 0], color: '#ffe08a', intensity: 1.5 });
-  b.add('gold', G.torus(0.4, 0.06, 3, 8).rotateY(PI / 2), { pos: W(2.95, 1.25, 2.45), rot: [0, yaw, 0], color: '#ffe08a', intensity: 1.5 });
+  b.add('gold', G.torus(0.4, 0.06, 3, 8).rotateY(PI / 2), { pos: W(2.15, 1.25, 2.45), rot: [0, yaw, 0], color: C.gold });
+  b.add('gold', G.torus(0.4, 0.06, 3, 8).rotateY(PI / 2), { pos: W(2.95, 1.25, 2.45), rot: [0, yaw, 0], color: C.gold });
   pipe(2.7, 1.8, 2.25, 0.55, 'y'); pipe(2.7, 2.05, 1.85, 0.8, 'z');
   b.add('gold', G.sphere(0.16, 6, 5), { pos: W(-1.15, 2.45, 1.55), color: C.gold2 });
   b.add('gold', G.torus(0.18, 0.04, 3, 8), { pos: W(1.9, 2.85, 1.55), rot: [PI / 2, 0, 0], color: C.gold });

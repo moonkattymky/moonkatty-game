@@ -100,7 +100,7 @@ const hub = buildHub(b, beams); buildWorld(WB, beams); addBeams(wb, beams);
   for (let i = 0; i < 12; i++) { const a = face + i / 12 * Math.PI * 2; const circ = new THREE.CircleGeometry(0.7, 10); put(circ, new THREE.Vector3(rp.x + Math.sin(a) * wallR, wallY, rp.z + Math.cos(a) * wallR), new THREE.Euler(0, a, 0)); parts.push(circ); }
   const glow = new THREE.Mesh(mergeGeometries(parts), new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false,
     vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
-    fragmentShader: 'varying vec2 vUv; void main(){ float a = smoothstep(1.05, 0.12, length(vUv - 0.5) * 2.0); gl_FragColor = vec4(vec3(1.25, 0.82, 0.32) * a * 1.7, 1.0); }' }));
+    fragmentShader: 'varying vec2 vUv; void main(){ float a = smoothstep(1.05, 0.12, length(vUv - 0.5) * 2.0); gl_FragColor = vec4(vec3(0.95, 0.48, 0.12) * a, 1.0); }' }));
   glow.name = 'hall_glow'; glow.frustumCulled = false; glow.renderOrder = 2; scene.add(glow);
 }
 { // warm light pools under the path lamps (terrain samples this map; no runtime lights)
@@ -122,7 +122,6 @@ mats.hull.color.setRGB(0.8, 0.78, 0.77); mats.lattice.color.setRGB(0.8, 0.78, 0.
   const hm = mats.hull; hm.onBeforeCompile = (sh) => {
     sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vWPh;').replace('#include <project_vertex>', '#include <project_vertex>\nvWPh = (modelMatrix * vec4(transformed, 1.0)).xyz;');
     sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vWPh; float hhP(vec2 p){ p = fract(p * vec2(0.1031, 0.1030)); p += dot(p, p.yx + 33.33); return fract((p.x + p.y) * p.x); }')
-      .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>\n { float gld = smoothstep(0.5, 0.8, metalnessFactor) * smoothstep(0.34, 0.58, diffuseColor.r - diffuseColor.b); totalEmissiveRadiance += vec3(1.35, 0.9, 0.32) * gld * 0.85; } /* gold ribs stay yellow in shade */`)
       .replace('#include <color_fragment>', `#include <color_fragment>
       { float dH = length(vWPh - cameraPosition); float kH = 1.0 - smoothstep(30.0, 90.0, dH); vec3 fn = normalize(cross(dFdx(vWPh), dFdy(vWPh)));
         float lum = dot(diffuseColor.rgb, vec3(0.3, 0.59, 0.11)); float sat = max(max(diffuseColor.r, diffuseColor.g), diffuseColor.b) - min(min(diffuseColor.r, diffuseColor.g), diffuseColor.b);
@@ -130,7 +129,7 @@ mats.hull.color.setRGB(0.8, 0.78, 0.77); mats.lattice.color.setRGB(0.8, 0.78, 0.
         float ny_ = abs(fn.y); float flat_ = 1.0 - smoothstep(0.003, 0.01, length(fwidth(fn))); float axisN = max(abs(fn.x), max(abs(fn.y), abs(fn.z))); float wallN = smoothstep(0.92, 0.99, axisN); /* cylinder and sphere faces are locally flat, so the seam grid was tiling the launch tank; real walls point near a world axis */ float k = kH * iv * flat_ * wallN * max(max(1.0 - smoothstep(0.2, 0.4, ny_), smoothstep(0.9, 0.97, ny_)), 0.3); /* pass 41: only walls + flat tops (no diagonal stripes on slanted roofs) */ if (k > 0.01) { vec3 aw = abs(fn); vec2 uv = (aw.x > aw.y && aw.x > aw.z) ? vWPh.zy : ((aw.y > aw.z) ? vWPh.xz : vWPh.xy);
           vec2 g = uv / vec2(0.8, 0.55); vec2 fw = fwidth(g); vec2 dd = min(fract(g), 1.0 - fract(g)); vec2 sl = (1.0 - smoothstep(fw * 0.9, fw * 2.2, dd)) * (1.0 - smoothstep(0.18, 0.4, fw)); vec2 hl = (1.0 - smoothstep(fw * 2.2, fw * 3.6, abs(fract(g) - fw * 3.0))) * (1.0 - smoothstep(0.18, 0.4, fw));
           float seam = max(sl.x, sl.y); float pt = hhP(floor(g) + floor(vWPh.y * 0.1)); diffuseColor.rgb *= mix(1.0, (1.0 - 0.42 * seam + 0.12 * max(hl.x, hl.y) * (1.0 - seam)) * (0.93 + 0.14 * pt), k); } } /* dark seam + lit bevel on one side */`);
-  }; hm.customProgramCacheKey = () => 'hull_p44';
+  }; hm.customProgramCacheKey = () => 'hull_p43';
 }
 const built = b.build(mats, scene); for (const [n, B] of [...Object.entries(WB), ['beams', wb]]) { const bw = B.build(mats, scene, '_' + n); for (const k in bw) bw[k].castShadow = false; }
 // far chapter-region hulls sit behind the crater rim: skip them while the camera is low inside the hub basin (cheap occlusion cull)
