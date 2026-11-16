@@ -100,7 +100,7 @@ const hub = buildHub(b, beams); buildWorld(WB, beams); addBeams(wb, beams);
   for (let i = 0; i < 12; i++) { const a = face + i / 12 * Math.PI * 2; const circ = new THREE.CircleGeometry(0.7, 10); put(circ, new THREE.Vector3(rp.x + Math.sin(a) * wallR, wallY, rp.z + Math.cos(a) * wallR), new THREE.Euler(0, a, 0)); parts.push(circ); }
   const glow = new THREE.Mesh(mergeGeometries(parts), new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false,
     vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
-    fragmentShader: 'varying vec2 vUv; void main(){ float a = smoothstep(1.05, 0.12, length(vUv - 0.5) * 2.0); gl_FragColor = vec4(vec3(0.95, 0.48, 0.12) * a, 1.0); }' }));
+    fragmentShader: 'varying vec2 vUv; void main(){ float a = smoothstep(1.05, 0.2, length(vUv - 0.5) * 2.0); gl_FragColor = vec4(vec3(0.55, 0.24, 0.05) * a, 1.0); }' }));
   glow.name = 'hall_glow'; glow.frustumCulled = false; glow.renderOrder = 2; scene.add(glow);
 }
 { // warm light pools under the path lamps (terrain samples this map; no runtime lights)

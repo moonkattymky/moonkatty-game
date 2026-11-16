@@ -140,7 +140,7 @@ function frontAnnex(b) {
   b.add('gold', G.box(5.55, 0.14, 2.95), { pos: W(0, 3.28, 0), rot: [0, yaw, 0], color: C.gold });
   b.add('ivory', G.box(2.4, 1.7, 2.2), { pos: W(-3.7, 0.95, 0.1), rot: [0, yaw, 0], color: '#efe2cc' });
   b.add('gold', G.box(2.52, 0.1, 2.32), { pos: W(-3.7, 1.84, 0.1), rot: [0, yaw, 0], color: C.gold });
-  b.add('glow', new THREE.PlaneGeometry(2.15, 2.2), { pos: W(0.45, 1.35, 1.52), rot: [0, yaw, 0], color: '#ffb347', intensity: 2.6 });
+  b.add('glow', new THREE.PlaneGeometry(2.15, 2.2), { pos: W(0.45, 1.35, 1.52), rot: [0, yaw, 0], color: '#ff9a30', intensity: 1.15 });
   b.add('gold', G.box(2.75, 0.12, 0.1), { pos: W(0.45, 2.74, 1.48), rot: [0, yaw, 0], color: C.gold });
   b.add('gold', G.box(0.12, 2.55, 0.1), { pos: W(-0.85, 1.45, 1.48), rot: [0, yaw, 0], color: C.gold });
   b.add('gold', G.box(0.12, 2.55, 0.1), { pos: W(1.75, 1.45, 1.48), rot: [0, yaw, 0], color: C.gold });
